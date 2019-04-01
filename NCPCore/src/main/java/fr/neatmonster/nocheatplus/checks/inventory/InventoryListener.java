@@ -316,9 +316,10 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
     	final Player player = (Player) event.getPlayer();
     	final IPlayerData pData = DataManager.getPlayerData(player);
     	final InventoryData data = pData.getGenericInstance(InventoryData.class);
-    	
+    	if (event.getClickedBlock().getType() != null) {
     	if (event.getClickedBlock().getType() == Material.CHEST || event.getClickedBlock().getType() == Material.ENDER_CHEST) {
     		data.chestOpenTime = System.currentTimeMillis();
+            }
     	}
     }
 
