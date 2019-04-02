@@ -561,6 +561,7 @@ public abstract class ConfPaths {
 
     private static final String INVENTORY_GUTENBERG                      = INVENTORY + "gutenberg.";
     public static final String  INVENTORY_GUTENBERG_CHECK                = INVENTORY_GUTENBERG + SUB_ACTIVE;
+    public static final String  INVENTORY_GUTENBERG_PAGELIMIT            = INVENTORY_GUTENBERG + "pagelimit";
     public static final String  INVENTORY_GUTENBERG_ACTIONS              = INVENTORY_GUTENBERG + "actions";
 
     private static final String INVENTORY_INSTANTBOW                     = INVENTORY + "instantbow.";
