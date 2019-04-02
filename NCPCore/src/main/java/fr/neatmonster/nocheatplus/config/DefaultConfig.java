@@ -384,6 +384,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.INVENTORY_DROP_ACTIONS, "log:drop:0:1:cif cancel cmd:dropkick:0:1", 785);
 
         set(ConfPaths.INVENTORY_FASTCLICK_CHECK, "default", 785);
+        set(ConfPaths.INVENTORY_FASTCLICK_EXCLUDE, Arrays.asList("Inventory Name Here"), 1154);
         set(ConfPaths.INVENTORY_FASTCLICK_SPARECREATIVE, true, 785);
         set(ConfPaths.INVENTORY_FASTCLICK_TWEAKS1_5, true, 785);
         set(ConfPaths.INVENTORY_FASTCLICK_LIMIT_SHORTTERM, 4, 785);
