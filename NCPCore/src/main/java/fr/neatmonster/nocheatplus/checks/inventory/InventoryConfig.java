@@ -49,6 +49,7 @@ public class InventoryConfig extends ACheckConfig {
     public final Set<Material> fastConsumeItems = new HashSet<Material>();
     public final ActionList fastConsumeActions;
 
+    public final int        gutenbergPageLimit;
     public final ActionList gutenbergActions;
 
     public final boolean 	instantBowStrict;
@@ -92,6 +93,7 @@ public class InventoryConfig extends ACheckConfig {
         data.readMaterialFromList(ConfPaths.INVENTORY_FASTCONSUME_ITEMS, fastConsumeItems);
         fastConsumeActions = data.getOptimizedActionList(ConfPaths.INVENTORY_FASTCONSUME_ACTIONS, Permissions.INVENTORY_FASTCONSUME);
 
+        gutenbergPageLimit = data.getInt(ConfPaths.INVENTORY_GUTENBERG_PAGELIMIT);
         gutenbergActions = data.getOptimizedActionList(ConfPaths.INVENTORY_GUTENBERG_ACTIONS, Permissions.INVENTORY_GUTENBERG);
 
         instantBowStrict = data.getBoolean(ConfPaths.INVENTORY_INSTANTBOW_STRICT);
