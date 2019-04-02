@@ -316,11 +316,13 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
     	final Player player = (Player) event.getPlayer();
     	final IPlayerData pData = DataManager.getPlayerData(player);
     	final InventoryData data = pData.getGenericInstance(InventoryData.class);
-    	if (event.getClickedBlock().getType() != null) {
+    	
+        // Check left click too to prevent any bypasses
+    	if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null || event.getAction() == Action.LEFT_CLICK_BLOCK && event.getClickedBlock() != null) {
     	if (event.getClickedBlock().getType() == Material.CHEST || event.getClickedBlock().getType() == Material.ENDER_CHEST) {
-    		data.chestOpenTime = System.currentTimeMillis();
-            }
-    	}
+		data.chestOpenTime = System.currentTimeMillis();
+    	    }
+    	} 
     }
 
     /**
