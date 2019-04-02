@@ -46,15 +46,17 @@ public class Gutenberg extends Check implements Listener {
         }
         final IPlayerData pData = DataManager.getPlayerData(player);
         final InventoryConfig cc = pData.getGenericInstance(InventoryConfig.class);
+        final InventoryData data = pData.getGenericInstance(InventoryData.class);
         final BookMeta newMeta = event.getNewBookMeta();
         final int pages = newMeta.getPageCount();
-        if (pages <= 50) {
+        if (pages <= cc.gutenbergPageLimit) {
             // Legitimate.
             return;
         }
         // Violation.
-        final int vl = pages - 50;
-        if (executeActions(player, vl, vl, cc.gutenbergActions).willCancel()) {
+        final int vl = pages - cc.gutenbergPageLimit;
+        data.gutenbergVL += vl;
+        if (executeActions(player, data.gutenbergVL, vl, cc.gutenbergActions).willCancel()) {
             event.setCancelled(true);
         }
     }
