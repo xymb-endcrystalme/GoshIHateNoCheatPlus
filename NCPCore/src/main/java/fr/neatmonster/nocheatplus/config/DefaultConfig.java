@@ -776,15 +776,15 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "CONDUIT", "ground_height+ground", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "FLOWER_POT", "ground_height+ground", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "ENCHANTING_TABLE", "ground_height+ground", 1154);
-        } for (final String CoralAType : Arrays.asList(
+        } for (final String DeadCoralType : Arrays.asList(
                 "DEAD_TUBE",
                 "DEAD_BRAIN",
                 "DEAD_BUBBLE",
                 "DEAD_FIRE",
                 "DEAD_HORN"
                 )) { 
-        	set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + CoralAType + "_CORAL", "default+ign_passable+ground_height", 1154);
-        	set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + CoralBType + "_CORAL_WALL_FAN", "default+ign_passable+ground_height", 1154);
+        	set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + DeadCoralType + "_CORAL", "default+ign_passable+ground_height", 1154);
+        	set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + DeadCoralType + "_CORAL_WALL_FAN", "default+ign_passable+ground_height", 1154);
         }
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "DEAD_TUBE_CORAL_FAN", "default+ign_passable+ground_height", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "DEAD_BRAIN_CORAL_FAN", "default+ign_passable+ground_height", 1154);
