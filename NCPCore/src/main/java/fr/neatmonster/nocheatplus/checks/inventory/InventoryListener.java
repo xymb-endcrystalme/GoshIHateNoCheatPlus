@@ -17,6 +17,7 @@ package fr.neatmonster.nocheatplus.checks.inventory;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -220,7 +221,8 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
      * @param event
      *            the event
      */
-    @EventHandler(
+    @SuppressWarnings("deprecation")
+	@EventHandler(
             ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onInventoryClick(final InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) {
@@ -267,11 +269,13 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         if (fastClick.isEnabled(player, pData)) {
             final InventoryConfig cc = pData.getGenericInstance(InventoryConfig.class);
             if (player.getGameMode() != GameMode.CREATIVE || !cc.fastClickSpareCreative) {
+            	if (!cc.inventoryExemptions.contains(ChatColor.stripColor(event.getInventory().getName()))) {
                 if (fastClick.check(player, now, 
                         event.getView(), slot, cursor, clicked, event.isShiftClick(), 
-                        inventoryAction, data, cc, pData)) {
-                    // The check requested the event to be cancelled.
+                        inventoryAction, data, cc, pData)) {  
+                  // The check requested the event to be cancelled.
                     cancel = true;
+                }
                   // Listen for more than just a chest?
                 } if (event.getInventory().getType().equals(InventoryType.CHEST) || event.getInventory().getType().equals(InventoryType.ENDER_CHEST)) {
         			if (fastClick.fastClickChest(player, data, cc)) {
@@ -317,7 +321,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
     	final IPlayerData pData = DataManager.getPlayerData(player);
     	final InventoryData data = pData.getGenericInstance(InventoryData.class);
     	
-        // Check left click too to prevent any bypasses
+	// Check left click too to prevent any bypasses
     	if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null || event.getAction() == Action.LEFT_CLICK_BLOCK && event.getClickedBlock() != null) {
     	if (event.getClickedBlock().getType() == Material.CHEST || event.getClickedBlock().getType() == Material.ENDER_CHEST) {
 		data.chestOpenTime = System.currentTimeMillis();
