@@ -172,6 +172,19 @@ public class RawConfigFile  extends YamlConfiguration {
             }
         }
     }
+    
+    /**
+     * Outputs warnings to console.
+     * @param path
+     * @param target Collection to fill string into.
+     */
+    public void readStringlFromList(final String path, final Collection<String> target) {
+        final List<String> content = getStringList(path);
+        if (content == null || content.isEmpty()) return;
+        for (final String entry : content){
+                target.add(entry);
+        }
+    }
 
     /**
      * Read double for entity type, ignoring case. Uses bukkit names for
