@@ -31,6 +31,7 @@ public class InventoryData extends ACheckData {
     public double   fastClickVL;
     public double   instantBowVL;
     public double   instantEatVL;
+    public double   gutenbergVL;
 
     // General.
     public long     lastClickTime = 0;
