@@ -411,6 +411,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.INVENTORY_INVENTORYMOVE_ACTIONS, "log:inventorymove:2:5:if cancel", 785);
 
         set(ConfPaths.INVENTORY_GUTENBERG_CHECK, "default", 785);
+        set(ConfPaths.INVENTORY_GUTENBERG_PAGELIMIT, 50, 1154);
         set(ConfPaths.INVENTORY_GUTENBERG_ACTIONS, "cancel log:gutenberg:0:10:icf cmd:kickinvaliddata", 785);
 
         set(ConfPaths.INVENTORY_ITEMS_CHECK, "default", 785);
