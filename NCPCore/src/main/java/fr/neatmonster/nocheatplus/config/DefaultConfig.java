@@ -704,7 +704,6 @@ public class DefaultConfig extends ConfigFile {
             set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + woodtype + "_DOOR", "PASSABLE_X4+VARIABLE_USE+ground", 1154);
             set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "IRON_DOOR", "PASSABLE_X4+VARIABLE_USE+ground", 1154);
             set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + woodtype + "_SLAB", "default+GROUND+XZ100+ground_height", 1154);
-            set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + woodtype + "_STAIR", "default+ground_height+ign_passable", 1154);
             set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + woodtype + "_TRAPDOOR", "default+ign_passable+ground_height", 1154);
             set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "IRON_TRAPDOOR", "default+ign_passable+ground_height", 1154);
         } for (final String colors : Arrays.asList(
@@ -727,7 +726,6 @@ public class DefaultConfig extends ConfigFile {
                 )) { 
         	set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + colors + "_BED", "default+ground_height", 1154);
         	set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + colors + "_STAINED_GLASS_PANE", "THIN_FENCE+VARIABLE+ground_height+ground", 1154);
-        	set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "IRON_BARS", "THIN_FENCE+VARIABLE+ground_height+ground", 1154);
         	set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + colors + "_SHULKER_BOX", "default+HEIGHT150+ground", 1154);
         } for (final String headType : Arrays.asList(
                 "ZOMBIE",
@@ -779,11 +777,6 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "FLOWER_POT", "ground_height+ground", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "ENCHANTING_TABLE", "ground_height+ground", 1154);
         } for (final String CoralAType : Arrays.asList(
-                "TUBE",
-                "BRAIN",
-                "BUBBLE",
-                "FIRE",
-                "HORN",
                 "DEAD_TUBE",
                 "DEAD_BRAIN",
                 "DEAD_BUBBLE",
@@ -791,31 +784,18 @@ public class DefaultConfig extends ConfigFile {
                 "DEAD_HORN"
                 )) { 
         	set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + CoralAType + "_CORAL", "default+ign_passable+ground_height", 1154);
+        	set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + CoralBType + "_CORAL_WALL_FAN", "default+ign_passable+ground_height", 1154);
         }
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "DEAD_TUBE_CORAL_FAN", "default+ign_passable+ground_height", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "DEAD_BRAIN_CORAL_FAN", "default+ign_passable+ground_height", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "DEAD_BUBBLE_CORAL_FAN", "default+ign_passable+ground_height", 1154);
-        } for (final String CoralBType : Arrays.asList(
-                "DEAD_TUBE",
-                "DEAD_BRAIN",
-                "DEAD_BUBBLE",
-                "DEAD_FIRE",
-                "DEAD_HORN"
-                )) { 
-        	set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + CoralBType + "_CORAL_WALL_FAN", "default+ign_passable+ground_height", 1154);
         }
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "DAYLIGHT_DETECTOR", "default+GROUND+XZ100+ground_height", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "BLUE_ICE", "default+ground_height+allow_lowjump+ice", 1154);
-        set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "SEAGRASS", "default+ign_passable+ground_height", 1154);
-        set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "TALL_SEAGRASS", "default+ign_passable+ground_height", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "END_PORTAL_FRAME", "default+ign_passable+ground_height+ALLOW_LOWJUMP", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "COCOA", "default+ign_passable+ground_height+ALLOW_LOWJUMP", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "REPEATER", "default+ign_passable+ground_height+ALLOW_LOWJUMP", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "COMPARATOR", "default+ign_passable+ground_height+ALLOW_LOWJUMP", 1154);
-        set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "HOPPER", "default+ign_passable+ground_height+ALLOW_LOWJUMP", 1154);
-        set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "LIGHT_WEIGHTED_PRESSURE_PLATE", "default+ign_passable+ground_height", 1154);
-        set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "HEAVY_WEIGHTED_PRESSURE_PLATE", "default+ign_passable+ground_height", 1154);
-        set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "HEAVY_WEIGHTED_PRESSURE_PLATE", "default+ign_passable+ground_height", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS_CHANGETRACKER_ACTIVE, true, 1036); // With lastChangedBuildNumber.
         set(ConfPaths.COMPATIBILITY_BLOCKS_CHANGETRACKER_PISTONS, true, 785);
         set(ConfPaths.COMPATIBILITY_BLOCKS_CHANGETRACKER_MAXAGETICKS, 80, 785);
