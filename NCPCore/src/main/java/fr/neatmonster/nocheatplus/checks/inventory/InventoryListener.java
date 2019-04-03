@@ -268,8 +268,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         // Fast inventory manipulation check.
         if (fastClick.isEnabled(player, pData)) {
             final InventoryConfig cc = pData.getGenericInstance(InventoryConfig.class);
-            if (player.getGameMode() != GameMode.CREATIVE || !cc.fastClickSpareCreative) {
-            	if (!cc.inventoryExemptions.contains(ChatColor.stripColor(event.getInventory().getName()))) {
+            if (player.getGameMode() != GameMode.CREATIVE || !cc.fastClickSpareCreative || !cc.inventoryExemptions.contains(ChatColor.stripColor(event.getInventory().getName()))) {
                 if (fastClick.check(player, now, 
                         event.getView(), slot, cursor, clicked, event.isShiftClick(), 
                         inventoryAction, data, cc, pData)) {  
@@ -277,7 +276,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                     cancel = true;
                 }
                   // Listen for more than just a chest?
-                } if (event.getInventory().getType().equals(InventoryType.CHEST) || event.getInventory().getType().equals(InventoryType.ENDER_CHEST)) {
+                 if (event.getInventory().getType().equals(InventoryType.CHEST) || event.getInventory().getType().equals(InventoryType.ENDER_CHEST)) {
         			if (fastClick.fastClickChest(player, data, cc)) {
         				cancel = true;
         				keepCancel = true;
