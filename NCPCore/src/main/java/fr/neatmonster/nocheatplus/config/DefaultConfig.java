@@ -791,7 +791,6 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "DEAD_TUBE_CORAL_FAN", "default+ign_passable+ground_height", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "DEAD_BRAIN_CORAL_FAN", "default+ign_passable+ground_height", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "DEAD_BUBBLE_CORAL_FAN", "default+ign_passable+ground_height", 1154);
-        }
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "DAYLIGHT_DETECTOR", "default+GROUND+XZ100+ground_height", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "BLUE_ICE", "default+ground_height+allow_lowjump+ice", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "END_PORTAL_FRAME", "default+ign_passable+ground_height+ALLOW_LOWJUMP", 1154);
