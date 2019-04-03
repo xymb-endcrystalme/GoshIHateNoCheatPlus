@@ -170,8 +170,8 @@ public class FastClick extends Check {
     public boolean fastClickChest(final Player player, final InventoryData data, final InventoryConfig cc) {
     	boolean cancel = false;
     	if (Math.abs(data.lastClickTime - data.chestOpenTime) < cc.chestOpenLimit) {
-    	    data.fastClickVL += cc.chestOpenLimit / Math.abs(data.lastClickTime - data.chestOpenTime) + 1;
-    	    double violation = cc.chestOpenLimit / Math.abs(data.lastClickTime - data.chestOpenTime);
+    	    double violation = cc.chestOpenLimit / Math.abs(data.lastClickTime - data.chestOpenTime) + 1;
+    	    data.fastClickVL += violation;
             final ViolationData vd = new ViolationData(this, player, data.fastClickVL, violation, cc.fastClickActions);
             cancel = executeActions(vd).willCancel();
     	    cancel = true;
