@@ -778,7 +778,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "CONDUIT", "ground_height+ground", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "FLOWER_POT", "ground_height+ground", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "ENCHANTING_TABLE", "ground_height+ground", 1154);
-        } for (final String DeadCoralType : Arrays.asList(
+        for (final String DeadCoralType : Arrays.asList(
                 "DEAD_TUBE",
                 "DEAD_BRAIN",
                 "DEAD_BUBBLE",
