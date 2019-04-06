@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
@@ -1973,6 +1974,11 @@ public class SurvivalFly extends Check {
 		if (player.isRiptiding() || (data.timeRiptiding + 1000 > now)) {
 			return new double[]{yDistance, 0.0};
 		}
+		
+		// TODO: Set magic speeds
+		if (from.getTypeId() == Material.BUBBLE_COLUMN) {
+        	return new double[]{yDistance, 0.0};
+        }
 
         // At this point a violation.
         tags.add(yDistance < 0.0 ? "swimdown" : "swimup");
