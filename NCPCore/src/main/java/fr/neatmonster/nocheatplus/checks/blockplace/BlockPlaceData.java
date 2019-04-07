@@ -29,6 +29,7 @@ public class BlockPlaceData extends ACheckData {
     public double fastPlaceVL = 0;
     public double noSwingVL = 0;
     public double reachVL = 0;
+    public double scaffoldVL = 0;
     public double speedVL = 0;
 
     // AutoSign.
