@@ -568,7 +568,7 @@ public class DefaultConfig extends ConfigFile {
         // FightSync
         set(ConfPaths.NET_FIGHTSYNC_ACTIVE, "default", 1154);
         set(ConfPaths.NET_FIGHTSYNC_THRESHOLD, 5, 1154);
-        set(ConfPaths.NET_FIGHTSYNC_RESETCOUNT, 30, 1154);
+        set(ConfPaths.NET_FIGHTSYNC_RESETCOUNT, 11, 1154);
         set(ConfPaths.NET_FIGHTSYNC_ACTIONS, "vl<10 log:fightsync:0:5:if", 1154);
         // FlyingFrequency
         set(ConfPaths.NET_FLYINGFREQUENCY_ACTIVE, "default", 785);
