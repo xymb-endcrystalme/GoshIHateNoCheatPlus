@@ -279,7 +279,7 @@ public abstract class ConfPaths {
     private static final String BLOCKPLACE_REACH                         = BLOCKPLACE + "reach.";
     public static final String  BLOCKPLACE_REACH_CHECK                   = BLOCKPLACE_REACH + SUB_ACTIVE;
     public static final String  BLOCKPLACE_REACH_ACTIONS                 = BLOCKPLACE_REACH + "actions";
-	
+    
     private static final String BLOCKPLACE_SCAFFOLD                      = BLOCKPLACE + "scaffold.";
     public static final String  BLOCKPLACE_SCAFFOLD_CHECK                = BLOCKPLACE_SCAFFOLD + SUB_ACTIVE;
     public static final String  BLOCKPLACE_SCAFFOLD_ACTIONS              = BLOCKPLACE_SCAFFOLD + "actions";
@@ -742,6 +742,12 @@ public abstract class ConfPaths {
     public static final String  NET_ATTACKFREQUENCY_SECONDS_FOUR            = NET_ATTACKFREQUENCY_SECONDS + "four";
     public static final String  NET_ATTACKFREQUENCY_SECONDS_EIGHT           = NET_ATTACKFREQUENCY_SECONDS + "eight";
     public static final String  NET_ATTACKFREQUENCY_ACTIONS                 = NET_ATTACKFREQUENCY + "actions";
+    
+    private static final String NET_FIGHTSYNC                               = NET + "fightsync.";
+    public static final String  NET_FIGHTSYNC_ACTIVE                        = NET_FIGHTSYNC + SUB_ACTIVE;
+    public static final String  NET_FIGHTSYNC_THRESHOLD                     = NET_FIGHTSYNC + "threshold";
+    public static final String  NET_FIGHTSYNC_RESETCOUNT                    = NET_FIGHTSYNC + "reset_count";
+    public static final String  NET_FIGHTSYNC_ACTIONS                       = NET_FIGHTSYNC + "actions";
 
     private static final String NET_FLYINGFREQUENCY                         = NET + "flyingfrequency.";
     public static final String  NET_FLYINGFREQUENCY_ACTIVE                  = NET_FLYINGFREQUENCY + SUB_ACTIVE;
