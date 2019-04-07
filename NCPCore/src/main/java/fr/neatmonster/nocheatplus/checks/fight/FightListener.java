@@ -52,6 +52,8 @@ import fr.neatmonster.nocheatplus.checks.moving.player.UnusedVelocity;
 import fr.neatmonster.nocheatplus.checks.moving.util.AuxMoving;
 import fr.neatmonster.nocheatplus.checks.moving.util.MovingUtil;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.VelocityFlags;
+import fr.neatmonster.nocheatplus.checks.net.NetConfig;
+import fr.neatmonster.nocheatplus.checks.net.NetData;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeEnchant;
 import fr.neatmonster.nocheatplus.compat.BridgeHealth;
@@ -101,6 +103,8 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
 
     /** The no swing check. */
     private final NoSwing     noSwing     = addCheck(new NoSwing());
+    
+    private final FightSync    FightSync  = addCheck(new FightSync());
 
     /** The reach check. */
     private final Reach       reach       = addCheck(new Reach());
@@ -827,6 +831,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
          */
         DataManager.getGenericInstance(event.getPlayer(), 
                 FightData.class).noSwingArmSwung = true;
+        
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
@@ -871,10 +876,9 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         final double health = Math.min(BridgeHealth.getHealth(player) + BridgeHealth.getAmount(event), BridgeHealth.getMaxHealth(player));
         data.godModeHealth = Math.max(data.godModeHealth, health);
     }
-	
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
+    
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
     public void entityInteract(PlayerInteractEntityEvent e) {
-		
     	Entity entity = e.getRightClicked();
     	final Player player = e.getPlayer();
     	final FightData data = DataManager.getGenericInstance(player, FightData.class);
@@ -883,8 +887,10 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
 	data.exemptArmSwing = true;
     	} else {
 	data.exemptArmSwing = false;
-	}
+        }
      }
+
+    }
 
     @Override
     public void playerJoins(final Player player) {
@@ -905,5 +911,27 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
             pData.getGenericInstance(FightData.class).attackPenalty.applyPenalty(penalty);
         }
     }
+    
+    @EventHandler
+    public void entityDamage(EntityDamageByEntityEvent event) {
+    if (!(event.getDamager() instanceof Player)) return;
+    Player player = (Player) event.getDamager();
+		
+    final IPlayerData pData = DataManager.getPlayerData(player);
+    final NetData data = pData.getGenericInstance(NetData.class);
+    final NetConfig cc = pData.getGenericInstance(NetConfig.class);
+    if (data.fightSyncCount >= cc.fightSyncResetCount) {
+        data.fightSyncCount = 0;
+        data.fightSyncReset = 0;
+    }
+    data.fightSyncReset += 1;
+    Location packet = data.lastHitLocation, eventLoc = player.getLocation();
+		
+    if (FightSync.check(player, pData, data, packet, eventLoc, cc)) {
+	event.setCancelled(true);
+    }
+		
+		
+	}
 
 }
