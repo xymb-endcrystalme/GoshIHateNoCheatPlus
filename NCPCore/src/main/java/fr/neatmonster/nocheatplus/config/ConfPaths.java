@@ -279,6 +279,10 @@ public abstract class ConfPaths {
     private static final String BLOCKPLACE_REACH                         = BLOCKPLACE + "reach.";
     public static final String  BLOCKPLACE_REACH_CHECK                   = BLOCKPLACE_REACH + SUB_ACTIVE;
     public static final String  BLOCKPLACE_REACH_ACTIONS                 = BLOCKPLACE_REACH + "actions";
+	
+    private static final String BLOCKPLACE_SCAFFOLD                      = BLOCKPLACE + "scaffold.";
+    public static final String  BLOCKPLACE_SCAFFOLD_CHECK                = BLOCKPLACE_SCAFFOLD + SUB_ACTIVE;
+    public static final String  BLOCKPLACE_SCAFFOLD_ACTIONS              = BLOCKPLACE_SCAFFOLD + "actions";
 
     private static final String BLOCKPLACE_SPEED                         = BLOCKPLACE + "speed.";
     public static final String  BLOCKPLACE_SPEED_CHECK                   = BLOCKPLACE_SPEED + SUB_ACTIVE;
