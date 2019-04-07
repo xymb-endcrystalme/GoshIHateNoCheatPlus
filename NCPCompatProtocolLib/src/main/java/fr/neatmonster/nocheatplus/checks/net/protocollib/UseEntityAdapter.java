@@ -134,6 +134,7 @@ public class UseEntityAdapter extends BaseAdapter {
         final NetData data = pData.getGenericInstance(NetData.class);
         // Always set last received time.
         data.lastKeepAliveTime = time;
+        data.lastHitLocation = player.getLocation();
 
         // Quick return, if no checks are active.
         if (!pData.isCheckActive(CheckType.NET_ATTACKFREQUENCY, player)) {
