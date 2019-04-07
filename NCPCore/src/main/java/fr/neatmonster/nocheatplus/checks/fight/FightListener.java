@@ -921,6 +921,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
     if (data.fightSyncCount >= cc.fightSyncResetCount) {
         data.fightSyncCount = 0;
         data.fightSyncReset = 0;
+	data.fightSyncVL *= 0.99D;
     }
     data.fightSyncReset += 1;
     Location packet = data.lastHitLocation, eventLoc = player.getLocation();
