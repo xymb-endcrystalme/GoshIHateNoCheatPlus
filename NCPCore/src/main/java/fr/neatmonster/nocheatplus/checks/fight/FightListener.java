@@ -890,8 +890,6 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         }
      }
 
-    }
-
     @Override
     public void playerJoins(final Player player) {
     }
