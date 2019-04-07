@@ -190,6 +190,9 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_NOSWING_CHECK, "default", 785);
         set(ConfPaths.BLOCKPLACE_NOSWING_EXCEPTIONS, Arrays.asList("LILY_PAD", Material.FLINT_AND_STEEL.toString()), 785);
         set(ConfPaths.BLOCKPLACE_NOSWING_ACTIONS, "cancel vl>10 log:noswing:0:5:if cancel", 785);
+        
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_CHECK, "default", 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, "vl>15 log:scaffold:0:6:if", 1154);
 
         set(ConfPaths.BLOCKPLACE_SPEED_CHECK, "default", 785);
         set(ConfPaths.BLOCKPLACE_SPEED_INTERVAL, 45L, 785);
@@ -666,6 +669,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".noswing", start + "didn't swing arm" + end, 785);
         set(ConfPaths.STRINGS + ".passable", start + "moved into a block ([blocktype]) from [locationfrom] to [locationto] distance [distance] " + end, 785);
         set(ConfPaths.STRINGS + ".relog", start + "relogs too fast" + end, 785);
+        set(ConfPaths.STRINGS + ".scaffold", start + "placed against a block face they did not interact with" + end, 1154);
         set(ConfPaths.STRINGS + ".tellchatnormal", tell + "&cNCP: &eToo many messages, slow down...", 785);
         set(ConfPaths.STRINGS + ".tempkick1", "ncp tempkick [player] 1 Wait a minute!", 785);
         set(ConfPaths.STRINGS + ".tempkick5", "ncp tempkick [player] 5 You have five minutes to think about it!", 785);
