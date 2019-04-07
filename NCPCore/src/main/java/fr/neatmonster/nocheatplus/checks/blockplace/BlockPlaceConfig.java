@@ -48,6 +48,8 @@ public class BlockPlaceConfig extends ACheckConfig {
     public final ActionList noSwingActions;
 
     public final ActionList reachActions;
+	
+    public final ActionList scaffoldActions;
 
     public final long       speedInterval;
     public final ActionList speedActions;
@@ -82,6 +84,8 @@ public class BlockPlaceConfig extends ACheckConfig {
         noSwingActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_NOSWING_ACTIONS, Permissions.BLOCKPLACE_NOSWING);
 
         reachActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_REACH_ACTIONS, Permissions.BLOCKPLACE_REACH);
+		
+	    scaffoldActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, Permissions.BLOCKPLACE_REACH);
 
         speedInterval = config.getLong(ConfPaths.BLOCKPLACE_SPEED_INTERVAL);
         speedActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_SPEED_ACTIONS, Permissions.BLOCKPLACE_SPEED);
