@@ -14,6 +14,9 @@
  */
 package fr.neatmonster.nocheatplus.checks.blockplace;
 
+import java.util.List;
+import java.util.Set;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -108,7 +111,10 @@ public class BlockPlaceListener extends CheckListener {
     /** The reach check. */
     private final Reach     reach     = addCheck(new Reach());
 
-    /** The speed check. */
+	/** The scaffold check. */
+    private final Scaffold   Scaffold = addCheck(new Scaffold());
+	
+	/** The speed check. */
     private final Speed     speed     = addCheck(new Speed());
 
     /** For temporary use: LocUtil.clone before passing deeply, call setWorld(null) after use. */
@@ -393,6 +399,31 @@ public class BlockPlaceListener extends CheckListener {
                 event.setCancelled(true);
             }
         }
+    }
+	
+	/**
+	* Listens for PlayerInteract events to check for their target block face vs their 
+	* attempted block face. This is used for the scaffold check.
+	*/
+	@EventHandler(priority = EventPriority.MONITOR)
+    public void placeBlock(PlayerInteractEvent event) {
+    	if (!Scaffold.isEnabled(event.getPlayer())) return;
+    	
+    	Player player = event.getPlayer();
+    	Block targetBlock = player.getTargetBlock((Set<Material>) null, 7);
+    
+    	if (event.getAction() != Action.RIGHT_CLICK_BLOCK || !event.isBlockInHand() || player.isFlying() && player.getAllowFlight() || targetBlock.isLiquid() || player.isSneaking()) return;
+    	
+    	List<Block> lastTarget = player.getLastTwoTargetBlocks((Set<Material>) null, 7);
+    	BlockFace blockFace = event.getBlockFace();
+		
+		if (targetBlock.getY() != player.getLocation().subtract(0, 1, 0).getY()) return;
+    	
+    	final IPlayerData pData = DataManager.getPlayerData(player);
+    	final BlockPlaceData data = pData.getGenericInstance(BlockPlaceData.class);
+    	if (Scaffold.check(player, targetBlock, lastTarget, blockFace, pData, data)) {
+    		event.setCancelled(true);
+    	}
     }
 
     private void checkBoatsAnywhere(final Player player, final PlayerInteractEvent event, 
