@@ -565,6 +565,11 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.NET_ATTACKFREQUENCY_SECONDS_EIGHT, 100, 785);
         set(ConfPaths.NET_ATTACKFREQUENCY_ACTIONS, "cancel vl>30 cancel log:attackfrequency:0:5:if vl>160 cancel log:attackfrequency:0:0:cif cmd:kickattackfrequency", 785);
 
+        // FightSync
+        set(ConfPaths.NET_FIGHTSYNC_ACTIVE, "default", 1154);
+        set(ConfPaths.NET_FIGHTSYNC_THRESHOLD, 5, 1154);
+        set(ConfPaths.NET_FIGHTSYNC_RESETCOUNT, 30, 1154);
+        set(ConfPaths.NET_FIGHTSYNC_ACTIONS, "vl<10 log:fightsync:0:5:if", 1154);
         // FlyingFrequency
         set(ConfPaths.NET_FLYINGFREQUENCY_ACTIVE, "default", 785);
         set(ConfPaths.NET_FLYINGFREQUENCY_SECONDS, 5, 785);
@@ -624,6 +629,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".fastheal", start + "regenerates health faster than usual (health [health])" + end, 785);
         set(ConfPaths.STRINGS + ".fastplace", start + "tried to place too many blocks" + end, 785);
         set(ConfPaths.STRINGS + ".fdirection", start + "tried to hit an entity out of line of sight" + end, 785);
+        set(ConfPaths.STRINGS + ".fightsync", start + "client and server fight data out of sync" + end, 1154);
         set(ConfPaths.STRINGS + ".flyshort", start + "tried to move unexpectedly" + end, 785);
         set(ConfPaths.STRINGS + ".flylong", start
                 + "tried to move: [locationfrom] -> [locationto], d=[distance] ([tags])" + end, 1067);
