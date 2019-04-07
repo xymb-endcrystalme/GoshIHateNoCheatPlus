@@ -56,6 +56,10 @@ public class NetConfig extends ACheckConfig {
     public final float attackFrequencyLimitSecondsFour;
     public final float attackFrequencyLimitSecondsEight;
     public final ActionList attackFrequencyActions;
+    
+    public final int fightSyncResetCount;
+    public final int fightSyncThreshold;
+    public final ActionList fightSyncActions;
 
     public final int flyingFrequencySeconds;
     public final double flyingFrequencyPPS;
@@ -65,7 +69,7 @@ public class NetConfig extends ACheckConfig {
     public final ActionList flyingFrequencyRedundantActions;
 
     public final ActionList keepAliveFrequencyActions;
-	public final int keepAliveFrequencyStartupDelay;
+    public final int keepAliveFrequencyStartupDelay;
 
     public final float packetFrequencyPacketsPerSecond;
     public final int packetFrequencySeconds;
@@ -89,6 +93,10 @@ public class NetConfig extends ACheckConfig {
         attackFrequencyLimitSecondsFour= config.getInt(ConfPaths.NET_ATTACKFREQUENCY_SECONDS_FOUR);
         attackFrequencyLimitSecondsEight = config.getInt(ConfPaths.NET_ATTACKFREQUENCY_SECONDS_EIGHT);
         attackFrequencyActions = config.getOptimizedActionList(ConfPaths.NET_ATTACKFREQUENCY_ACTIONS, Permissions.NET_ATTACKFREQUENCY);
+        
+        fightSyncResetCount = config.getInt(ConfPaths.NET_FIGHTSYNC_RESETCOUNT);
+        fightSyncThreshold = config.getInt(ConfPaths.NET_FIGHTSYNC_THRESHOLD);
+        fightSyncActions = config.getOptimizedActionList(ConfPaths.NET_FIGHTSYNC_ACTIONS, Permissions.NET_ATTACKFREQUENCY);
 
         flyingFrequencySeconds = Math.max(1, globalConfig.getInt(ConfPaths.NET_FLYINGFREQUENCY_SECONDS));
         flyingFrequencyPPS = Math.max(1.0, globalConfig.getDouble(ConfPaths.NET_FLYINGFREQUENCY_PACKETSPERSECOND));
@@ -99,7 +107,7 @@ public class NetConfig extends ACheckConfig {
         flyingFrequencyRedundantActions = config.getOptimizedActionList(ConfPaths.NET_FLYINGFREQUENCY_REDUNDANT_ACTIONS, Permissions.NET_FLYINGFREQUENCY);
 
         keepAliveFrequencyActions = config.getOptimizedActionList(ConfPaths.NET_KEEPALIVEFREQUENCY_ACTIONS, Permissions.NET_KEEPALIVEFREQUENCY);
-		keepAliveFrequencyStartupDelay = config.getInt(ConfPaths.NET_KEEPALIVEFREQUENCY_SECONDS) * 1000;
+        keepAliveFrequencyStartupDelay = config.getInt(ConfPaths.NET_KEEPALIVEFREQUENCY_SECONDS) * 1000;
 
         if (ServerVersion.compareMinecraftVersion("1.9") >= 0) {
             // TODO: Disable packet frequency or activate 'pessimistically'.
