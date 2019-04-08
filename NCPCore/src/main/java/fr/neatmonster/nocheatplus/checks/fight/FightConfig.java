@@ -63,6 +63,8 @@ public class FightConfig extends ACheckConfig {
     public final double		reachSurvivalDistance;
     public final double		reachReduceDistance;
     public final double		reachReduceStep;
+    public final boolean    reachImprobableFeedOnly;
+    public final float      reachImprobableWeight;
 
     public final ActionList reachActions;
 
@@ -75,6 +77,8 @@ public class FightConfig extends ACheckConfig {
 
     public final int        speedShortTermLimit;
     public final int        speedShortTermTicks;
+    public final boolean    speedImprobableFeedOnly;
+    public final float      speedImprobableWeight;
     public final ActionList speedActions;
 
     public final ActionList wrongTurnActions;
@@ -131,6 +135,8 @@ public class FightConfig extends ACheckConfig {
         reachReduce = config.getBoolean(ConfPaths.FIGHT_REACH_REDUCE);
         reachReduceDistance = config.getDouble(ConfPaths.FIGHT_REACH_REDUCEDISTANCE, 0, reachSurvivalDistance, 0.9);
         reachReduceStep = config.getDouble(ConfPaths.FIGHT_REACH_REDUCESTEP, 0, reachReduceDistance, 0.15);
+        reachImprobableFeedOnly = config.getBoolean(ConfPaths.FIGHT_REACH_IMPROBABLE_FEEDONLY);
+        reachImprobableWeight = (float) config.getDouble(ConfPaths.FIGHT_REACH_IMPROBABLE_WEIGHT);
         reachActions = config.getOptimizedActionList(ConfPaths.FIGHT_REACH_ACTIONS, Permissions.FIGHT_REACH);
 
         selfHitActions = config.getOptimizedActionList(ConfPaths.FIGHT_SELFHIT_ACTIONS, Permissions.FIGHT_SELFHIT);
@@ -141,6 +147,8 @@ public class FightConfig extends ACheckConfig {
         speedBucketFactor = (float) config.getDouble(ConfPaths.FIGHT_SPEED_BUCKETS_FACTOR, 1f);
         speedShortTermLimit = config.getInt(ConfPaths.FIGHT_SPEED_SHORTTERM_LIMIT);
         speedShortTermTicks = config.getInt(ConfPaths.FIGHT_SPEED_SHORTTERM_TICKS);
+        speedImprobableFeedOnly = config.getBoolean(ConfPaths.FIGHT_SPEED_IMPROBABLE_FEEDONLY);
+        speedImprobableWeight = (float) config.getDouble(ConfPaths.FIGHT_SPEED_IMPROBABLE_WEIGHT);
         speedActions = config.getOptimizedActionList(ConfPaths.FIGHT_SPEED_ACTIONS, Permissions.FIGHT_SPEED);
 
         wrongTurnActions = config.getOptimizedActionList(ConfPaths.FIGHT_WRONGTURN_ACTIONS, 
