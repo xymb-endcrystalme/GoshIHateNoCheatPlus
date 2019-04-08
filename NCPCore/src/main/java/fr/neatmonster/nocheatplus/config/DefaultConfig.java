@@ -145,6 +145,8 @@ public class DefaultConfig extends ConfigFile {
 
         set(ConfPaths.BLOCKBREAK_WRONGBLOCK_CHECK, "default", 785);
         set(ConfPaths.BLOCKBREAK_WRONGBLOCK_LEVEL, 10, 785);
+        set(ConfPaths.BLOCKBREAK_WRONGBLOCK_IMPROBABLE_FEEDONLY, false, 1154);
+        set(ConfPaths.BLOCKBREAK_WRONGBLOCK_IMPROBABLE_WEIGHT, 2.0, 1154);
         set(ConfPaths.BLOCKBREAK_WRONGBLOCK_ACTIONS, "cancel vl>10 log:bwrong:0:5:if cancel vl>30 log:bwrong:0:5:cif cancel cmd:kickwb", 785);
 
 
@@ -182,6 +184,8 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_FASTPLACE_LIMIT, 22, 785);
         set(ConfPaths.BLOCKPLACE_FASTPLACE_SHORTTERM_TICKS, 10, 785);
         set(ConfPaths.BLOCKPLACE_FASTPLACE_SHORTTERM_LIMIT, 6, 785);
+        set(ConfPaths.BLOCKPLACE_FASTPLACE_IMPROBABLE_FEEDONLY, false, 1154);
+        set(ConfPaths.BLOCKPLACE_FASTPLACE_IMPROBABLE_WEIGHT, 0.5, 1154);
         set(ConfPaths.BLOCKPLACE_FASTPLACE_ACTIONS, "cancel vl>100 log:fastplace:3:5:cif cancel", 785);
 
         set(ConfPaths.BLOCKPLACE_REACH_CHECK, "default", 785);
@@ -196,6 +200,8 @@ public class DefaultConfig extends ConfigFile {
 
         set(ConfPaths.BLOCKPLACE_SPEED_CHECK, "default", 785);
         set(ConfPaths.BLOCKPLACE_SPEED_INTERVAL, 45L, 785);
+        set(ConfPaths.BLOCKPLACE_SPEED_IMPROBABLE_FEEDONLY, false, 1154);
+        set(ConfPaths.BLOCKPLACE_SPEED_IMPROBABLE_WEIGHT, 0.6, 1154);
         set(ConfPaths.BLOCKPLACE_SPEED_ACTIONS,
                 "cancel vl>150 log:bpspeed:3:5:if cancel vl>1000 log:bpspeed:3:5:cif cancel", 785);
 
@@ -317,7 +323,9 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.COMBINED_YAWRATE_PENALTY_FACTOR, 1.0, 785);
         set(ConfPaths.COMBINED_YAWRATE_PENALTY_MIN, 250, 785);
         set(ConfPaths.COMBINED_YAWRATE_PENALTY_MAX, 2000, 785);
-        set(ConfPaths.COMBINED_YAWRATE_IMPROBABLE, true, 785);
+        set(ConfPaths.COMBINED_YAWRATE_IMPROBABLE_FEEDONLY, false, 1154);
+        set(ConfPaths.COMBINED_YAWRATE_IMPROBABLE_WEIGHT, 100.0, 1154);
+        // set(ConfPaths.COMBINED_YAWRATE_IMPROBABLE, true, 785);
 
         // FIGHT
         set(ConfPaths.FIGHT_ACTIVE, "default", 1144);
@@ -364,6 +372,8 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_REACH_REDUCE, true, 785);
         set(ConfPaths.FIGHT_REACH_REDUCEDISTANCE, 0.9, 785);
         set(ConfPaths.FIGHT_REACH_REDUCESTEP, 0.15, 785);
+        set(ConfPaths.FIGHT_REACH_IMPROBABLE_FEEDONLY, false, 1154);
+        set(ConfPaths.FIGHT_REACH_IMPROBABLE_WEIGHT, 2.0, 1154);
         set(ConfPaths.FIGHT_REACH_ACTIONS, "cancel vl>10 log:freach:2:5:if cancel", 785);
 
         set(ConfPaths.FIGHT_SELFHIT_CHECK, "default", 785);
@@ -374,6 +384,8 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_SPEED_ACTIONS, "cancel vl>50 log:fspeed:0:5:if cancel", 785);
         set(ConfPaths.FIGHT_SPEED_SHORTTERM_TICKS, 7, 785);
         set(ConfPaths.FIGHT_SPEED_SHORTTERM_LIMIT, 6, 785);
+        set(ConfPaths.FIGHT_SPEED_IMPROBABLE_FEEDONLY, false, 1154);
+        set(ConfPaths.FIGHT_SPEED_IMPROBABLE_WEIGHT, 2.0, 1154);
 
         set(ConfPaths.FIGHT_WRONGTURN_CHECK, "default", 1143);
         set(ConfPaths.FIGHT_WRONGTURN_ACTIONS, "cancel cmd:kick_wrongturn log:log_wrongturn:0:15:fci", 1143);
@@ -393,6 +405,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.INVENTORY_FASTCLICK_LIMIT_SHORTTERM, 4, 785);
         set(ConfPaths.INVENTORY_FASTCLICK_LIMIT_NORMAL, 15, 785);
         set(ConfPaths.INVENTORY_FASTCLICK_LIMIT_CHEST, 152, 1154);
+        set(ConfPaths.INVENTORY_FASTCLICK_IMPROBABLE_WEIGHT, 0.7, 1154);
         set(ConfPaths.INVENTORY_FASTCLICK_ACTIONS, "cancel vl>50 log:fastclick:3:5:cif cancel", 785);
 
         set(ConfPaths.INVENTORY_INSTANTBOW_CHECK, "default", 785);
@@ -563,6 +576,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.NET_ATTACKFREQUENCY_SECONDS_TWO, 30, 785);
         set(ConfPaths.NET_ATTACKFREQUENCY_SECONDS_FOUR, 60, 785);
         set(ConfPaths.NET_ATTACKFREQUENCY_SECONDS_EIGHT, 100, 785);
+        set(ConfPaths.NET_ATTACKFREQUENCY_IMPROBABLE_WEIGHT, 2.0, 1154);
         set(ConfPaths.NET_ATTACKFREQUENCY_ACTIONS, "cancel vl>30 cancel log:attackfrequency:0:5:if vl>160 cancel log:attackfrequency:0:0:cif cmd:kickattackfrequency", 785);
 
         // FightSync
@@ -570,6 +584,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.NET_FIGHTSYNC_THRESHOLD, 5, 1154);
         set(ConfPaths.NET_FIGHTSYNC_RESETCOUNT, 11, 1154);
         set(ConfPaths.NET_FIGHTSYNC_ACTIONS, "vl<10 log:fightsync:0:5:if", 1154);
+        
         // FlyingFrequency
         set(ConfPaths.NET_FLYINGFREQUENCY_ACTIVE, "default", 785);
         set(ConfPaths.NET_FLYINGFREQUENCY_SECONDS, 5, 785);
