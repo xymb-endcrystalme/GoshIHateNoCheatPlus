@@ -20,6 +20,7 @@ import fr.neatmonster.nocheatplus.actions.ParameterName;
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
+import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.TickTask;
 
@@ -95,7 +96,10 @@ public class AttackFrequency extends Check {
                 cancel = true;
             }
             // Feed Improbable.
-            TickTask.requestImprobableUpdate(player.getUniqueId(), 2f);
+            if (cc.attackFrequencyImprobableWeight > 0.0f) {
+            		TickTask.requestImprobableUpdate(player.getUniqueId(), cc.attackFrequencyImprobableWeight);
+            }
+            // TickTask.requestImprobableUpdate(player.getUniqueId(), 2f);
         }
 
         return cancel;
