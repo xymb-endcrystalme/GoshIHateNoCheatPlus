@@ -59,7 +59,8 @@ public class CombinedConfig extends ACheckConfig {
 
     // Last yaw tracking 
     public final float      yawRate;
-    public final boolean    yawRateImprobable;
+    public final boolean    yawRateImprobableFeedOnly;
+    public final float      yawRateImprobableWeight;
     public final float      yawRatePenaltyFactor;
     public final int        yawRatePenaltyMin;
     public final int        yawRatePenaltyMax;
@@ -116,7 +117,8 @@ public class CombinedConfig extends ACheckConfig {
         munchHausenActions = config.getOptimizedActionList(ConfPaths.COMBINED_MUNCHHAUSEN_ACTIONS, Permissions.COMBINED_MUNCHHAUSEN);
 
         yawRate = config.getInt(ConfPaths.COMBINED_YAWRATE_RATE);
-        yawRateImprobable = config.getBoolean(ConfPaths.COMBINED_YAWRATE_IMPROBABLE);
+        yawRateImprobableFeedOnly = config.getBoolean(ConfPaths.COMBINED_YAWRATE_IMPROBABLE_FEEDONLY);
+        yawRateImprobableWeight = (float) config.getDouble(ConfPaths.COMBINED_YAWRATE_IMPROBABLE_WEIGHT);
         yawRatePenaltyFactor = (float) config.getDouble(ConfPaths.COMBINED_YAWRATE_PENALTY_FACTOR);
         yawRatePenaltyMin = config.getInt(ConfPaths.COMBINED_YAWRATE_PENALTY_MIN);
         yawRatePenaltyMax = config.getInt(ConfPaths.COMBINED_YAWRATE_PENALTY_MAX);
