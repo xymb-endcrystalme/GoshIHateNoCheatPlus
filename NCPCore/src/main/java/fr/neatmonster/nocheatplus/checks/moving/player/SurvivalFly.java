@@ -403,18 +403,18 @@ public class SurvivalFly extends Check {
 			
 	    // Detects walking directly above water
 	    Material blockUnder = player.getLocation().subtract(0, 0.12, 0).getBlock().getType();
-            Material blockAbove = player.getLocation().add(0, 0.12, 0).getBlock().getType();
+            Material blockAbove = player.getLocation().add(0, 0.10, 0).getBlock().getType();
             if (blockUnder != null && blockAbove != null) {
-	        // Checks if the player is above water but not in water.
+		// Checks if the player is above water but not in water.
             	if (blockUnder == Material.WATER && blockAbove == Material.AIR) {
-		// hDist and vDist checks, simply checks for horizontal movement with little y distance
-            	if (hDistanceAboveLimit <= 0D && hDistance > 0.1D && yDistance <= 0.1D && !toOnGround && !fromOnGround 
-                    && lastMove.toIsValid && lastMove.yDistance != 0D 
+		    // hDist and vDist checks, simply checks for horizontal movement with little y distance
+            	    if (hDistanceAboveLimit <= 0D && hDistance > 0.11D && yDistance <= 0.1D && !toOnGround && !fromOnGround 
+                    && lastMove.toIsValid && lastMove.yDistance == yDistance || lastMove.yDistance == yDistance * -1 && lastMove.yDistance != 0D
                     && !from.isHeadObstructed() && !to.isHeadObstructed() && !player.isSwimming()) {
-			// Prevent being flagged if a player transitions from a block to water and the player falls into the water.
-            		if (!(yDistance < 0 && yDistance != 0 && lastMove.yDistance < 0 && lastMove.yDistance != 0)) {
-                	    hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
-                            tags.add("watermove");	
+				// Prevent being flagged if a player transitions from a block to water and the player falls into the water.
+            			if (!(yDistance < 0 && yDistance != 0 && lastMove.yDistance < 0 && lastMove.yDistance != 0)) {
+                		    hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
+                                    tags.add("watermove");	
             			}
             		}
             	}
