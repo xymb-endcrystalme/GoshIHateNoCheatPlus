@@ -2,7 +2,7 @@
 name: Feature/Check Request
 about: 'Suggest a feature or check '
 title: ''
-labels: ''
+labels: enhancement
 assignees: ''
 
 ---
