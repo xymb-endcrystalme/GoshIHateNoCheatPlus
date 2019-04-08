@@ -161,7 +161,10 @@ public class FastClick extends Check {
         data.fastClickLastCursorAmount = cursorAmount;
 
         // Feed the improbable.
-        Improbable.feed(player, 0.7f * amount, System.currentTimeMillis());
+        if (cc.fastClickImprobableWeight > 0.0f) {
+        	Improbable.feed(player, cc.fastClickImprobableWeight * amount, now);
+        }
+        // Improbable.feed(player, 0.7f * amount, System.currentTimeMillis());
 
         return cancel;
     }
