@@ -14,9 +14,6 @@
  */
 package fr.neatmonster.nocheatplus.checks.inventory;
 
-import java.util.UUID;
-
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -38,6 +35,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -49,7 +47,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.block.Chest;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.checks.CheckListener;
@@ -286,9 +283,11 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         }
         
         // Inventory Move check
+        final SlotType type = event.getSlotType();
         if (invMove.isEnabled(player, pData)) {
-        	if (invMove.check(player, data, pData)) {
-        		cancel = true;	
+        	final InventoryConfig cc = pData.getGenericInstance(InventoryConfig.class);
+        		if (invMove.check(player, data, pData, cc, type)) {
+            		cancel = true;	
         	}
         }
         
