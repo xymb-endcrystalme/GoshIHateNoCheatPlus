@@ -56,6 +56,8 @@ public class BlockBreakConfig extends ACheckConfig {
     public final ActionList reachActions;
 
     public final float      wrongBLockLevel;
+    public final boolean    wrongBlockImprobableFeedOnly;
+    public final float      wrongBlockImprobableWeight;
     public final ActionList wrongBlockActions;
 
     /**
@@ -93,6 +95,8 @@ public class BlockBreakConfig extends ACheckConfig {
         noSwingActions = config.getOptimizedActionList(ConfPaths.BLOCKBREAK_NOSWING_ACTIONS, Permissions.BLOCKBREAK_NOSWING);
 
         reachActions = config.getOptimizedActionList(ConfPaths.BLOCKBREAK_REACH_ACTIONS, Permissions.BLOCKBREAK_REACH);
+        wrongBlockImprobableFeedOnly = config.getBoolean(ConfPaths.BLOCKBREAK_WRONGBLOCK_IMPROBABLE_FEEDONLY);
+        wrongBlockImprobableWeight = (float) config.getDouble(ConfPaths.BLOCKBREAK_WRONGBLOCK_IMPROBABLE_WEIGHT);
 
         wrongBLockLevel = config.getInt(ConfPaths.BLOCKBREAK_WRONGBLOCK_LEVEL);
         wrongBlockActions = config.getOptimizedActionList(ConfPaths.BLOCKBREAK_WRONGBLOCK_ACTIONS, Permissions.BLOCKBREAK_WRONGBLOCK);
