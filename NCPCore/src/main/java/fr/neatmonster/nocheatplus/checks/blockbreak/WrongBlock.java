@@ -42,6 +42,7 @@ public class WrongBlock extends Check {
      * @param isInstaBreak 
      * @return
      */
+    
     public boolean check(final Player player, final Block block, 
             final BlockBreakConfig cc, final BlockBreakData data, final IPlayerData pData,
             final AlmostBoolean isInstaBreak) {
@@ -90,8 +91,12 @@ public class WrongBlock extends Check {
                 if (executeActions(player, score, 1D, cc.wrongBlockActions).willCancel()) {
                     cancel = true;
                 }
-                if (Improbable.check(player, 2.0f, now, "blockbreak.wrongblock", pData)) {
-                    cancel = true;
+                if (cc.wrongBlockImprobableWeight > 0.0f) {
+                	if (cc.wrongBlockImprobableFeedOnly) {
+                		Improbable.feed(player, cc.wrongBlockImprobableWeight, now);
+                	} else if (Improbable.check(player, cc.wrongBlockImprobableWeight, now, "blockbreak.wrongblock", pData)) {
+                		cancel = true;
+                	}
                 }
             }
         }
