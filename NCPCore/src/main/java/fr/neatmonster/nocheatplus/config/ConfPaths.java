@@ -613,6 +613,7 @@ public abstract class ConfPaths {
     
     public static final  String INVENTORY_INVENTORYMOVE                  = INVENTORY + "inventorymove.";
     public static final  String INVENTORY_INVENTORYMOVE_CHECK            = INVENTORY_INVENTORYMOVE + SUB_ACTIVE;
+    public static final  String INVENTORY_INVENTORYMOVE_DISABLECREATIVE  = INVENTORY_INVENTORYMOVE + "disable_creative";
     public static final  String INVENTORY_INVENTORYMOVE_ACTIONS          = INVENTORY_INVENTORYMOVE + "actions";
 
     // Inventory hot-fix.
