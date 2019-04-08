@@ -234,9 +234,12 @@ public class BlockPlaceListener extends CheckListener {
             if (fastPlace.check(player, block, tick, data, cc, pData)) {
                 cancelled = true;
             }
-            else {
-                // Feed the improbable.
-                Improbable.feed(player, 0.5f, System.currentTimeMillis(), pData);
+            else if (cc.fastPlaceImprobableWeight > 0.0f) {
+            	if (cc.fastPlaceImprobableFeedOnly) {
+            		Improbable.feed(player, cc.fastPlaceImprobableWeight, System.currentTimeMillis());
+            	} else if (Improbable.check(player, cc.fastPlaceImprobableWeight, System.currentTimeMillis(), "blockplace.fastplace", pData)) {
+            		cancelled = true;
+            	}
             }
         }
 
@@ -513,9 +516,12 @@ public class BlockPlaceListener extends CheckListener {
                 // If the check was positive, cancel the event.
                 cancel = true;
             }
-            else if (Improbable.check(player, 0.6f, now, "blockplace.speed", pData)) {
-                // Combined fighting speed.
-                cancel = true;
+            else if (cc.speedImprobableWeight > 0.0f) {
+            	if (cc.speedImprobableFeedOnly) {
+            		Improbable.feed(player, cc.speedImprobableWeight, now);
+            	} else if (Improbable.check(player, cc.speedImprobableWeight, now, "blockplace.speed", pData)) {
+            		cancel = true;
+            	}
             }
         }
 
