@@ -223,6 +223,9 @@ public abstract class ConfPaths {
     private static final String BLOCKBREAK_WRONGBLOCK                    = BLOCKBREAK + "wrongblock.";
     public static final String  BLOCKBREAK_WRONGBLOCK_CHECK              = BLOCKBREAK_WRONGBLOCK + SUB_ACTIVE;
     public static final String  BLOCKBREAK_WRONGBLOCK_LEVEL              = BLOCKBREAK_WRONGBLOCK + "level";
+    private static final String BLOCKBREAK_WRONGBLOCK_IMPROBABLE         = BLOCKBREAK_WRONGBLOCK + "improbable.";
+    public static final String  BLOCKBREAK_WRONGBLOCK_IMPROBABLE_FEEDONLY = BLOCKBREAK_WRONGBLOCK_IMPROBABLE + "feedonly";
+    public static final String  BLOCKBREAK_WRONGBLOCK_IMPROBABLE_WEIGHT   = BLOCKBREAK_WRONGBLOCK_IMPROBABLE + "weight";
     public static final String  BLOCKBREAK_WRONGBLOCK_ACTIONS            = BLOCKBREAK_WRONGBLOCK + "actions";
 
     public static final String BLOCKINTERACT                             = CHECKS + "blockinteract.";
@@ -269,6 +272,9 @@ public abstract class ConfPaths {
     private static final String BLOCKPLACE_FASTPLACE_SHORTTERM           = BLOCKPLACE_FASTPLACE + "shortterm.";
     public static final String  BLOCKPLACE_FASTPLACE_SHORTTERM_TICKS     = BLOCKPLACE_FASTPLACE_SHORTTERM + "ticks";
     public static final String  BLOCKPLACE_FASTPLACE_SHORTTERM_LIMIT     = BLOCKPLACE_FASTPLACE_SHORTTERM + "limit";
+    private static final String BLOCKPLACE_FASTPLACE_IMPROBABLE          = BLOCKPLACE_FASTPLACE + "improbable.";
+    public static final String  BLOCKPLACE_FASTPLACE_IMPROBABLE_FEEDONLY = BLOCKPLACE_FASTPLACE_IMPROBABLE + "feedonly";
+    public static final String  BLOCKPLACE_FASTPLACE_IMPROBABLE_WEIGHT   = BLOCKPLACE_FASTPLACE_IMPROBABLE + "weight";
     public static final String  BLOCKPLACE_FASTPLACE_ACTIONS             = BLOCKPLACE_FASTPLACE + "actions";
 
     private static final String BLOCKPLACE_NOSWING                       = BLOCKPLACE + "noswing.";
@@ -287,6 +293,9 @@ public abstract class ConfPaths {
     private static final String BLOCKPLACE_SPEED                         = BLOCKPLACE + "speed.";
     public static final String  BLOCKPLACE_SPEED_CHECK                   = BLOCKPLACE_SPEED + SUB_ACTIVE;
     public static final String  BLOCKPLACE_SPEED_INTERVAL                = BLOCKPLACE_SPEED + "interval";
+    private static final String BLOCKPLACE_SPEED_IMPROBABLE              = BLOCKPLACE_SPEED + "improbable.";
+    public static final String  BLOCKPLACE_SPEED_IMPROBABLE_FEEDONLY     = BLOCKPLACE_SPEED_IMPROBABLE + "feedonly";
+    public static final String  BLOCKPLACE_SPEED_IMPROBABLE_WEIGHT       = BLOCKPLACE_SPEED_IMPROBABLE + "weight";
     public static final String  BLOCKPLACE_SPEED_ACTIONS                 = BLOCKPLACE_SPEED + "actions";
 
     private static final String BLOCKPLACE_PREVENTMISC                   = BLOCKPLACE + "preventmisc.";
@@ -450,7 +459,9 @@ public abstract class ConfPaths {
 
     private static final String COMBINED_YAWRATE                         = COMBINED + "yawrate.";
     public static final String  COMBINED_YAWRATE_RATE                    = COMBINED_YAWRATE + "rate";
-    public static final String  COMBINED_YAWRATE_IMPROBABLE              = COMBINED_YAWRATE + "improbable";
+    private static final String COMBINED_YAWRATE_IMPROBABLE              = COMBINED_YAWRATE + "improbable.";
+    public static final String  COMBINED_YAWRATE_IMPROBABLE_FEEDONLY     = COMBINED_YAWRATE_IMPROBABLE + "feedonly";
+    public static final String  COMBINED_YAWRATE_IMPROBABLE_WEIGHT       = COMBINED_YAWRATE_IMPROBABLE + "weight";
     private static final String COMBINED_YAWRATE_PENALTY                 = COMBINED_YAWRATE + "penalty.";
     public static final String  COMBINED_YAWRATE_PENALTY_FACTOR          = COMBINED_YAWRATE_PENALTY + "factor";
     public static final String  COMBINED_YAWRATE_PENALTY_MIN             = COMBINED_YAWRATE_PENALTY + "minimum";
@@ -509,6 +520,9 @@ public abstract class ConfPaths {
     public static final String  FIGHT_REACH_REDUCE                       = FIGHT_REACH + "reduce";
     public static final String  FIGHT_REACH_REDUCEDISTANCE               = FIGHT_REACH + "reducedistance";
     public static final String  FIGHT_REACH_REDUCESTEP                   = FIGHT_REACH + "reducestep";
+    private static final String FIGHT_REACH_IMPROBABLE                   = FIGHT_REACH + "improbable.";
+    public static final String  FIGHT_REACH_IMPROBABLE_FEEDONLY          = FIGHT_REACH_IMPROBABLE + "feedonly";
+    public static final String  FIGHT_REACH_IMPROBABLE_WEIGHT            = FIGHT_REACH_IMPROBABLE + "weight";
     public static final String  FIGHT_REACH_ACTIONS                      = FIGHT_REACH + "actions";
 
     public static final String FIGHT_SELFHIT                             = FIGHT + "selfhit.";
@@ -528,6 +542,9 @@ public abstract class ConfPaths {
     private static final String FIGHT_SPEED_SHORTTERM                    = FIGHT_SPEED + "shortterm.";
     public static final String  FIGHT_SPEED_SHORTTERM_LIMIT              = FIGHT_SPEED_SHORTTERM + "limit";
     public static final String  FIGHT_SPEED_SHORTTERM_TICKS              = FIGHT_SPEED_SHORTTERM + "ticks";
+    private static final String FIGHT_SPEED_IMPROBABLE                   = FIGHT_SPEED + "improbable.";
+    public static final String  FIGHT_SPEED_IMPROBABLE_FEEDONLY          = FIGHT_SPEED_IMPROBABLE + "feedonly";
+    public static final String  FIGHT_SPEED_IMPROBABLE_WEIGHT            = FIGHT_SPEED_IMPROBABLE + "weight";
     public static final String  FIGHT_SPEED_ACTIONS                      = FIGHT_SPEED + "actions";
 
     private static final String FIGHT_WRONGTURN                          = FIGHT + "wrongturn.";
@@ -555,6 +572,8 @@ public abstract class ConfPaths {
     public static final String  INVENTORY_FASTCLICK_LIMIT_SHORTTERM      = INVENTORY_FASTCLICK_LIMIT + "shortterm";
     public static final String  INVENTORY_FASTCLICK_LIMIT_NORMAL         = INVENTORY_FASTCLICK_LIMIT + "normal";
     public static final String  INVENTORY_FASTCLICK_LIMIT_CHEST          = INVENTORY_FASTCLICK_LIMIT + "chest";
+    private static final String INVENTORY_FASTCLICK_IMPROBABLE           = INVENTORY_FASTCLICK + "improbable.";
+    public static final String  INVENTORY_FASTCLICK_IMPROBABLE_WEIGHT    = INVENTORY_FASTCLICK_IMPROBABLE + "weight";
     public static final String  INVENTORY_FASTCLICK_ACTIONS              = INVENTORY_FASTCLICK + "actions";
 
     private static final String INVENTORY_FASTCONSUME                    = INVENTORY + "fastconsume.";
@@ -741,6 +760,8 @@ public abstract class ConfPaths {
     public static final String  NET_ATTACKFREQUENCY_SECONDS_TWO             = NET_ATTACKFREQUENCY_SECONDS + "two";
     public static final String  NET_ATTACKFREQUENCY_SECONDS_FOUR            = NET_ATTACKFREQUENCY_SECONDS + "four";
     public static final String  NET_ATTACKFREQUENCY_SECONDS_EIGHT           = NET_ATTACKFREQUENCY_SECONDS + "eight";
+    private static final String NET_ATTACKFREQUENCY_IMPROBABLE              = NET_ATTACKFREQUENCY + "improbable.";
+    public static final String  NET_ATTACKFREQUENCY_IMPROBABLE_WEIGHT       = NET_ATTACKFREQUENCY_IMPROBABLE + "weight";
     public static final String  NET_ATTACKFREQUENCY_ACTIONS                 = NET_ATTACKFREQUENCY + "actions";
     
     private static final String NET_FIGHTSYNC                               = NET + "fightsync.";
