@@ -198,10 +198,15 @@ public class Combined {
                     Math.max(cc.yawRatePenaltyFactor * amount ,  cc.yawRatePenaltyMin), 
                     cc.yawRatePenaltyMax));
             // TODO: balance (100 ... 200 ) ?
-            if (cc.yawRateImprobable && Improbable.check(player, amount / 100f, now, "combined.yawrate", 
-                    pData))
-                cancel = true;
-        }
+            // TODO: New calculations so that weight is not inverse
+            	if (cc.yawRateImprobableWeight > 0.0f) {
+                	if (cc.yawRateImprobableFeedOnly) {
+                		Improbable.feed(player, amount / cc.yawRateImprobableWeight, now);
+                	} else if (Improbable.check(player, amount / cc.yawRateImprobableWeight, now, "combined.yawrate", pData)) {
+                		cancel = true;
+                	}
+                }
+        } // Improbable.check(player, amount / 100f, now, "combined.yawrate", pData)
         if (data.timeFreeze.isPenalty()) {
             cancel = true;
         }
