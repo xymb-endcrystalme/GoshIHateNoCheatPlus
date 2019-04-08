@@ -254,9 +254,15 @@ public class Reach extends Check {
             // Execute whatever actions are associated with this check and the violation level and find out if we should
             // cancel the event.
             cancel = executeActions(player, data.reachVL, violation, cc.reachActions).willCancel();
-            if (Improbable.check(player, (float) violation / 2f, System.currentTimeMillis(), 
-                    "fight.reach", pData)){
-                cancel = true;
+            //if (Improbable.check(player, (float) violation / 2f, System.currentTimeMillis(), 
+            //        "fight.reach", pData)){
+            //    cancel = true;
+            //}
+            // TODO: New improbable weight calculations so that weight is not inverse to config weight
+            if (cc.reachImprobableWeight > 0.0f) {
+            	if (!cc.reachImprobableFeedOnly && Improbable.check(player, (float) violation / cc.reachImprobableWeight, System.currentTimeMillis(), "fight.reach", pData)) {
+            		cancel = true;
+            	}
             }
             if (cancel && cc.reachPenalty > 0){
                 // Apply an attack penalty time.
@@ -269,7 +275,10 @@ public class Reach extends Check {
                 data.attackPenalty.applyPenalty(cc.reachPenalty / 2);
             }
             cancel = true;
-            Improbable.feed(player, (float) (lenpRel - context.distanceLimit * data.reachMod) / 4f, System.currentTimeMillis());
+            if (cc.reachImprobableWeight > 0.0f) {
+            	Improbable.feed(player, (float) (lenpRel - context.distanceLimit * data.reachMod) / cc.reachImprobableWeight, System.currentTimeMillis());
+            }
+            // Improbable.feed(player, (float) (lenpRel - context.distanceLimit * data.reachMod) / 4f, System.currentTimeMillis());
         }
         else{
             // Player passed the check, reward them.
