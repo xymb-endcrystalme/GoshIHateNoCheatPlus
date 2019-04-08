@@ -42,16 +42,20 @@ public class BlockPlaceConfig extends ACheckConfig {
     public final int        fastPlaceLimit;
     public final int        fastPlaceShortTermTicks;
     public final int        fastPlaceShortTermLimit;
+    public final boolean    fastPlaceImprobableFeedOnly;
+    public final float      fastPlaceImprobableWeight;
     public final ActionList fastPlaceActions;
 
     public final Set<Material> noSwingExceptions = new HashSet<Material>();
     public final ActionList noSwingActions;
 
     public final ActionList reachActions;
-	
+    
     public final ActionList scaffoldActions;
 
     public final long       speedInterval;
+    public final boolean    speedImprobableFeedOnly;
+    public final float      speedImprobableWeight;
     public final ActionList speedActions;
 
     /** General activation flag. */
@@ -78,16 +82,20 @@ public class BlockPlaceConfig extends ACheckConfig {
         fastPlaceLimit = config.getInt(ConfPaths.BLOCKPLACE_FASTPLACE_LIMIT);
         fastPlaceShortTermTicks = config.getInt(ConfPaths.BLOCKPLACE_FASTPLACE_SHORTTERM_TICKS);
         fastPlaceShortTermLimit = config.getInt(ConfPaths.BLOCKPLACE_FASTPLACE_SHORTTERM_LIMIT);
+        fastPlaceImprobableFeedOnly = config.getBoolean(ConfPaths.BLOCKPLACE_FASTPLACE_IMPROBABLE_FEEDONLY);
+        fastPlaceImprobableWeight = (float) config.getDouble(ConfPaths.BLOCKPLACE_FASTPLACE_IMPROBABLE_WEIGHT);
         fastPlaceActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_FASTPLACE_ACTIONS, Permissions.BLOCKPLACE_FASTPLACE);
 
         config.readMaterialFromList(ConfPaths.BLOCKPLACE_NOSWING_EXCEPTIONS, noSwingExceptions);
         noSwingActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_NOSWING_ACTIONS, Permissions.BLOCKPLACE_NOSWING);
 
         reachActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_REACH_ACTIONS, Permissions.BLOCKPLACE_REACH);
-		
-	    scaffoldActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, Permissions.BLOCKPLACE_REACH);
+        
+        scaffoldActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, Permissions.BLOCKPLACE_REACH);
 
         speedInterval = config.getLong(ConfPaths.BLOCKPLACE_SPEED_INTERVAL);
+        speedImprobableFeedOnly = config.getBoolean(ConfPaths.BLOCKPLACE_SPEED_IMPROBABLE_FEEDONLY);
+        speedImprobableWeight = (float) config.getDouble(ConfPaths.BLOCKPLACE_SPEED_IMPROBABLE_WEIGHT);
         speedActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_SPEED_ACTIONS, Permissions.BLOCKPLACE_SPEED);
 
         preventBoatsAnywhere = config.getBoolean(ConfPaths.BLOCKPLACE_PREVENTMISC_BOATSANYWHERE);
