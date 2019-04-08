@@ -331,19 +331,30 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
                 cancelled = true;
                 // Still feed the improbable.
                 if (data.speedVL > 50) {
-                    Improbable.check(player, 2f, now, "fight.speed", pData);
+                	if (cc.speedImprobableWeight > 0.0f) {
+                    	if (!cc.speedImprobableFeedOnly) {
+                    		Improbable.check(player, cc.speedImprobableWeight, now, "fight.speed", pData);
+                    	}
+                    }
+                    // Improbable.check(player, 2f, now, "fight.speed", pData);
                 }
                 else {
-                    Improbable.feed(player, 2f, now);
+                	if (cc.speedImprobableWeight > 0.0f) {
+                    	Improbable.feed(player, cc.speedImprobableWeight, now);
+                    	}
+                    }
+                    // Improbable.feed(player, 2f, now);
                 }
             }
-            else if (normalizedMove > 2.0 && Improbable.check(player, 1f, now, 
-                    "fight.speed", pData)) {
+            else if (normalizedMove > 2.0) { // && Improbable.check(player, 1f, now, "fight.speed", pData)) {
+            	if (cc.speedImprobableWeight > 0.0f) {
+                	if (!cc.speedImprobableFeedOnly && Improbable.check(player, cc.speedImprobableWeight, now, "fight.speed", pData)) {
+                		cancelled = true;
+                	}
+                }
                 // Feed improbable in case of ok-moves too.
                 // TODO: consider only feeding if attacking with higher average speed (!)
-                cancelled = true;
             }
-        }
         // TODO: Consider to always check improbable (first?). At least if config.always or speed or net.attackfrequency are enabled.
 
         if (!cancelled && critical.isEnabled(player, pData) 
@@ -888,7 +899,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
     	} else {
 	data.exemptArmSwing = false;
         }
-     }
+    }
 
     @Override
     public void playerJoins(final Player player) {
@@ -921,7 +932,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
     if (data.fightSyncCount >= cc.fightSyncResetCount) {
         data.fightSyncCount = 0;
         data.fightSyncReset = 0;
-	data.fightSyncVL *= 0.99D;
+        data.fightSyncVL *= 0.99D;
     }
     data.fightSyncReset += 1;
     Location packet = data.lastHitLocation, eventLoc = player.getLocation();
