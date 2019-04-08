@@ -425,6 +425,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.INVENTORY_FASTCONSUME_ACTIONS, "log:fastconsume:2:5:if cancel", 785);
         
         set(ConfPaths.INVENTORY_INVENTORYMOVE_CHECK, "default", 1153);
+        set(ConfPaths.INVENTORY_INVENTORYMOVE_DISABLECREATIVE, true, 1153);
         set(ConfPaths.INVENTORY_INVENTORYMOVE_ACTIONS, "log:inventorymove:2:5:if cancel", 785);
 
         set(ConfPaths.INVENTORY_GUTENBERG_CHECK, "default", 785);
