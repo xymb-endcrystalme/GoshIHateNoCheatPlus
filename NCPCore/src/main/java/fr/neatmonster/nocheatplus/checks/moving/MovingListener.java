@@ -306,13 +306,14 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
     public void onPlayerBedLeave(final PlayerBedLeaveEvent event) {
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
+	final MovingData data = pData.getGenericInstance(MovingData.class);
+	data.bedLeaveTime = System.currentTimeMillis();
         if (pData.isCheckActive(bedLeave.getType(), player) 
                 && bedLeave.checkBed(player, pData)) {
             final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
             // Check if the player has to be reset.
             // To "cancel" the event, we teleport the player.
             final Location loc = player.getLocation(useLoc);
-            final MovingData data = pData.getGenericInstance(MovingData.class);
             Location target = null;
             final PlayerMoveInfo moveInfo = aux.usePlayerMoveInfo();
             moveInfo.set(player, loc, null, cc.yOnGround);
