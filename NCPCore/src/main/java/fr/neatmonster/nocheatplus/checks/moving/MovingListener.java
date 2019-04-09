@@ -723,8 +723,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             prepareCreativeFlyCheck(player, from, to, moveInfo, thisMove, multiMoveCount, tick, data, cc);
         }
         else {
-            checkCf = checkSf = false;
-            // (thisMove.flyCheck stays null.)
+            checkCf = true;
+            checkSf = false;
+            prepareCreativeFlyCheck(player, from, to, moveInfo, thisMove, multiMoveCount, tick, data, cc);
         }
 
         // Pre-check checks (hum), either for cf or for sf.
