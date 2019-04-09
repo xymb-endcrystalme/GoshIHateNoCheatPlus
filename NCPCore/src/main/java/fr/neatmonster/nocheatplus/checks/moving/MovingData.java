@@ -103,6 +103,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public SimpleEntry verticalBounce = null;
     /** Last used block change id (BlockChangeTracker). */
     public final BlockChangeReference blockChangeRef = new BlockChangeReference();
+    public boolean        newHDist = false;
 
     /** Tick at which walk/fly speeds got changed last time. */
     public int speedTick = 0;
