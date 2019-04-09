@@ -17,7 +17,8 @@ public class FightSync extends Check {
 
 	public boolean check(Player player, IPlayerData pData, NetData data, Location packet, Location eventLoc, final NetConfig cc) {
 		boolean cancel = false;
-		double diff = Math.abs(eventLoc.getYaw() - packet.getYaw()) + Math.abs(eventLoc.getPitch() - packet.getPitch());
+		if (eventLoc != null && packet != null) {
+		double diff = Math.abs(eventLoc.getYaw() - packet.getYaw()) + Math.abs(eventLoc.getPitch() - packet.getPitch());	
 		
 		if (diff != 0) {
 			if (data.fightSyncCount >= cc.fightSyncThreshold) {
@@ -27,6 +28,7 @@ public class FightSync extends Check {
 			} else {
 				data.fightSyncCount += 1;
 			}
+		}
 		}
 		return cancel;
 	}
