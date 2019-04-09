@@ -1137,7 +1137,10 @@ public class SurvivalFly extends Check {
         } else if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
         	vAllowedDistance = lastMove.yDistance * 5.0D;
 			strictVdistRel = false;
-        }
+		} else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
+		    strictVdistRel = false;
+            vAllowedDistance = yDistance;			
+		}
         else if (lastMove.toIsValid) {
             if (lastMove.yDistance >= -Math.max(Magic.GRAVITY_MAX / 2.0, 1.3 * Math.abs(yDistance)) && lastMove.yDistance <= 0.0 
                     && (lastMove.touchedGround || lastMove.to.extraPropertiesValid && lastMove.to.resetCond)) {
@@ -1220,6 +1223,8 @@ public class SurvivalFly extends Check {
 					
 				} else if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
 					vDistRelVL = false;
+				} else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
+					vDistRelVL = false;
 				}
                 else {
                     // Violation.
@@ -1301,6 +1306,8 @@ public class SurvivalFly extends Check {
 				}
 			else if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
 				vDistRelVL = false;
+			} else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
+			    vDistRelVL = false;		
 			}
             else {
                 // Violation.
@@ -1495,6 +1502,9 @@ public class SurvivalFly extends Check {
 					
 				} else if (data.timeRiptiding + 500 > now)  {
 				}
+				else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
+					
+				}
 				else {
                 data.vDistAcc.add((float) yDistance);
                 final double accAboveLimit = verticalAccounting(yDistance, data.vDistAcc ,tags, "vacc" + (data.isVelocityJumpPhase() ? "dirty" : ""));
@@ -1587,7 +1597,11 @@ public class SurvivalFly extends Check {
 					} 
 					else if (data.timeRiptiding + 1000 > now) {
 						
-					} else {
+					} 
+					else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
+					
+				    } 
+					else {
 					vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance));
                     tags.add("ychincfly");
 					}
