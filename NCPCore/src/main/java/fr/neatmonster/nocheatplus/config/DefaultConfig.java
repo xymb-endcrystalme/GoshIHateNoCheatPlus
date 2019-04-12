@@ -584,7 +584,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.NET_FIGHTSYNC_ACTIVE, "default", 1154);
         set(ConfPaths.NET_FIGHTSYNC_THRESHOLD, 5, 1154);
         set(ConfPaths.NET_FIGHTSYNC_RESETCOUNT, 11, 1154);
-        set(ConfPaths.NET_FIGHTSYNC_ACTIONS, "vl<10 log:fightsync:0:5:if", 1154);
+        set(ConfPaths.NET_FIGHTSYNC_ACTIONS, "vl>10 log:fightsync:0:5:if", 1154);
         
         // FlyingFrequency
         set(ConfPaths.NET_FLYINGFREQUENCY_ACTIVE, "default", 785);
@@ -635,7 +635,6 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".chatnormal", start + "potentially annoying chat" + end, 785);
         set(ConfPaths.STRINGS + ".color", start + "sent colored chat message" + end, 785);
         set(ConfPaths.STRINGS + ".commands", start + "issued too many commands" + end, 785);
-        set(ConfPaths.STRINGS + ".combspeed", start + "performs different actions at very high speed" + end, 785);
         set(ConfPaths.STRINGS + ".critical", start + "tried to do a critical hit but wasn't technically jumping [tags]" + end, 785);
         set(ConfPaths.STRINGS + ".drop", start + "tried to drop more items than allowed" + end, 785);
         set(ConfPaths.STRINGS + ".dropkick", "ncp delay ncp kick [player] Dropping items too fast.", 785);
@@ -681,7 +680,6 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".kickselfhit", "ncp kick [player] You tried to hit yourself!", 785);
         set(ConfPaths.STRINGS + ".kickwb", "ncp kick [player] Block breaking out of sync!", 785);
         set(ConfPaths.STRINGS + ".kick_wrongturn", "ncp kick [player] Wrong turn!", 1143);
-        set(ConfPaths.STRINGS + ".knockback", start + "tried to do a knockback but wasn't technically sprinting" + end, 785);
         set(ConfPaths.STRINGS + ".log_wrongturn", start + "looked wrongly" + end, 1143);
         set(ConfPaths.STRINGS + ".morepackets", start + "sent too many moves ([packets] [tags])" + end, 785);
         set(ConfPaths.STRINGS + ".msgtempdenylogin", "You are temporarily denied to join this server.", 785);

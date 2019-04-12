@@ -40,7 +40,7 @@ public class WrongTurn extends Check {
         // Invalid Pitch
         // TODO: Does invalid pitch arrive here at all?
         // TODO: Prefer to detect on packet level already.
-        if (Math.abs(pitch) > 90.0f) {
+        if (Math.abs(pitch) > 90.0f || pitch < -90.0f) {
             data.wrongTurnVL += 1; // (Never cooldown.)
             if (executeActions(player, data.wrongTurnVL, 1.0, cc.wrongTurnActions).willCancel()) {
                 return true;
