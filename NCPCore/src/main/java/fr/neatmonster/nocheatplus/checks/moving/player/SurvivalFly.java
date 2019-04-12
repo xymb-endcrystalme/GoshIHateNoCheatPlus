@@ -289,7 +289,8 @@ public class SurvivalFly extends Check {
         if ((from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) != 0) {
             // TODO: Specialize - test for foot region?
             data.sfNoLowJump = true;
-        } else if ((from.getBlockFlags() & BlockProperties.F_GROUND_HEIGHT) != 0) {
+        } 
+	if ((from.getBlockFlags() & BlockProperties.F_GROUND_HEIGHT) != 0) {
         	data.newHDist = true;
         } else {
         	data.newHDist = false;
