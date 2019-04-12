@@ -75,6 +75,8 @@ public class SurvivalFly extends Check {
     private static final int   bunnyHopMax = 10;
     /** Divisor vs. last hDist for minimum slow down. */
     private static final double bunnyDivFriction = 160.0; // Rather in-air, blocks would differ by friction.
+    
+    public boolean snowFix;
 
 
 
@@ -291,10 +293,15 @@ public class SurvivalFly extends Check {
             data.sfNoLowJump = true;
         } 
 	if ((from.getBlockFlags() & BlockProperties.F_GROUND_HEIGHT) != 0) {
-        	data.newHDist = true;
+            data.newHDist = true;
         } else {
-        	data.newHDist = false;
+            data.newHDist = false;
         }
+	if ((from.getBlockFlags() & BlockProperties.F_HEIGHT_8_INC) != 0) {
+	    snowFix = true;
+	} else {
+	    snowFix = false;
+	}
 
         //////////////////////
         // Horizontal move.
@@ -924,9 +931,12 @@ public class SurvivalFly extends Check {
 			}
             // (Friction is used as is.)
 	        } else if (data.newHDist) {
-		  hAllowedDistance = 0.345D;
+		      hAllowedDistance = 0.345D;
 			
-		} else if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
+		} else if (snowFix) {
+		  hAllowedDistance = 0.377D;
+		}			
+		else if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
         	hAllowedDistance = Magic.modRiptide * thisMove.walkSpeed * cc.survivalFlySpeedingSpeed / 100D;
         }
 		// Allows faster speed for player when swimming above water since from -> to does not seem to detect correctly
@@ -1141,12 +1151,15 @@ public class SurvivalFly extends Check {
             }
             strictVdistRel = false;
         } else if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
-        	vAllowedDistance = lastMove.yDistance * 5.0D;
-			strictVdistRel = false;
-		} else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
-		    strictVdistRel = false;
+            vAllowedDistance = lastMove.yDistance * 5.0D;
+	    strictVdistRel = false;
+	} else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
+	    strictVdistRel = false;
             vAllowedDistance = yDistance;			
-		}
+	} else if (snowFix) {
+	    strictVdistRel = false;
+	    vAllowedDistance = 0.425D;
+	}
         else if (lastMove.toIsValid) {
             if (lastMove.yDistance >= -Math.max(Magic.GRAVITY_MAX / 2.0, 1.3 * Math.abs(yDistance)) && lastMove.yDistance <= 0.0 
                     && (lastMove.touchedGround || lastMove.to.extraPropertiesValid && lastMove.to.resetCond)) {
@@ -1504,12 +1517,8 @@ public class SurvivalFly extends Check {
             else if (thisMove.verVelUsed == null) { // Only skip if just used.
                 // Here yDistance can be negative and positive.
                 //                if (yDistance != 0.0) {
-				if (BlockProperties.isNewLiq(from.getTypeIdBelow())) {
-					
-				} else if (data.timeRiptiding + 500 > now)  {
-				}
-				else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
-					
+				if ( (BlockProperties.isNewLiq(from.getTypeIdBelow())) || (data.timeRiptiding + 500 > now) || (data.bedLeaveTime + 500 > now && yDistance < 0.45) || (snowFix) ) {
+					// Ignore
 				}
 				else {
                 data.vDistAcc.add((float) yDistance);
@@ -1597,20 +1606,12 @@ public class SurvivalFly extends Check {
                 // Moving upwards after falling without having touched the ground.
                 if (data.bunnyhopDelay < 9 && !((lastMove.touchedGround || lastMove.from.onGroundOrResetCond) && lastMove.yDistance == 0D) && data.getOrUseVerticalVelocity(yDistance) == null) {
                     // TODO: adjust limit for bunny-hop.
-					if (BlockProperties.isNewLiq(from.getTypeIdBelow())) {
-					// Exempts player if they are above a 'newliquid' block (1.13 water blocks)
-					// Fixes issue with player swimming above a kelp plant (or related)
-					} 
-					else if (data.timeRiptiding + 1000 > now) {
-						
-					} 
-					else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
+                if ( (BlockProperties.isNewLiq(from.getTypeIdBelow())) || (data.timeRiptiding + 500 > now) || (data.bedLeaveTime + 500 > now && yDistance < 0.45) || (snowFix) ) {
 					
-				    } 
-					else {
-					vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance));
+		} else {
+		    vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance));
                     tags.add("ychincfly");
-					}
+			}
                 }
                 else {
                     tags.add("ychincair");
@@ -1746,13 +1747,17 @@ public class SurvivalFly extends Check {
         // Horizontal buffer.
         // TODO: Consider to confine use to "not in air" and similar.
         if (hDistanceAboveLimit > 0.0 && data.sfHorizontalBuffer > 0.0) {
-            // Handle buffer only if moving too far.
+        	if (snowFix && data.sfHorizontalBuffer == 1) {
+            // Ignore
+        	} else {
+        	// Handle buffer only if moving too far.
             // Consume buffer.
             tags.add("hbufuse");
             final double amount = Math.min(data.sfHorizontalBuffer, hDistanceAboveLimit);
             hDistanceAboveLimit -= amount;
             // Ensure we never end up below zero.
             data.sfHorizontalBuffer = Math.max(0.0, data.sfHorizontalBuffer - amount);
+        	}
         }
 		
 		if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
