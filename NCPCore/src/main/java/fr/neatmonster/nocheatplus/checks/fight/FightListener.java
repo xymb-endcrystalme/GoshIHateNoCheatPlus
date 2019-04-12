@@ -929,6 +929,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
     final IPlayerData pData = DataManager.getPlayerData(player);
     final NetData data = pData.getGenericInstance(NetData.class);
     final NetConfig cc = pData.getGenericInstance(NetConfig.class);
+    if (!pData.isCheckActive(CheckType.NET_FIGHTSYNC, player)) return;
     if (data.fightSyncCount >= cc.fightSyncResetCount) {
         data.fightSyncCount = 0;
         data.fightSyncReset = 0;
