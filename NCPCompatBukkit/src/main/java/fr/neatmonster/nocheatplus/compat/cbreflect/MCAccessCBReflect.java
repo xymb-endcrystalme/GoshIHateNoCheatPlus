@@ -22,7 +22,7 @@ import org.bukkit.entity.Player;
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.compat.AlmostBoolean;
 import fr.neatmonster.nocheatplus.compat.bukkit.BlockCacheBukkit;
-import fr.neatmonster.nocheatplus.compat.bukkit.MCAccessBukkitBase;
+import fr.neatmonster.nocheatplus.compat.bukkit.MCAccessBukkitModern;
 import fr.neatmonster.nocheatplus.compat.cbreflect.reflect.ReflectHelper;
 import fr.neatmonster.nocheatplus.compat.cbreflect.reflect.ReflectHelper.ReflectFailureException;
 import fr.neatmonster.nocheatplus.compat.versions.GenericVersion;
@@ -31,7 +31,7 @@ import fr.neatmonster.nocheatplus.logging.Streams;
 import fr.neatmonster.nocheatplus.utilities.location.LocUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 
-public class MCAccessCBReflect extends MCAccessBukkitBase {
+public class MCAccessCBReflect extends MCAccessBukkitModern {
 
     protected final ReflectHelper helper;
 
@@ -71,7 +71,7 @@ public class MCAccessCBReflect extends MCAccessBukkitBase {
     @Override
     public String getMCVersion() {
         // Potentially all :p.
-        return "1.4.5-1.12.2|?";
+        return "1.4.5-1.13|?";
     }
 
     @Override
