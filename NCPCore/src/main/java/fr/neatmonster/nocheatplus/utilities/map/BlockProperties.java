@@ -1028,7 +1028,7 @@ public class BlockProperties {
         // Step (ground + full width).
         final long stepFlags = F_GROUND | F_XZ100;
         for (final Material mat : new Material[]{
-                BridgeMaterial.STONE_SLAB,
+                BridgeMaterial.STONE_SLAB, Material.SEA_PICKLE
         }) {
             setFlag(mat, stepFlags);
         }
