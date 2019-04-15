@@ -26,6 +26,7 @@ import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitDoor;
 import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitEndPortalFrame;
 import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitFence;
 import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitGate;
+import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitSeaPickle;
 import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitShapeModel;
 import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitShulkerBox;
 import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitSlab;
@@ -51,6 +52,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
     // Blocks with different heights based on whatever.
     private static final BukkitShapeModel MODEL_END_PORTAL_FRAME = new BukkitEndPortalFrame();
+    private static final BukkitShapeModel MODEL_SEA_PICKLE = new BukkitSeaPickle();
 
     // Blocks that have a different shape, based on how they have been placed.
     private static final BukkitShapeModel MODEL_SLAB = new BukkitSlab();
@@ -246,6 +248,13 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         		Material.CONDUIT
         }) {
         	addModel(mat, MODEL_CONDUIT);
+        }
+        
+        // Sea Pickles
+        for (Material mat : new Material[] {
+        		Material.SEA_PICKLE
+        }) {
+        	addModel(mat, MODEL_SEA_PICKLE);
         }
         
         // Carpets.
