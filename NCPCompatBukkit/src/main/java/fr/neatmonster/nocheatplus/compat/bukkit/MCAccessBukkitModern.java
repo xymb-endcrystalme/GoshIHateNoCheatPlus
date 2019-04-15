@@ -67,6 +67,9 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             0.4375, 1.0);
     private static final BukkitShapeModel MODEL_THICK_FENCE = new BukkitFence(
             0.375, 1.5);
+    // .75 .25 0 max: .25 .75 .5
+    private static final BukkitShapeModel MODEL_WALL_HEAD = new BukkitStatic(
+    		0.75, 0.25, 0.0, 0.25, 0.75, 0.5);
 
 
     // Static blocks (various height and inset values).
@@ -275,6 +278,9 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         // Ground heads.
         for (final Material mat : MaterialUtil.HEADS_GROUND) {
             addModel(mat, MODEL_GROUND_HEAD);
+        }
+        for (final Material mat : MaterialUtil.HEADS_WALL) {
+        	addModel(mat, MODEL_WALL_HEAD);
         }
 
         // Doors.
