@@ -21,6 +21,7 @@ import org.bukkit.Material;
 
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 import fr.neatmonster.nocheatplus.compat.blocks.init.BlockInit;
+import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitCocoa;
 import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitDirectionalCentered;
 import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitDoor;
 import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitEndPortalFrame;
@@ -53,6 +54,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     // Blocks with different heights based on whatever.
     private static final BukkitShapeModel MODEL_END_PORTAL_FRAME = new BukkitEndPortalFrame();
     private static final BukkitShapeModel MODEL_SEA_PICKLE = new BukkitSeaPickle();
+    private static final BukkitShapeModel MODEL_COCOA = new BukkitCocoa();
 
     // Blocks that have a different shape, based on how they have been placed.
     private static final BukkitShapeModel MODEL_SLAB = new BukkitSlab();
@@ -143,6 +145,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         BlockProperties.setBlockFlags(Material.CAULDRON, 
                 BlockFlags.SOLID_GROUND | BlockProperties.F_GROUND_HEIGHT 
                 | BlockProperties.F_MIN_HEIGHT4_1);
+        BlockProperties.setBlockFlags(Material.COCOA, BlockFlags.SOLID_GROUND | BlockProperties.F_XZ100);
 
         // Directly keep blocks as is.
         for (final Material mat : new Material[] {
@@ -248,6 +251,13 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         		Material.CONDUIT
         }) {
         	addModel(mat, MODEL_CONDUIT);
+        }
+        
+        // Cocoa
+        for (Material mat : new Material[] {
+        		Material.COCOA
+        }) {
+        	addModel(mat, MODEL_COCOA);
         }
         
         // Sea Pickles
