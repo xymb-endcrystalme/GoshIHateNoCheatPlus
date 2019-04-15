@@ -163,6 +163,9 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
 
         // Conduit.
         BlockProperties.setBlockProps("CONDUIT", BlockProperties.woodDoorType);
+        
+        // Sea Pickle.
+        BlockProperties.setBlockProps("SEA_PICKLE", BlockProperties.instantType);
 
         // Turtle egg.
         BlockProperties.setBlockProps("TURTLE_EGG", new BlockProps(
