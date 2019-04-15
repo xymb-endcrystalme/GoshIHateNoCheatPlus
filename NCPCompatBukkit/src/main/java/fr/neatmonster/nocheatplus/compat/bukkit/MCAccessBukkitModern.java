@@ -148,7 +148,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         BlockProperties.setBlockFlags(Material.CAULDRON, 
                 BlockFlags.SOLID_GROUND | BlockProperties.F_GROUND_HEIGHT 
                 | BlockProperties.F_MIN_HEIGHT4_1);
-        BlockProperties.setBlockFlags(Material.COCOA, BlockFlags.SOLID_GROUND | BlockProperties.F_XZ100);
+        BlockProperties.setBlockFlags(Material.COCOA, BlockFlags.SOLID_GROUND | BlockProperties.F_XZ100 | BlockProperties.F_IGN_PASSABLE);
 
         // Directly keep blocks as is.
         for (final Material mat : new Material[] {
