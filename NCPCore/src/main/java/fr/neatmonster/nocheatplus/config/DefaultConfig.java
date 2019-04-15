@@ -659,7 +659,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".improbable", start + "meets the improbable more than expected" + end, 785);
         set(ConfPaths.STRINGS + ".instantbow", start + "fires bow too fast" + end, 785);
         set(ConfPaths.STRINGS + ".instanteat", start + "eats food [food] too fast" + end, 785);
-        set(ConfPaths.STRINGS + ".inventorymove", start + "interacted with inventory while it was not possible" + end, 1153);
+        set(ConfPaths.STRINGS + ".inventorymove", start + "interacted with inventory while it was not possible (tags [tags])" + end, 1153);
         set(ConfPaths.STRINGS + ".keepalive", start + "spams keep-alive packets (god/freecam?)" + end, 785);
         set(ConfPaths.STRINGS + ".kick", "kick [player]", 785);
         set(ConfPaths.STRINGS + ".kickalive", "ncp kick [player] Too many keep-alive packets.", 785);
