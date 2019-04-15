@@ -70,6 +70,8 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             0.09375);
     private static final BukkitShapeModel MODEL_FLOWER_POT = new BukkitStatic(
             0.33, 0.375); // TODO: XZ really?
+    private static final BukkitShapeModel MODEL_CONDUIT = new BukkitStatic(
+    	    0.33, 0.6875);
     private static final BukkitShapeModel MODEL_GROUND_HEAD= new BukkitStatic(
             0.25, 0.5); // TODO: XZ-really? 275 ?
     private static final BukkitShapeModel MODEL_SINGLE_CHEST = new BukkitStatic(
@@ -238,7 +240,14 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         for (Material mat : MaterialUtil.FLOWER_POTS) {
             addModel(mat, MODEL_FLOWER_POT);
         }
-
+        
+        // Conduit
+        for (Material mat : new Material[] {
+        		Material.CONDUIT
+        }) {
+        	addModel(mat, MODEL_CONDUIT);
+        }
+        
         // Carpets.
         for (final Material mat : MaterialUtil.CARPETS) {
             addModel(mat, MODEL_XZ100_HEIGHT16_1);
