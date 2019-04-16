@@ -152,6 +152,11 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
                 | BlockProperties.F_MIN_HEIGHT4_1);
         BlockProperties.setBlockFlags(Material.COCOA, BlockFlags.SOLID_GROUND | BlockProperties.F_XZ100 | BlockProperties.F_IGN_PASSABLE);
         BlockProperties.setBlockFlags(Material.CHORUS_PLANT, BlockFlags.SOLID_GROUND | BlockProperties.F_XZ100 | BlockProperties.F_IGN_PASSABLE);
+        // For some odd reason, adding the flags to MaterialUtil.HEADS_WALL does not apply the flag. Adding the flags one by one here solves the issue.
+        BlockProperties.setBlockFlags(Material.CREEPER_WALL_HEAD, BlockFlags.SOLID_GROUND | BlockProperties.F_XZ100 | BlockProperties.F_IGN_PASSABLE);
+        BlockProperties.setBlockFlags(Material.ZOMBIE_WALL_HEAD, BlockFlags.SOLID_GROUND | BlockProperties.F_XZ100 | BlockProperties.F_IGN_PASSABLE);
+        BlockProperties.setBlockFlags(Material.PLAYER_WALL_HEAD, BlockFlags.SOLID_GROUND | BlockProperties.F_XZ100 | BlockProperties.F_IGN_PASSABLE);
+        BlockProperties.setBlockFlags(Material.DRAGON_WALL_HEAD, BlockFlags.SOLID_GROUND | BlockProperties.F_XZ100 | BlockProperties.F_IGN_PASSABLE);
 
         // Directly keep blocks as is.
         for (final Material mat : new Material[] {
