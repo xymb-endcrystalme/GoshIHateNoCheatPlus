@@ -618,7 +618,7 @@ public class DefaultConfig extends ConfigFile {
         final String start = "[player] failed [check]: ";
         final String end = ". VL [violations].";
         final String tell = "ncp tell [player] ";
-        set(ConfPaths.STRINGS + ".angle", start + "tried to hit multiple entities at the same time" + end, 785);
+        set(ConfPaths.STRINGS + ".angle", start + "tried to hit multiple entities at the same time (Tags [tags])" + end, 785);
         set(ConfPaths.STRINGS + ".attackfrequency", start + "attacks with too high a frequency ([packets]/[limit], [tags])" + end, 785);
         set(ConfPaths.STRINGS + ".ban", "ban [player]", 785);
         set(ConfPaths.STRINGS + ".ban-ip", "ban-ip [ip]", 785);
