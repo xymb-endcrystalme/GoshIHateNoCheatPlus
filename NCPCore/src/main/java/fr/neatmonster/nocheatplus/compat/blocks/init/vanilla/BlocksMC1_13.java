@@ -97,6 +97,10 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
 
         // Red sand.
         BlockInit.setAs("RED_SAND", Material.SAND);
+        
+        // Sea Grass.
+        BlockInit.setAs("SEAGRASS", Material.SEAGRASS);
+        BlockInit.setAs("TALL_SEAGRASS", Material.TALL_SEAGRASS);
 
         // Sandstone slabs.
         BlockInit.setPropsAs("SANDSTONE_SLAB", Material.SANDSTONE);
