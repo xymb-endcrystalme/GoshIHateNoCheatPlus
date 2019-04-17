@@ -1240,6 +1240,10 @@ public class BlockProperties {
         for (final Material mat : MaterialUtil.INSTANT_PLANTS) {
             setBlock(mat, instantType);
         }
+        for (final Material mat : MaterialUtil.LIQUID_BLOCKS) {
+        	setFlag(mat, F_GROUND_HEIGHT | F_GROUND);
+            setBlock(mat, instantType);
+        }
         // Instant break and fully passable.
         for (Material mat : new Material[] {
                 Material.REDSTONE_WIRE, 
