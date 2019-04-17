@@ -518,6 +518,15 @@ public class MaterialUtil {
                     Material.LEVER,
                     BridgeMaterial.END_PORTAL,
                     BridgeMaterial.NETHER_PORTAL))
+            
+            ));
+    /**
+     * Collections of blocks that are allowed all types of movement.
+     */
+    @SuppressWarnings("unchecked")
+    public static final Set<Material> LIQUID_BLOCKS = Collections.unmodifiableSet(join(
+            DEAD_CORAL_PARTS,
+	    NEWLIQ
             ));
 
     ////////////////////
