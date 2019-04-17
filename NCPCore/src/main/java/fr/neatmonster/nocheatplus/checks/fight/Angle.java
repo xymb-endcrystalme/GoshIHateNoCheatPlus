@@ -171,7 +171,7 @@ public class Angle extends Check {
         // If the average move is between 0 and 0.2 block(s), add it to the violation.
         if (averageMove >= 0.0 && averageMove < 0.2D) {
             violationone += 20.0 * (0.2 - averageMove) / 0.2;
-            tags.add("Move");
+            tags.add("Average_move");
             if (pData.isDebugActive(type) && pData.hasPermission(Permissions.ADMINISTRATION_DEBUG, player)){
                 player.sendMessage(ChatColor.RED + "NC+ Debug: " + ChatColor.RESET + "avgMove: " + averageMove + " avgMove VL: " + violationone + "/" + cc.angleMove);
             }
@@ -180,7 +180,7 @@ public class Angle extends Check {
         // If the average time elapsed is between 0 and 150 millisecond(s), add it to the violation.
         if (averageTime >= 0.0 && averageTime < 150.0) {
             violationtwo += 30.0 * (150.0 - averageTime) / 150.0;
-            tags.add("Time");
+            tags.add("Average_time");
             if (pData.isDebugActive(type) && pData.hasPermission(Permissions.ADMINISTRATION_DEBUG, player)){
                 player.sendMessage(ChatColor.RED + "NC+ Debug: " + ChatColor.RESET + "avgTime: " + averageTime + " avgTime VL: " + violationtwo + "/" + cc.angleTime);
             }
@@ -189,7 +189,7 @@ public class Angle extends Check {
         // If the average difference of yaw is superior to 50 degrees, add it to the violation.
         if (averageYaw > 50.0) {
             violationthree += 30.0 * averageYaw / 180.0;
-            tags.add("Yaw");
+            tags.add("Average_yaw");
             if (pData.isDebugActive(type) && pData.hasPermission(Permissions.ADMINISTRATION_DEBUG, player)){
                 player.sendMessage(ChatColor.RED + "NC+ Debug: " + ChatColor.RESET + "avgYaw: " + averageYaw + " avgYaw VL: " + violationthree + "/" + cc.angleYaw);
             }
@@ -210,7 +210,7 @@ public class Angle extends Check {
         	// If it hasn't, increment the violation level
              violation = violationone;
              data.angleVL += violation;
-             final ViolationData vd = new ViolationData(this, player, data.angleVL, 1, cc.angleActions);
+             final ViolationData vd = new ViolationData(this, player, data.angleVL, violation, cc.angleActions);
              if (vd.needsParameters()){
 	            vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
 	         }
@@ -223,7 +223,7 @@ public class Angle extends Check {
           	// If it hasn't, increment the violation level
              violation = violationtwo;
              data.angleVL += violation;
-             final ViolationData vd = new ViolationData(this, player, data.angleVL, 1, cc.angleActions);
+             final ViolationData vd = new ViolationData(this, player, data.angleVL, violation, cc.angleActions);
              if (vd.needsParameters()){
   	            vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
   	         }
@@ -236,7 +236,7 @@ public class Angle extends Check {
            	// If it hasn't, increment the violation level
              violation = violationthree;
              data.angleVL += violation;
-             final ViolationData vd = new ViolationData(this, player, data.angleVL, 1, cc.angleActions);
+             final ViolationData vd = new ViolationData(this, player, data.angleVL, violation, cc.angleActions);
              if (vd.needsParameters()){
    	             vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
    	         }
@@ -249,7 +249,7 @@ public class Angle extends Check {
           // If it hasn't, increment the violation level
              violation = violationfour;
              data.angleVL += violation;
-             final ViolationData vd = new ViolationData(this, player, data.angleVL, 1, cc.angleActions);
+             final ViolationData vd = new ViolationData(this, player, data.angleVL, violation, cc.angleActions);
              if (vd.needsParameters()){
    	             vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
    	         }
