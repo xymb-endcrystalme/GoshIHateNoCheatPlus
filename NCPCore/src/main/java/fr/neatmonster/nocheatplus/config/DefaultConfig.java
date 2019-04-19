@@ -342,6 +342,11 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_ANGLE_THRESHOLD_YAW, 50, 1153);
         set(ConfPaths.FIGHT_ANGLE_THRESHOLD_SWITCH, 50, 1153);
         set(ConfPaths.FIGHT_ANGLE_ACTIONS, "cancel vl>100 log:angle:3:5:f cancel vl>250 log:angle:0:5:cif cancel", 785);
+        
+        set(ConfPaths.FIGHT_CLICKPATTERN_CHECK, "default", 1154);
+        set(ConfPaths.FIGHT_CLICKPATTERN_RANGE, 8, 1154);
+        set(ConfPaths.FIGHT_CLICKPATTERN_PENALTY, 150L, 1154);
+        set(ConfPaths.FIGHT_CLICKPATTERN_ACTIONS, "vl>2 cancel vl>6 log:clickpat:0:7:cif cancel", 1154);
 
         set(ConfPaths.FIGHT_CRITICAL_CHECK, "default", 785);
         set(ConfPaths.FIGHT_CRITICAL_FALLDISTANCE, 0.06251, 785);
