@@ -72,6 +72,7 @@ public enum CheckType {
 
     FIGHT(CheckTypeType.CHECK, CheckType.ALL, Permissions.FIGHT),
     FIGHT_ANGLE(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_ANGLE),
+    FIGHT_CLICKPATTERN(CheckTypeType.CHECK, FIGHT),
     FIGHT_CRITICAL(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_CRITICAL),
     FIGHT_DIRECTION(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_DIRECTION),
     FIGHT_FASTHEAL(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_FASTHEAL),
