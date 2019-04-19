@@ -91,6 +91,8 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
 
     /** The critical check. */
     private final Critical    critical    = addCheck(new Critical());
+    
+    private final ClickPattern clickpat    = addCheck(new ClickPattern());
 
     /** The direction check. */
     private final Direction   direction   = addCheck(new Direction());
@@ -323,6 +325,11 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         if (pData.isCheckActive(CheckType.FIGHT_WRONGTURN, player) 
                 && wrongTurn.check(player, loc, data, cc)) {
             cancelled = true;
+        }
+        
+        // ClickPatern check
+        if (clickpat.check(player, data, pData, cc) && clickpat.isEnabled(player, pData)) {
+        	cancelled = true;
         }
 
         // Run through the main checks.
