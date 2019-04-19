@@ -35,7 +35,7 @@ public class InventoryMove extends Check {
     tags.clear();
     // If the player is interacting with their hotbar, then skip the check
     if (type == SlotType.QUICKBAR) {
-		return false;
+        return false;
     }
     else {
     	// Inv. interaction whilst blocking
@@ -60,81 +60,63 @@ public class InventoryMove extends Check {
 			  violation = true;
 			}
 	   }
-    	// Inv. interaction whilst swimming
+     	// Inv. interaction whilst swimming
 		else if (player.isSwimming()) {
-		    // Is the player in Creative?
 			if (player.getGameMode() == GameMode.CREATIVE) {
-		        // Is the DisableCreative config option not enabled?
 				if (!cc.invMoveDisableCreative) {
-			         // Then trigger a violation and add a tag displaying what kind of interaction the player tried to perform
-			        tags.add("isSwimming");
-			        violation = true;
-			    }
-				// If it's enabled, skip 
-			    else {
-			      return false;
-
-			    }
-		  }
-			// Player is not in creative, trigger a violation + add tag
-		    else {
-			  tags.add("isSwimming");
-			  violation = true;
-			}
-	   }
+			            tags.add("isSwimming");
+			            violation = true;
+			        }
+			         else {
+			          return false;
+			         }
+		        }
+		        else {
+		         tags.add("isSwimming");
+		         violation = true;
+	               }
+	        }
     	// Inv. interaction whilst sprinting
 		else if (player.isSprinting()) {
-		    // Is the player in Creative?
 			if (player.getGameMode() == GameMode.CREATIVE) {
-		        // Is the DisableCreative config option not enabled?
 				if (!cc.invMoveDisableCreative) {
-			         // Then trigger a violation and add a tag displaying what kind of interaction the player tried to perform
-			        tags.add("isSprinting");
-			        violation = true;
-			    }
-				// If it's enabled, skip
-			    else {
-			      return false;
-
-			    }
-		  }
-		    // Player is not in creative, trigger a violation + add tag
-		    else {
-			  tags.add("isSprinting");
-			  violation = true;
-			}
-	   }
-    	// Inv. interaction whilst sneaking
+			            tags.add("isSprinting");
+			            violation = true;
+			        }
+			         else {
+			          return false;
+			         }
+		        }
+		        else {
+		         tags.add("isSprinting");
+		         violation = true;
+	               }
+	        }
+     	// Inv. interaction whilst sneaking
 		else if (player.isSneaking()) {
-		    // Is the player in Creative?
 			if (player.getGameMode() == GameMode.CREATIVE) {
-		        // Is the DisableCreative config option not enabled?
 				if (!cc.invMoveDisableCreative) {
-			         // Then trigger a violation and add a tag displaying what kind of interaction the player tried to perform
-			        tags.add("isSneaking");
-			        violation = true;
-			    }
-				// If it's enabled, skip
-			    else {
-			      return false;
-
-			    }
-		  }
-		    // Player is not in creative, trigger a violation + add tag
-		    else {
-			  tags.add("isSneaking");
-			  violation = true;
-		   }
-	   }
+			            tags.add("isSneaking");
+			            violation = true;
+			        }
+			         else {
+			          return false;
+			         }
+		        }
+		        else {
+		         tags.add("isSneaking");
+		         violation = true;
+	               }
+	        }
 	    if (violation) {
 	       data.invMoveVL += 1.0D;
 	       final ViolationData vd = new ViolationData(this, player, data.invMoveVL, 1, pData.getGenericInstance(InventoryConfig.class).invMoveActionList);
-	         if (vd.needsParameters()){
-	            vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
-	         }
-	         return executeActions(vd).willCancel();
-	    } 
-		return cancel;
-	  }
-    }
+	    if (vd.needsParameters()){
+	        vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
+	    }
+	  return executeActions(vd).willCancel();
+	  } 
+	return cancel;
+       }
+     }
   }
