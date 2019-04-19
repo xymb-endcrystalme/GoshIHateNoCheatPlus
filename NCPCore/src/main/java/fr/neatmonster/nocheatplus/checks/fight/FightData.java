@@ -35,6 +35,7 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
 
     // Violation levels.
     public double                  angleVL;
+    public double                  clickPatternVL;
     public double                  criticalVL;
     public double                  directionVL;
     public double                  fastHealVL;
@@ -53,6 +54,7 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
 
     /** Attack penalty (close combat, ENTITY_ATTACK). */
     public final PenaltyTime attackPenalty = new PenaltyTime();
+    public final PenaltyTime clicPatPenalty = new PenaltyTime();
 
     /** The entity id  which might get counter-attacked. */
     public int thornsId = Integer.MIN_VALUE;
@@ -94,7 +96,7 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
 
     // Data of the no swing check.
     public boolean                 noSwingArmSwung = true; // TODO: First is free for now, 1.12.2, other?
-	public boolean                 exemptArmSwing = true;
+    public boolean                 exemptArmSwing = true;
 
     // Data of the reach check.
     public double                  reachMod = 1.0;
@@ -138,6 +140,8 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
                     angleVL = 0;
                     angleHits.clear();
                     break;
+                case FIGHT_CLICKPATTERN:
+                	clickPatternVL = 0;
                 case FIGHT_SPEED:
                     speedVL = 0;
                     speedBuckets.clear(System.currentTimeMillis());
