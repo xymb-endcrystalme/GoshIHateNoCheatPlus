@@ -483,7 +483,13 @@ public abstract class ConfPaths {
     public static final String  FIGHT_ANGLE_THRESHOLD_YAW                = FIGHT_ANGLE_THRESHOLD + "average_yaw";
     public static final String  FIGHT_ANGLE_THRESHOLD_SWITCH             = FIGHT_ANGLE_THRESHOLD + "average_switch";
     public static final String  FIGHT_ANGLE_ACTIONS                      = FIGHT_ANGLE + "actions";
-
+    
+    private static final String FIGHT_CLICKPATTERN                       = FIGHT + "clickpattern.";
+    public static final String  FIGHT_CLICKPATTERN_CHECK                 = FIGHT_CLICKPATTERN + SUB_ACTIVE;
+    public static final String  FIGHT_CLICKPATTERN_RANGE                 = FIGHT_CLICKPATTERN + "range";
+    public static final String  FIGHT_CLICKPATTERN_PENALTY               = FIGHT_CLICKPATTERN + "penalty";
+    public static final String  FIGHT_CLICKPATTERN_ACTIONS               = FIGHT_CLICKPATTERN + "actions";
+    
     private static final String FIGHT_CRITICAL                           = FIGHT + "critical.";
     public static final String  FIGHT_CRITICAL_CHECK                     = FIGHT_CRITICAL + SUB_ACTIVE;
     // TODO: Deprecate or rename (->falldistancemin)?
