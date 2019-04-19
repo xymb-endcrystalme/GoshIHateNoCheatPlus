@@ -3,7 +3,7 @@ package fr.neatmonster.nocheatplus.checks.fight;
 import java.util.HashMap;
 
 import org.bukkit.ChatColor;
-import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
+// import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import fr.neatmonster.nocheatplus.checks.Check;
@@ -11,7 +11,7 @@ import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.permissions.Permissions;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.TickTask;
-import net.minecraft.server.v1_13_R2.EntityPlayer;
+// import net.minecraft.server.v1_13_R2.EntityPlayer;
 
 public class ClickPattern extends Check {
 	
@@ -22,9 +22,9 @@ public class ClickPattern extends Check {
         super(CheckType.FIGHT_CLICKPATTERN);
     }
     
-    public int getPing(Player p) { 
+    /*public int getPing(Player p) { 
     	CraftPlayer cp = (CraftPlayer) p; EntityPlayer ep = cp.getHandle(); return ep.ping; 
-    }
+    } */
     
     HashMap<String, Long> clickData = new HashMap<String, Long>();
     
@@ -62,7 +62,7 @@ public class ClickPattern extends Check {
     	}
     	
     	// Skip the player if they are lagging
-    	if (getPing(player) > 300 || TickTask.getLag(1000, true) > 1.3f) return false;
+    	if (TickTask.getLag(1000, true) > 1.3f) return false;
     	
     	// Setting the attack times
     	else if (clickData.get("lastAttackTime").equals(0L)) {
