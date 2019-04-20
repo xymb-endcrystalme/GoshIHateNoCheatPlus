@@ -930,10 +930,10 @@ public class SurvivalFly extends Check {
 				}
 			}
             // (Friction is used as is.)
-	        } else if (data.newHDist) {
+	        } else if (data.newHDist && hAllowedDistance < 0.345D) {
 		      hAllowedDistance = 0.345D;
 			
-		} else if (snowFix) {
+		} else if (snowFix && hAllowedDistance < 0.377D) {
 		  hAllowedDistance = 0.377D;
 		}			
 		else if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
