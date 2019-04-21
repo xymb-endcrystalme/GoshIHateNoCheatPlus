@@ -633,6 +633,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".bwrong", start + "broke another block than clicked" + end, 785);
         set(ConfPaths.STRINGS + ".captcha", "[player] failed captcha repeatedly" + end, 785);
         set(ConfPaths.STRINGS + ".chatnormal", start + "potentially annoying chat" + end, 785);
+        set(ConfPaths.STRINGS + ".clickpat", start + " seems to be clicking with bot-like frequencies" + end, 785);
         set(ConfPaths.STRINGS + ".color", start + "sent colored chat message" + end, 785);
         set(ConfPaths.STRINGS + ".commands", start + "issued too many commands" + end, 785);
         set(ConfPaths.STRINGS + ".combspeed", start + "performs different actions at very high speed" + end, 785);
