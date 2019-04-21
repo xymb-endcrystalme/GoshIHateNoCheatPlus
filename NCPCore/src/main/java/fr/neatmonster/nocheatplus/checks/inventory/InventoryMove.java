@@ -74,7 +74,7 @@ public class InventoryMove extends Check {
 			 }
 		  }
 	         else {
-	          tags.add("isBlocking");
+	          tags.add("isSwimming");
 	          violation = true;
                  }
         }
