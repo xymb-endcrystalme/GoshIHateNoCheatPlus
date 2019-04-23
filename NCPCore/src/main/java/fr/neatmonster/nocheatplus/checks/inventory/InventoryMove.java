@@ -52,8 +52,9 @@ public class InventoryMove extends Check {
      if (player.isSneaking() || player.isSprinting() || player.isSwimming() || player.isBlocking() || player.isDead()) {
            // Check if the player is in creative
    	   if (player.getGameMode() == GameMode.CREATIVE) {
-   		   // (Skip hotbar interactions and clear tags)
+   		   // (Skip hotbar interactions)
    		   if (type == SlotType.QUICKBAR) {
+			// Prevent tag addition/spam
 			tags.clear();
    		    	return false; 
    		   }
@@ -71,6 +72,8 @@ public class InventoryMove extends Check {
                    }
    		   // Disable_Creative is enabled, skip
    		   else {
+		     // Prevent tag addition/spam
+	             tags.clear();
    	             return false;
    		   }
    	   }
