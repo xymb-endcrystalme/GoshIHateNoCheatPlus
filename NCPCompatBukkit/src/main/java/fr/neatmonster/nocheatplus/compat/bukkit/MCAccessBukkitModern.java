@@ -171,7 +171,15 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
                 BridgeMaterial.COBWEB,
                 Material.HOPPER,
                 BridgeMaterial.MOVING_PISTON,
-                Material.SNOW
+                Material.SNOW,
+                Material.CAKE,
+                Material.BEACON,
+                Material.LADDER,
+                Material.VINE,
+                Material.ANVIL,
+                Material.CHIPPED_ANVIL,
+                Material.DAMAGED_ANVIL,
+                Material.CHORUS_FLOWER
         }) {
             processedBlocks.add(mat);
         }
