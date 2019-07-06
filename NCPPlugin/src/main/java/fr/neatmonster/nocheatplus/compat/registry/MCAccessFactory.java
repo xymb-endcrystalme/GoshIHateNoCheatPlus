@@ -49,6 +49,14 @@ public class MCAccessFactory {
         MCAccess mcAccess = null;
         // Try to set up native access.
 
+        // Bukkit API only: 1.13 (and possibly later).
+        try {
+            return new MCAccessBukkitModern();
+        }
+        catch(Throwable t) {
+            throwables.add(t);
+        }
+        
         // CraftBukkit (dedicated).
         if (config.enableCBDedicated) {
             mcAccess = getMCAccessCraftBukkit(throwables);
@@ -65,14 +73,6 @@ public class MCAccessFactory {
             catch (Throwable t) {
                 throwables.add(t);
             }
-        }
-
-        // Bukkit API only: 1.13 (and possibly later).
-        try {
-            return new MCAccessBukkitModern();
-        }
-        catch(Throwable t) {
-            throwables.add(t);
         }
 
         // Try to set up api-only access (since 1.4.6).
