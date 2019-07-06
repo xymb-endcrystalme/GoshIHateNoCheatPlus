@@ -3321,9 +3321,6 @@ public class BlockProperties {
         }
         // Height 100 is ignored (!).
         else if (((flags & F_HEIGHT150) != 0)) {
-        	for (double d : bounds) {
-        		System.out.print(d + " ");
-        	}
             return 1.5;
         }
         else if ((flags & F_STAIRS) != 0) {
