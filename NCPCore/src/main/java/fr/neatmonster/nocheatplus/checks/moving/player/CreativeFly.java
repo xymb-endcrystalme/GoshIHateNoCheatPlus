@@ -22,6 +22,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffectType;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.actions.ParameterName;
@@ -36,10 +37,12 @@ import fr.neatmonster.nocheatplus.checks.moving.model.LiftOffEnvelope;
 import fr.neatmonster.nocheatplus.checks.moving.model.ModelFlying;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.checks.moving.util.MovingUtil;
+import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeMisc;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
+import fr.neatmonster.nocheatplus.utilities.PotionUtil;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
@@ -320,6 +323,10 @@ public class CreativeFly extends Check {
         }
 
         double limitH = model.getHorizontalModSpeed() / 100.0 * ModelFlying.HORIZONTAL_SPEED * fSpeed;
+        if (model.getScaleSlowfallingEffect() && Bridge1_13.hasSlowfalling()) {
+        	Double Amplifier = PotionUtil.getPotionEffectAmplifier(from.getPlayer(), PotionEffectType.SPEED);
+        	limitH = Double.isInfinite(Amplifier) ? limitH : limitH + 0.1*(Amplifier +1);
+        }
 
         if (lastMove.toIsValid) {
             // TODO: Use last friction (as well)?
@@ -379,6 +386,9 @@ public class CreativeFly extends Check {
                 limitV += 0.046 * levitation; // (It ends up like 0.5 added extra for some levels of levitation, roughly.)
                 tags.add("levitation:" + levitation);
             }
+        } else if (model.getScaleSlowfallingEffect() && Bridge1_13.hasSlowfalling()) {
+        	Double Amplifier = PotionUtil.getPotionEffectAmplifier(from.getPlayer(), PotionEffectType.JUMP);
+        	limitV += Double.isInfinite(Amplifier) ? 0.5 : 0.5 + 0.1*(Amplifier +1);
         }
 
         // Related to elytra.
