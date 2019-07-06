@@ -164,7 +164,8 @@ public class Passable extends Check {
         rayTracing.loop();
         rayTracing.setIgnoreInitiallyColliding(false);
         //rayTracing.setCutOppositeDirectionMargin(false);
-        if (rayTracing.collides() && !player.isSwimming() && !player.isGliding()) {
+        //getEyeHeight() is a way to check isSwimming but not in water
+        if (rayTracing.collides() && !player.isSwimming() && !player.isGliding() && !(player.getEyeHeight()<0.45)) {
             tags = "raytracing_collide_";
         }
         else if (rayTracing.getStepsDone() >= rayTracing.getMaxSteps()) {
