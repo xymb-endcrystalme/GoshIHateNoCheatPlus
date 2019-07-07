@@ -83,6 +83,8 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             0.09375);
     private static final BukkitShapeModel MODEL_FLOWER_POT = new BukkitStatic(
             0.33, 0.375); // TODO: XZ really?
+    private static final BukkitShapeModel MODEL_LANTERN = new BukkitStatic(
+            0.33, 0.5625); // TODO: XZ really?
     private static final BukkitShapeModel MODEL_CONDUIT = new BukkitStatic(
     	    0.33, 0.6875);
     private static final BukkitShapeModel MODEL_GROUND_HEAD= new BukkitStatic(
@@ -332,6 +334,10 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         	addModel(mat, MODEL_CHORUS_PLANT);
         }
 
+        //Lantern
+        Material mt = Material.getMaterial("LANTERN");
+        if (mt != null) addModel(mt, MODEL_LANTERN);
+        
         // Sort to processed by flags.
         for (final Material mat : Material.values()) {
             final long flags = BlockProperties.getBlockFlags(mat);
