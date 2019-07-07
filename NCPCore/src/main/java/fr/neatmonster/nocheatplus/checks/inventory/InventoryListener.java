@@ -361,10 +361,10 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         builder.append(view.getClass().getName());
 
         // Bottom inventory.
-        addInventory(player, view.getBottomInventory(), " , Bottom: ", builder);
+        addInventory(player, view.getBottomInventory(), view, " , Bottom: ", builder);
 
         // Top inventory.
-        addInventory(player, view.getBottomInventory(), " , Top: ", builder);
+        addInventory(player, view.getBottomInventory(), view, " , Top: ", builder);
         
         if (action != null) {
             builder.append(" , Action: ");
@@ -379,19 +379,18 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         debug(player, builder.toString());
     }
 
-    private void addInventory(final Player player, final Inventory inventory, final String prefix, 
+    private void addInventory(final Player player, final Inventory inventory, final InventoryView view, final String prefix, 
             final StringBuilder builder) {
         builder.append(prefix);
         if (inventory == null) {
             builder.append("(none)");
         }
         else {
-            final String name = inventory.getName();
-            final String title = inventory.getTitle();
-            final boolean same = name == null && title == null || name != null && name.equals(title);
-            builder.append((same ? name : (name + "/" + title)));
-            builder.append("/");
-            builder.append(inventory.getClass().getName());
+            String name = view.getTitle();
+            builder.append(name);
+	    //Still don't know why it can cause bug
+            //builder.append("/");
+            //builder.append(inventory.getClass().getName());
         }
     }
 
