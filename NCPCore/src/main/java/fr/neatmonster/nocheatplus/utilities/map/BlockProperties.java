@@ -734,6 +734,9 @@ public class BlockProperties {
     /** Thick fence (default wooden fence). */
     public static final long F_THICK_FENCE                  = f_flag();
 
+    /** Thick fence (default cobblestone wall). */
+    public static final long F_THICK_FENCE2                  = f_flag();	
+	
     /** Fence gate style with 0x04 being fully passable. */
     public static final long F_PASSABLE_X4                  = f_flag();
 
@@ -3120,6 +3123,11 @@ public class BlockProperties {
             // (Allow checking further entries.)
             return true; 
         }
+	else if ((flags & F_THICK_FENCE2) != 0) {
+            if (!collidesFence(fx, fz, dX, dZ, dT, 0.26)) {
+                return true;
+            }
+        }
         else if ((flags & F_THICK_FENCE) != 0) {
             if (!collidesFence(fx, fz, dX, dZ, dT, 0.125)) {
                 return true;
@@ -3332,7 +3340,7 @@ public class BlockProperties {
                 return 0.5;
             }
         }
-        else if ((flags & F_THICK_FENCE) != 0) {
+        else if ((flags & F_THICK_FENCE) != 0 || (flags & F_THICK_FENCE2) != 0) {
            return Math.min(1.0, bounds[4]);
         }
         else if (id == Material.SOUL_SAND) {
