@@ -217,11 +217,11 @@ public class BlockPlaceListener extends CheckListener {
             shouldSkipSome = false;
         }
 
-        if (placedMat == Material.SIGN) {
+        if (placedMat.toString().endsWith("SIGN")) {
             // Might move to MONITOR priority.
             data.autoSignPlacedTime = System.currentTimeMillis();
             // Always hash as sign post for improved compatibility with Lockette etc.
-            data.autoSignPlacedHash = getBlockPlaceHash(block, Material.SIGN);
+            data.autoSignPlacedHash = getBlockPlaceHash(block, placedMat);
         }
 
         // Don't run checks, if a set back is scheduled.
