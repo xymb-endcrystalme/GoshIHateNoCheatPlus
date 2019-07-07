@@ -40,7 +40,7 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         BlockFlags.addFlags("COBBLESTONE_WALL", BlockProperties.F_THICK_FENCE2);
         BlockFlags.removeFlags("COBBLESTONE_WALL", BlockProperties.F_THICK_FENCE);
         // Sign
-        BlockInit.setAs("WALL_SIGN", BridgeMaterial.SIGN);
+        if (Material.getMaterial("WALL_SIGN") != null) BlockInit.setAs("WALL_SIGN", BridgeMaterial.SIGN);
         // Void air.
         BlockInit.setAs("VOID_AIR", Material.AIR);
         // Cave air.
