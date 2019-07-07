@@ -61,6 +61,15 @@ public class AutoSign extends Check {
         final BlockPlaceConfig cc = pData.getGenericInstance(BlockPlaceConfig.class);
         Material mat = block.getType();
         
+        String s = mat.toString();
+        if (s.endsWith("_WALL_SIGN")) {
+        	s = s.replace("_WALL_SIGN", "_SIGN");
+        	mat = Material.getMaterial(s);
+        } else if (s.endsWith("WALL_SIGN")) {
+        	s = s.replace("WALL_", "");
+        	mat = Material.getMaterial(s);
+        }
+        
         if (data.autoSignPlacedHash != BlockPlaceListener.getBlockPlaceHash(block, mat)){
             tags.add("block_mismatch");
             return handleViolation(player, maxEditTime, data, cc);
