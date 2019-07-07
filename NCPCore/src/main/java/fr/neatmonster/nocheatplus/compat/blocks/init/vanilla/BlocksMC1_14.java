@@ -23,7 +23,7 @@ public class BlocksMC1_14 implements BlockPropertiesSetup{
 		// TODO Auto-generated method stub
 		BlockFlags.addFlags("VINE", BlockProperties.F_CLIMBUPABLE);
 		final long stepFlags = BlockProperties.F_GROUND | BlockProperties.F_XZ100 | BlockProperties.F_GROUND_HEIGHT;
-		final long wall = BlockProperties.F_VARIABLE | BlockProperties.F_GROUND | BlockProperties.F_HEIGHT150 | BlockProperties.F_THICK_FENCE;
+		final long wall = BlockProperties.F_VARIABLE | BlockProperties.F_GROUND | BlockProperties.F_HEIGHT150 | BlockProperties.F_THICK_FENCE2;
 		final BlockProperties.BlockProps instant = BlockProperties.instantType;
 		BlockInit.setPropsAs("END_STONE_BRICK_WALL", BridgeMaterial.END_STONE_BRICKS);
 		BlockFlags.addFlags("END_STONE_BRICK_WALL", wall);
