@@ -71,6 +71,8 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             0.4375, 1.0);
     private static final BukkitShapeModel MODEL_THICK_FENCE = new BukkitFence(
             0.375, 1.5);
+    private static final BukkitShapeModel MODEL_THICK_FENCE2 = new BukkitFence(
+            0.25, 1.5);
     // .75 .25 0 max: .25 .75 .5
     private static final BukkitShapeModel MODEL_WALL_HEAD = new BukkitStatic(
     		0.75, 0.25, 0.0, 0.25, 0.75, 0.5);
@@ -337,7 +339,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             if (BlockFlags.hasAnyFlag(flags, BlockProperties.F_STAIRS)) {
                 addModel(mat, MODEL_STAIRS);
             }
-            // Fences, cobblestone wall.
+            // Fences.
             if (BlockFlags.hasAnyFlag(flags, BlockProperties.F_THICK_FENCE)) {
                 if (BlockFlags.hasAnyFlag(flags, BlockProperties.F_PASSABLE_X4)) {
                     // TODO: Perhaps another model flag.
@@ -346,6 +348,10 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
                 else {
                     addModel(mat, MODEL_THICK_FENCE);
                 }
+            }
+            // Walls
+            if (BlockFlags.hasAnyFlag(flags, BlockProperties.F_THICK_FENCE2)) {
+                    addModel(mat, MODEL_THICK_FENCE2);
             }
         }
 
