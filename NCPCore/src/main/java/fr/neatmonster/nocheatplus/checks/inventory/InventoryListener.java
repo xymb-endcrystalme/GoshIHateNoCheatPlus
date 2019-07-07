@@ -167,7 +167,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                 }
                 final InventoryConfig cc = pData.getGenericInstance(InventoryConfig.class);
                 // Still check instantBow, whatever yawrate says.
-                if (instantBow.check(player, event.getForce(), now)) {
+                if (!event.getBow().getType().toString().equals("CROSSBOW") && instantBow.check(player, event.getForce(), now)) {
                     // The check requested the event to be cancelled.
                     event.setCancelled(true);
                 }
