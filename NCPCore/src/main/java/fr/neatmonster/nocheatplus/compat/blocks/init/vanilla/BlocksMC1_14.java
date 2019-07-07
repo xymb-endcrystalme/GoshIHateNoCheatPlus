@@ -103,7 +103,8 @@ public class BlocksMC1_14 implements BlockPropertiesSetup{
 		BlockInit.setAs("JIGSAW", BridgeMaterial.COMMAND_BLOCK);		
 		BlockInit.setAs("BLAST_FURNACE", Material.FURNACE);
 		BlockInit.setAs("SMOKER", Material.FURNACE);
-		BlockInit.setAs("COMPOSTER", Material.DIRT);
+		BlockInit.setPropsAs("COMPOSTER", Material.DIRT);
+		BlockFlags.addFlags("COMPOSTER", BlockFlags.SOLID_GROUND | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_MIN_HEIGHT8_1);
 		BlockInit.setAs("LECTERN", Material.OAK_PLANKS);
 		BlockFlags.addFlags("LECTERN", BlockProperties.F_MIN_HEIGHT16_14);
 		BlockFlags.addFlags("LECTERN", BlockProperties.F_MIN_HEIGHT8_1);
