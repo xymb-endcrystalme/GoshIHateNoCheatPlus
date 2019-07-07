@@ -60,14 +60,11 @@ public class AutoSign extends Check {
         final BlockPlaceData data = pData.getGenericInstance(BlockPlaceData.class);
         final BlockPlaceConfig cc = pData.getGenericInstance(BlockPlaceConfig.class);
         Material mat = block.getType();
-        if (mat == BridgeMaterial.SIGN || mat == Material.WALL_SIGN) {
-            mat = Material.SIGN; // ITEM
+        
+        if (data.autoSignPlacedHash != BlockPlaceListener.getBlockPlaceHash(block, mat)){
+            tags.add("block_mismatch");
+            return handleViolation(player, maxEditTime, data, cc);
         }
-        // Still dont know how to fix this bug in 1.14
-        //if (data.autoSignPlacedHash != BlockPlaceListener.getBlockPlaceHash(block, mat)){
-        //    tags.add("block_mismatch");
-        //    return handleViolation(player, maxEditTime, data, cc);
-        //}
         if (time < data.autoSignPlacedTime){
             data.autoSignPlacedTime = 0;
             return false;
