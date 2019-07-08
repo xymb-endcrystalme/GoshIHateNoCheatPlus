@@ -711,8 +711,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         data.velocityTick(tick - cc.velocityActivationTicks);
 
         // Check which fly check to use.
-        final boolean checkCf;
-        final boolean checkSf;
+        boolean checkCf;
+        boolean checkSf;
         if (MovingUtil.shouldCheckSurvivalFly(player, pFrom, data, cc, pData)) {
             checkCf = false;
             checkSf = true;
@@ -844,6 +844,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             }
         }
 
+	//Force to check survivalfly not creativefly anymore
+        if (player.isRiptiding()) {checkSf = true; checkCf = false;}
+	    
         // Flying checks.
         if (checkSf) {
             // SurvivalFly
