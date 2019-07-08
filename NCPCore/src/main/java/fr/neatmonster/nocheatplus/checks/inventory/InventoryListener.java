@@ -265,7 +265,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         // Fast inventory manipulation check.
         if (fastClick.isEnabled(player, pData)) {
             final InventoryConfig cc = pData.getGenericInstance(InventoryConfig.class);
-            if (player.getGameMode() != GameMode.CREATIVE || !cc.fastClickSpareCreative || !cc.inventoryExemptions.contains(ChatColor.stripColor(event.getInventory().getName()))) {
+            if (player.getGameMode() != GameMode.CREATIVE || !cc.fastClickSpareCreative || !cc.inventoryExemptions.contains(ChatColor.stripColor(event.getView().getTitle()))) {
                 if (fastClick.check(player, now, 
                         event.getView(), slot, cursor, clicked, event.isShiftClick(), 
                         inventoryAction, data, cc, pData)) {  
@@ -388,9 +388,8 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         else {
             String name = view.getTitle();
             builder.append(name);
-	    //Still don't know why it can cause bug
-            //builder.append("/");
-            //builder.append(inventory.getClass().getName());
+            builder.append("/");
+            builder.append(inventory.getClass().getName());
         }
     }
 
