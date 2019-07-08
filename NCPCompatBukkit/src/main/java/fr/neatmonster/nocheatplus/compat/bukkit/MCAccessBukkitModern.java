@@ -21,6 +21,7 @@ import org.bukkit.Material;
 
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 import fr.neatmonster.nocheatplus.compat.blocks.init.BlockInit;
+import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitAnvil;
 import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitChorusPlant;
 import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitCocoa;
 import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitDirectionalCentered;
@@ -180,14 +181,20 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
                 Material.BEACON,
                 Material.LADDER,
                 Material.VINE,
-                Material.ANVIL,
-                Material.CHIPPED_ANVIL,
-                Material.DAMAGED_ANVIL,
                 Material.CHORUS_FLOWER
         }) {
             processedBlocks.add(mat);
         }
 
+        //Anvil
+        for (Material mat : new Material[] {
+        		Material.ANVIL,
+        		Material.CHIPPED_ANVIL,
+        		Material.DAMAGED_ANVIL
+        }) {
+        	addModel(mat, MODEL_ANVIL);
+        }
+        
         // Lily pad
         addModel(BridgeMaterial.LILY_PAD, MODEL_LILY_PAD);
 
