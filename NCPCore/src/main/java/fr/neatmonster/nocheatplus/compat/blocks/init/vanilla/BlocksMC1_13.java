@@ -36,6 +36,10 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
 
     @Override
     public void setupBlockProperties(WorldConfigProvider<?> worldConfigProvider) {
+        // Remove flag for these blocks
+        BlockFlags.removeFlags("TALL_SEAGRASS", BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_GROUND);
+    	BlockFlags.removeFlags("SEAGRASS", BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_GROUND);
+    	BlockFlags.removeFlags("KELP_PLANT", BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_GROUND);
         // Add flag for anvil
         BlockFlags.addFlags("ANVIL", BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_GROUND);
         // Change flag for walls
