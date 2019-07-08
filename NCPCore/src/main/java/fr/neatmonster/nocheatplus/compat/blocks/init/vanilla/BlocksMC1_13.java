@@ -36,6 +36,8 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
 
     @Override
     public void setupBlockProperties(WorldConfigProvider<?> worldConfigProvider) {
+        // Add flag for anvil
+        BlockFlags.addFlags("ANVIL", BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_GROUND);
         // Change flag for walls
         BlockFlags.addFlags("COBBLESTONE_WALL", BlockProperties.F_THICK_FENCE2);
         BlockFlags.removeFlags("COBBLESTONE_WALL", BlockProperties.F_THICK_FENCE);
