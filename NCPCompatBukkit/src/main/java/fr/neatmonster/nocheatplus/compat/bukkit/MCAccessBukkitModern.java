@@ -80,6 +80,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
 
     // Static blocks (various height and inset values).
+    private static final BukkitShapeModel MODEL_ANVIL = new BukkitAnvil();
     private static final BukkitShapeModel MODEL_LILY_PAD = new BukkitStatic(
             0.09375);
     private static final BukkitShapeModel MODEL_FLOWER_POT = new BukkitStatic(
@@ -342,7 +343,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         }
 
         //Lantern
-        Material mt = Material.getMaterial("LANTERN");
+        Material mt = BridgeMaterial.getBlock("lantern");
         if (mt != null) addModel(mt, MODEL_LANTERN);
         
         // Sort to processed by flags.
