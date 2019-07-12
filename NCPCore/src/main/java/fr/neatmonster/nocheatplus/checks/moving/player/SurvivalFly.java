@@ -929,16 +929,15 @@ public class SurvivalFly extends Check {
 				hAllowedDistance *= Magic.modRiptide;
 				}
 			}
-            // (Friction is used as is.)
-	        } else if (data.newHDist && hAllowedDistance < 0.345D) {
+                // (Friction is used as is.)
+	        } else if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
+        	hAllowedDistance = Magic.modRiptide * thisMove.walkSpeed * cc.survivalFlySpeedingSpeed / 100D;
+                } else if (data.newHDist && hAllowedDistance < 0.345D) {
 		      hAllowedDistance = 0.445D;
 			
 		} else if (snowFix && hAllowedDistance < 0.377D) {
 		  hAllowedDistance = 0.377D;
 		}			
-		else if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
-        	hAllowedDistance = Magic.modRiptide * thisMove.walkSpeed * cc.survivalFlySpeedingSpeed / 100D;
-        }
 		// Allows faster speed for player when swimming above water since from -> to does not seem to detect correctly
 		else if ((BlockProperties.isLiquid(from.getTypeIdBelow()) || BlockProperties.isNewLiq(from.getTypeIdBelow()) && player.hasPotionEffect(PotionEffectType.DOLPHINS_GRACE))) {
 			hAllowedDistance = Magic.modSwim * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed * Magic.modDolphinsGrace / 100D;
