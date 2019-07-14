@@ -32,6 +32,8 @@ import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
  */
 public class RichEntityLocation extends RichBoundsLocation {
 
+    private final boolean is1_14Above = BlockProperties.getMaterial("LECTERN") != null;
+    
     /*
      * TODO: HumanEntity default with + height (1.11.2): elytra 0.6/0.6,
      * sleeping 0.2/0.2, sneaking 0.6/1.65, normal 0.6/1.8 - head height is 0.4
@@ -369,7 +371,8 @@ public class RichEntityLocation extends RichBoundsLocation {
             isLiving = true;
             final LivingEntity living = (LivingEntity) entity;
             eyeHeight = living.getEyeHeight();
-            fullHeight = Math.max(Math.max(fullHeight, eyeHeight), living.getEyeHeight(true));
+            //Sneaking in Minecraft 1.14 and possibility later version will have lower height
+            fullHeight = is1_14Above ? eyeHeight : Math.max(Math.max(fullHeight, eyeHeight), living.getEyeHeight(true));
         }
         else {
             isLiving = false;
