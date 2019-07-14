@@ -1,30 +1,47 @@
-    
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xmlns="http://maven.apache.org/POM/4.0.0"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<groupId>fr.neatmonster</groupId>
+	<artifactId>ncpcompatbukkit</artifactId>
+	<packaging>jar</packaging>
+	<name>NCPCompatBukkit</name>
+	<version>1.1-SNAPSHOT</version>
 
 	<parent>
 		<groupId>fr.neatmonster</groupId>
 		<artifactId>nocheatplus-parent</artifactId>
-		<version>3.16.2-SNAPSHOT</version>
+		<version>1.1-SNAPSHOT</version>
 	</parent>
-
-	<artifactId>ncpcompatbukkit</artifactId>
-
-	<name>NCPCompatBukkit</name>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
+			<version>1.14.3-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.neatmonster</groupId>
 			<artifactId>ncpcore</artifactId>
-			<version>3.16.2-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
+
+	<description>Compatibility for using the Bukkit API only.
+</description>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
 
