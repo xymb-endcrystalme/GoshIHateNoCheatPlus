@@ -21,22 +21,7 @@ import org.bukkit.Material;
 
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 import fr.neatmonster.nocheatplus.compat.blocks.init.BlockInit;
-import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitAnvil;
-import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitChorusPlant;
-import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitCocoa;
-import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitDirectionalCentered;
-import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitDoor;
-import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitEndPortalFrame;
-import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitFence;
-import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitGate;
-import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitSeaPickle;
-import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitShapeModel;
-import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitShulkerBox;
-import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitSlab;
-import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitStairs;
-import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitStatic;
-import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitTrapDoor;
-import fr.neatmonster.nocheatplus.compat.bukkit.model.BukkitTurtleEgg;
+import fr.neatmonster.nocheatplus.compat.bukkit.model.*;
 import fr.neatmonster.nocheatplus.config.WorldConfigProvider;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
@@ -80,13 +65,14 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
 
     // Static blocks (various height and inset values).
+    private static final BukkitShapeModel MODEL_LECTERN = new BukkitStatic(0.25, 0.875);
+    private static final BukkitShapeModel MODEL_BAMBOO = new BukkitBamboo();
     private static final BukkitShapeModel MODEL_ANVIL = new BukkitAnvil();
     private static final BukkitShapeModel MODEL_LILY_PAD = new BukkitStatic(
             0.09375);
     private static final BukkitShapeModel MODEL_FLOWER_POT = new BukkitStatic(
             0.33, 0.375); // TODO: XZ really?
-    private static final BukkitShapeModel MODEL_LANTERN = new BukkitStatic(
-            0.33, 0.5625); // TODO: XZ really?
+    private static final BukkitShapeModel MODEL_LANTERN = new BukkitLantern();
     private static final BukkitShapeModel MODEL_CONDUIT = new BukkitStatic(
     	    0.33, 0.6875);
     private static final BukkitShapeModel MODEL_GROUND_HEAD= new BukkitStatic(
@@ -345,6 +331,14 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         //Lantern
         Material mt = BridgeMaterial.getBlock("lantern");
         if (mt != null) addModel(mt, MODEL_LANTERN);
+        
+        // Lectern
+        mt = BridgeMaterial.getBlock("lectern");
+        if (mt != null) addModel(mt, MODEL_LECTERN);
+        
+        // Bamboo        
+        mt = BridgeMaterial.getBlock("bamboo");
+        if (mt != null) addModel(mt, MODEL_BAMBOO);
         
         // Sort to processed by flags.
         for (final Material mat : Material.values()) {
