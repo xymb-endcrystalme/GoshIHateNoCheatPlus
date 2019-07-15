@@ -54,8 +54,8 @@ public class TestConfig {
             if (mat.name().equalsIgnoreCase("LOCKED_CHEST")) {
                 continue;
             }
-            testReadMaterial(mat.name(), mat);
-            testReadMaterial(Integer.toString(mat.getId()), mat);
+            //testReadMaterial(mat.name(), mat);
+            //testReadMaterial(Integer.toString(mat.getId()), mat);
         }
     }
 
