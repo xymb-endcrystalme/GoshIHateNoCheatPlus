@@ -65,6 +65,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
 
     // Static blocks (various height and inset values).
+    private static final BukkitShapeModel MODEL_BELL = new BukkitBell();
     private static final BukkitShapeModel MODEL_LECTERN = new BukkitStatic(0.25, 0.875);
     private static final BukkitShapeModel MODEL_BAMBOO = new BukkitBamboo();
     private static final BukkitShapeModel MODEL_ANVIL = new BukkitAnvil();
@@ -339,6 +340,10 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         // Bamboo        
         mt = BridgeMaterial.getBlock("bamboo");
         if (mt != null) addModel(mt, MODEL_BAMBOO);
+        
+        // Bell
+        mt = BridgeMaterial.getBlock("bell");
+        if (mt != null) addModel(mt, MODEL_BELL);
         
         // Sort to processed by flags.
         for (final Material mat : Material.values()) {
