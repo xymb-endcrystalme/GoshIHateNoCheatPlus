@@ -1238,7 +1238,7 @@ public class SurvivalFly extends Check {
                      * slightly above the top.
                      */
                 }
-				else if (BlockProperties.isNewLiq(from.getTypeIdBelowLiq()) || isLanternUpper(from)) {
+				else if (BlockProperties.isNewLiq(from.getTypeIdBelowLiq()) || isLanternUpper(to)) {
 					
 				} else if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
 					vDistRelVL = false;
@@ -1280,7 +1280,7 @@ public class SurvivalFly extends Check {
                 // Allow too strong decrease.
                 // TODO: Another magic check here? Route most checks through methods anyway?
             }
-			else if (BlockProperties.isNewLiq(from.getTypeIdBelowLiq()) || isLanternUpper(from)) {
+			else if (BlockProperties.isNewLiq(from.getTypeIdBelowLiq()) || isLanternUpper(to)) {
 					
 			}
             else {
@@ -1320,7 +1320,7 @@ public class SurvivalFly extends Check {
             else if (lastMove.toIsValid && MagicAir.oddJunction(from, to, yDistance, yDistChange, yDistDiffEx, maxJumpGain, resetTo, thisMove, lastMove, data, cc)) {
                 // Several types of odd in-air moves, mostly with gravity near maximum, friction, medium change.
             }
-			else if (BlockProperties.isNewLiq(from.getTypeIdBelowLiq())) {
+			else if (BlockProperties.isNewLiq(from.getTypeIdBelowLiq()) || isLanternUpper(to)) {
 					
 				}
 			else if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
@@ -1517,7 +1517,7 @@ public class SurvivalFly extends Check {
             else if (thisMove.verVelUsed == null) { // Only skip if just used.
                 // Here yDistance can be negative and positive.
                 //                if (yDistance != 0.0) {
-				if ( (BlockProperties.isNewLiq(from.getTypeIdBelow())) || (data.timeRiptiding + 500 > now) || (data.bedLeaveTime + 500 > now && yDistance < 0.45) || (snowFix) || isLanternUpper(from)) {
+				if ( (BlockProperties.isNewLiq(from.getTypeIdBelow())) || (data.timeRiptiding + 500 > now) || (data.bedLeaveTime + 500 > now && yDistance < 0.45) || (snowFix) || isLanternUpper(to)) {
 					// Ignore
 				}
 				else {
@@ -1615,7 +1615,7 @@ public class SurvivalFly extends Check {
                 // Moving upwards after falling without having touched the ground.
                 if (data.bunnyhopDelay < 9 && !((lastMove.touchedGround || lastMove.from.onGroundOrResetCond) && lastMove.yDistance == 0D) && data.getOrUseVerticalVelocity(yDistance) == null) {
                     // TODO: adjust limit for bunny-hop.
-                if ( (BlockProperties.isNewLiq(from.getTypeIdBelow())) || (data.timeRiptiding + 500 > now) || (data.bedLeaveTime + 500 > now && yDistance < 0.45) || (snowFix) || (isLanternUpper(from))) {
+                if ( (BlockProperties.isNewLiq(from.getTypeIdBelow())) || (data.timeRiptiding + 500 > now) || (data.bedLeaveTime + 500 > now && yDistance < 0.45) || (snowFix) || (isLanternUpper(to))) {
 					
 		} else {
 		    vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance));
