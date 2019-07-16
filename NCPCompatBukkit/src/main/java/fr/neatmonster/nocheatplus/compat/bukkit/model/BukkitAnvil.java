@@ -35,15 +35,15 @@ public class BukkitAnvil implements BukkitShapeModel {
         	switch (face) {
         	case NORTH:
         	case SOUTH:
-        		 return new double[] {0.07, 0.25, 0.0, 1.0 - 0.07, 1.0, 1.0};
+        		 return new double[] {0.1815, 0.0, 0.0, 1.0 - 0.1815, 1.0, 1.0};
         	case WEST:
         	case EAST:
-        		return new double[] {0.0, 0.25, 0.07, 1.0, 1.0, 1.0 - 0.07};
+        		return new double[] {0.0, 0.0, 0.1815, 1.0, 1.0, 1.0 - 0.1815};
 			default:
 				break;
         	}
         }
-        return new double[] {0.0, 0.25, 0.07, 1.0, 1.0, 1.0 - 0.07};
+        return new double[] {0.0, 0.0, 0.0, 1.0, 1.0, 1.0};
     }
 
     @Override
