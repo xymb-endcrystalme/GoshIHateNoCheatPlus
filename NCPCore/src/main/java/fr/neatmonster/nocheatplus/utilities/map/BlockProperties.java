@@ -3165,6 +3165,8 @@ public class BlockProperties {
         else if ((flags & F_GROUND_HEIGHT) != 0 
                 && getGroundMinHeight(access, bx, by, bz, node, flags) <= Math.min(fy, fy + dY * dT)) {
             return true;
+        } else if (id.toString().equals("BELL") && (access.getData(bx, by, bz) & 0x4) != 0) {
+        	if (Math.max(fy, fy + dY * dT) >0.39 && Math.max(fy, fy + dY * dT) < 0.64) return true;
         }
         // Nothing found.
         return false;
