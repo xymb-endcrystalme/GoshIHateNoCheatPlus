@@ -2048,7 +2048,7 @@ public class SurvivalFly extends Check {
 		}
 		
 		// TODO: Set magic speeds
-		if (from.getTypeId() == Material.BUBBLE_COLUMN) {
+		if (isBubbleColumn(from)) {
         	return new double[]{yDistance, 0.0};
         }
 
@@ -2064,6 +2064,25 @@ public class SurvivalFly extends Check {
         }
     }
 
+    private boolean isBubbleColumn(PlayerLocation from) {
+    	if (from.getTypeId() == Material.BUBBLE_COLUMN) {
+        	return true;
+        }
+    	World w = from.getWorld();
+		int x = from.getBlockX();
+		int y = from.getBlockY();
+		int z = from.getBlockZ();
+		if (w.getBlockAt(x + 1,y,z).getType() == Material.BUBBLE_COLUMN) return true;
+		if (w.getBlockAt(x - 1,y,z).getType() == Material.BUBBLE_COLUMN) return true; 
+		if (w.getBlockAt(x,y,z + 1).getType() == Material.BUBBLE_COLUMN) return true; 
+		if (w.getBlockAt(x,y,z - 1).getType() == Material.BUBBLE_COLUMN) return true;
+		if (w.getBlockAt(x + 1,y,z - 1).getType() == Material.BUBBLE_COLUMN) return true;
+		if (w.getBlockAt(x + 1,y,z + 1).getType() == Material.BUBBLE_COLUMN) return true; 
+		if (w.getBlockAt(x - 1,y,z - 1).getType() == Material.BUBBLE_COLUMN) return true; 
+		if (w.getBlockAt(x - 1,y,z + 1).getType() == Material.BUBBLE_COLUMN) return true; 
+    	return false;
+    }
+	
     /**
      * On-climbable vertical distance checking.
      * @param from
