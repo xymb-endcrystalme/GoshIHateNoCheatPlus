@@ -436,7 +436,7 @@ public class SurvivalFly extends Check {
             }
 
             // Prevent players from sprinting if they're moving backwards (allow buffers to cover up !?).
-            if (sprinting && data.lostSprintCount == 0 && hDistance > thisMove.walkSpeed && !data.hasActiveHorVel() && !player.hasPotionEffect(PotionEffectType.SPEED)) {
+            if (sprinting && data.lostSprintCount == 0 && hDistance > thisMove.walkSpeed && !data.hasActiveHorVel() && !player.hasPotionEffect(PotionEffectType.SPEED) && !((from.isInWater() || isWaterlogged(from)) && player.hasPotionEffect(PotionEffectType.DOLPHINS_GRACE))) {
                 // (Ignore some cases, in order to prevent false positives.)
                 // TODO: speed effects ?
                 if (TrigUtil.isMovingBackwards(xDistance, zDistance, from.getYaw()) 
