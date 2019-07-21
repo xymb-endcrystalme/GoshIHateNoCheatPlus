@@ -3127,6 +3127,9 @@ public class BlockProperties {
             if (!collidesFence(fx, fz, dX, dZ, dT, 0.26)) {
                 return true;
             }
+	    if (!collidesFence(fx, fz, dX, dZ, dT, 0.13)) {
+            	return true;
+            }
         }
         else if ((flags & F_THICK_FENCE) != 0) {
             if (!collidesFence(fx, fz, dX, dZ, dT, 0.125)) {
