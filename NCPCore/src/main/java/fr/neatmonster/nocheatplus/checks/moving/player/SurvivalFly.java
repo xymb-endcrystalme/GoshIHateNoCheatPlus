@@ -25,6 +25,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.World;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.actions.ParameterName;
@@ -1238,7 +1240,7 @@ public class SurvivalFly extends Check {
                      * slightly above the top.
                      */
                 }
-				else if (BlockProperties.isNewLiq(from.getTypeIdBelowLiq()) || isLanternUpper(to)) {
+				else if (BlockProperties.isNewLiq(from.getTypeIdBelowLiq()) || isLanternUpper(to) || isWaterlogged(from)) {
 					
 				} else if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
 					vDistRelVL = false;
@@ -1517,7 +1519,7 @@ public class SurvivalFly extends Check {
             else if (thisMove.verVelUsed == null) { // Only skip if just used.
                 // Here yDistance can be negative and positive.
                 //                if (yDistance != 0.0) {
-				if ( (BlockProperties.isNewLiq(from.getTypeIdBelow())) || (data.timeRiptiding + 500 > now) || (data.bedLeaveTime + 500 > now && yDistance < 0.45) || (snowFix) || isLanternUpper(to)) {
+				if ( (BlockProperties.isNewLiq(from.getTypeIdBelow())) || (data.timeRiptiding + 500 > now) || (data.bedLeaveTime + 500 > now && yDistance < 0.45) || (snowFix) || isLanternUpper(to) || isWaterlogged(from)) {
 					// Ignore
 				}
 				else {
@@ -1548,6 +1550,22 @@ public class SurvivalFly extends Check {
     	return false;	
     }
 	
+    private boolean isWaterlogged(PlayerLocation from) {
+    	World w = from.getWorld();
+    	final int x = from.getBlockX();
+    	final int y = from.getBlockY();
+    	final int z = from.getBlockZ();
+    	BlockData bd = w.getBlockAt(x,y-1,z).getBlockData();
+    	if (bd instanceof Waterlogged) {
+    		return ((Waterlogged)bd).isWaterlogged();
+    	}
+    	BlockData bd2 = w.getBlockAt(x,y,z).getBlockData();
+    	if (bd2 instanceof Waterlogged) {
+    		return ((Waterlogged)bd2).isWaterlogged();
+    	}
+    	return false;
+    }
+    
     /**
      * Demand that with time the values decrease.<br>
      * The ActionAccumulator instance must have 3 buckets, bucket 1 is checked against
