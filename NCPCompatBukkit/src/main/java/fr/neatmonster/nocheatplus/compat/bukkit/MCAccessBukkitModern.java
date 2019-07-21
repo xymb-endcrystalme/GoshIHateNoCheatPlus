@@ -57,7 +57,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             0.4375, 1.0);
     private static final BukkitShapeModel MODEL_THICK_FENCE = new BukkitFence(
             0.375, 1.5);
-    private static final BukkitShapeModel MODEL_THICK_FENCE2 = new BukkitFence(
+    private static final BukkitShapeModel MODEL_THICK_FENCE2 = new BukkitWall(
             0.25, 1.5);
     // .75 .25 0 max: .25 .75 .5
     private static final BukkitShapeModel MODEL_WALL_HEAD = new BukkitStatic(
