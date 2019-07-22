@@ -270,8 +270,10 @@ public class VehicleEnvelope extends Check {
         }
         // Maximum ascend speed.
         if (checkDetails.checkAscendMuch && thisMove.yDistance > checkDetails.maxAscend) {
+            if (thisMove.yDistance >2.03) {
             tags.add("ascend_much");
             violation = true;
+        	}
         }
         // Maximum descend speed.
         if (checkDetails.checkDescendMuch && thisMove.yDistance < -MagicVehicle.maxDescend) {
