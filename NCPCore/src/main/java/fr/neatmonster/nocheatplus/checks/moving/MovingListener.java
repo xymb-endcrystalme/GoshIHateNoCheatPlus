@@ -1334,6 +1334,10 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 vd.setParameter(ParameterName.DISTANCE, String.format(Locale.US, "%.2f", TrigUtil.distance(from, to)));
                 vd.setParameter(ParameterName.TAGS, "EXTREME_MOVE");
             }
+	    long now = System.currentTimeMillis();
+            if ((player.isRiptiding() || data.timeRiptiding + 3000 > now ) && TrigUtil.distance(from, to)< 5.5) {
+            	return null;
+            }
             // Some resetting is done in MovingListener.
             if (check.executeActions(vd).willCancel()) {
                 // Set back + view direction of to (more smooth).
