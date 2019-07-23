@@ -155,6 +155,8 @@ public class CreativeFly extends Check {
             data.clearActiveHorVel(); // TODO: test/check !
         }
 
+        resultH *= 100.0; // Normalize to % of a block.
+        
         long now = System.currentTimeMillis();
         
         // Sometimes resultH can be up to 18
@@ -162,7 +164,6 @@ public class CreativeFly extends Check {
         	resultH = 0.0;
         }
         
-        resultH *= 100.0; // Normalize to % of a block.
         if (resultH > 0.0) {
             tags.add("hdist");
         }
