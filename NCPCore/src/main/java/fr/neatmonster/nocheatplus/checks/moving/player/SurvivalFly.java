@@ -1788,6 +1788,9 @@ public class SurvivalFly extends Check {
         }
 		
 		if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
+			if (player.isGliding() && hDistanceAboveLimit< 0.2) {
+				hDistanceAboveLimit=0.0;
+			}
 			tags.add("hriptide");
 		}
 
@@ -2126,6 +2129,10 @@ public class SurvivalFly extends Check {
                 tags.add("climbspeed");
                 vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance) - maxSpeed);
             }
+	    long now = System.currentTimeMillis();
+            if ((player.isRiptiding() || data.timeRiptiding + 3000 > now) && vDistanceAboveLimit< 4.0) {
+            	vDistanceAboveLimit = 0.0;
+            } 
         }
         if (yDistance > 0) {
             if (!data.playerMoves.getCurrentMove().touchedGround) {
