@@ -265,7 +265,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         // Fast inventory manipulation check.
         if (fastClick.isEnabled(player, pData)) {
             final InventoryConfig cc = pData.getGenericInstance(InventoryConfig.class);
-            if (player.getGameMode() != GameMode.CREATIVE || !cc.fastClickSpareCreative || !cc.inventoryExemptions.contains(ChatColor.stripColor(event.getView().getTitle()))) {
+            if (!(event.getView().getType().equals(InventoryType.CREATIVE) && cc.fastClickSpareCreative) && !cc.inventoryExemptions.contains(ChatColor.stripColor(event.getView().getTitle()))) {
                 if (fastClick.check(player, now, 
                         event.getView(), slot, cursor, clicked, event.isShiftClick(), 
                         inventoryAction, data, cc, pData)) {  
@@ -273,7 +273,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                     cancel = true;
                 }
                   // Listen for more than just a chest?
-                 if (event.getInventory().getType().equals(InventoryType.CHEST) || event.getInventory().getType().equals(InventoryType.ENDER_CHEST)) {
+                 if (event.getInventory().getType().equals(InventoryType.CHEST) || event.getInventory().getType().equals(InventoryType.ENDER_CHEST) || event.getInventory().getType().toString().equals("BARREL") || event.getInventory().getType().toString().equals("SHULKER_BOX")) {
         			if (fastClick.fastClickChest(player, data, cc)) {
         				cancel = true;
         				keepCancel = true;
@@ -321,7 +321,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
     	
 	// Check left click too to prevent any bypasses
     	if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null || event.getAction() == Action.LEFT_CLICK_BLOCK && event.getClickedBlock() != null) {
-    	if (event.getClickedBlock().getType() == Material.CHEST || event.getClickedBlock().getType() == Material.ENDER_CHEST) {
+    	if (event.getClickedBlock().getType() == Material.CHEST || event.getClickedBlock().getType() == Material.ENDER_CHEST || event.getClickedBlock().getType().toString().equals("BARREL") || event.getClickedBlock().getType().toString().endsWith("SHULKER_BOX")) {
 		data.chestOpenTime = System.currentTimeMillis();
     	    }
     	} 
