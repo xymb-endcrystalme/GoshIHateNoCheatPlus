@@ -447,6 +447,7 @@ public class SurvivalFly extends Check {
                     // (Might have to account for speeding permissions.)
                     // TODO: hDistance is too harsh?
                     hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
+		    if (hDistanceAboveLimit < 0.5) {hDistanceAboveLimit =0.0;}
                     tags.add("sprintback"); // Might add it anyway.
                 }
             }
