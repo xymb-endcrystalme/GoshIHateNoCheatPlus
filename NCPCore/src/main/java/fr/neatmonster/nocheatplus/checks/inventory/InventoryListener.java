@@ -321,7 +321,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
     	
 	// Check left click too to prevent any bypasses
     	if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null || event.getAction() == Action.LEFT_CLICK_BLOCK && event.getClickedBlock() != null) {
-    	if (event.getClickedBlock().getType() == Material.CHEST || event.getClickedBlock().getType() == Material.ENDER_CHEST || event.getClickedBlock().getType().toString().equals("BARREL") || event.getClickedBlock().getType().toString().endsWith("SHULKER_BOX")) {
+    	if (event.getClickedBlock().getType().toString().endsWith("CHEST") || event.getClickedBlock().getType().toString().equals("BARREL") || event.getClickedBlock().getType().toString().endsWith("SHULKER_BOX")) {
 		data.chestOpenTime = System.currentTimeMillis();
     	    }
     	} 
