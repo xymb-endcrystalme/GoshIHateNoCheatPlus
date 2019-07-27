@@ -344,7 +344,7 @@ public class SurvivalFly extends Check {
             // Judge if horizontal speed is above limit.
             hDistanceAboveLimit = hDistance - hAllowedDistance;
 
-			if ((player.isRiptiding() || data.timeRiptiding + 4000 < now) && hDistanceAboveLimit < 3.0) {
+			if ((player.isRiptiding() || data.timeRiptiding + 4000 > now) && hDistanceAboveLimit < 3.0) {
             	hDistanceAboveLimit =0;
             }
             // Velocity, buffers and after failure checks.
