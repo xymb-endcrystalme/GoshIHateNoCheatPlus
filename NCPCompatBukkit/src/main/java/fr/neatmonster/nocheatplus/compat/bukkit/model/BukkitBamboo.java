@@ -36,7 +36,9 @@ public class BukkitBamboo implements BukkitShapeModel {
         minX = Double.parseDouble(df.format(minX));
         minZ = Double.parseDouble(df.format(minZ));
         
-        return new double[] {minX+0.09, 0.0, 1.0-minZ+0.09, minX+xz-0.09, 1.0, 1.0-minZ+xz-0.09};
+	//TODO Someone test this please
+        return new double[] {1.0 - minX + 0.09, 0.0, minZ + 0.09, 1.0 - minX + xz - 0.09, 1.0, minZ + xz - 0.09};    
+        //return new double[] {minX+0.09, 0.0, 1.0-minZ+0.09, minX+xz-0.09, 1.0, 1.0-minZ+xz-0.09};
     }
 
     @Override
