@@ -373,7 +373,8 @@ public class RichEntityLocation extends RichBoundsLocation {
             final LivingEntity living = (LivingEntity) entity;
             eyeHeight = living.getEyeHeight();
             //Sneaking in Minecraft 1.14 and possibility later version will have lower height
-            fullHeight = is1_14Above ? eyeHeight : Math.max(Math.max(fullHeight, eyeHeight), living.getEyeHeight(true));
+            // 0.179999?
+            fullHeight = is1_14Above ? eyeHeight + 0.179 : Math.max(Math.max(fullHeight, eyeHeight), living.getEyeHeight(true));
         }
         else {
             isLiving = false;
