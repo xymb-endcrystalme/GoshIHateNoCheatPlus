@@ -60,8 +60,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     private static final BukkitShapeModel MODEL_THICK_FENCE2 = new BukkitWall(
             0.25, 1.5);
     // .75 .25 0 max: .25 .75 .5
-    private static final BukkitShapeModel MODEL_WALL_HEAD = new BukkitStatic(
-    		0.75, 0.25, 0.0, 0.25, 0.75, 0.5);
+    private static final BukkitShapeModel MODEL_WALL_HEAD = new BukkitWallHead();
 
 
     // Static blocks (various height and inset values).
@@ -142,21 +141,20 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         // TODO: Also consider removing flags (passable_x4 etc).
 
     	// Variables for repeated flags (Temporary flags, these should be fixed later so that they are not added here)
-    	final long headFlags = BlockFlags.SOLID_GROUND | BlockProperties.F_XZ100 | BlockProperties.F_IGN_PASSABLE;
-    	final long blockFix = BlockFlags.SOLID_GROUND | BlockProperties.F_XZ100 | BlockProperties.F_IGN_PASSABLE;
+    	final long blockFix = BlockFlags.SOLID_GROUND;
     	// Adjust flags for individual blocks.
         BlockProperties.setBlockFlags(Material.CAULDRON, 
                 BlockFlags.SOLID_GROUND | BlockProperties.F_GROUND_HEIGHT 
                 | BlockProperties.F_MIN_HEIGHT4_1);
         BlockProperties.setBlockFlags(Material.COCOA, blockFix);
-        BlockProperties.setBlockFlags(Material.TURTLE_EGG, BlockProperties.F_IGN_PASSABLE | BlockFlags.SOLID_GROUND | BlockProperties.F_GROUND | BlockProperties.F_XZ100);
+        BlockProperties.setBlockFlags(Material.TURTLE_EGG, blockFix);
         BlockProperties.setBlockFlags(Material.CHORUS_PLANT, blockFix);
-        BlockProperties.setBlockFlags(Material.CREEPER_WALL_HEAD, headFlags);
-        BlockProperties.setBlockFlags(Material.ZOMBIE_WALL_HEAD, headFlags);
-        BlockProperties.setBlockFlags(Material.PLAYER_WALL_HEAD, headFlags);
-        BlockProperties.setBlockFlags(Material.DRAGON_WALL_HEAD, headFlags);
-        BlockProperties.setBlockFlags(Material.WITHER_SKELETON_WALL_SKULL, headFlags);
-        BlockProperties.setBlockFlags(Material.SKELETON_WALL_SKULL, headFlags);
+        BlockProperties.setBlockFlags(Material.CREEPER_WALL_HEAD, blockFix);
+        BlockProperties.setBlockFlags(Material.ZOMBIE_WALL_HEAD, blockFix);
+        BlockProperties.setBlockFlags(Material.PLAYER_WALL_HEAD, blockFix);
+        BlockProperties.setBlockFlags(Material.DRAGON_WALL_HEAD, blockFix);
+        BlockProperties.setBlockFlags(Material.WITHER_SKELETON_WALL_SKULL, blockFix);
+        BlockProperties.setBlockFlags(Material.SKELETON_WALL_SKULL, blockFix);
 
         // Directly keep blocks as is.
         for (final Material mat : new Material[] {

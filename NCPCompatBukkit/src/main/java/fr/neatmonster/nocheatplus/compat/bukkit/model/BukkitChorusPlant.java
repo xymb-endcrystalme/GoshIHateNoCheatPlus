@@ -14,8 +14,6 @@
  */
 package fr.neatmonster.nocheatplus.compat.bukkit.model;
 
-import java.util.Set;
-
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -32,14 +30,14 @@ public class BukkitChorusPlant implements BukkitShapeModel {
 
         final Block block = world.getBlockAt(x, y, z);
         final BlockData blockData = block.getBlockData();
-        double[] res = new double[] {0.185, 0.095, 0.185, 1.0 - 0.185, 0.8125, 1.0 - 0.185};
+        double[] res = new double[] {0.185, 0.188, 0.185, 1.0 - 0.185, 0.8125, 1.0 - 0.185};
         if (blockData instanceof MultipleFacing) {
         	final MultipleFacing chorusplant = (MultipleFacing) blockData;
         	for (final BlockFace face : chorusplant.getFaces()) {
         		switch (face) {
-        		case DOWN:
-        			res[1]=0.0;
-        			break;
+        		//case DOWN:
+        		//	res[1]=0.0;
+        		//	break;
         		case UP:
         			res[4]=1.0;
         			break;
