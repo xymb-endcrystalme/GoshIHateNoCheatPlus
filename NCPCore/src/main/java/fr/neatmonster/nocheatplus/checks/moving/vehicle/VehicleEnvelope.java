@@ -17,6 +17,7 @@ package fr.neatmonster.nocheatplus.checks.moving.vehicle;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -168,8 +169,13 @@ public class VehicleEnvelope extends Check {
             final MovingData data, final MovingConfig cc,
             final boolean debug) {
         boolean violation = false;
+        long now = System.currentTimeMillis();
         if (debug) {
             debugDetails.add("inair: " + data.sfJumpPhase);
+        }
+        
+        if (isBubbleColumn(vehicle.getLocation())) {
+        	data.timeVehicletoss = System.currentTimeMillis();
         }
 
         // Medium dependent checking.
@@ -270,11 +276,14 @@ public class VehicleEnvelope extends Check {
         }
         // Maximum ascend speed.
         if (checkDetails.checkAscendMuch && thisMove.yDistance > checkDetails.maxAscend) {
-            if (thisMove.yDistance >2.03) {
             tags.add("ascend_much");
             violation = true;
-        	}
         }
+        
+        if (data.timeVehicletoss + 2000 > now && thisMove.yDistance < 4.0) {
+            violation = false;
+        }
+        
         // Maximum descend speed.
         if (checkDetails.checkDescendMuch && thisMove.yDistance < -MagicVehicle.maxDescend) {
             // TODO: At times it looks like one move is skipped, resulting in double distance ~ -5 and at the same time 'vehicle moved too quickly'. 
@@ -306,6 +315,25 @@ public class VehicleEnvelope extends Check {
         }
 
         return violation;
+    }
+    
+    private boolean isBubbleColumn(Location from) {
+    	if (from.getBlock().getType() == Material.BUBBLE_COLUMN) {
+        	return true;
+        }
+               World w = from.getWorld();
+		int x = from.getBlockX();
+		int y = from.getBlockY();
+		int z = from.getBlockZ();
+		if (w.getBlockAt(x + 1,y,z).getType() == Material.BUBBLE_COLUMN) return true;
+		if (w.getBlockAt(x - 1,y,z).getType() == Material.BUBBLE_COLUMN) return true; 
+		if (w.getBlockAt(x,y,z + 1).getType() == Material.BUBBLE_COLUMN) return true; 
+		if (w.getBlockAt(x,y,z - 1).getType() == Material.BUBBLE_COLUMN) return true;
+		if (w.getBlockAt(x + 1,y,z - 1).getType() == Material.BUBBLE_COLUMN) return true;
+		if (w.getBlockAt(x + 1,y,z + 1).getType() == Material.BUBBLE_COLUMN) return true; 
+		if (w.getBlockAt(x - 1,y,z - 1).getType() == Material.BUBBLE_COLUMN) return true; 
+		if (w.getBlockAt(x - 1,y,z + 1).getType() == Material.BUBBLE_COLUMN) return true; 
+    	return false;
     }
 
     /**
