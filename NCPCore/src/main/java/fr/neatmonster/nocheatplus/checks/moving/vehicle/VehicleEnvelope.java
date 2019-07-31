@@ -18,6 +18,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
