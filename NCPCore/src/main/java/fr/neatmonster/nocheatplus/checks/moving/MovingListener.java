@@ -365,13 +365,14 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
     
     private boolean standsOnEntity(final Entity entity, final double minY){
             // TODO: Probably check other ids too before doing this ?
-            for (final Entity other : entity.getNearbyEntities(2.0, 2.0, 2.0)){
+            for (final Entity other : entity.getNearbyEntities(1.5, 1.5, 1.5)){
                 final EntityType type = other.getType();
                 if (type != EntityType.BOAT){
                     continue; 
                 }
+                final Material m = other.getLocation().getBlock().getType();
                 final double locY = other.getLocation().getY();
-                if (Math.abs(locY - minY) < 0.7){
+                if (Math.abs(locY - minY) < 0.7 && (BlockProperties.isLiquid(m) || BlockProperties.isNewLiq(m))){
                     return true; 
                 }
                 else return false;
