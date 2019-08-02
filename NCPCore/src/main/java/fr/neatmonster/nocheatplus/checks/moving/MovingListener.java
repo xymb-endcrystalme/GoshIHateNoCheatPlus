@@ -27,6 +27,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -349,6 +350,36 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
     }
 
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onUnknowBoatTeleport(final PlayerTeleportEvent event) {
+    	if (event.getCause() == TeleportCause.UNKNOWN) {
+    		final Player player = event.getPlayer();
+    		final IPlayerData pData = DataManager.getPlayerData(player);
+    		final MovingData data = pData.getGenericInstance(MovingData.class);
+    		if (!data.wasInVehicle && standsOnEntity(player, player.getLocation().getY())) {
+    			event.setCancelled(true);
+    			player.setSwimming(false);
+    		}
+    	}
+    }
+    
+    private boolean standsOnEntity(final Entity entity, final double minY){
+            // TODO: Probably check other ids too before doing this ?
+            for (final Entity other : entity.getNearbyEntities(1.5, 1.5, 1.5)){
+                final EntityType type = other.getType();
+                if (type != EntityType.BOAT){
+                    continue; 
+                }
+                final Material m = other.getLocation().getBlock().getType();
+                final double locY = other.getLocation().getY();
+                if (Math.abs(locY - minY) < 0.7 && (BlockProperties.isLiquid(m) || BlockProperties.isNewLiq(m))){
+                    return true; 
+                }
+                else return false;
+            }
+        return false;
+    }	
+	
     /**
      * Just for security, if a player switches between worlds, reset the fly and more packets checks data, because it is
      * definitely invalid now.
