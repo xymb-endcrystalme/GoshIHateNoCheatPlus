@@ -348,7 +348,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             pData.getGenericInstance(CombinedData.class).wasInBed = false;
         }
     }
-
+    
     /**
      * Just for security, if a player switches between worlds, reset the fly and more packets checks data, because it is
      * definitely invalid now.
@@ -476,6 +476,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 		
 		if (player.isRiptiding()) {
         	data.timeRiptiding = System.currentTimeMillis();
+        	data.RiptideLevel = BridgeEnchant.getRiptideLevel(player);
         }
 
         final boolean debug = pData.isDebugActive(checkType);
@@ -1334,8 +1335,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 vd.setParameter(ParameterName.DISTANCE, String.format(Locale.US, "%.2f", TrigUtil.distance(from, to)));
                 vd.setParameter(ParameterName.TAGS, "EXTREME_MOVE");
             }
-	    long now = System.currentTimeMillis();
-            if ((player.isRiptiding() || data.timeRiptiding + 4000 > now ) && TrigUtil.distance(from, to)< 7.0) {
+            long now = System.currentTimeMillis();
+            if ((player.isRiptiding() || data.timeRiptiding + 4000 > now ) && TrigUtil.distance(from, to)< (player.isGliding() ? 10.0 : 7.5)) {
             	return null;
             }
             // Some resetting is done in MovingListener.
@@ -1875,7 +1876,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         // Invalidate first-move thing.
         // TODO: Might conflict with 'moved wrongly' on join.
         data.joinOrRespawn = false;
-
+        
         // Special cases.
         final Location to = event.getTo();
         if (event.isCancelled()) {

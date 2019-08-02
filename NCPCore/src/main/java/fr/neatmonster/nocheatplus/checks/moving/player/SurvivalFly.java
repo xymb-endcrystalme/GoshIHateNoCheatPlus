@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -316,7 +315,7 @@ public class SurvivalFly extends Check {
         data.bunnyhopDelay--; // TODO: Design to do the changing at the bottom? [if change: check limits in bunnyHop(...)]
 
         // Set flag for swimming with the flowing direction of liquid.
-        thisMove.downStream = hDistance > thisMove.walkSpeed * Magic.modSwim && thisMove.from.inLiquid && from.isDownStream(xDistance, zDistance);
+        thisMove.downStream = hDistance > (player.isSwimming() ? thisMove.walkSpeed * Magic.modSwim[1] : thisMove.walkSpeed * Magic.modSwim[0]) && thisMove.from.inLiquid && from.isDownStream(xDistance, zDistance);
 
         // Handle ice.
         // TODO: Re-model ice stuff and other (e.g. general thing: ground-modifier + reset conditions).
@@ -503,7 +502,7 @@ public class SurvivalFly extends Check {
             final double[] res = vDistLiquid(from, to, toOnGround, yDistance, lastMove, data, player);
             vAllowedDistance = res[0];
             vDistanceAboveLimit = res[1];
-            if (vDistanceAboveLimit <= 0.0 && yDistance > 0.0 && Math.abs(yDistance) > Magic.swimBaseSpeedV()) {
+            if (vDistanceAboveLimit <= 0.0 && yDistance > 0.0 && Math.abs(yDistance) > Magic.swimBaseSpeedV(player.isSwimming())) {
                 data.setFrictionJumpPhase();
             }
         }
@@ -919,7 +918,7 @@ public class SurvivalFly extends Check {
             // Check all liquids (lava might demand even slower speed though).
             // TODO: Test how to go with only checking from (less dolphins).
             // TODO: Sneaking and blocking applies to when in water !
-            hAllowedDistance = Magic.modSwim * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed / 100D;
+            hAllowedDistance = player.isSwimming() ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed / 100D;
 			useBaseModifiers = true;
             if (thisMove.from.inWater || !thisMove.from.inLava) { // (We don't really have other liquids, though.)
                 final int level = BridgeEnchant.getDepthStriderLevel(player);
@@ -933,12 +932,12 @@ public class SurvivalFly extends Check {
             }   if (level > 0 && player.hasPotionEffect(PotionEffectType.DOLPHINS_GRACE)) {
 				hAllowedDistance *= Magic.modDepthStrider[level] * Magic.modDolphinsGrace * 4;
               } if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
-				hAllowedDistance *= Magic.modRiptide;
+				hAllowedDistance *= Magic.modRiptide[data.RiptideLevel];
 				}
 			}
                 // (Friction is used as is.)
 	        } else if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
-        	hAllowedDistance = Magic.modRiptide * thisMove.walkSpeed * cc.survivalFlySpeedingSpeed / 100D;
+        	hAllowedDistance = Magic.modRiptide[data.RiptideLevel] * thisMove.walkSpeed * cc.survivalFlySpeedingSpeed / 100D;
                 } else if (data.newHDist && hAllowedDistance < 0.345D) {
 		      hAllowedDistance = 0.445D;
 			
@@ -947,10 +946,10 @@ public class SurvivalFly extends Check {
 		}			
 		// Allows faster speed for player when swimming above water since from -> to does not seem to detect correctly
 		else if ((BlockProperties.isLiquid(from.getTypeIdBelow()) || BlockProperties.isNewLiq(from.getTypeIdBelow()) && player.hasPotionEffect(PotionEffectType.DOLPHINS_GRACE))) {
-			hAllowedDistance = Magic.modSwim * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed * Magic.modDolphinsGrace / 100D;
+			hAllowedDistance = player.isSwimming() ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed * Magic.modDolphinsGrace / 100D;
 			final int level = BridgeEnchant.getDepthStriderLevel(player);
 			if (level > 0) {
-			hAllowedDistance = Magic.modSwim * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed * Magic.modDolphinsGrace * Magic.modDepthStrider[level] / 100D;
+			hAllowedDistance = Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed * Magic.modDolphinsGrace * Magic.modDepthStrider[level] / 100D;
 			}
 		}
         // TODO: !sfDirty is very coarse, should use friction instead.
@@ -1016,7 +1015,7 @@ public class SurvivalFly extends Check {
         // Account for flowing liquids (only if needed).
         // Assume: If in liquids this would be placed right here.
         if (thisMove.downStream) {
-            hAllowedDistance *= Magic.modDownStream;
+            hAllowedDistance *= player.isSwimming() ? Magic.modDownStream2 : Magic.modDownStream;
         }
 
         // If the player is on ice, give them a higher maximum speed.
@@ -2015,9 +2014,9 @@ public class SurvivalFly extends Check {
         // Expected envelopes.
         final double baseSpeed;
         if (player.isOnGround()) {
-        baseSpeed = Magic.swimBaseSpeedV() + 0.1;   
+        baseSpeed = Magic.swimBaseSpeedV(player.isSwimming()) + 0.1;   
         } else {
-        baseSpeed = Magic.swimBaseSpeedV(); } // TODO: Lava?
+        baseSpeed = Magic.swimBaseSpeedV(player.isSwimming()); } // TODO: Lava?
         final double yDistAbs = Math.abs(yDistance);
 
         // TODO: Later also cover things like a sudden stop.

@@ -273,7 +273,7 @@ public class MagicAir {
                         && yDistance - lastMove.yDistance < 0.0114
                         // 1: Any leaving liquid and keeping distance once.
                         || data.sfJumpPhase == 1 
-                        && Math.abs(yDistance) <= Magic.swimBaseSpeedV() && yDistance == lastMove.yDistance
+                        && Math.abs(yDistance) <= Magic.swimBaseSpeedV(from.getPlayer().isSwimming()) && yDistance == lastMove.yDistance
                         )
                 ;
     }
