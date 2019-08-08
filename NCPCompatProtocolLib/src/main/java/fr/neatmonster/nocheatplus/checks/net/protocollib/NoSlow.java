@@ -80,7 +80,10 @@ public class NoSlow extends BaseAdapter {
 	
 	public NoSlow(Plugin plugin) {
 		super(plugin, ListenerPriority.LOW, initPacketTypes());
-		// TODO Auto-generated constructor stub
+		final NoCheatPlusAPI api = NCPAPIProvider.getNoCheatPlusAPI();
+		for (final MiniListener<?> listener : miniListeners) {
+        		api.addComponent(listener, false);
+        }
 	}
 	
 	@Override
@@ -200,14 +203,5 @@ public class NoSlow extends BaseAdapter {
      */ 
     public static void setuseRLThreshold(int time) {
     	timeBetweenRL = time;
-    }
-	
-    public static void setActive(boolean enable) {
-    	if (enable) {
-    		final NoCheatPlusAPI api = NCPAPIProvider.getNoCheatPlusAPI();
-        	for (final MiniListener<?> listener : miniListeners) {
-        		api.addComponent(listener, false);
-        	}
-        }
-    }    
+    }   
 }
