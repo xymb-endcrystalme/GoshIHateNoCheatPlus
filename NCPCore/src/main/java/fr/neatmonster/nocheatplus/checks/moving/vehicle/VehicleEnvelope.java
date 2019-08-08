@@ -23,9 +23,11 @@ import org.bukkit.World;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffectType;
 
 import fr.neatmonster.nocheatplus.actions.ParameterName;
 import fr.neatmonster.nocheatplus.checks.Check;
@@ -39,7 +41,10 @@ import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.checks.moving.model.VehicleMoveData;
 import fr.neatmonster.nocheatplus.checks.moving.model.VehicleMoveInfo;
 import fr.neatmonster.nocheatplus.checks.workaround.WRPT;
+import fr.neatmonster.nocheatplus.compat.Bridge1_13;
+import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
+import fr.neatmonster.nocheatplus.utilities.PotionUtil;
 import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
 
@@ -175,7 +180,7 @@ public class VehicleEnvelope extends Check {
         if (debug) {
             debugDetails.add("inair: " + data.sfJumpPhase);
         }
-        
+		 
         if (isBubbleColumn(vehicle.getLocation())) {
         	data.timeVehicletoss = System.currentTimeMillis();
         }
@@ -186,6 +191,12 @@ public class VehicleEnvelope extends Check {
 
         // Maximum thinkable horizontal speed.
         // TODO: Further distinguish, best set in CheckDetails.
+        if (vehicle instanceof LivingEntity) {
+        	Double speed = PotionUtil.getPotionEffectAmplifier((LivingEntity)vehicle, PotionEffectType.SPEED);
+        	if (!Double.isInfinite(speed)) {
+        		if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc) * (1 + 0.2 * (speed+1)))) return true;
+        	} else if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc))) return true;
+        } else
         if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc))) { // Override type for now.
             return true;
         }
@@ -260,7 +271,7 @@ public class VehicleEnvelope extends Check {
         }
         else if (checkDetails.inAir) {
             // In-air move.
-            if (checkInAir(thisMove, data, debug)) {
+            if (checkInAir(thisMove, data, debug, vehicle)) {
                 violation = true;
             }
         }
@@ -275,6 +286,13 @@ public class VehicleEnvelope extends Check {
             if (!checkDetails.toIsSafeMedium) {
                 // TODO: At least do something here?
             }
+        }
+        if (vehicle instanceof LivingEntity) {
+        	Double levitation = Bridge1_9.getLevitationAmplifier((LivingEntity)vehicle);
+        	if (!Double.isInfinite(levitation)) {
+        		checkDetails.maxAscend += 0.046 * (levitation + 1);
+        		violation = false;
+        	}
         }
         // Maximum ascend speed.
         if (checkDetails.checkAscendMuch && thisMove.yDistance > checkDetails.maxAscend) {
@@ -391,7 +409,7 @@ public class VehicleEnvelope extends Check {
         // Generic settings.
         // (maxAscend is not checked for stepping up blocks)
         if (checkDetails.canJump) {
-            checkDetails.maxAscend = 1.0; // Coarse envelope. Actual lift off gain should be checked on demand.
+            checkDetails.maxAscend = 1.2; // Coarse envelope. Actual lift off gain should be checked on demand.
         }
         // Climbable
         if (checkDetails.canClimb) {
@@ -413,7 +431,7 @@ public class VehicleEnvelope extends Check {
      * @return
      */
     private boolean checkInAir(final VehicleMoveData thisMove, final MovingData data,
-            final boolean debug) {
+            final boolean debug, final Entity vehicle) {
 
         // TODO: Distinguish sfJumpPhase and inAirDescendCount (after reaching the highest point).
 
@@ -449,8 +467,10 @@ public class VehicleEnvelope extends Check {
         final double maxDescend = getInAirMaxDescend(thisMove, data);
         if (data.sfJumpPhase > (checkDetails.canJump ? MagicVehicle.maxJumpPhaseAscend : 1)
                 && thisMove.yDistance > Math.max(minDescend, -checkDetails.gravityTargetSpeed)) {
-            tags.add("slow_fall_vdist");
-            violation = true;
+        	if (!(vehicle instanceof LivingEntity && !Double.isInfinite(Bridge1_13.getSlowfallingAmplifier((LivingEntity)vehicle)))) {
+        		tags.add("slow_fall_vdist");
+                violation = true;
+        	}
         }
         // Fast falling (vdist).
         else if (data.sfJumpPhase > 1 && thisMove.yDistance < maxDescend) {
