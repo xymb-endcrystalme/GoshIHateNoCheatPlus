@@ -25,6 +25,7 @@ import fr.neatmonster.nocheatplus.NoCheatPlus;
 import fr.neatmonster.nocheatplus.checks.inventory.FastConsume;
 import fr.neatmonster.nocheatplus.checks.inventory.Gutenberg;
 import fr.neatmonster.nocheatplus.checks.inventory.HotFixFallingBlockPortalEnter;
+import fr.neatmonster.nocheatplus.checks.net.protocollib.NoSlow;
 import fr.neatmonster.nocheatplus.checks.net.protocollib.ProtocolLibComponent;
 import fr.neatmonster.nocheatplus.components.registry.activation.Activation;
 import fr.neatmonster.nocheatplus.components.registry.activation.IActivation;
@@ -167,6 +168,7 @@ public class DefaultComponentFactory {
             if (protocolLibAvailable) {
                 try {
                     available.add(new ProtocolLibComponent(plugin));
+                    NoSlow.setActive(true);
                 } catch (Throwable t){
                     StaticLog.logWarning("Failed to set up packet level access with ProtocolLib.");
                     if (ConfigManager.getConfigFile().getBoolean(ConfPaths.LOGGING_EXTENDED_STATUS)) {

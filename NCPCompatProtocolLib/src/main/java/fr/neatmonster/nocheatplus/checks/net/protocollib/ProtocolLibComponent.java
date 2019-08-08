@@ -132,6 +132,8 @@ public class ProtocolLibComponent implements IDisableListener, INotifyReload, Jo
                 register("fr.neatmonster.nocheatplus.checks.net.protocollib.CatchAllAdapter", plugin);
             }
         }
+        
+        register("fr.neatmonster.nocheatplus.checks.net.protocollib.NoSlow", plugin);
 
         if (!registeredPacketAdapters.isEmpty()) {
             List<String> names = new ArrayList<String>(registeredPacketAdapters.size());

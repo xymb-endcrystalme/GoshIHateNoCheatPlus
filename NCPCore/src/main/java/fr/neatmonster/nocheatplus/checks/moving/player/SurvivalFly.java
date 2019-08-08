@@ -960,8 +960,10 @@ public class SurvivalFly extends Check {
             // TODO: Attribute modifiers can count in here, e.g. +0.5 (+ 50% doesn't seem to pose a problem, neither speed effect 2).
         }
         // TODO: !sfDirty is very coarse, should use friction instead.
-        else if (!sfDirty && thisMove.from.onGround && player.isBlocking() 
+        // Find out why it didn't flag immediately
+        else if (!sfDirty && thisMove.from.onGround && (data.isusingitem || data.isHackingRI || player.isBlocking()) 
                 && (!checkPermissions || !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_BLOCKING, player))) {
+            data.isHackingRI = false;
             hAllowedDistance = Magic.modBlock * thisMove.walkSpeed * cc.survivalFlyBlockingSpeed / 100D;
             friction = 0.0; // Ensure friction can't be used to speed.
         }

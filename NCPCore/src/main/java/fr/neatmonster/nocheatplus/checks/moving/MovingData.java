@@ -110,6 +110,11 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int speedTick = 0;
     public float walkSpeed = 0.0f;
     public float flySpeed = 0.0f;
+	
+	/** No Slow*/
+	 public boolean isusingitem = false;
+    public long time_rl_item = 0;
+    public boolean isHackingRI = false;
 
     /** Count set back (re-) setting. */
     private int playerMoveCount = 0;

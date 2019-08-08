@@ -48,7 +48,7 @@ public class Magic {
     public static final double WALK_SPEED           = 0.221D;
     public static final double modSneak             = 0.13D / WALK_SPEED;
     //    public static final double modSprint            = 0.29 / walkSpeed; // TODO: without bunny  0.29 / practical is 0.35
-    public static final double modBlock             = 0.16D / WALK_SPEED;
+    public static final double modBlock             = 0.129D / WALK_SPEED;
     public static final double[] modSwim            = new double[] {0.155D / WALK_SPEED, 0.3D / WALK_SPEED}; // 0.155D / WALK_SPEED(1.13 above); 0.115D / WALK_SPEED(1.12.2 below)
     public static final double[] modRiptide         = new double[] {
     		1.0,
