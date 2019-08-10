@@ -1573,7 +1573,8 @@ public class SurvivalFly extends Check {
             }
             else return false;
         }
-    return false;
+        return false;
+    }	    
 	
     private boolean isLanternUpper(PlayerLocation from) {
     	World w = from.getWorld();
