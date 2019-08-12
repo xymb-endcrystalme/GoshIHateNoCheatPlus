@@ -1386,6 +1386,9 @@ public class SurvivalFly extends Check {
 				else if (player.isRiptiding() || (data.timeRiptiding + 3000 > now)) {
 					tags.add("yriptide");
 				}
+				else if (player.isSwimming() && isWaterlogged(from)) {
+					// Ignore water logged blocks 
+				}
                 // Attempt to use velocity.
                 else if (data.getOrUseVerticalVelocity(yDistance) == null) {
                     // Violation.
@@ -1597,6 +1600,10 @@ public class SurvivalFly extends Check {
     	BlockData bd2 = w.getBlockAt(x,y,z).getBlockData();
     	if (bd2 instanceof Waterlogged) {
     		return ((Waterlogged)bd2).isWaterlogged();
+    	}
+		BlockData bd4 = w.getBlockAt(x,y+2,z).getBlockData();
+    	if (bd4 instanceof Waterlogged) {
+    		return ((Waterlogged)bd4).isWaterlogged();
     	}
     	return false;
     }
