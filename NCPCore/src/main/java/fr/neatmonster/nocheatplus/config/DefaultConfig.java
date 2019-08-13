@@ -574,9 +574,9 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_VEHICLE_MOREPACKETS_ACTIONS, "cancel vl>10 log:morepackets:0:2:if cancel", 785);
 
         set(ConfPaths.MOVING_VEHICLE_ENVELOPE_ACTIVE, "default", 785);
-        set(ConfPaths.MOVING_VEHICLE_ENVELOPE_ACTIONS, "cancel vl>100 cancel log:vehicleenvelope:0:15:icf", 785);
         set(ConfPaths.MOVING_VEHICLE_ENVELOPE_HSPEEDCAP + ".default", 0.9, 1154);
         set(ConfPaths.MOVING_VEHICLE_ENVELOPE_HSPEEDCAP + ".pig", 0.3, 1154);
+        set(ConfPaths.MOVING_VEHICLE_ENVELOPE_ACTIONS, "cancel vl>100 cancel log:vehicleenvelope:0:15:icf", 785);
 
         // Messages
         set(ConfPaths.MOVING_MESSAGE_ILLEGALPLAYERMOVE, "Illegal move.", 785);
