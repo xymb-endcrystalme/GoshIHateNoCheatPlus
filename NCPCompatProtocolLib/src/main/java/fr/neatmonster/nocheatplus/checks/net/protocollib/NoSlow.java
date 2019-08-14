@@ -1,3 +1,17 @@
+/*
+ * This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package fr.neatmonster.nocheatplus.checks.net.protocollib;
 
 import java.util.Arrays;
@@ -10,6 +24,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -109,6 +124,7 @@ public class NoSlow extends BaseAdapter {
 	}
 	
     private static void onItemInteract(final PlayerInteractEvent e){
+    	if (e.getAction() != Action.RIGHT_CLICK_AIR && e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 		final Player p = e.getPlayer();
 		final IPlayerData pData = DataManager.getPlayerData(p);
 		final MovingData data = pData.getGenericInstance(MovingData.class);
@@ -178,9 +194,9 @@ public class NoSlow extends BaseAdapter {
         data.isusingitem = false;
         
         //Advanced check
-        if(digtype == PlayerDigType.RELEASE_USE_ITEM) {       	
+        if(digtype == PlayerDigType.RELEASE_USE_ITEM) {
+        	long now = System.currentTimeMillis();
         	if (data.time_rl_item != 0) {
-        		long now = System.currentTimeMillis();
         		if (now < data.time_rl_item) {
         			data.time_rl_item = now;
         			data.isusingitem = false;
@@ -188,9 +204,9 @@ public class NoSlow extends BaseAdapter {
         		}
         		if (data.time_rl_item + timeBetweenRL > now) {
         			data.isHackingRI = true;
-        		} else {data.isHackingRI = false;}
+        		}
         	}
-        	data.time_rl_item = System.currentTimeMillis();
+        	data.time_rl_item = now;
         }
     }
 	
