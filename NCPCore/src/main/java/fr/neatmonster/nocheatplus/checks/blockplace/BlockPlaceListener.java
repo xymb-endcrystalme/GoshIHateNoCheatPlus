@@ -212,6 +212,8 @@ public class BlockPlaceListener extends CheckListener {
                 }
                 shouldSkipSome = false;
             }
+        } else if (placedMat.toString().equals("SCAFFOLDING")) {
+        	shouldSkipSome = true;
         }
         else {
             shouldSkipSome = false;

@@ -156,14 +156,14 @@ public class CreativeFly extends Check {
         }
 
         resultH *= 100.0; // Normalize to % of a block.
-        
+		
         long now = System.currentTimeMillis();
         
         // Sometimes resultH can be up to 18
         if (player.isGliding() && (player.isRiptiding() || data.timeRiptiding + 4000 > now) && resultH<14.0) {
         	resultH = 0.0;
         }
-        
+		
         if (resultH > 0.0) {
             tags.add("hdist");
         }
@@ -206,8 +206,8 @@ public class CreativeFly extends Check {
         }
 
         resultV *= 100.0; // Normalize to % of a block.
-		// Sometimes resultV can be up to 78
-        if (player.isGliding() && (player.isRiptiding() || data.timeRiptiding + 4000 > now) && resultV<50.0) {
+        // Sometimes resultV can be up to 78
+        if (player.isGliding() && (player.isRiptiding() || data.timeRiptiding + 4000 > now) && resultV<60.0) {
         	resultV = 0.0;
         }
         if (resultV > 0.0) {
@@ -333,7 +333,7 @@ public class CreativeFly extends Check {
         else {
             fSpeed = 1.0;
         }
-
+        
         double limitH = model.getHorizontalModSpeed() / 100.0 * ModelFlying.HORIZONTAL_SPEED * fSpeed;
         if (model.getScaleSlowfallingEffect() && Bridge1_13.hasSlowfalling()) {
         	Double Amplifier = PotionUtil.getPotionEffectAmplifier(from.getPlayer(), PotionEffectType.SPEED);
