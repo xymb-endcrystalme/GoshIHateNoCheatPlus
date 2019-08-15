@@ -50,6 +50,7 @@ import fr.neatmonster.nocheatplus.checks.net.FlyingQueueHandle;
 import fr.neatmonster.nocheatplus.checks.net.model.DataPacketFlying;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeMisc;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import fr.neatmonster.nocheatplus.components.NoCheatPlusAPI;
 import fr.neatmonster.nocheatplus.components.data.ICheckData;
 import fr.neatmonster.nocheatplus.components.data.IData;
@@ -412,6 +413,7 @@ public class BlockPlaceListener extends CheckListener {
 	*/
 	@EventHandler(priority = EventPriority.MONITOR)
     public void placeBlock(PlayerInteractEvent event) {
+		if (ServerVersion.compareMinecraftVersion("1.8") < 0) return;
     	if (!Scaffold.isEnabled(event.getPlayer())) return;
     	
     	Player player = event.getPlayer();

@@ -69,7 +69,9 @@ public class AutoSign extends Check {
         	s = s.replace("WALL_", "");
         	mat = Material.getMaterial(s);
         }
-        
+        if (s.equals("SIGN_POST")) {
+        	mat = Material.getMaterial("SIGN");
+        }
         if (data.autoSignPlacedHash != BlockPlaceListener.getBlockPlaceHash(block, mat)){
             tags.add("block_mismatch");
             return handleViolation(player, maxEditTime, data, cc);

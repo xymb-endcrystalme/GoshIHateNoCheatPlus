@@ -82,6 +82,7 @@ import fr.neatmonster.nocheatplus.checks.moving.velocity.AccountEntry;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.SimpleEntry;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.VelocityFlags;
 import fr.neatmonster.nocheatplus.checks.net.NetData;
+import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeEnchant;
 import fr.neatmonster.nocheatplus.compat.BridgeHealth;
@@ -352,6 +353,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onUnknowBoatTeleport(final PlayerTeleportEvent event) {
+    	if (!Bridge1_13.hasIsSwimming()) return;
     	if (event.getCause() == TeleportCause.UNKNOWN) {
     		final Player player = event.getPlayer();
     		final IPlayerData pData = DataManager.getPlayerData(player);
@@ -505,7 +507,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             token = null;
         }
 		
-		if (player.isRiptiding()) {
+		if (Bridge1_13.isRiptiding(player)) {
         	data.timeRiptiding = System.currentTimeMillis();
         	data.RiptideLevel = BridgeEnchant.getRiptideLevel(player);
         }
@@ -877,7 +879,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
 
 	//Force to check survivalfly not creativefly anymore
-        if (player.isRiptiding()) {checkSf = true; checkCf = false;}
+        if (Bridge1_13.isRiptiding(player)) {checkSf = true; checkCf = false;}
 	    
         // Flying checks.
         if (checkSf) {
@@ -1367,7 +1369,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 vd.setParameter(ParameterName.TAGS, "EXTREME_MOVE");
             }
             long now = System.currentTimeMillis();
-            if ((player.isRiptiding() || data.timeRiptiding + 4000 > now ) && TrigUtil.distance(from, to)< (player.isGliding() ? 10.0 : 7.5)) {
+            if ((Bridge1_13.isRiptiding(player) || data.timeRiptiding + 4000 > now ) && TrigUtil.distance(from, to)< (Bridge1_9.isGliding(player) ? 10.0 : 7.5)) {
             	return null;
             }
             // Some resetting is done in MovingListener.
