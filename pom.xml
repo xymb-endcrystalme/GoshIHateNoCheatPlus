@@ -49,6 +49,10 @@
 			<id>bukkit</id>
 			<url>http://repo.bukkit.org/content/groups/public/</url>
 		</repository>
+		<repository>
+    			<id>nms-repo</id>
+    			<url>https://repo.codemc.org/repository/nms/</url>
+		</repository>
 	</repositories>
 
 	<description>The initial pom design had been taken from mbax (GitHub).
