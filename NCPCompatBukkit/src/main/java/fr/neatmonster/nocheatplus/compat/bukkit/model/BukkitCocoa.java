@@ -40,13 +40,13 @@ public class BukkitCocoa implements BukkitShapeModel {
                 case 0: // .625 .4375 .0625 max: .375 .75 .3125
                 	switch (face) {
                 	case NORTH:
-                		return new double[] {0.375, 0.4375, 0.0, 0.625, 0.75, 0.375};
+                		return new double[] {0.375, 0.4375, 0.0, 0.625, 0.75, 0.315};
                 	case SOUTH:
-                		return new double[] {0.375, 0.4375, 0.625, 0.625, 0.75, 1.0};
+                		return new double[] {0.375, 0.4375, 0.685, 0.625, 0.75, 1.0};
                 	case WEST:                		
-                		return new double[] {0.0, 0.4375, 0.375, 0.375, 0.75, 0.625};
+                		return new double[] {0.0, 0.4375, 0.375, 0.315, 0.75, 0.625};
                 	case EAST:
-                		return new double[] {0.625, 0.4375, 0.375, 1.0, 0.75, 0.625};
+                		return new double[] {0.685, 0.4375, 0.375, 1.0, 0.75, 0.625};
 					default:
 						break;
                 	}

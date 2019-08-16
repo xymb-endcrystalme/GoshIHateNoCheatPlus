@@ -986,26 +986,32 @@ public class BlockProperties {
     }
 
     private static void setFlag(Material material, long addFlag) {
+    	try {
         if (!material.isBlock()) {
             // Let's not fail hard here.
             StaticLog.logWarning("Attempt to set flag for a non-block: " + material);
         }
+    	} catch (Exception e) {}
         blockFlags.put(material, blockFlags.get(material) | addFlag);
     }
 
     private static void maskFlag(Material material, long addFlag) {
+    	try {
         if (!material.isBlock()) {
             // Let's not fail hard here.
             StaticLog.logWarning("Attempt to mask flag for a non-block: " + material);
         }
+    	} catch (Exception e) {}
         blockFlags.put(material, blockFlags.get(material) & addFlag);
     }
 
     private static void setBlock(Material material, BlockProps props) {
+    	try {
         if (!material.isBlock()) {
             // Let's not fail hard here.
             StaticLog.logWarning("Attempt to set block breaking properties for a non-block: " + material);
         }
+    	} catch (Exception e) {}
         blocks.put(material, props);
     }
 
@@ -1516,9 +1522,9 @@ public class BlockProperties {
         // 95 Locked chest
         // blocks[95] = indestructibleType; // Locked chest (prevent crash with 1.7).
         if (BridgeMaterial.has("locked_chest")) {
-            BlockFlags.setFlagsAs("locked_chest", Material.CHEST);
+            BlockFlags.setFlagsAs("LOCKED_CHEST", Material.CHEST);
             // Breaks like chest later on.
-            setBlockProps("locked_chest", BlockProperties.instantType);
+            setBlockProps("LOCKED_CHEST", BlockProperties.chestType);
         }
 
         // Terracotta (hard_clay).
@@ -2564,10 +2570,12 @@ public class BlockProperties {
      *            the flags
      */
     public static final void setBlockFlags(final Material blockType, final long flags) {
+    	try {
         if (!blockType.isBlock()) {
             // Let's not fail hard here.
             StaticLog.logWarning("Attempt to set flags for a non-block: " + blockType);
         }
+    	} catch (Exception e) {}
         blockFlags.put(blockType, flags);
     }
 
@@ -3127,7 +3135,7 @@ public class BlockProperties {
             if (!collidesFence(fx, fz, dX, dZ, dT, 0.26)) {
                 return true;
             }
-	    if (!collidesFence(fx, fz, dX, dZ, dT, 0.13)) {
+            if (!collidesFence(fx, fz, dX, dZ, dT, 0.13)) {
             	return true;
             }
         }
@@ -3170,7 +3178,7 @@ public class BlockProperties {
             return true;
         } else if (id.toString().equals("BELL") && (access.getData(bx, by, bz) & 0x4) != 0) {
         	if (Math.max(fy, fy + dY * dT) >0.39 && Math.max(fy, fy + dY * dT) < 0.9) return true;
-        }
+        } else if (id.toString().equals("CHORUS_PLANT") && !collidesFence(fx, fz, dX, dZ, dT, 0.3)) return true;
         // Nothing found.
         return false;
     }

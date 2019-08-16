@@ -19,7 +19,6 @@ import java.util.Iterator;
 import org.bukkit.Location;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Parrot;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
@@ -901,7 +900,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
     	final Player player = e.getPlayer();
     	final FightData data = DataManager.getGenericInstance(player, FightData.class);
     	
-    	if (entity instanceof Parrot) {
+    	if (entity.getType().getEntityClass().getCanonicalName().endsWith("Parrot")) {
 	data.exemptArmSwing = true;
     	} else {
 	data.exemptArmSwing = false;
