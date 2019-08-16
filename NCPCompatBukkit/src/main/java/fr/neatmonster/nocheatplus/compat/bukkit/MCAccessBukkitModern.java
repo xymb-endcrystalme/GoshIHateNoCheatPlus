@@ -122,7 +122,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
     @Override
     public String getMCVersion() {
-        return "1.13.2-1.14|?";
+        return "1.13-1.14|?";
     }
 
     @Override
@@ -337,7 +337,10 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         
         // Bamboo        
         mt = BridgeMaterial.getBlock("bamboo");
-        if (mt != null) addModel(mt, MODEL_BAMBOO);
+        if (mt != null) {
+            BlockProperties.setBlockFlags(mt, BlockProperties.F_IGN_PASSABLE);
+            //addModel(mt, MODEL_BAMBOO);
+        }
         
         // Bell
         mt = BridgeMaterial.getBlock("bell");
