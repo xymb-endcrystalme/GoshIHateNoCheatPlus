@@ -337,10 +337,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         
         // Bamboo        
         mt = BridgeMaterial.getBlock("bamboo");
-        if (mt != null) {
-            BlockProperties.setBlockFlags(mt, BlockProperties.F_IGN_PASSABLE);
-            //addModel(mt, MODEL_BAMBOO);
-        }
+        if (mt != null) addModel(mt, MODEL_BAMBOO);
         
         // Bell
         mt = BridgeMaterial.getBlock("bell");

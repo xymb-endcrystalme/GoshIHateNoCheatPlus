@@ -3178,7 +3178,7 @@ public class BlockProperties {
             return true;
         } else if (id.toString().equals("BELL") && (access.getData(bx, by, bz) & 0x4) != 0) {
         	if (Math.max(fy, fy + dY * dT) >0.39 && Math.max(fy, fy + dY * dT) < 0.9) return true;
-        }
+        } else if (id.toString().equals("CHORUS_PLANT") && !collidesFence(fx, fz, dX, dZ, dT, 0.3)) return true;
         // Nothing found.
         return false;
     }
