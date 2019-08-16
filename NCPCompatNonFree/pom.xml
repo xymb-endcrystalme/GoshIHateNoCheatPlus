@@ -115,7 +115,7 @@ The NCPPlugin sub-project contains the relevant factories (MCAccessFactory, Enti
 					<artifactId>ncpcompatcb2922</artifactId>
 					<version>1.1-SNAPSHOT</version>
 				</dependency>
-				<dependency>
+				<!-- <dependency>
 					<groupId>fr.neatmonster</groupId>
 					<artifactId>ncpcompatcb2882</artifactId>
 					<version>1.1-SNAPSHOT</version>
@@ -159,7 +159,7 @@ The NCPPlugin sub-project contains the relevant factories (MCAccessFactory, Enti
 					<groupId>fr.neatmonster</groupId>
 					<artifactId>ncpcompatcb2512</artifactId>
 					<version>1.1-SNAPSHOT</version>
-				</dependency>
+				</dependency> -->
 			</dependencies>
 		</profile>
 
