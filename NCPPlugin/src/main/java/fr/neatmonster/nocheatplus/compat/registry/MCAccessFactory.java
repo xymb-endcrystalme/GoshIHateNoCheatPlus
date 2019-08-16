@@ -33,7 +33,7 @@ import fr.neatmonster.nocheatplus.logging.StaticLog;
  */
 public class MCAccessFactory {
 
-    //Removes start up message on 1.8.8. This isnt active anymore anyway.
+    //Message below is sent when CBDedicated and CBReflect failed to run and NCP switches to bukkit's api as it can't tell the server version.
     private final String[] updateLocs = new String[] {
 //            " Check for updates and support at BukkitDev: https://dev.bukkit.org/projects/nocheatplus/",
 //            " Development builds (unsupported by the Bukkit Staff, use at your own risk): https://ci.md-5.net/job/NoCheatPlus/changes",
