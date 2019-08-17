@@ -53,7 +53,7 @@ public class MCAccessCBReflect extends MCAccessBukkitModern {
             NCPAPIProvider.getNoCheatPlusAPI().getLogManager().warning(Streams.INIT, "The Minecraft version seems to be older than what Compat-CB-Reflect can support.");
             this.knownSupportedVersion = false;
         }
-        else if (GenericVersion.compareVersions(mcVersion, "1.12.2") > 0) {
+        else if (GenericVersion.compareVersions(mcVersion, "1.14.4") > 0) {
             this.knownSupportedVersion = false;
             NCPAPIProvider.getNoCheatPlusAPI().getLogManager().warning(Streams.INIT, "The Minecraft version seems to be more recent than the one Compat-CB-Reflect has been built with - this might work, but there could be incompatibilities.");
         } else {
