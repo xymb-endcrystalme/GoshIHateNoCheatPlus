@@ -781,6 +781,11 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         		NCPAPIProvider.getNoCheatPlusAPI().getLogManager().warning(Streams.STATUS, CheckUtils.getLogMessagePrefix(player, CheckType.MOVING) + " Player move end point seems to be set wrongly.");
         	}
         }
+		
+        if (data.waspreInVehicle) {
+            if (is1_14) newTo = data.getSetBack(from);
+            data.waspreInVehicle = false;
+        }
 	    
         if (checkSf || checkCf) {
             previousSetBackY = data.hasSetBack() ? data.getSetBackY() : Double.NEGATIVE_INFINITY;
