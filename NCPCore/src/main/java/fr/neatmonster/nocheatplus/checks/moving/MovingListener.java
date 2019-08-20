@@ -208,6 +208,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
     private final Counters counters = NCPAPIProvider.getNoCheatPlusAPI().getGenericInstance(Counters.class);
     private final int idMoveEvent = counters.registerKey("event.player.move");
 
+    private final boolean is1_14 = ServerVersion.compareMinecraftVersion("1.14") >=0;
 
     @SuppressWarnings("unchecked")
     public MovingListener() {
