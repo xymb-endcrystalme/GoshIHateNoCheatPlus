@@ -773,7 +773,15 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
         final boolean checkPassable = pData.isCheckActive(CheckType.MOVING_PASSABLE, player);
 
-
+	// Hot fix: Entering end portal from bottom.
+        if (lastMove.to.getWorldName() != null && !lastMove.to.getWorldName().equals(thisMove.from.getWorldName())) {
+        	if (TrigUtil.distance(pFrom, pTo) > 5.5) {
+        		newTo = data.getSetBack(from);
+        		checkNf = false;
+        		NCPAPIProvider.getNoCheatPlusAPI().getLogManager().warning(Streams.STATUS, CheckUtils.getLogMessagePrefix(player, CheckType.MOVING) + " Player move end point seems to be set wrongly.");
+        	}
+        }
+	    
         if (checkSf || checkCf) {
             previousSetBackY = data.hasSetBack() ? data.getSetBackY() : Double.NEGATIVE_INFINITY;
             // Ensure we have a set back set.
