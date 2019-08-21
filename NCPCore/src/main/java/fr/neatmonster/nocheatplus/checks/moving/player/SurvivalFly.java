@@ -426,7 +426,7 @@ public class SurvivalFly extends Check {
             Material blockAbove = player.getLocation().add(0, 0.10, 0).getBlock().getType();
             if (blockUnder != null && blockAbove != null) {
 		// Checks if the player is above water but not in water.
-            	if (blockUnder == Material.WATER && blockAbove == Material.AIR) {
+            	if (blockUnder.toString().endsWith("WATER") && blockAbove == Material.AIR) {
 		    //Bouncing on water
 		    if (hDistanceAboveLimit <= 0D && hDistance > (Bridge1_13.hasDolphinGrace() ? 0.18D : 0.12D)
             	    && !Bridge1_9.isGliding(player) && !Bridge1_13.isRiptiding(player)
