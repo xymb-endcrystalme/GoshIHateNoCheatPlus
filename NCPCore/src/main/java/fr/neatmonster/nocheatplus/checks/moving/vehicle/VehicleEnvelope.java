@@ -301,7 +301,7 @@ public class VehicleEnvelope extends Check {
         }
         
         if (data.timeVehicletoss + 2000 > now && thisMove.yDistance < 4.0) {
-            violation = false;
+        	violation = false;
         }
         
         // Maximum descend speed.
@@ -338,10 +338,11 @@ public class VehicleEnvelope extends Check {
     }
     
     private boolean isBubbleColumn(Location from) {
+    	if (!Bridge1_13.hasIsSwimming()) return false;
     	if (from.getBlock().getType() == Material.BUBBLE_COLUMN) {
         	return true;
         }
-               World w = from.getWorld();
+    	World w = from.getWorld();
 		int x = from.getBlockX();
 		int y = from.getBlockY();
 		int z = from.getBlockZ();

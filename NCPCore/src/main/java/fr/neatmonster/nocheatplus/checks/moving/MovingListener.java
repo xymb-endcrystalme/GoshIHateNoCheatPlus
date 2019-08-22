@@ -82,6 +82,7 @@ import fr.neatmonster.nocheatplus.checks.moving.velocity.AccountEntry;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.SimpleEntry;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.VelocityFlags;
 import fr.neatmonster.nocheatplus.checks.net.NetData;
+import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeEnchant;
 import fr.neatmonster.nocheatplus.compat.BridgeHealth;
@@ -90,6 +91,7 @@ import fr.neatmonster.nocheatplus.compat.MCAccess;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker.BlockChangeEntry;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker.Direction;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import fr.neatmonster.nocheatplus.components.NoCheatPlusAPI;
 import fr.neatmonster.nocheatplus.components.data.ICheckData;
 import fr.neatmonster.nocheatplus.components.data.IData;
@@ -207,6 +209,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
     private final Counters counters = NCPAPIProvider.getNoCheatPlusAPI().getGenericInstance(Counters.class);
     private final int idMoveEvent = counters.registerKey("event.player.move");
 
+    private final boolean is1_14 = ServerVersion.compareMinecraftVersion("1.14") >=0;
 
     @SuppressWarnings("unchecked")
     public MovingListener() {
@@ -352,6 +355,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onUnknowBoatTeleport(final PlayerTeleportEvent event) {
+    	if (!Bridge1_13.hasIsSwimming()) return;
     	if (event.getCause() == TeleportCause.UNKNOWN) {
     		final Player player = event.getPlayer();
     		final IPlayerData pData = DataManager.getPlayerData(player);
@@ -505,7 +509,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             token = null;
         }
 		
-		if (player.isRiptiding()) {
+		if (Bridge1_13.isRiptiding(player)) {
         	data.timeRiptiding = System.currentTimeMillis();
         	data.RiptideLevel = BridgeEnchant.getRiptideLevel(player);
         }
@@ -771,7 +775,20 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
         final boolean checkPassable = pData.isCheckActive(CheckType.MOVING_PASSABLE, player);
 
-
+	// Hot fix: Entering end portal from bottom.
+        if (lastMove.to.getWorldName() != null && !lastMove.to.getWorldName().equals(thisMove.from.getWorldName())) {
+        	if (TrigUtil.distance(pFrom, pTo) > 5.5) {
+        		newTo = data.getSetBack(from);
+        		checkNf = false;
+        		NCPAPIProvider.getNoCheatPlusAPI().getLogManager().warning(Streams.STATUS, CheckUtils.getLogMessagePrefix(player, CheckType.MOVING) + " Player move end point seems to be set wrongly.");
+        	}
+        }
+		
+        if (data.waspreInVehicle) {
+            if (is1_14) newTo = data.getSetBack(from);
+            data.waspreInVehicle = false;
+        }
+	    
         if (checkSf || checkCf) {
             previousSetBackY = data.hasSetBack() ? data.getSetBackY() : Double.NEGATIVE_INFINITY;
             // Ensure we have a set back set.
@@ -877,7 +894,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
 
 	//Force to check survivalfly not creativefly anymore
-        if (player.isRiptiding()) {checkSf = true; checkCf = false;}
+        if (Bridge1_13.isRiptiding(player)) {checkSf = true; checkCf = false;}
 	    
         // Flying checks.
         if (checkSf) {
@@ -1367,7 +1384,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 vd.setParameter(ParameterName.TAGS, "EXTREME_MOVE");
             }
             long now = System.currentTimeMillis();
-            if ((player.isRiptiding() || data.timeRiptiding + 4000 > now ) && TrigUtil.distance(from, to)< (player.isGliding() ? 10.0 : 7.5)) {
+            if ((Bridge1_13.isRiptiding(player) || data.timeRiptiding + 4000 > now ) && TrigUtil.distance(from, to)< (Bridge1_9.isGliding(player) ? 10.0 : 7.5)) {
             	return null;
             }
             // Some resetting is done in MovingListener.

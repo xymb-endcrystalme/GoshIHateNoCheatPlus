@@ -285,6 +285,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      * properly. Workaround for VehicleLeaveEvent missing.
      */
     public boolean wasInVehicle = false; // Workaround
+    public boolean waspreInVehicle = false;
     /**
      * Set to indicate that events happen during a vehicle set back. Allows
      * skipping some resetting.

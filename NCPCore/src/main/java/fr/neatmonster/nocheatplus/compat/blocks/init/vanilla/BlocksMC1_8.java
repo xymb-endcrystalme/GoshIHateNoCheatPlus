@@ -52,9 +52,6 @@ public class BlocksMC1_8 implements BlockPropertiesSetup {
         }) {
             BlockProperties.setBlockProps(mat, props);
         }
-
-        // Wall Sign
-        if (BridgeMaterial.getBlock("wall_sign") != null) BlockInit.setAs("WALL_SIGN", BridgeMaterial.SIGN);
         
         // Ladder.
         props = new BlockProps(BlockProperties.woodAxe, 0.4f, BlockProperties.secToMs(0.6, 0.3, 0.15, 0.1, 0.075, 0.05));

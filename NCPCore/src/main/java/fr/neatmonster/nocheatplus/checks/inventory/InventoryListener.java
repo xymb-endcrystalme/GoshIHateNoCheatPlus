@@ -265,7 +265,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         // Fast inventory manipulation check.
         if (fastClick.isEnabled(player, pData)) {
             final InventoryConfig cc = pData.getGenericInstance(InventoryConfig.class);
-            if (!(event.getView().getType().equals(InventoryType.CREATIVE) && cc.fastClickSpareCreative) && !cc.inventoryExemptions.contains(ChatColor.stripColor(event.getView().getTitle()))) {
+            if (!((event.getView().getType().equals(InventoryType.CREATIVE) || player.getGameMode() == GameMode.CREATIVE) && cc.fastClickSpareCreative) && !cc.inventoryExemptions.contains(ChatColor.stripColor(event.getView().getTitle()))) {
                 if (fastClick.check(player, now, 
                         event.getView(), slot, cursor, clicked, event.isShiftClick(), 
                         inventoryAction, data, cc, pData)) {  

@@ -30,7 +30,7 @@ public class BukkitChorusPlant implements BukkitShapeModel {
 
         final Block block = world.getBlockAt(x, y, z);
         final BlockData blockData = block.getBlockData();
-        double[] res = new double[] {0.185, 0.188, 0.185, 1.0 - 0.185, 0.8125, 1.0 - 0.185};
+        double[] res = new double[] {0.187, 0.188, 0.187, 1.0 - 0.187, 0.8125, 1.0 - 0.187};
         if (blockData instanceof MultipleFacing) {
         	final MultipleFacing chorusplant = (MultipleFacing) blockData;
         	for (final BlockFace face : chorusplant.getFaces()) {
@@ -51,7 +51,7 @@ public class BukkitChorusPlant implements BukkitShapeModel {
         			res[0]=0.0;
         			break;
         		case EAST:
-        			res[5]=1.0;
+        			res[3]=1.0;
         			break;
 				default:
 					break;
