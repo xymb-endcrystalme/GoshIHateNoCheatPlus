@@ -26,7 +26,9 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Levelled;
 import org.bukkit.block.data.Waterlogged;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
@@ -422,11 +424,11 @@ public class SurvivalFly extends Check {
             }
 			
 	    // Detects walking directly above water
-	    Material blockUnder = player.getLocation().subtract(0, 0.3, 0).getBlock().getType();
+	    Block blockUnder = player.getLocation().subtract(0, 0.3, 0).getBlock();
             Material blockAbove = player.getLocation().add(0, 0.10, 0).getBlock().getType();
             if (blockUnder != null && blockAbove != null) {
 		// Checks if the player is above water but not in water.
-            	if (blockUnder.toString().endsWith("WATER") && blockAbove == Material.AIR) {
+            	if (blockUnder.getType().toString().endsWith("WATER") && blockAbove == Material.AIR) {
 		    //Bouncing on water
 		    if (hDistanceAboveLimit <= 0D && hDistance > (Bridge1_13.hasDolphinGrace() ? 0.18D : 0.12D)
             	    && !Bridge1_9.isGliding(player) && !Bridge1_13.isRiptiding(player)
@@ -434,8 +436,14 @@ public class SurvivalFly extends Check {
                    && (from.getY() < to.getY()) && !(lastMove.from.inLiquid && !to.isInLiquid())
                    && !lastMove.from.onGround && !standsOnEntity(player,from.getY())
                    && lastMove.toIsValid && !from.isHeadObstructed() && !to.isHeadObstructed() && !Bridge1_13.isSwimming(player)) {
-            		    hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
-            		    tags.add("waterjump");
+		    		boolean tag = false;
+		    		if (Bridge1_13.hasIsSwimming()) {
+		    			if (((Levelled)blockUnder.getBlockData()).getLevel() == 0) tag = true;		    			
+		    		} else if (blockUnder.getData() == 0) tag = true;
+		    		if (tag) {
+		    			hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
+		    			tags.add("waterjump");
+		    			}
             		}	
 		    // hDist and vDist checks, simply checks for horizontal movement with little y distance
             	    if (hDistanceAboveLimit <= 0D && hDistance > 0.11D && yDistance <= 0.1D && !toOnGround && !fromOnGround 
@@ -2098,6 +2106,10 @@ public class SurvivalFly extends Check {
 		if (isBubbleColumn(from)) {
         	return new double[]{yDistance, 0.0};
         }
+		
+		if (Bridge1_13.hasIsSwimming() && yDistance > 0.0 && from.isOnGround()) {
+			return new double[]{yDistance, 0.0};
+		}
 
         // At this point a violation.
         tags.add(yDistance < 0.0 ? "swimdown" : "swimup");
