@@ -163,8 +163,8 @@ public class Passable extends Check {
             rayTracing.setBlockChangeTracker(blockTracker, data.blockChangeRef, tick, from.getWorld().getUID());
         }
         //rayTracing.setCutOppositeDirectionMargin(true);
-        rayTracing.loop();
         rayTracing.setIgnoreInitiallyColliding(false);
+        rayTracing.loop();
         //rayTracing.setCutOppositeDirectionMargin(false);
         //getEyeHeight() is a way to check isSwimming but not in water
         if (rayTracing.collides() && !Bridge1_13.isSwimming(player) && !Bridge1_9.isGliding(player) && !(player.getEyeHeight()<0.45)) {
