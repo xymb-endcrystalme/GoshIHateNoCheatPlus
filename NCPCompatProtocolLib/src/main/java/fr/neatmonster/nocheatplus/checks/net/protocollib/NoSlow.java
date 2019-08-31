@@ -44,6 +44,7 @@ import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.components.NoCheatPlusAPI;
 import fr.neatmonster.nocheatplus.components.registry.order.RegistrationOrder.RegisterMethodWithOrder;
 import fr.neatmonster.nocheatplus.event.mini.MiniListener;
+import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.players.DataManager;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.InventoryUtil;
@@ -188,7 +189,15 @@ public class NoSlow extends BaseAdapter {
 
         Player p = event.getPlayer();       
         
-        final IPlayerData pData = DataManager.getPlayerData(p);
+        if (p == null) {
+            counters.add(ProtocolLibComponent.idNullPlayer, 1);
+            return;
+        }
+        final IPlayerData pData = DataManager.getPlayerDataSafe(p);
+        if (pData == null) {
+            StaticLog.logWarning("Failed to fetch player data with " + event.getPacketType() + " for: " + p.toString());
+            return;
+        }
         final MovingData data = pData.getGenericInstance(MovingData.class);
         PlayerDigType digtype = event.getPacket().getPlayerDigTypes().read(0);
         data.isusingitem = false;
