@@ -92,15 +92,18 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public double         vehicleEnvelopeVL        = 0.0;
 
     // Data shared between the fly checks -----
+    public long           selfhittime = 0;
+    public double         yDis = 0.0;
+    public int            liqtick = 0;
+    public int            watermovect = 0;
     public int            bunnyhopDelay;
     public double         jumpAmplifier = 0;
     /** Last time the player was actually sprinting. */
     public long           timeSprinting = 0;
     public long           bedLeaveTime = 0;
     public long           timeRiptiding = 0;
-    public int			      RiptideLevel = 0;
-    public long			      timeVehicletoss = 0;
-  
+    public int            RiptideLevel = 0;
+    public long           timeVehicletoss = 0;
     public double         multSprinting = 1.30000002; // Multiplier at the last time sprinting.
     /** Compatibility entry for bouncing of slime blocks and the like. */
     public SimpleEntry verticalBounce = null;
@@ -112,9 +115,9 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int speedTick = 0;
     public float walkSpeed = 0.0f;
     public float flySpeed = 0.0f;
-	
-	/** No Slow*/
-	 public boolean isusingitem = false;
+
+    /** No Slow */
+    public boolean isusingitem = false;
     public long time_rl_item = 0;
     public boolean isHackingRI = false;
 
