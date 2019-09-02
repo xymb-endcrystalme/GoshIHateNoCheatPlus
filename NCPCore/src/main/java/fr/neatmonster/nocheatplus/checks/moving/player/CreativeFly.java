@@ -46,6 +46,7 @@ import fr.neatmonster.nocheatplus.utilities.PotionUtil;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
+import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 
 /**
  * A check designed for people that are allowed to fly. The complement to the "SurvivalFly", which is for people that
@@ -214,11 +215,14 @@ public class CreativeFly extends Check {
             tags.add("vdist");
         }
         
-        //if (!player.isFlying() && !Double.isInfinite(Bridge1_9.getLevitationAmplifier(player)) 
-        //	&& !from.isHeadObstructed() && !to.isHeadObstructed() && !from.isInLiquid() && from.getY() >= to.getY()) {
-        //	resultV = Math.max(resultV,1.0);
-        //	tags.add("levitate");
-        //}
+        if (!player.isFlying() && !Double.isInfinite(Bridge1_9.getLevitationAmplifier(player)) 
+	&& !from.isHeadObstructed() && !to.isHeadObstructed()
+        //Exempt check for 20 seconds after joined
+        && !(now > pData.getLastJoinTime() && pData.getLastJoinTime() + 20000 > now)
+        && !from.isInLiquid() && !BlockProperties.isNewLiq(from.getTypeId()) && from.getY() >= to.getY()) {
+            resultV = Math.max(resultV,1.0);
+            tags.add("antilevitate");
+        }
 
         final double result = Math.max(0.0, resultH) + Math.max(0.0, resultV);
 
