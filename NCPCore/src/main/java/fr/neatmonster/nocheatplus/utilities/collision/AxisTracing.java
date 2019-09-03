@@ -272,8 +272,17 @@ public abstract class AxisTracing implements ICollideBlocks, ISetMargins {
                 for (int x = iMinX; x <= iMaxX; x++) {
                     for (int z = iMinZ; z <= iMaxZ; z++) {
                         if (dis >= 0.1217 && !step(x, y, z, xMin, increment == 1 ? yStart : yEnd, zMin, xMax, increment == 1 ? yEnd : yStart, zMax, Axis.Y_AXIS, increment)) {
-                    	    collides = true;
-                    	    return;
+                            if (step(x, y - 1, z, xMin, yEnd, zMin, xMax, yStart -0.7, zMax, Axis.Y_AXIS, increment)) {
+                                collides = false;
+                                return;
+                            } else {
+                                if (checkInitiallyColliding && isBlockIgnored(x, y, z) && isBlockIgnored(x, y-1, z)) {
+                                    // Ignore.
+                                } else {
+                                    collides = true;
+                                    return;
+                                }
+                            }
                         }
                     }
                 }
