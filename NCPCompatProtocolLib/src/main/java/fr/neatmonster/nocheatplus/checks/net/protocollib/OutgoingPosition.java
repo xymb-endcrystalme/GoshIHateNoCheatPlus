@@ -58,7 +58,15 @@ public class OutgoingPosition extends BaseAdapter {
         }
         final long time = System.currentTimeMillis();
         final Player player = event.getPlayer();
-        final IPlayerData pData = DataManager.getPlayerData(player);
+        if (player == null) {
+        	counters.add(ProtocolLibComponent.idNullPlayer, 1);
+            return;
+        }
+        final IPlayerData pData = DataManager.getPlayerDataSafe(player);
+        if (pData == null) {
+            StaticLog.logWarning("Failed to fetch player data with " + event.getPacketType() + " for: " + player.toString());
+            return;
+        }
         // TODO: In future multiple checks might use this (!)
         if (pData.isCheckActive(CheckType.NET_FLYINGFREQUENCY, player)) {
             interpretPacket(player, event.getPacket(), time, 
