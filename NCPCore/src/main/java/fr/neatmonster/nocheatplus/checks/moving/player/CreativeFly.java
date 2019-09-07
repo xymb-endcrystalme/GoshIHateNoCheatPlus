@@ -41,6 +41,8 @@ import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeMisc;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker;
+import fr.neatmonster.nocheatplus.components.modifier.IAttributeAccess;
+import fr.neatmonster.nocheatplus.components.registry.event.IGenericInstanceHandle;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.PotionUtil;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
@@ -56,6 +58,7 @@ public class CreativeFly extends Check {
 
     private final List<String> tags = new LinkedList<String>();
     private final BlockChangeTracker blockChangeTracker;
+    private IGenericInstanceHandle<IAttributeAccess> attributeAccess = NCPAPIProvider.getNoCheatPlusAPI().getGenericInstanceHandle(IAttributeAccess.class);
 
     /**
      * Instantiates a new creative fly check.
@@ -337,6 +340,8 @@ public class CreativeFly extends Check {
             }
             else {
                 // (Ignore sprinting here).
+                final double attrMod = attributeAccess.getHandle().getSpeedAttributeMultiplier(player);
+                if (attrMod != Double.MAX_VALUE) fSpeed *= attrMod;
                 fSpeed *= data.walkSpeed / Magic.DEFAULT_WALKSPEED;
             }
         }
@@ -345,6 +350,13 @@ public class CreativeFly extends Check {
         }
         
         double limitH = model.getHorizontalModSpeed() / 100.0 * ModelFlying.HORIZONTAL_SPEED * fSpeed;
+
+        if (from.isInWater() || to.isInWater() || BlockProperties.isNewLiq(from.getTypeId()) || BlockProperties.isNewLiq(to.getTypeId())) {
+            if (!Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
+                limitH *= Magic.modDolphinsGrace;
+            }
+        }
+
         if (model.getScaleSlowfallingEffect() && Bridge1_13.hasSlowfalling()) {
         	Double Amplifier = PotionUtil.getPotionEffectAmplifier(from.getPlayer(), PotionEffectType.SPEED);
         	limitH = Double.isInfinite(Amplifier) ? limitH : limitH + 0.1*(Amplifier +1);

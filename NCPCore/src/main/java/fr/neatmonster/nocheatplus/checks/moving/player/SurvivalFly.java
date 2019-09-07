@@ -343,6 +343,7 @@ public class SurvivalFly extends Check {
         // TODO: Remove these local variables ?
         double hAllowedDistance = 0.0, hDistanceAboveLimit = 0.0, hFreedom = 0.0;
         if (hasHdist) {
+            final double attrMod = attributeAccess.getHandle().getSpeedAttributeMultiplier(player);
             // Check allowed vs. taken horizontal distance.
             // Get the allowed distance.
             hAllowedDistance = setAllowedhDist(player, sprinting, thisMove, data, cc, pData, from, false);
@@ -435,7 +436,12 @@ public class SurvivalFly extends Check {
                 if (Bridge1_13.hasIsSwimming()) {
                     if (Bridge1_13.isSwimming(player)) threshold += 0.05; else threshold += 0.03;
                 }
-                threshold += BridgeEnchant.getDepthStriderLevel(player) * 0.03;
+                final int level = BridgeEnchant.getDepthStriderLevel(player);
+                threshold += level * 0.03;
+                // Apply if moving to quickly from ground to water or having DepthStrider
+                if (attrMod != Double.MAX_VALUE) {
+                    if (data.liqtick < 35 || level > 0) threshold *= attrMod;
+                }
                 if (Math.sqrt(TrigUtil.distanceSquared(from.getX(), from.getZ(), to.getX(), to.getZ())) > threshold) {
                     data.watermovect += 2;
                     if (data.watermovect > 7) {
@@ -450,7 +456,7 @@ public class SurvivalFly extends Check {
             	//Bouncing on water
                 if (hDistanceAboveLimit <= 0D && hDistance > (Bridge1_13.hasDolphinGrace() ? 0.18D : 0.12D)
                 && !Bridge1_9.isGliding(player) && !Bridge1_13.isRiptiding(player)
-                && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player)) && !toOnGround && !fromOnGround
+                && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player)) && !toOnGround && !fromOnGround && (attrMod == Double.MAX_VALUE || attrMod <= 1.0)
                 && (from.getY() < to.getY()) && !(lastMove.from.inLiquid && !to.isInLiquid())
                 && !lastMove.from.onGround && !standsOnEntity(player,from.getY())
                 && lastMove.toIsValid && !from.isHeadObstructed() && !to.isHeadObstructed() && !Bridge1_13.isSwimming(player)) {
@@ -477,7 +483,7 @@ public class SurvivalFly extends Check {
         }
 
         // Prevent players from sprinting if they're moving backwards (allow buffers to cover up !?).
-        if (sprinting && data.lostSprintCount == 0 && hDistance > thisMove.walkSpeed && !data.hasActiveHorVel() && !player.hasPotionEffect(PotionEffectType.SPEED) 
+        if (sprinting && data.lostSprintCount == 0 && hDistance > thisMove.walkSpeed && !data.hasActiveHorVel() && !player.hasPotionEffect(PotionEffectType.SPEED) && (attrMod == Double.MAX_VALUE || attrMod <= 1.0)
         && !((from.isInWater() || isWaterlogged(from) || player.getLocation().subtract(0.0, 0.3, 0.0).getBlock().getType() == Material.WATER) && !Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player)))) {
             // (Ignore some cases, in order to prevent false positives.)
             // TODO: speed effects ?
@@ -946,15 +952,18 @@ public class SurvivalFly extends Check {
         double friction = data.lastFrictionHorizontal; // Friction to use with this move.
         // TODO: sfDirty: Better friction/envelope-based.
         boolean useBaseModifiers = false;
+        boolean useBaseModifiersSprint = true;
         if (thisMove.from.inWeb) {
             data.sfOnIce = 0;
             // TODO: if (from.isOnIce()) <- makes it even slower !
             // Does include sprinting by now (would need other accounting methods).
             hAllowedDistance = Magic.modWeb * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             friction = 0.0; // Ensure friction can't be used to speed.
+            useBaseModifiers = true;
         }
 		else if (thisMove.to.onSoulSand && thisMove.from.onSoulSand) {
         	hAllowedDistance = Magic.modSoulSand * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+        	useBaseModifiers = true;
         }
         else if (thisMove.from.inLiquid && thisMove.to.inLiquid) {
             // Check all liquids (lava might demand even slower speed though).
@@ -981,10 +990,11 @@ public class SurvivalFly extends Check {
 	        } else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
         	hAllowedDistance = Magic.modRiptide[data.RiptideLevel] * thisMove.walkSpeed * cc.survivalFlySpeedingSpeed / 100D;
                 } else if (data.newHDist && hAllowedDistance < 0.345D) {
+              useBaseModifiers = true;
 		      hAllowedDistance = 0.445D;
-			
 		} else if (snowFix && hAllowedDistance < 0.377D) {
 		  hAllowedDistance = 0.377D;
+		  useBaseModifiers = true;
 		}			
 		// Allows faster speed for player when swimming above water since from -> to does not seem to detect correctly
 		else if ((BlockProperties.isLiquid(from.getTypeIdBelow()) || BlockProperties.isNewLiq(from.getTypeIdBelow()) && !Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player)))) {
@@ -999,6 +1009,8 @@ public class SurvivalFly extends Check {
                 && (!checkPermissions || !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_SNEAKING, player))) {
             hAllowedDistance = Magic.modSneak * thisMove.walkSpeed * cc.survivalFlySneakingSpeed / 100D;
             friction = 0.0; // Ensure friction can't be used to speed.
+            useBaseModifiers = true;
+            useBaseModifiersSprint = false;
             // TODO: Attribute modifiers can count in here, e.g. +0.5 (+ 50% doesn't seem to pose a problem, neither speed effect 2).
         }
         // TODO: !sfDirty is very coarse, should use friction instead.
@@ -1008,6 +1020,8 @@ public class SurvivalFly extends Check {
             data.isHackingRI = false;
             hAllowedDistance = Magic.modBlock * thisMove.walkSpeed * cc.survivalFlyBlockingSpeed / 100D;
             friction = 0.0; // Ensure friction can't be used to speed.
+            useBaseModifiers = true;
+            useBaseModifiersSprint = false;
         }
         else {
             useBaseModifiers = true;
@@ -1023,7 +1037,7 @@ public class SurvivalFly extends Check {
         }
         // Apply modifiers (sprinting, attributes, ...).
         if (useBaseModifiers) {
-            if (sprinting) {
+            if (useBaseModifiersSprint && sprinting) {
                 hAllowedDistance *= data.multSprinting;
             }
             // Note: Attributes count in slowness potions, thus leaving out isn't possible.
