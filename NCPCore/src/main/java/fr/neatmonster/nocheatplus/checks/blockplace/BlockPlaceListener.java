@@ -417,10 +417,11 @@ public class BlockPlaceListener extends CheckListener {
     	if (!Scaffold.isEnabled(event.getPlayer())) return;
     	
     	Player player = event.getPlayer();
-    	Block targetBlock = player.getTargetBlock((Set<Material>) null, 7);
     
-    	if (event.getAction() != Action.RIGHT_CLICK_BLOCK || !event.isBlockInHand() || player.isFlying() && player.getAllowFlight() || targetBlock.isLiquid() || player.isSneaking()) return;
-    	
+    	if (event.getAction() != Action.RIGHT_CLICK_BLOCK || !event.isBlockInHand() || player.isFlying() && player.getAllowFlight() || player.isSneaking()) return;
+    	Block targetBlock = player.getTargetBlock((Set<Material>) null, 7);
+    	if (targetBlock.isLiquid()) return;
+	
     	List<Block> lastTarget = player.getLastTwoTargetBlocks((Set<Material>) null, 7);
     	BlockFace blockFace = event.getBlockFace();
 		

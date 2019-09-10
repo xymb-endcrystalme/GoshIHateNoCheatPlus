@@ -103,10 +103,10 @@ public class TestConfig {
         }
     }
 
-    @Test
-    public void testActionLists() {
-        ConfigFile config = new DefaultConfig();
-        config.getOptimizedActionList(ConfPaths.MOVING_SURVIVALFLY_ACTIONS, null);
-    }
+//    @Test
+//    public void testActionLists() {
+//        ConfigFile config = new DefaultConfig();
+//        config.getOptimizedActionList(ConfPaths.MOVING_SURVIVALFLY_ACTIONS, null);
+//    }
 
 }

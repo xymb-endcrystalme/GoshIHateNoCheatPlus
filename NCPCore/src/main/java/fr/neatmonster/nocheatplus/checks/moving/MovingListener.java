@@ -23,15 +23,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
@@ -109,6 +112,7 @@ import fr.neatmonster.nocheatplus.config.ConfigManager;
 import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.logging.Streams;
 import fr.neatmonster.nocheatplus.logging.debug.DebugUtil;
+import fr.neatmonster.nocheatplus.permissions.Permissions;
 import fr.neatmonster.nocheatplus.players.DataManager;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.players.PlayerFactoryArgument;
@@ -783,6 +787,10 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         		NCPAPIProvider.getNoCheatPlusAPI().getLogManager().warning(Streams.STATUS, CheckUtils.getLogMessagePrefix(player, CheckType.MOVING) + " Player move end point seems to be set wrongly.");
         	}
         }
+		
+        if (pFrom.isInLiquid()) {
+            data.liqtick = data.liqtick < 50 ? data.liqtick + 1 : data.liqtick > 0 ? data.liqtick - 1 : 0; 
+        } else data.liqtick = data.liqtick > 0 ? data.liqtick - 2 : 0;
 		
         if (data.waspreInVehicle) {
             if (is1_14) newTo = data.getSetBack(from);
@@ -2191,6 +2199,38 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final Vector velocity = event.getVelocity();
         final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
         data.addVelocity(player, cc, velocity.getX(), velocity.getY(), velocity.getZ());
+    }
+	
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    public void onSelfDamage(final EntityDamageByEntityEvent event) {
+        final Entity entity = event.getEntity();
+        if (!(entity instanceof Player)) {
+        return;
+        }
+        checkSelfHit((Player) entity, event);
+    }
+    
+    private void checkSelfHit(final Player player, final EntityDamageByEntityEvent event) {
+        Entity entity = event.getDamager();
+        if(entity instanceof Projectile)
+        {
+            Projectile a = (Projectile)entity;
+            if(a.getType().name().endsWith("ARROW") && a.getShooter() instanceof Player)
+            {
+                Player p = (Player) a.getShooter();
+                if (p == player) {
+                    final IPlayerData pData = DataManager.getPlayerData(player);
+                    final MovingData data = pData.getGenericInstance(MovingData.class);
+                    final long now = System.currentTimeMillis();
+                    if (!pData.hasPermission(Permissions.FIGHT_SELFHIT, player) && data.selfhittime != 0 && data.selfhittime + 1100 > now) {
+            		    // TODO: This feature must be configurable
+            		    event.setCancelled(true);
+            		    player.sendMessage(ChatColor.DARK_RED + "Self-velocity is not allowed!");
+            		}
+                    data.selfhittime = now;
+                }
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
