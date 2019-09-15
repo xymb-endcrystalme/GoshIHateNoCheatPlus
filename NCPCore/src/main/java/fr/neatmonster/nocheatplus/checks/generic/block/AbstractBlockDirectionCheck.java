@@ -24,6 +24,7 @@ import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.net.FlyingQueueHandle;
 import fr.neatmonster.nocheatplus.checks.net.FlyingQueueLookBlockChecker;
+import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.components.config.ICheckConfig;
 import fr.neatmonster.nocheatplus.components.data.ICheckData;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
@@ -198,7 +199,7 @@ public abstract class AbstractBlockDirectionCheck<D extends ICheckData, C extend
         // Initialize fully each time.
         boulder.setFindNearestPointIfNotCollide(true)
         .setRay(x, y, z, dirX, dirY, dirZ)
-        .setAABB(blockX, blockY, blockZ, 0.1)
+        .setAABB(blockX, blockY, blockZ, Bridge1_13.hasIsSwimming() ? 0.9 : 0.1)
         .loop();
         // Interpret result.
         if (boulder.collides()) {
