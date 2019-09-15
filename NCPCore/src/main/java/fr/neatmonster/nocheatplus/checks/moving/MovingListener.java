@@ -1371,6 +1371,10 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             final Check check;
             final ActionList actions;
             final double vL;
+            long now = System.currentTimeMillis();
+            if ((Bridge1_13.isRiptiding(player) || data.timeRiptiding + 4000 > now) && TrigUtil.distance(from, to)< 20) {
+            	return null;
+            }
             if (thisMove.flyCheck == CheckType.MOVING_SURVIVALFLY) {
                 check = survivalFly;
                 actions = cc.survivalFlyActions;
@@ -1390,10 +1394,6 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 vd.setParameter(ParameterName.LOCATION_TO, String.format(Locale.US, "%.2f, %.2f, %.2f", to.getX(), to.getY(), to.getZ()));
                 vd.setParameter(ParameterName.DISTANCE, String.format(Locale.US, "%.2f", TrigUtil.distance(from, to)));
                 vd.setParameter(ParameterName.TAGS, "EXTREME_MOVE");
-            }
-            long now = System.currentTimeMillis();
-            if ((Bridge1_13.isRiptiding(player) || data.timeRiptiding + 4000 > now ) && TrigUtil.distance(from, to)< (Bridge1_9.isGliding(player) ? 10.0 : 7.5)) {
-            	return null;
             }
             // Some resetting is done in MovingListener.
             if (check.executeActions(vd).willCancel()) {
