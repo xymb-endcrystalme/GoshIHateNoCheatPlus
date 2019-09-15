@@ -525,7 +525,7 @@ public class SurvivalFly extends Check {
         }
         else if (from.isInWeb()) {
             // TODO: Further confine conditions.
-            final double[] res = vDistWeb(player, thisMove, toOnGround, hDistanceAboveLimit, now,data,cc);
+            final double[] res = vDistWeb(player, thisMove, toOnGround, hDistanceAboveLimit, now,data,cc,from);
             vAllowedDistance = res[0];
             vDistanceAboveLimit = res[1];
             if (res[0] == Double.MIN_VALUE && res[1] == Double.MIN_VALUE) {
@@ -958,6 +958,8 @@ public class SurvivalFly extends Check {
             // TODO: if (from.isOnIce()) <- makes it even slower !
             // Does include sprinting by now (would need other accounting methods).
             hAllowedDistance = Magic.modWeb * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+            from.collectBlockFlags(); // Just ensure.
+            if ((from.getBlockFlags() & BlockProperties.F_COBWEB2) !=0) hAllowedDistance *= 2.5;
             friction = 0.0; // Ensure friction can't be used to speed.
             useBaseModifiers = true;
         }
@@ -2288,7 +2290,7 @@ public class SurvivalFly extends Check {
      */
     private double[] vDistWeb(final Player player, final PlayerMoveData thisMove, 
             final boolean toOnGround, final double hDistanceAboveLimit, final long now, 
-            final MovingData data, final MovingConfig cc) {
+            final MovingData data, final MovingConfig cc, final PlayerLocation from) {
         final double yDistance = thisMove.yDistance;
         double vAllowedDistance = 0.0;
         double vDistanceAboveLimit = 0.0;
@@ -2306,6 +2308,8 @@ public class SurvivalFly extends Check {
             else {
                 // TODO: Could prevent not moving down if not on ground (or on ladder or in liquid?).
                 vAllowedDistance = thisMove.from.onGround ? 0.1D : 0;
+                from.collectBlockFlags();
+                if ((from.getBlockFlags() & BlockProperties.F_COBWEB2) !=0) vAllowedDistance = 0.52;
             }
             vDistanceAboveLimit = yDistance - vAllowedDistance;
         }

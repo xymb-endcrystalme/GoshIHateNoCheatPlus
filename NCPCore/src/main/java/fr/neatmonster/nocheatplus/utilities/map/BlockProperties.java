@@ -842,6 +842,7 @@ public class BlockProperties {
 
     /** Cobweb like blocks (adhesive). */
     public static final long F_COBWEB                       = f_flag();
+    public static final long F_COBWEB2                      = f_flag();
     public static final long F_SOULSAND                     = f_flag();
 
     /**
