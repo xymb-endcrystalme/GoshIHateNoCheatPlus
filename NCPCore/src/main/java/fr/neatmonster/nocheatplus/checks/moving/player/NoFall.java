@@ -14,12 +14,19 @@
  */
 package fr.neatmonster.nocheatplus.checks.moving.player;
 
+import java.util.Random;
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
@@ -29,6 +36,7 @@ import fr.neatmonster.nocheatplus.checks.moving.magic.Magic;
 import fr.neatmonster.nocheatplus.checks.moving.model.LocationData;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.compat.BridgeHealth;
+import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 
@@ -50,6 +58,7 @@ public class NoFall extends Check {
 
     /** For temporary use: LocUtil.clone before passing deeply, call setWorld(null) after use. */
     private final Location useLoc = new Location(null, 0, 0, 0);
+    private final Random random = new Random();
 
     /**
      * Instantiates a new no fall check.
@@ -85,7 +94,7 @@ public class NoFall extends Check {
         // Damage to be dealt.
         final float fallDist = (float) getApplicableFallHeight(player, y, previousSetBackY, data);
         final double maxD = getDamage(fallDist);
-
+        fallOn(player, fallDist);
         if (maxD >= Magic.FALL_DAMAGE_MINIMUM) {
             // Check skipping conditions.
             if (cc.noFallSkipAllowFlight && player.getAllowFlight()) {
@@ -107,6 +116,19 @@ public class NoFall extends Check {
         else {
             data.clearNoFallData();
             player.setFallDistance(0);
+        }
+    }
+    
+    private void fallOn(final Player player, final double fallDist) {
+        Block block = player.getLocation().subtract(0, 1, 0).getBlock();
+        if (block.getType() == BridgeMaterial.FARMLAND && fallDist > 0.5 && random.nextFloat() < fallDist - 0.5) {
+            final PlayerInteractEvent event = new PlayerInteractEvent(player, Action.PHYSICAL, null, block, BlockFace.SELF);
+            Bukkit.getPluginManager().callEvent(event);
+            if (!event.isCancelled()) {
+                //Move up a little bit in order not to stuck in a block
+                player.setVelocity(player.getLocation().getDirection().clone().setY(0.0626).setX(-0.004).setZ(-0.004));
+                block.setType(Material.DIRT);
+            }
         }
     }
 
