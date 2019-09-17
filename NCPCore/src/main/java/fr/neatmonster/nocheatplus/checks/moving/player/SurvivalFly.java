@@ -21,8 +21,6 @@ import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.World;
@@ -431,7 +429,7 @@ public class SurvivalFly extends Check {
         if (blockUnder != null && blockAbove != null && blockUnder.getType().toString().endsWith("WATER")) {
             // Checks if the player is above water but not in water.
             // Much more effective than hspeed check
-            if (!(data.timeRiptiding + 2500 > now) && from.isInLiquid() && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
+            if (!data.isVelocityJumpPhase() && !(data.timeRiptiding + 2500 > now) && from.isInLiquid() && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
                 double threshold = data.liqtick < 35 ? 0.4 : 0.165; 
                 if (Bridge1_13.hasIsSwimming()) {
                     if (Bridge1_13.isSwimming(player)) threshold += 0.05; else threshold += 0.03;
@@ -454,11 +452,11 @@ public class SurvivalFly extends Check {
             }
             if (blockAbove == Material.AIR) {
             	//Bouncing on water
-                if (hDistanceAboveLimit <= 0D && hDistance > (Bridge1_13.hasDolphinGrace() ? 0.18D : 0.12D)
+                if (hDistanceAboveLimit <= 0D && hDistance > (Bridge1_13.hasDolphinGrace() ? 0.19D : 0.13D)
                 && !Bridge1_9.isGliding(player) && !Bridge1_13.isRiptiding(player)
                 && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player)) && !toOnGround && !fromOnGround && (attrMod == Double.MAX_VALUE || attrMod <= 1.0)
                 && (from.getY() < to.getY()) && !(lastMove.from.inLiquid && !to.isInLiquid())
-                && !lastMove.from.onGround && !standsOnEntity(player,from.getY())
+                && !lastMove.from.onGround && !resetTo && !resetFrom
                 && lastMove.toIsValid && !from.isHeadObstructed() && !to.isHeadObstructed() && !Bridge1_13.isSwimming(player)) {
                     boolean tag = false;
                     if (Bridge1_13.hasIsSwimming()) {
@@ -483,7 +481,7 @@ public class SurvivalFly extends Check {
         }
 
         // Prevent players from sprinting if they're moving backwards (allow buffers to cover up !?).
-        if (sprinting && data.lostSprintCount == 0 && hDistance > thisMove.walkSpeed && !data.hasActiveHorVel() && !player.hasPotionEffect(PotionEffectType.SPEED) && (attrMod == Double.MAX_VALUE || attrMod <= 1.0)
+        if (sprinting && data.lostSprintCount == 0 && hDistance > thisMove.walkSpeed && !data.isVelocityJumpPhase() && !player.hasPotionEffect(PotionEffectType.SPEED) && (attrMod == Double.MAX_VALUE || attrMod <= 1.0)
         && !((from.isInWater() || isWaterlogged(from) || player.getLocation().subtract(0.0, 0.3, 0.0).getBlock().getType() == Material.WATER) && !Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player)))) {
             // (Ignore some cases, in order to prevent false positives.)
             // TODO: speed effects ?
@@ -492,7 +490,7 @@ public class SurvivalFly extends Check {
                 // (Might have to account for speeding permissions.)
                 // TODO: hDistance is too harsh?
                 hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
-                if (hDistanceAboveLimit < 0.5) {hDistanceAboveLimit =0.0;}
+                if (hDistanceAboveLimit < 0.5 && !(from.isOnGround() && to.isOnGround())) {hDistanceAboveLimit =0.0;}
                 tags.add("sprintback"); // Might add it anyway.
                 }
             }
@@ -1627,25 +1625,8 @@ public class SurvivalFly extends Check {
             }
         }
         return vDistanceAboveLimit;
-    }
-
-    private boolean standsOnEntity(final Entity entity, final double minY){
-        // TODO: Probably check other ids too before doing this ?
-        for (final Entity other : entity.getNearbyEntities(1.5, 1.0, 1.5)){
-            final EntityType type = other.getType();
-            if (type != EntityType.BOAT){
-                continue; 
-            }
-            Material m = other.getLocation().getBlock().getType();
-            final double locY = other.getLocation().getY();
-            if (Math.abs(locY - minY) < 0.7 && (BlockProperties.isLiquid(m) || BlockProperties.isNewLiq(m))){
-                return true; 
-            }
-            else return false;
-        }
-        return false;
     }	    
-	
+
     private boolean isLanternUpper(PlayerLocation from) {
     	World w = from.getWorld();
     	final int x = from.getBlockX();
