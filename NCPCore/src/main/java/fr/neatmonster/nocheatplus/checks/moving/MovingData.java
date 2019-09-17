@@ -97,6 +97,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int            liqtick = 0;
     public int            watermovect = 0;
     public int            bunnyhopDelay;
+    public int            bunnyhopTick = 0;
     public double         jumpAmplifier = 0;
     /** Last time the player was actually sprinting. */
     public long           timeSprinting = 0;

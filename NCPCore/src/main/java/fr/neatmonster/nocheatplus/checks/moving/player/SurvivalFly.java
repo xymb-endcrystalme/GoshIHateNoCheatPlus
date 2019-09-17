@@ -351,6 +351,7 @@ public class SurvivalFly extends Check {
 			if ((Bridge1_13.isRiptiding(player) || data.timeRiptiding + 4000 > now) && hDistanceAboveLimit < 3.0) {
             	hDistanceAboveLimit =0;
             }
+			//System.out.println("hDistance: " + hDistance + " hAllowedDis:" + hAllowedDistance);
             // Velocity, buffers and after failure checks.
             if (hDistanceAboveLimit > 0) {
                 // TODO: Move more of the workarounds (buffer, bunny, ...) into this method.
@@ -956,8 +957,13 @@ public class SurvivalFly extends Check {
             // TODO: if (from.isOnIce()) <- makes it even slower !
             // Does include sprinting by now (would need other accounting methods).
             hAllowedDistance = Magic.modWeb * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+            // Cobweb doesn't apply speed effect but BerryBush does
+            useBaseModifiersSprint = false;
             from.collectBlockFlags(); // Just ensure.
-            if ((from.getBlockFlags() & BlockProperties.F_COBWEB2) !=0) hAllowedDistance *= 2.5;
+            if ((from.getBlockFlags() & BlockProperties.F_COBWEB2) !=0) {
+            	hAllowedDistance *= 2.5;
+            	useBaseModifiersSprint = true;
+            }
             friction = 0.0; // Ensure friction can't be used to speed.
             useBaseModifiers = true;
         }
@@ -1026,7 +1032,15 @@ public class SurvivalFly extends Check {
         else {
             useBaseModifiers = true;
             if (sprinting) {
-                hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
+                if (!thisMove.from.onGround && thisMove.to.onGround) {
+                    data.bunnyhopTick = Bridge1_13.hasIsSwimming() ? 6 : 3;
+                    hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
+                } else if (data.bunnyhopTick > 0) {
+                	if (data.bunnyhopTick < 3) hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D * 1.1; 
+                	else hAllowedDistance = Magic.modSprint * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
+                	data.bunnyhopTick--;
+                } else                
+            	hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
             }
             else {
                 hAllowedDistance = thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
@@ -1046,7 +1060,7 @@ public class SurvivalFly extends Check {
                 // TODO: Slowness potion.
                 // Count in speed potions.
                 final double speedAmplifier = mcAccess.getHandle().getFasterMovementAmplifier(player);
-                if (!Double.isInfinite(speedAmplifier)) {
+                if (!Double.isInfinite(speedAmplifier) && useBaseModifiersSprint) {
                     hAllowedDistance *= 1.0D + 0.2D * (speedAmplifier + 1);
                 }
             }
@@ -1065,6 +1079,14 @@ public class SurvivalFly extends Check {
                     // TODO: Should restrict further by yDistance, ground and other (jumping only).
                     // TODO: Restrict to not in water (depth strider)?
                     hAllowedDistance = slownessSprintHack(player, hAllowedDistance);
+                }
+                //useBaseModifiersSprint = false mean not apply speed effect in it 
+                if (!useBaseModifiersSprint) {
+                	final double speedAmplifier = mcAccess.getHandle().getFasterMovementAmplifier(player);
+                    if (!Double.isInfinite(speedAmplifier)) {
+                        hAllowedDistance /= attrMod;
+                        hAllowedDistance *= attrMod - 0.2D * (speedAmplifier + 1);
+                    }
                 }
             }
         }

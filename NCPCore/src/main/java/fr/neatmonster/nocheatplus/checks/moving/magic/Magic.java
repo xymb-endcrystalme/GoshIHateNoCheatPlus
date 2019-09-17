@@ -47,7 +47,7 @@ public class Magic {
     // Horizontal speeds/modifiers.
     public static final double WALK_SPEED           = 0.221D;
     public static final double modSneak             = 0.13D / WALK_SPEED;
-    //    public static final double modSprint            = 0.29 / walkSpeed; // TODO: without bunny  0.29 / practical is 0.35
+    public static final double modSprint            = 0.27 / WALK_SPEED; // TODO: without bunny  0.29 / practical is 0.35
     public static final double modBlock             = 0.1277D / WALK_SPEED;
     public static final double[] modSwim            = new double[] {0.155D / WALK_SPEED, 0.3D / WALK_SPEED, 0.115D / WALK_SPEED}; // 0.155D / WALK_SPEED(1.13 above); 0.115D / WALK_SPEED(1.12.2 below)
     public static final double[] modRiptide         = new double[] {
@@ -63,7 +63,7 @@ public class Magic {
             0.1995 / modSwim[0] / WALK_SPEED,
             1.0 / modSwim[0], // Results in walkspeed.
     };
-    public static final double modWeb               = 0.105D / WALK_SPEED; // TODO: walkingSpeed * 0.15D; <- does not work
+    public static final double modWeb               = 0.09D / WALK_SPEED; // TODO: walkingSpeed * 0.15D; <- does not work
     public static final double modSoulSand          = 0.16D / WALK_SPEED;
     public static final double modIce               = 2.5D; // 
     /** Faster moving down stream (water mainly). */
