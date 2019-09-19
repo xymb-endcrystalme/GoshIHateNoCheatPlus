@@ -147,6 +147,8 @@ public class NoSlow extends BaseAdapter {
 			ItemStack item = e.getItem();
 			Material m = item.getType();
 			if (InventoryUtil.isConsumable(item)) {
+			// pre1.9 splash potion
+			if (item.getDurability() > 16384) return;
                 if (m == Material.POTION || m == Material.MILK_BUCKET || m.toString().endsWith("_APPLE")) {
                 	data.isusingitem = true;
                 	return;
