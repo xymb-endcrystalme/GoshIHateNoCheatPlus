@@ -452,8 +452,9 @@ public class SurvivalFly extends Check {
                 }
             }
             if (blockAbove == Material.AIR) {
-            	//Bouncing on water
-                if (hDistanceAboveLimit <= 0D && hDistance > (Bridge1_13.hasDolphinGrace() ? 0.19D : 0.13D)
+                //Bouncing on water
+                // !data.isVelocityJumpPhase() is very coarse, should use friction instead.
+                if (!data.isVelocityJumpPhase() && hDistanceAboveLimit <= 0D && hDistance > (Bridge1_13.hasDolphinGrace() ? 0.19D : 0.13D)
                 && !Bridge1_9.isGliding(player) && !Bridge1_13.isRiptiding(player)
                 && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player)) && !toOnGround && !fromOnGround && (attrMod == Double.MAX_VALUE || attrMod <= 1.0)
                 && (from.getY() < to.getY()) && !(lastMove.from.inLiquid && !to.isInLiquid())
