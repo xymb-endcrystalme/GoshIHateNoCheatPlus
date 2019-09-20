@@ -917,6 +917,16 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 workaroundFlyNoFlyTransition(player, tick, debug, data);
             }
 
+	    if (lastMove.toIsValid) {
+                PlayerMoveData lastMove2 = data.playerMoves.getSecondPastMove();
+                if (lastMove.modelFlying != null && lastMove.modelFlying.getId().equals("jetpack.elytra")) {
+                    workaroundFlyNoFlyTransition(player, tick, debug, data);
+                } else
+                if (lastMove2.toIsValid && lastMove2.modelFlying != null && lastMove2.modelFlying.getId().equals("jetpack.elytra")) {
+                    workaroundFlyNoFlyTransition(player, tick, debug, data);
+                }
+            }
+		
             // Actual check.
             if (newTo == null) {
                 // Only check if passable has not already set back.
