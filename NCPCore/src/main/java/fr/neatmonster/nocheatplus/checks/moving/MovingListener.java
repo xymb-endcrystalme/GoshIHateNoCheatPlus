@@ -924,6 +924,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 } else
                 if (lastMove2.toIsValid && lastMove2.modelFlying != null && lastMove2.modelFlying.getId().equals("jetpack.elytra")) {
                     workaroundFlyNoFlyTransition(player, tick, debug, data);
+                } else
+                if (Bridge1_9.isWearingElytra(player) && !pFrom.isOnGround() && !pTo.isOnGround()) {
+                    workaroundFlyNoFlyTransition(player, tick, debug, data);
                 }
             }
 		
