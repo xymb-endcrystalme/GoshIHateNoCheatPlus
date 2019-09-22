@@ -607,10 +607,10 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.NET_FLYINGFREQUENCY_ACTIVE, "default", 785);
         set(ConfPaths.NET_FLYINGFREQUENCY_SECONDS, 5, 785);
         set(ConfPaths.NET_FLYINGFREQUENCY_PACKETSPERSECOND, 60, 785);
-        set(ConfPaths.NET_FLYINGFREQUENCY_ACTIONS, "cancel", 785); // TODO: Log actions.
+        set(ConfPaths.NET_FLYINGFREQUENCY_ACTIONS, "cancel vl>20 cancel log:flyingfrequency:0:2:i vl>500 cancel log:flyingfrequency:0:2:if vl>1000 cancel log:flyingfrequency:0:2:icf cmd:kickflyingfrequency:0:10", 785); 
         set(ConfPaths.NET_FLYINGFREQUENCY_REDUNDANT_ACTIVE, true, 785);
         set(ConfPaths.NET_FLYINGFREQUENCY_REDUNDANT_SECONDS, 3, 785);
-        set(ConfPaths.NET_FLYINGFREQUENCY_REDUNDANT_ACTIONS, "cancel", 785); // TODO: Log actions.
+        set(ConfPaths.NET_FLYINGFREQUENCY_REDUNDANT_ACTIONS, "cancel", 785); 
 
         // KeepAliveFrequency
         set(ConfPaths.NET_KEEPALIVEFREQUENCY_ACTIVE, "default", 785);
@@ -668,6 +668,7 @@ public class DefaultConfig extends ConfigFile {
                 + "tried to move: [locationfrom] -> [locationto], d=[distance] ([tags])" + end, 1067);
         set(ConfPaths.STRINGS + ".flyfile", start 
                 + "tried to move: [locationfrom] -> [locationto], d=[distance] ([tags])" + end, 785);
+        set(ConfPaths.STRINGS + ".flyingfrequency", start + "spams packets to exploit the server" + end, 785);
         set(ConfPaths.STRINGS + ".freach", start + "tried to attack entity out of reach" + end, 785);
         set(ConfPaths.STRINGS + ".fselfhit", start + "tried to self-hit" + end, 785);
         set(ConfPaths.STRINGS + ".fspeed", start + "tried to attack with too high a frequency" + end, 785);
@@ -690,11 +691,12 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".kickchatnormal", "ncp kick [player] Too many chat messages, take a break.", 785);
         set(ConfPaths.STRINGS + ".kickcommands", "ncp tempkick [player] 1 You're not allowed to spam commands!", 785);
         set(ConfPaths.STRINGS + ".kickfly", "ncp delay ncp kick [player] Kicked for flying (or related)", 785);
+        set(ConfPaths.STRINGS + ".kickflyingfrequency", "ncp delay ncp kick [player] Kicked for packet spam.", 785);
         set(ConfPaths.STRINGS + ".kickfrequency", "ncp kick [player] You did something too fast!", 785);
         set(ConfPaths.STRINGS + ".kickgod", "ncp kick [player] God mode?", 785);
         set(ConfPaths.STRINGS + ".kickinvaliddata", "ncp kick [player] Invalid data.", 785);
         set(ConfPaths.STRINGS + ".kickpacketfrequency", "ncp kick [player] Too many packets.", 785); // TODO
-        set(ConfPaths.STRINGS + ".kickpackets", "ncp delay ncp kick [player] Too many packets (extreme lag?)", 785);
+        set(ConfPaths.STRINGS + ".kickpackets", "ncp delay ncp kick [player] Too many moves sent (extreme lag?)", 785);
         set(ConfPaths.STRINGS + ".kickselfhit", "ncp kick [player] You tried to hit yourself!", 785);
         set(ConfPaths.STRINGS + ".kickwb", "ncp kick [player] Block breaking out of sync!", 785);
         set(ConfPaths.STRINGS + ".kick_wrongturn", "ncp kick [player] Wrong turn!", 1143);
