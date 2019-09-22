@@ -35,6 +35,8 @@ import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.moving.magic.Magic;
 import fr.neatmonster.nocheatplus.checks.moving.model.LocationData;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
+import fr.neatmonster.nocheatplus.compat.Bridge1_13;
+import fr.neatmonster.nocheatplus.compat.BridgeEnchant;
 import fr.neatmonster.nocheatplus.compat.BridgeHealth;
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
@@ -93,7 +95,8 @@ public class NoFall extends Check {
             final IPlayerData pData) {
         // Damage to be dealt.
         final float fallDist = (float) getApplicableFallHeight(player, y, previousSetBackY, data);
-        final double maxD = getDamage(fallDist);
+        double maxD = getDamage(fallDist);
+        maxD = calcDamagewithfeatherfalling(player, maxD);
         fallOn(player, fallDist);
         if (maxD >= Magic.FALL_DAMAGE_MINIMUM) {
             // Check skipping conditions.
@@ -130,6 +133,19 @@ public class NoFall extends Check {
                 block.setType(Material.DIRT);
             }
         }
+    }
+    
+    public static double calcDamagewithfeatherfalling(Player player, double damage) {
+        if (!Bridge1_13.hasIsSwimming()) return damage;
+        if (BridgeEnchant.hasFeatherFalling() && damage > 0.0) {
+            int levelench = BridgeEnchant.getFeatherFallingLevel(player);
+            if (levelench > 0) {
+                int tmp = levelench * 3;
+                if (tmp > 20) tmp = 20;
+                return damage * (1.0 - tmp / 25.0);
+            }
+        }
+        return damage;
     }
 
     /**
