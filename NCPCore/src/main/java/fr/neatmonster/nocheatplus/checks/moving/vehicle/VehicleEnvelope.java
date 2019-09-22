@@ -20,6 +20,7 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -47,6 +48,7 @@ import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.PotionUtil;
 import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
+import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 
 /**
  * Vehicle moving envelope check, for Minecraft 1.9 and higher.
@@ -180,9 +182,9 @@ public class VehicleEnvelope extends Check {
         if (debug) {
             debugDetails.add("inair: " + data.sfJumpPhase);
         }
-		 
-        if (isBubbleColumn(vehicle.getLocation())) {
-        	data.timeVehicletoss = System.currentTimeMillis();
+        if (isBubbleColumn(vehicle.getLocation()) 
+            || (isBouncingBlock(vehicle.getLocation()) && thisMove.yDistance >= 0.0 && thisMove.yDistance <= 1.0)) {
+            data.timeVehicletoss = System.currentTimeMillis();
         }
 
         // Medium dependent checking.
@@ -311,6 +313,61 @@ public class VehicleEnvelope extends Check {
             tags.add("descend_much");
             violation = true;
         }
+        
+        if (vehicle instanceof LivingEntity) {
+            final VehicleMoveData firstPastMove = data.vehicleMoves.getFirstPastMove();
+            if (thisMove.hDistance > 0.1D && thisMove.yDistance == 0D && !thisMove.to.onGround && !thisMove.from.onGround
+                && firstPastMove.valid && firstPastMove.yDistance == 0D 
+                && thisMove.to.inWater && thisMove.from.inWater
+                && !thisMove.headObstructed // TODO: Might decrease margin here.
+                ) {
+                   // TODO: Relative hdistance.
+                   // TODO: Might check actual bounds (collidesBlock). Might implement + use BlockProperties.getCorrectedBounds or getSomeHeight.
+                   violation = true;
+                   tags.add("waterwalk");
+            	}
+            Block blockUnder = vehicle.getLocation().subtract(0, 0.3, 0).getBlock();
+            Material blockAbove = vehicle.getLocation().add(0, 0.10, 0).getBlock().getType();
+            if (blockUnder != null && blockAbove != null && blockUnder.getType().toString().endsWith("WATER")) {
+                if (blockAbove == Material.AIR) {
+                    // hDist and vDist checks, simply checks for horizontal movement with little y distance
+                    if (thisMove.hDistance > 0.11D && thisMove.yDistance <= 0.1D && !thisMove.to.onGround && !thisMove.from.onGround
+                    && firstPastMove.valid && firstPastMove.yDistance == thisMove.yDistance || firstPastMove.yDistance == thisMove.yDistance * -1 && firstPastMove.yDistance != 0D
+                    && !thisMove.headObstructed) {
+                       // Prevent being flagged if a vehicle transitions from a block to water and the player falls into the water.
+                       if (!(thisMove.yDistance < 0 && thisMove.yDistance != 0 && firstPastMove.yDistance < 0 && firstPastMove.yDistance != 0)) {
+                    	   violation = true;
+                           tags.add("watermove");
+                       }
+                    }
+                    //Bouncing on water
+                    //if (!violation && firstPastMove.valid && !thisMove.to.onGround && !thisMove.from.onGround 
+                    //&& (thisMove.from.getY() < thisMove.to.getY()) && !(firstPastMove.from.inLiquid && !thisMove.to.inLiquid)
+                    //&& !firstPastMove.from.onGround && !thisMove.headObstructed) {
+                    //    boolean tag = false;
+                    //    if (Bridge1_13.hasIsSwimming()) {
+                    //        if (((Levelled)blockUnder.getBlockData()).getLevel() == 0) tag = true;
+                    //    } else if (blockUnder.getData() == 0) tag = true;
+                    //    Block blockUnder2 = blockUnder.getRelative(BlockFace.DOWN);
+                    //    if (checkDetails.canJump) {
+                    //        if (BlockProperties.isGround(blockUnder2.getType())) 
+                    //    	      tag = false;
+                    //        else {
+                    //    	  if (BlockProperties.isGround(blockUnder2.getRelative(BlockFace.EAST).getType())
+                    //    		  || BlockProperties.isGround(blockUnder2.getRelative(BlockFace.WEST).getType())
+                    //    		  || BlockProperties.isGround(blockUnder2.getRelative(BlockFace.NORTH).getType())
+                    //    		  || BlockProperties.isGround(blockUnder2.getRelative(BlockFace.SOUTH).getType())
+                    //            ) tag = false; 
+                    //        }
+                    //    }
+                    //    if (tag) {
+                    //    	violation = true;
+                    //        tags.add("waterjump");
+                    //    }
+                    //}
+                }
+            }
+        }
 
         if (!violation) {
             // No violation.
@@ -335,6 +392,23 @@ public class VehicleEnvelope extends Check {
         }
 
         return violation;
+    }
+    
+    private boolean isBouncingBlock(Location from) {
+    	World w = from.getWorld();
+		int x = from.getBlockX();
+		int y = from.getBlockY() - 1;
+		int z = from.getBlockZ();
+		if ((BlockProperties.getBlockFlags(w.getBlockAt(x,y,z).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
+		if ((BlockProperties.getBlockFlags(w.getBlockAt(x + 1,y,z).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
+		if ((BlockProperties.getBlockFlags(w.getBlockAt(x - 1,y,z).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
+		if ((BlockProperties.getBlockFlags(w.getBlockAt(x,y,z + 1).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
+		if ((BlockProperties.getBlockFlags(w.getBlockAt(x,y,z - 1).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
+		if ((BlockProperties.getBlockFlags(w.getBlockAt(x + 1,y,z - 1).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
+		if ((BlockProperties.getBlockFlags(w.getBlockAt(x + 1,y,z + 1).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
+		if ((BlockProperties.getBlockFlags(w.getBlockAt(x - 1,y,z - 1).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
+		if ((BlockProperties.getBlockFlags(w.getBlockAt(x - 1,y,z + 1).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
+		return false;
     }
     
     private boolean isBubbleColumn(Location from) {
