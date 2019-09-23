@@ -12,7 +12,6 @@ import fr.neatmonster.nocheatplus.actions.ParameterName;
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
-import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
 
@@ -25,7 +24,7 @@ public class InventoryMove extends Check {
 	private final List<String> tags = new LinkedList<String>();
 	
 	public InventoryMove() {
-        super(CheckType.INVENTORY_MOVE);
+        super(CheckType.INVENTORY_INVENTORYMOVE);
     }
 	
     public boolean check(final Player player, final InventoryData data, final IPlayerData pData, final InventoryConfig cc, final SlotType type) {
@@ -39,9 +38,6 @@ public class InventoryMove extends Check {
     else if (player.isSneaking()) {
     	tags.add("isSneaking");
     }
-    else if (Bridge1_13.isSwimming(player)) {
-    	tags.add("isSwimming");
-    }
     else if (player.isSprinting()) {
     	tags.add("isSprinting");
     }
@@ -50,7 +46,7 @@ public class InventoryMove extends Check {
     }
     
      // Do the actual check 
-     if (player.isSneaking() || player.isSprinting() || Bridge1_13.isSwimming(player) || player.isBlocking() || player.isDead()) {
+     if (player.isSneaking() || player.isSprinting() || player.isBlocking() || player.isDead()) {
            // Check if the player is in creative
    	   if (player.getGameMode() == GameMode.CREATIVE) {
    		   // (Skip hotbar interactions)
