@@ -113,6 +113,7 @@ public class Permissions {
     public static final RegisteredPermission  BLOCKPLACE_AGAINST           = add(BLOCKPLACE + ".against");
     public static final RegisteredPermission  BLOCKPLACE_AGAINST_AIR       = add(BLOCKPLACE_AGAINST + ".air");
     public static final RegisteredPermission  BLOCKPLACE_AGAINST_LIQUIDS   = add(BLOCKPLACE_AGAINST + ".liquids");
+    public static final RegisteredPermission  BLOCKPLACE_AGAINST_SELF      = add(BLOCKPLACE_AGAINST + ".self");
     public static final RegisteredPermission  BLOCKPLACE_AUTOSIGN          = add(BLOCKPLACE + ".autosign");
     public static final RegisteredPermission  BLOCKPLACE_BOATSANYWHERE     = add(BLOCKPLACE + ".boatsanywhere");
     public static final RegisteredPermission  BLOCKPLACE_DIRECTION         = add(BLOCKPLACE + ".direction");

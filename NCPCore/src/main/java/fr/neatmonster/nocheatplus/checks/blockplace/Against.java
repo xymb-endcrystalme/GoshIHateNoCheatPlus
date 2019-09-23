@@ -74,7 +74,12 @@ public class Against extends Check {
                     && !pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_LIQUIDS, player)) {
                 violation = true;
             }
-        }
+        } else
+        // Replace block placed by block placed and interact with air or water 
+        if (block.equals(blockAgainst) && (bdata.getLastType() == null || BlockProperties.isLiquid(bdata.getLastType()))
+        	&& !pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_SELF, player)) {
+        	violation = true;
+        }        
         // Handle violation and return.
         bdata.addConsumedCheck(this.type);
         if (violation) {
