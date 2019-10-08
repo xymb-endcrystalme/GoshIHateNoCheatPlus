@@ -225,10 +225,8 @@ public class DefaultConfig extends ConfigFile {
 
 
         set(ConfPaths.CHAT_COMMANDS_CHECK, "default", 785);
-        set(ConfPaths.CHAT_COMMANDS_EXCLUSIONS, Arrays.asList("/undo", "//undo", "undo", "/redo", "//redo" "redo"), 1154);
-        set(ConfPaths.CHAT_COMMANDS_HANDLEASCHAT, Arrays.asList("me", "msg", "emsg", "essentials:msg", "tell", 
-        	"etell", "essentials:tell", "say", "esay", "essentials:say", "whisper", "ewhisper", "essentials:whisper",
-        	"w", "essentials:w", "ew", "r", "er", "essentials:r", "reply", "essentials:reply", "ereply"), 1154);
+        set(ConfPaths.CHAT_COMMANDS_EXCLUSIONS, Arrays.asList("undo", "redo"), 1154);
+        set(ConfPaths.CHAT_COMMANDS_HANDLEASCHAT, Arrays.asList("me", "msg", "emsg", "essentials:msg", "tell", "etell", "essentials:tell", "say", "esay", "essentials:say", "whisper", "ewhisper", "essentials:whisper", "w", "essentials:w", "ew", "r", "er", "essentials:r", "reply", "essentials:reply", "ereply"), 1154);
         set(ConfPaths.CHAT_COMMANDS_LEVEL, 10, 785);
         set(ConfPaths.CHAT_COMMANDS_SHORTTERM_TICKS, 18, 785);
         set(ConfPaths.CHAT_COMMANDS_SHORTTERM_LEVEL, 3, 785);
@@ -308,7 +306,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.COMBINED_IMPROBABLE_CHECK , "default", 785);
         set(ConfPaths.COMBINED_IMPROBABLE_LEVEL, 300, 785);
         //        set(ConfPaths.COMBINED_IMPROBABLE_FASTBREAK_CHECK, false, 785);
-        set(ConfPaths.COMBINED_IMPROBABLE_ACTIONS, "cancel vl>10 log:improbable:8:10:if cancel vl>3000 cancel cmdc:kickimprobable:0:10 cmdc:clearimprobable:0:10", 1154);
+        set(ConfPaths.COMBINED_IMPROBABLE_ACTIONS, "cancel vl>10 log:improbable:8:10:if cancel vl>3000 cancel log:improbable:0:10:if cmdc:kickimprobable:0:10 cmdc:clearimprobable:0:10", 1154);
 
         set(ConfPaths.COMBINED_INVULNERABLE_CHECK, true, 785); // Not a check type yet.
         set(ConfPaths.COMBINED_INVULNERABLE_TRIGGERS_ALWAYS, false, 785);
@@ -389,7 +387,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_REACH_REDUCESTEP, 0.15, 785);
         set(ConfPaths.FIGHT_REACH_IMPROBABLE_FEEDONLY, false, 1154);
         set(ConfPaths.FIGHT_REACH_IMPROBABLE_WEIGHT, 2.0, 1154);
-        set(ConfPaths.FIGHT_REACH_ACTIONS, "vl>1 log:freach:8:10:i vl>5 cancel log:freach:2:6:if vl>12 cancel log:kreach:1:5:i vl>35 cancel log:kreach:0:5 cmdc:kicksuspiciouscombat:2:1", 1154);
+        set(ConfPaths.FIGHT_REACH_ACTIONS, "vl>1 log:freach:8:10:i vl>5 cancel log:freach:2:6:if vl>12 cancel log:kreach:1:5:i vl>35 cancel log:kreach:0:5:if cmdc:kicksuspiciouscombat:2:1", 1154);
 
         set(ConfPaths.FIGHT_SELFHIT_CHECK, "default", 785);
         set(ConfPaths.FIGHT_SELFHIT_ACTIONS, "cancel log:fselfhit:0:5:icf cmdc:kickselfhit:0:5", 1154);
@@ -779,8 +777,8 @@ public class DefaultConfig extends ConfigFile {
                 "DEAD_FIRE",
                 "DEAD_HORN"
                 )) { 
-        	set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + DeadCoralType + "_CORAL", "default+ign_passable+ground_height", 1154);
-        	set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + DeadCoralType + "_CORAL_WALL_FAN", "default+ign_passable+ground_height", 1154);
+            set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + DeadCoralType + "_CORAL", "default+ign_passable+ground_height", 1154);
+            set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + DeadCoralType + "_CORAL_WALL_FAN", "default+ign_passable+ground_height", 1154);
         }
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "DEAD_TUBE_CORAL_FAN", "default+ign_passable+ground_height", 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "DEAD_BRAIN_CORAL_FAN", "default+ign_passable+ground_height", 1154);
