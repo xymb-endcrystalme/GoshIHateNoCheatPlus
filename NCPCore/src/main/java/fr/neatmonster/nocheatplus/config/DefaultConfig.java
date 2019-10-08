@@ -278,7 +278,7 @@ public class DefaultConfig extends ConfigFile {
         // Relog
         set(ConfPaths.CHAT_RELOG_CHECK, "default", 785);
         set(ConfPaths.CHAT_RELOG_TIMEOUT, 5000L, 785);
-        set(ConfPaths.CHAT_RELOG_WARNING_MESSAGE, "&c&l(&c&l!&c&l)&7 You relogged really fast! If you keep doing that, you're going to be banned.", 1154);
+        set(ConfPaths.CHAT_RELOG_WARNING_MESSAGE, "&c&l(!)&7 You relogged really fast! If you keep doing that, you're going to be banned.", 1154);
         set(ConfPaths.CHAT_RELOG_WARNING_NUMBER, 1, 785);
         set(ConfPaths.CHAT_RELOG_KICKMESSAGE, "Too fast re-login, try with a little delay.", 785);
         set(ConfPaths.CHAT_RELOG_WARNING_TIMEOUT, 60000L, 785);
