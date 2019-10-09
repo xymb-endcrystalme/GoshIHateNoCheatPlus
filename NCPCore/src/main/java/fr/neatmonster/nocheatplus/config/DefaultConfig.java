@@ -139,7 +139,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKBREAK_FREQUENCY_ACTIONS, "cancel vl>5 log:bbfrequency:3:5:i cancel vl>40 log:bbfrequency:0:5:cif cancel cmdc:kickfrequency:0:5", 1154);
 
         set(ConfPaths.BLOCKBREAK_NOSWING_CHECK, "default", 785);
-        set(ConfPaths.BLOCKBREAK_NOSWING_ACTIONS, "cancel vl>10 log:noswing:0:5:if cancel", 785);
+        set(ConfPaths.BLOCKBREAK_NOSWING_ACTIONS, "cancel vl>10 log:noswing:0:5:i cancel", 785);
 
         set(ConfPaths.BLOCKBREAK_REACH_CHECK, "default", 785);
         set(ConfPaths.BLOCKBREAK_REACH_ACTIONS, "cancel", 1154);
@@ -172,7 +172,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_ACTIVE, "default", 1144);
 
         set(ConfPaths.BLOCKPLACE_AGAINST_CHECK, "default", 785);
-        set(ConfPaths.BLOCKPLACE_AGAINST_ACTIONS, "cancel log:against:0:5:i vl>10 cancel log:against:0:2:icf cmdc:kickagainst:0:10", 1154);
+        set(ConfPaths.BLOCKPLACE_AGAINST_ACTIONS, "cancel log:against:0:5:i vl>10 cancel log:against:0:2:if cmdc:kickagainst:0:10", 1154);
 
         set(ConfPaths.BLOCKPLACE_AUTOSIGN_CHECK, "default", 785);
         set(ConfPaths.BLOCKPLACE_AUTOSIGN_SKIPEMPTY, false, 785);
@@ -203,7 +203,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_SPEED_INTERVAL, 30L, 1154); // Old limit: 45L < FPs with throwable potions.
         set(ConfPaths.BLOCKPLACE_SPEED_IMPROBABLE_FEEDONLY, true, 1154);
         set(ConfPaths.BLOCKPLACE_SPEED_IMPROBABLE_WEIGHT, 0.3, 1154);
-        set(ConfPaths.BLOCKPLACE_SPEED_ACTIONS, "cancel vl>100 log:bpspeed:3:5:if cancel vl>800 log:bpspeed:3:5:cif cancel", 1154);
+        set(ConfPaths.BLOCKPLACE_SPEED_ACTIONS, "cancel vl>100 log:bpspeed:6:7:i cancel vl>1000 log:bpspeed:3:5:if cancel", 1154);
 
         set(ConfPaths.BLOCKPLACE_PREVENTMISC_BOATSANYWHERE, true);
 
@@ -219,7 +219,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.CHAT_CAPTCHA_SUCCESS, "&c&l(&c&l!&c&l)&7 Antispam check passed.", 1154);
         set(ConfPaths.CHAT_CAPTCHA_TRIES, 3, 785);
         set(ConfPaths.CHAT_CAPTCHA_ACTIONS, "cancel cmdc:kickcaptcha vl>4 log:captcha:2:5:cf cancel cmdc:kickcaptcha", 785);
-        // Is this check still relevant? ...
+        // This check should be subject to removal
         set(ConfPaths.CHAT_COLOR_CHECK, "false", 1154);
         set(ConfPaths.CHAT_COLOR_ACTIONS, "cancel", 1154);
 
@@ -306,7 +306,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.COMBINED_IMPROBABLE_CHECK , "default", 785);
         set(ConfPaths.COMBINED_IMPROBABLE_LEVEL, 300, 785);
         //        set(ConfPaths.COMBINED_IMPROBABLE_FASTBREAK_CHECK, false, 785);
-        set(ConfPaths.COMBINED_IMPROBABLE_ACTIONS, "cancel vl>10 log:improbable:8:10:if cancel vl>3000 cancel log:improbable:0:10:if cmdc:kickimprobable:0:10 cmdc:clearimprobable:0:10", 1154);
+        set(ConfPaths.COMBINED_IMPROBABLE_ACTIONS, "cancel vl>10 log:improbable:8:9:if cancel vl>3000 cancel log:improbable:0:10:if cmdc:kickimprobable:0:10 cmdc:clearimprobable:0:10", 1154);
 
         set(ConfPaths.COMBINED_INVULNERABLE_CHECK, true, 785); // Not a check type yet.
         set(ConfPaths.COMBINED_INVULNERABLE_TRIGGERS_ALWAYS, false, 785);
@@ -319,7 +319,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.COMBINED_MUNCHHAUSEN_ACTIONS, "cancel vl>100 cancel log:munchhausen:0:60:if", 785);
 
         // (No active flag set !?)
-        set(ConfPaths.COMBINED_YAWRATE_RATE , 300, 1154); // Old limit: 360
+        set(ConfPaths.COMBINED_YAWRATE_RATE , 280, 1154); // Old limit: 360
         set(ConfPaths.COMBINED_YAWRATE_PENALTY_FACTOR, 2.0, 1154); // 1.0
         set(ConfPaths.COMBINED_YAWRATE_PENALTY_MIN, 450, 1154); // 250
         set(ConfPaths.COMBINED_YAWRATE_PENALTY_MAX, 2500, 1154); // 1500
@@ -356,12 +356,12 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_DIRECTION_CHECK, "default", 785);
         set(ConfPaths.FIGHT_DIRECTION_STRICT, true, 1154);
         set(ConfPaths.FIGHT_DIRECTION_PENALTY, 75L, 1154);
-        set(ConfPaths.FIGHT_DIRECTION_ACTIONS, "vl>2 log:fdirectionlowvl:9:10:i vl>5 cancel log:fdirectionlowvl:5:4:i vl>19 cancel log:fdirection:1:4:i vl>50 cancel log:fdirection:0:7:icf cmdc:kicksuspiciouscombat:1:5", 1154);
+        set(ConfPaths.FIGHT_DIRECTION_ACTIONS, "vl>2 log:fdirectionlowvl:9:10:i vl>5 log:fdirectionlowvl:5:4:i vl>10 cancel log:fdirection:2:4:if vl>50 cancel log:fdirection:0:7:icf cmdc:kicksuspiciouscombat:1:5", 1154);
 
         set(ConfPaths.FIGHT_FASTHEAL_CHECK, "default", 785);
         set(ConfPaths.FIGHT_FASTHEAL_INTERVAL, 4000L, 785);
         set(ConfPaths.FIGHT_FASTHEAL_BUFFER, 1000L, 785);
-        set(ConfPaths.FIGHT_FASTHEAL_ACTIONS, "cancel vl>10 cancel log:fastheal:2:6:i vl>30 cancel log:fastheal:1:1:i vl>90 cancel log:fastheal:0:10:icf cmdc:kickfastheal:0:10", 1154);
+        set(ConfPaths.FIGHT_FASTHEAL_ACTIONS, "cancel vl>10 cancel log:fastheal:2:6:i vl>30 cancel log:fastheal:1:1:i vl>90 cancel log:fastheal:0:10:if cmdc:kickfastheal:0:10", 1154);
 
         set(ConfPaths.FIGHT_GODMODE_CHECK, "default", 785);
         set(ConfPaths.FIGHT_GODMODE_LAGMINAGE, 1100, 785); // TODO: ndt/2 => 500-600.
@@ -369,7 +369,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_GODMODE_ACTIONS, "log:godmode:2:5:if cancel vl>60 log:godmode:2:5:icf cancel", 785); // cmdc:kickgod", 785);
 
         set(ConfPaths.FIGHT_NOSWING_CHECK, "default", 785);
-        set(ConfPaths.FIGHT_NOSWING_ACTIONS, "cancel vl>10 log:noswing:1:5:if cancel", 1154);
+        set(ConfPaths.FIGHT_NOSWING_ACTIONS, "cancel vl>10 log:noswing:1:5:i cancel", 1154);
         // TODO: Merge @CaptainObvious' pitchpattern check in this fork.
         //set(ConfPaths.FIGHT_PITCHPATTERN_CHECK, "default", 1153);
         //set(ConfPaths.FIGHT_PITCHPATTERN_ALWAYSACTIVE, true, 1154); // false
@@ -387,14 +387,14 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_REACH_REDUCESTEP, 0.15, 785);
         set(ConfPaths.FIGHT_REACH_IMPROBABLE_FEEDONLY, false, 1154);
         set(ConfPaths.FIGHT_REACH_IMPROBABLE_WEIGHT, 2.0, 1154);
-        set(ConfPaths.FIGHT_REACH_ACTIONS, "vl>1 log:freach:8:10:i vl>5 cancel log:freach:2:6:if vl>12 cancel log:kreach:1:5:i vl>35 cancel log:kreach:0:5:if cmdc:kicksuspiciouscombat:2:1", 1154);
+        set(ConfPaths.FIGHT_REACH_ACTIONS, "vl>1 log:freach:8:9:i vl>5 cancel log:freach:2:6:if vl>12 cancel log:kreach:1:5:i vl>35 cancel log:kreach:0:5:if cmdc:kicksuspiciouscombat:2:1", 1154);
 
         set(ConfPaths.FIGHT_SELFHIT_CHECK, "default", 785);
         set(ConfPaths.FIGHT_SELFHIT_ACTIONS, "cancel log:fselfhit:0:5:icf cmdc:kickselfhit:0:5", 1154);
 
         set(ConfPaths.FIGHT_SPEED_CHECK, "default", 785);
         set(ConfPaths.FIGHT_SPEED_LIMIT, 15, 1154); 
-        set(ConfPaths.FIGHT_SPEED_ACTIONS, "cancel vl>20 cancel log:fspeed:2:5:i", 1154);
+        set(ConfPaths.FIGHT_SPEED_ACTIONS, "cancel vl>20 cancel log:fspeed:2:5:i vl>80 cancel log:fspeed:1:1:if cmd:kickattackfrequency:0:10", 1154);
         set(ConfPaths.FIGHT_SPEED_SHORTTERM_TICKS, 7, 785);
         set(ConfPaths.FIGHT_SPEED_SHORTTERM_LIMIT, 5, 1154);
         set(ConfPaths.FIGHT_SPEED_IMPROBABLE_FEEDONLY, false, 1154);
@@ -419,14 +419,14 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.INVENTORY_FASTCLICK_LIMIT_NORMAL, 15, 785);
         set(ConfPaths.INVENTORY_FASTCLICK_LIMIT_CHEST, 152, 1154);
         set(ConfPaths.INVENTORY_FASTCLICK_IMPROBABLE_WEIGHT, 0.7, 1154);
-        set(ConfPaths.INVENTORY_FASTCLICK_ACTIONS, "cancel vl>200 cancel log:fastclick:7:5:if vl>600 cancel log:fastclick:1:5:if vl>5000 cancel log:fastclick:0:15:icf cmdc:kickfastclick:0:15 cmd:clearfastclick:0:15", 1154);
+        set(ConfPaths.INVENTORY_FASTCLICK_ACTIONS, "cancel vl>200 cancel log:fastclick:7:5:i vl>600 cancel log:fastclick:1:5:if vl>5000 cancel log:fastclick:0:15:if cmdc:kickfastclick:0:15 cmd:clearfastclick:0:15", 1154);
 
         set(ConfPaths.INVENTORY_INSTANTBOW_CHECK, "default", 785);
         set(ConfPaths.INVENTORY_INSTANTBOW_STRICT, true, 785);
         set(ConfPaths.INVENTORY_INSTANTBOW_DELAY, 130, 785);
         set(ConfPaths.INVENTORY_INSTANTBOW_IMPROBABLE_FEEDONLY, false, 1085);
         set(ConfPaths.INVENTORY_INSTANTBOW_IMPROBABLE_WEIGHT, 0.6, 1085);
-        set(ConfPaths.INVENTORY_INSTANTBOW_ACTIONS, "cancel vl>15 cancel log:instantbow:4:5:i vl>200 cancel log:instantbow:0:10:icf cmdc:kickbow:2:10", 1154);
+        set(ConfPaths.INVENTORY_INSTANTBOW_ACTIONS, "cancel vl>15 cancel log:instantbow:4:5:i vl>200 cancel log:instantbow:0:10:if cmdc:kickbow:2:10", 1154);
 
         // TODO: Set this to false as default?
         set(ConfPaths.INVENTORY_INSTANTEAT_CHECK, "default", 785);
@@ -584,7 +584,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_VEHICLE_ENVELOPE_ACTIVE, "default", 785);
         set(ConfPaths.MOVING_VEHICLE_ENVELOPE_HSPEEDCAP + ".default", 0.9, 1154);
         set(ConfPaths.MOVING_VEHICLE_ENVELOPE_HSPEEDCAP + ".pig", 0.3, 1154);
-        set(ConfPaths.MOVING_VEHICLE_ENVELOPE_ACTIONS, "cancel vl>50 cancel log:vehicleenvelope:10:6:i vl>500 cancel log:vehicleenvelope:0:10:icf cmdc:kickvehiclefly:0:10 cmd:clearvehicle:0:15", 1154);
+        set(ConfPaths.MOVING_VEHICLE_ENVELOPE_ACTIONS, "cancel vl>50 cancel log:vehicleenvelope:10:6:if vl>500 cancel log:vehicleenvelope:0:10:icf cmdc:kickvehiclefly:0:10 cmd:clearvehicle:0:15", 1154);
 
         // Messages
         set(ConfPaths.MOVING_MESSAGE_ILLEGALPLAYERMOVE, "Illegal move.", 785);
@@ -603,14 +603,14 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.NET_ATTACKFREQUENCY_SECONDS_FOUR, 60, 785);
         set(ConfPaths.NET_ATTACKFREQUENCY_SECONDS_EIGHT, 95, 1154); //100
         set(ConfPaths.NET_ATTACKFREQUENCY_IMPROBABLE_WEIGHT, 3.0, 1154);
-        set(ConfPaths.NET_ATTACKFREQUENCY_ACTIONS, "cancel vl>10 cancel log:attackfrequency:4:5:i vl>200 cancel log:attackfrequency:0:4:cif cmdc:kickattackfrequency", 1154);
+        set(ConfPaths.NET_ATTACKFREQUENCY_ACTIONS, "cancel vl>10 cancel log:attackfrequency:4:5:i vl>200 cancel log:attackfrequency:0:4:if cmdc:kickattackfrequency", 1154);
 
         // FightSync
         set(ConfPaths.NET_FIGHTSYNC_ACTIVE, "default", 1154);
         set(ConfPaths.NET_FIGHTSYNC_THRESHOLD, 5, 1154);
-        set(ConfPaths.NET_FIGHTSYNC_RESETCOUNT, 20, 1154); //Old: 20
+        set(ConfPaths.NET_FIGHTSYNC_RESETCOUNT, 20, 1154); //Old: 11
         // Should be really difficult for legit players to reach 10.000VL, but fairly easily if you do go overboard with a killaura.
-        set(ConfPaths.NET_FIGHTSYNC_ACTIONS, "vl>10 log:fightsync:10:9:if vl>10000 cancel log:fightsync:2:10 cmdc:kicksuspiciouscombat:0:10", 1154); 
+        set(ConfPaths.NET_FIGHTSYNC_ACTIONS, "vl>10 log:fightsync:10:9:if vl>10000 cancel log:fightsync:2:10:if cmdc:kicksuspiciouscombat:0:10", 1154); 
         
         // FlyingFrequency
         set(ConfPaths.NET_FLYINGFREQUENCY_ACTIVE, "default", 785);
