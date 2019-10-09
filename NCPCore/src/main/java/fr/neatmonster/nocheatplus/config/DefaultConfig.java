@@ -435,7 +435,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.INVENTORY_FASTCONSUME_CHECK, "default", 785);
         set(ConfPaths.INVENTORY_FASTCONSUME_DURATION, 1.4, 1154);
         set(ConfPaths.INVENTORY_FASTCONSUME_WHITELIST, false, 785);
-        set(ConfPaths.INVENTORY_FASTCONSUME_ITEMS, Arrays.asList("DRIED KELP”), 1154);
+        set(ConfPaths.INVENTORY_FASTCONSUME_ITEMS, Arrays.asList("Dried kelp”), 1154);
         set(ConfPaths.INVENTORY_FASTCONSUME_ACTIONS, "cancel vl>2 log:fastconsume:2:5:if cancel", 1154);
         
         set(ConfPaths.INVENTORY_INVENTORYMOVE_CHECK, "default", 1153);
