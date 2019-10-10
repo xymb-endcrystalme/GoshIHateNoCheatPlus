@@ -32,7 +32,7 @@ public class DefaultConfig extends ConfigFile {
 
     // TODO: Other version details ?
 
-    private static final String unifiedBlockDirectionActions = "vl>1 cancel vl>15 cancel log:bdirection:4:8:i vl>200 cancel log:bdirection:0:5:icf cmdc:kickillegalblockinteract:0:5 cmdc:clearblockdirection:0:15";
+    private static final String unifiedBlockDirectionActions = "vl>1 cancel vl>15 cancel log:bdirection:4:8:i vl>200 cancel log:bdirection:1:5:if cmdc:kickillegalblockinteract:1:5";
     private static final String unifiedBlockReachActions = "cancel log:breach:5:6:i";
 
     /**
@@ -129,14 +129,14 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKBREAK_FASTBREAK_DELAY, 100, 785);
         set(ConfPaths.BLOCKBREAK_FASTBREAK_MOD_SURVIVAL, 100, 785);
         set(ConfPaths.BLOCKBREAK_FASTBREAK_GRACE, 2000, 785);
-        set(ConfPaths.BLOCKBREAK_FASTBREAK_ACTIONS, "cancel vl>5 cancel log:fastbreak:4:2:i vl>50 cancel log:fastbreak:0:2:icf cmdc:kickfastbreak:2:5", 1154);
+        set(ConfPaths.BLOCKBREAK_FASTBREAK_ACTIONS, "cancel vl>5 cancel log:fastbreak:4:2:i vl>50 cancel log:fastbreak:0:2:if cmdc:kickfastbreak:2:5", 1154);
 
         set(ConfPaths.BLOCKBREAK_FREQUENCY_CHECK, "default", 785);
         set(ConfPaths.BLOCKBREAK_FREQUENCY_MOD_CREATIVE, 95, 785);
         set(ConfPaths.BLOCKBREAK_FREQUENCY_MOD_SURVIVAL, 45, 785);
         set(ConfPaths.BLOCKBREAK_FREQUENCY_SHORTTERM_TICKS, 5, 785);
         set(ConfPaths.BLOCKBREAK_FREQUENCY_SHORTTERM_LIMIT, 7, 785);
-        set(ConfPaths.BLOCKBREAK_FREQUENCY_ACTIONS, "cancel vl>5 log:bbfrequency:3:5:i cancel vl>40 log:bbfrequency:0:5:cif cancel cmdc:kickfrequency:0:5", 1154);
+        set(ConfPaths.BLOCKBREAK_FREQUENCY_ACTIONS, "cancel vl>5 log:bbfrequency:3:5:i cancel vl>40 log:bbfrequency:0:5:if cancel cmdc:kickfrequency:0:5", 1154);
 
         set(ConfPaths.BLOCKBREAK_NOSWING_CHECK, "default", 785);
         set(ConfPaths.BLOCKBREAK_NOSWING_ACTIONS, "cancel vl>10 log:noswing:0:5:i cancel", 785);
@@ -148,7 +148,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKBREAK_WRONGBLOCK_LEVEL, 20, 1154);
         set(ConfPaths.BLOCKBREAK_WRONGBLOCK_IMPROBABLE_FEEDONLY, false, 1154);
         set(ConfPaths.BLOCKBREAK_WRONGBLOCK_IMPROBABLE_WEIGHT, 2.0, 1154);
-        set(ConfPaths.BLOCKBREAK_WRONGBLOCK_ACTIONS, "cancel vl>10 log:bwrong:2:5:i cancel vl>30 log:bwrong:0:5:cif cancel cmdc:kickwb:0:5", 1154);
+        set(ConfPaths.BLOCKBREAK_WRONGBLOCK_ACTIONS, "cancel vl>10 log:bwrong:2:5:i cancel vl>30 log:bwrong:0:5:if cancel cmdc:kickwb:0:5", 1154);
 
         /* BlockInteract */
         set(ConfPaths.BLOCKINTERACT_ACTIVE, "default", 1144);
@@ -162,17 +162,17 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKINTERACT_SPEED_CHECK, "default", 785);
         set(ConfPaths.BLOCKINTERACT_SPEED_INTERVAL, 2000, 785);
         set(ConfPaths.BLOCKINTERACT_SPEED_LIMIT, 55, 1154); // Old limit: 60
-        set(ConfPaths.BLOCKINTERACT_SPEED_ACTIONS, "cancel log:bspeed:5:4:i cancel vl>500 cancel log:bspeed:0:10:icf cmdc:kickbspeed:2:5", 1154);
+        set(ConfPaths.BLOCKINTERACT_SPEED_ACTIONS, "cancel vl>10 cancel log:bspeed:5:4:i cancel vl>500 cancel log:bspeed:0:5:icf cmdc:kickbspeed:2:5", 1154);
 
         set(ConfPaths.BLOCKINTERACT_VISIBLE_CHECK, "default", 785);
-        set(ConfPaths.BLOCKINTERACT_VISIBLE_ACTIONS, "cancel vl>100 log:bvisible:0:10:if cancel", 785);
+        set(ConfPaths.BLOCKINTERACT_VISIBLE_ACTIONS, "cancel vl>30 log:bvisible:8:5:if cancel", 1154); // Visible + stone generators = fps NCP issue #575
 
 
         /* BlockPlace */
         set(ConfPaths.BLOCKPLACE_ACTIVE, "default", 1144);
 
         set(ConfPaths.BLOCKPLACE_AGAINST_CHECK, "default", 785);
-        set(ConfPaths.BLOCKPLACE_AGAINST_ACTIONS, "cancel log:against:0:5:i vl>10 cancel log:against:0:2:if cmdc:kickagainst:0:10", 1154);
+        set(ConfPaths.BLOCKPLACE_AGAINST_ACTIONS, "cancel log:against:1:5:i vl>10 cancel log:against:0:2:if cmdc:kickagainst:0:10", 1154);
 
         set(ConfPaths.BLOCKPLACE_AUTOSIGN_CHECK, "default", 785);
         set(ConfPaths.BLOCKPLACE_AUTOSIGN_SKIPEMPTY, false, 785);
@@ -187,7 +187,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_FASTPLACE_SHORTTERM_LIMIT, 6, 785);
         set(ConfPaths.BLOCKPLACE_FASTPLACE_IMPROBABLE_FEEDONLY, false, 1154);
         set(ConfPaths.BLOCKPLACE_FASTPLACE_IMPROBABLE_WEIGHT, 0.5, 1154);
-        set(ConfPaths.BLOCKPLACE_FASTPLACE_ACTIONS, "cancel vl>5 cancel log:fastplace:8:3:i vl>20 cancel log:fastplace:2:4:i vl>80 cancel log:fastplace:0:10:icf cmdc:kickfastplace:0:10", 1154);
+        set(ConfPaths.BLOCKPLACE_FASTPLACE_ACTIONS, "cancel vl>5 cancel log:fastplace:8:3:i vl>20 cancel log:fastplace:2:4:i vl>80 cancel log:fastplace:0:10:if cmdc:kickfastplace:1:10", 1154);
 
         set(ConfPaths.BLOCKPLACE_REACH_CHECK, "default", 785);
         set(ConfPaths.BLOCKPLACE_REACH_ACTIONS, "cancel", 1154);
@@ -197,7 +197,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_NOSWING_ACTIONS, "cancel vl>10 log:noswing:2:5:i cancel", 1154);
         
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_CHECK, "default", 1154);
-        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, "vl>1 cancel vl>10 cancel log:scaffold:3:7:if", 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, "vl>1 cancel vl>10 cancel log:scaffold:3:7:if vl>60 cancel log:scaffold:1:2:if cmdc:kickscaffold:2:10", 1154);
 
         set(ConfPaths.BLOCKPLACE_SPEED_CHECK, "default", 785);
         set(ConfPaths.BLOCKPLACE_SPEED_INTERVAL, 30L, 1154); // Old limit: 45L < FPs with throwable potions.
@@ -230,7 +230,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.CHAT_COMMANDS_LEVEL, 10, 785);
         set(ConfPaths.CHAT_COMMANDS_SHORTTERM_TICKS, 18, 785);
         set(ConfPaths.CHAT_COMMANDS_SHORTTERM_LEVEL, 3, 785);
-        set(ConfPaths.CHAT_COMMANDS_ACTIONS, "log:commands:0:5:cf cancel cmdc:kickcommands vl>20 log:commands:0:5:cf cancel cmdc:tempkick1", 785);
+        set(ConfPaths.CHAT_COMMANDS_ACTIONS, "log:commands:0:5:cf cancel cmdc:kickcommands vl>20 log:commands:0:5:cf cancel cmdc:tempkick1", 1154);
 
         // Text (ordering on purpose).
         set(ConfPaths.CHAT_TEXT_CHECK, "default", 785);
@@ -239,13 +239,13 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.CHAT_TEXT_FREQ_NORM_FACTOR, 0.9D, 785);
         set(ConfPaths.CHAT_TEXT_FREQ_NORM_WEIGHT, 6, 785);
         set(ConfPaths.CHAT_TEXT_FREQ_NORM_LEVEL, 160, 785);
-        set(ConfPaths.CHAT_TEXT_FREQ_NORM_ACTIONS, "cancel cmdc:tellchatnormal vl>7 log:chatnormal:0:5:cif cancel cmdc:tellchatnormal vl>20 log:chatnormal:0:5:cif cancel cmdc:kickchatnormal vl>40 log:chatnormal:0:5:cif cancel cmdc:kickchat5", 785);
+        set(ConfPaths.CHAT_TEXT_FREQ_NORM_ACTIONS, "cancel cmdc:tellchatnormal vl>7 log:chatnormal:0:5:cif cancel cmdc:tellchatnormal vl>20 log:chatnormal:0:5:cif cancel cmdc:kickchatnormal vl>40 log:chatnormal:0:5:cif cancel cmdc:kickchat5", 1154);
                                                     
         set(ConfPaths.CHAT_TEXT_FREQ_SHORTTERM_MIN, 2.0, 785);
         set(ConfPaths.CHAT_TEXT_FREQ_SHORTTERM_FACTOR, 0.7, 785);
         set(ConfPaths.CHAT_TEXT_FREQ_SHORTTERM_WEIGHT, 3.0, 785);
         set(ConfPaths.CHAT_TEXT_FREQ_SHORTTERM_LEVEL, 20.0, 785);
-        set(ConfPaths.CHAT_TEXT_FREQ_SHORTTERM_ACTIONS, "log:chatfast:2:3:icf cancel cmdc:kickchatfast:0:5 vl>20 cancel log:chatfast:0:5:cif cmdc:kickchatfast vl>40 cancel log:chatfast:0:5:cif cmdc:kickchat1", 785);
+        set(ConfPaths.CHAT_TEXT_FREQ_SHORTTERM_ACTIONS, "log:chatfast:2:3:icf cancel cmdc:kickchatfast:0:5 vl>20 cancel log:chatfast:0:5:cif cmdc:kickchatfast vl>40 cancel log:chatfast:0:5:cif cmdc:kickchat1", 1154);
         // Message
         set(ConfPaths.CHAT_TEXT_MSG_LETTERCOUNT, 1.0, 785);
         set(ConfPaths.CHAT_TEXT_MSG_PARTITION, 1.0, 785);
@@ -282,7 +282,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.CHAT_RELOG_WARNING_NUMBER, 1, 785);
         set(ConfPaths.CHAT_RELOG_KICKMESSAGE, "Too fast re-login, try with a little delay.", 785);
         set(ConfPaths.CHAT_RELOG_WARNING_TIMEOUT, 60000L, 785);
-        set(ConfPaths.CHAT_RELOG_ACTIONS, "log:relog:0:10:cf cancel vl>20 log:relog:0:10:cf cancel cmdc:tempkick5", 785);
+        set(ConfPaths.CHAT_RELOG_ACTIONS, "log:relog:0:10:cf cancel vl>20 log:relog:0:10:cf cancel cmdc:tempkick5", 1154);
         // Logins
         set(ConfPaths.CHAT_LOGINS_CHECK, "default", 785);
         set(ConfPaths.CHAT_LOGINS_STARTUPDELAY, 600, 785);
@@ -298,7 +298,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.COMBINED_ACTIVE, "default", 1144);
 
         set(ConfPaths.COMBINED_BEDLEAVE_CHECK, "default", 785);
-        set(ConfPaths.COMBINED_BEDLEAVE_ACTIONS, "cancel log:bedleave:0:5:if cmdc:kickbedleave", 785);
+        set(ConfPaths.COMBINED_BEDLEAVE_ACTIONS, "cancel log:bedleave:0:5:if cmdc:kickbedleave", 1154);
 
         set(ConfPaths.COMBINED_ENDERPEARL_CHECK, "true", 1154); // 'default' activation flag issue
         set(ConfPaths.COMBINED_ENDERPEARL_PREVENTCLICKBLOCK, true, 785);
@@ -366,7 +366,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_GODMODE_CHECK, "default", 785);
         set(ConfPaths.FIGHT_GODMODE_LAGMINAGE, 1100, 785); // TODO: ndt/2 => 500-600.
         set(ConfPaths.FIGHT_GODMODE_LAGMAXAGE, 5000, 785);
-        set(ConfPaths.FIGHT_GODMODE_ACTIONS, "log:godmode:2:5:if cancel vl>60 log:godmode:2:5:icf cancel", 785); // cmdc:kickgod", 785);
+        set(ConfPaths.FIGHT_GODMODE_ACTIONS, "cancel log:godmode:0:5:icf cmdc:kickgod:0:5", 1154);
 
         set(ConfPaths.FIGHT_NOSWING_CHECK, "default", 785);
         set(ConfPaths.FIGHT_NOSWING_ACTIONS, "cancel vl>10 log:noswing:1:5:i cancel", 1154);
@@ -407,9 +407,9 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.INVENTORY_ACTIVE, "default", 1144);
 
         set(ConfPaths.INVENTORY_DROP_CHECK, "default", 785);
-        set(ConfPaths.INVENTORY_DROP_LIMIT, 50, 1154);
+        set(ConfPaths.INVENTORY_DROP_LIMIT, 10, 1154);
         set(ConfPaths.INVENTORY_DROP_TIMEFRAME, 20L, 785);
-        set(ConfPaths.INVENTORY_DROP_ACTIONS, "log:drop:0:5:cif cancel cmdc:dropkick:0:5", 1154);
+        set(ConfPaths.INVENTORY_DROP_ACTIONS, "log:drop:0:5:if cancel cmdc:dropkick:0:5", 1154);
 
         set(ConfPaths.INVENTORY_FASTCLICK_CHECK, "default", 785);
         set(ConfPaths.INVENTORY_FASTCLICK_EXCLUDE, Arrays.asList("Inventory Name Here"), 1154);
@@ -419,7 +419,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.INVENTORY_FASTCLICK_LIMIT_NORMAL, 15, 785);
         set(ConfPaths.INVENTORY_FASTCLICK_LIMIT_CHEST, 152, 1154);
         set(ConfPaths.INVENTORY_FASTCLICK_IMPROBABLE_WEIGHT, 0.7, 1154);
-        set(ConfPaths.INVENTORY_FASTCLICK_ACTIONS, "cancel vl>200 cancel log:fastclick:7:5:i vl>600 cancel log:fastclick:1:5:if vl>5000 cancel log:fastclick:0:15:if cmdc:kickfastclick:0:15 cmd:clearfastclick:0:15", 1154);
+        set(ConfPaths.INVENTORY_FASTCLICK_ACTIONS, "cancel vl>200 cancel log:fastclick:7:5:i vl>600 cancel log:fastclick:1:5:if vl>5000 cancel log:fastclick:1:2:if cmdc:kickfastclick:2:15", 1154);
 
         set(ConfPaths.INVENTORY_INSTANTBOW_CHECK, "default", 785);
         set(ConfPaths.INVENTORY_INSTANTBOW_STRICT, true, 785);
@@ -430,21 +430,21 @@ public class DefaultConfig extends ConfigFile {
 
         // TODO: Set this to false as default?
         set(ConfPaths.INVENTORY_INSTANTEAT_CHECK, "default", 785);
-        set(ConfPaths.INVENTORY_INSTANTEAT_ACTIONS, "log:instanteat:2:5:if cancel", 785);
+        set(ConfPaths.INVENTORY_INSTANTEAT_ACTIONS, "log:instanteat:2:5:i cancel", 1154);
 
         set(ConfPaths.INVENTORY_FASTCONSUME_CHECK, "default", 785);
-        set(ConfPaths.INVENTORY_FASTCONSUME_DURATION, 1.4, 1154);
+        set(ConfPaths.INVENTORY_FASTCONSUME_DURATION, 1.4, 1154); // The actual consumption time needed would be 1.5s. Set to 1.4 for leniency
         set(ConfPaths.INVENTORY_FASTCONSUME_WHITELIST, false, 785);
         set(ConfPaths.INVENTORY_FASTCONSUME_ITEMS, Arrays.asList("DRIED_KELP"), 1154);
         set(ConfPaths.INVENTORY_FASTCONSUME_ACTIONS, "cancel vl>2 log:fastconsume:2:5:if cancel", 1154);
         
         set(ConfPaths.INVENTORY_INVENTORYMOVE_CHECK, "default", 1153);
         set(ConfPaths.INVENTORY_INVENTORYMOVE_DISABLECREATIVE, true, 1153);
-        set(ConfPaths.INVENTORY_INVENTORYMOVE_ACTIONS, "log:inventorymove:2:5:i cancel", 1153);
+        set(ConfPaths.INVENTORY_INVENTORYMOVE_ACTIONS, "log:inventorymove:2:5:i cancel", 1154);
 
         set(ConfPaths.INVENTORY_GUTENBERG_CHECK, "default", 785);
         set(ConfPaths.INVENTORY_GUTENBERG_PAGELIMIT, 50, 1154);
-        set(ConfPaths.INVENTORY_GUTENBERG_ACTIONS, "cancel log:gutenberg:0:10:if cmdc:kickinvaliddata", 785);
+        set(ConfPaths.INVENTORY_GUTENBERG_ACTIONS, "cancel log:gutenberg:0:10:if cmdc:kickinvaliddata:0:5", 1154);
 
         set(ConfPaths.INVENTORY_ITEMS_CHECK, "default", 785);
 
@@ -510,7 +510,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_MOREPACKETS_BURST_DIRECT, 60, 785);
         set(ConfPaths.MOVING_MOREPACKETS_BURST_EPM, 120, 1154);
         set(ConfPaths.MOVING_MOREPACKETS_SETBACKAGE, 70, 1154);
-        set(ConfPaths.MOVING_MOREPACKETS_ACTIONS, "cancel vl>2 cancel log:morepackets:10:9:i vl>100 cancel log:morepackets:0:2:ifc cmdc:kickpackets:0:10", 1154);
+        set(ConfPaths.MOVING_MOREPACKETS_ACTIONS, "cancel vl>2 cancel log:morepackets:10:9:i vl>100 cancel log:morepackets:0:2:ifc cmdc:kickpackets:2:10", 1154);
         // NoFall
         set(ConfPaths.MOVING_NOFALL_CHECK, "default", 785);
         set(ConfPaths.MOVING_NOFALL_DEALDAMAGE, true, 785);
@@ -519,7 +519,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_NOFALL_RESETONTP, false, 785);
         set(ConfPaths.MOVING_NOFALL_RESETONVEHICLE, true, 785);
         set(ConfPaths.MOVING_NOFALL_ANTICRITICALS, true, 785);
-        set(ConfPaths.MOVING_NOFALL_ACTIONS, "cancel vl>2 cancel log:nofall:0:5:if", 1154);
+        set(ConfPaths.MOVING_NOFALL_ACTIONS, "cancel vl>2 cancel log:nofall:0:5:if", 1154); //vl>6 cancel log:nofall:0:1:if cmdc:kickfly:0:5", 1154);
         // Passable
         set(ConfPaths.MOVING_PASSABLE_CHECK, "default", 785);
         set(ConfPaths.MOVING_PASSABLE_ACTIONS, "cancel vl>15 cancel log:passable:7:9:i vl>100 cancel log:passable:1:4:if cmd:clearpassable:3:15", 1154);
@@ -579,7 +579,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_VEHICLE_SCHEDULESETBACKS, "default", 785);
 
         set(ConfPaths.MOVING_VEHICLE_MOREPACKETS_CHECK, "default", 785);
-        set(ConfPaths.MOVING_VEHICLE_MOREPACKETS_ACTIONS, "cancel vl>2 log:morepackets:1:5:if cancel", 1154);
+        set(ConfPaths.MOVING_VEHICLE_MOREPACKETS_ACTIONS, "cancel vl>2 log:morepackets:2:5:if cancel vl>100 cancel log:morepackets:1:2:if cmdc:kickpackets:2:10", 1154);
 
         set(ConfPaths.MOVING_VEHICLE_ENVELOPE_ACTIVE, "default", 785);
         set(ConfPaths.MOVING_VEHICLE_ENVELOPE_HSPEEDCAP + ".default", 0.9, 1154);
@@ -672,7 +672,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".critical", start + "tried to perform an illegal critical hit (Tags: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".drop", start + "tried to drop more items than allowed" + end, 785);
         set(ConfPaths.STRINGS + ".dropkick", kick + "Dropping items too fast.", 1154);
-        set(ConfPaths.STRINGS + ".fastbreak", start + "tried to break a block faster than possible (Block: &6[blocktype]&7)" + end, 785);
+        set(ConfPaths.STRINGS + ".fastbreak", start + "tried to break a block faster than possible (Block: &6[blocktype]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".fastclick", start + "tried to move items in their inventory too quickly" + end, 785);
         set(ConfPaths.STRINGS + ".fastconsume", start + "tried to consume an item too quickly (Food: &6[food][tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".fastheal", start + "tried to regenerate their health bar faster than possible (Health: &6health]&7)" + end, 1154);
@@ -685,7 +685,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".freach", start + "tried to hit an entity from a suspicious distance" + end, 1154);
         set(ConfPaths.STRINGS + ".fselfhit", start + "tried to hit themselves" + end, 1154);
         set(ConfPaths.STRINGS + ".fspeed", start + "clicked [violations] times over the established CPS limit" + end, 1154);
-        set(ConfPaths.STRINGS + ".godmode", start + "tried to deny the damage inflicted (Health: &7[health]&7)" + end, 1154);
+        set(ConfPaths.STRINGS + ".godmode", start + "tried to ignore inflicted damage (Health: &7[health]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".gutenberg", start + "created a book with too many pages" + end, 785);
         set(ConfPaths.STRINGS + ".improbable", start + "is exhibiting an erratic behaviour (Check: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".instantbow", start + "tried to shoot an arrow too fast" + end, 1154);
@@ -695,7 +695,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".kickagainst", kick + "Invalid block placements.", 1154);
         set(ConfPaths.STRINGS + ".kickalive", kick + "Too many keep-alive packets.", 1154);
         set(ConfPaths.STRINGS + ".kickattackfrequency", kick + "Unlikely fast clicking.", 1154);
-        set(ConfPaths.STRINGS + ".kickbedleave", kick + "Kicked for illegal bed-packets.", 1154);
+        set(ConfPaths.STRINGS + ".kickbedleave", kick + "Invalid bed-leave packets.", 1154);
         set(ConfPaths.STRINGS + ".kickbow", kick + "Shooting arrows too quickly.", 1154);
         set(ConfPaths.STRINGS + ".kickbspeed", kick + "You interacted too fast.", 1154);
         set(ConfPaths.STRINGS + ".kickcaptcha", kick + "Enter the captcha!", 1154);
@@ -703,23 +703,24 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".kickchat5", "ncp tempkick [player] 5 &c&l(!)&7 You are not allowed to spam the server chat (5 minutes tempkick)", 1154);
         set(ConfPaths.STRINGS + ".kickchatfast", kick + "Stop spamming.", 1154);
         set(ConfPaths.STRINGS + ".kickchatnormal", kick + "Too many chat messages, take a break.", 1154);
-        set(ConfPaths.STRINGS + ".kickcommands", "ncp tempkick [player] 1 &c&l(!)&7 Do not spam commands.", 1154);
-        set(ConfPaths.STRINGS + ".kickfastbreak", kick + "Kicked for breaking blocks too fast.", 1154);
+        set(ConfPaths.STRINGS + ".kickcommands", "ncp tempkick [player] 1 &c&l(!)&7 Do not spam commands (1 minute tempkick)", 1154);
+        set(ConfPaths.STRINGS + ".kickfastbreak", kick + "Breaking blocks too fast.", 1154);
         set(ConfPaths.STRINGS + ".kickfastclick", kick + "Unlikely inventory interactions.", 1154);
-        set(ConfPaths.STRINGS + ".kickfastheal", kick + "Kicked for too fast health regeneration.", 1154);
-        set(ConfPaths.STRINGS + ".kickfastplace", kick + "Kicked for placing blocks too quickly.", 1154);
+        set(ConfPaths.STRINGS + ".kickfastheal", kick + "Too fast health regeneration.", 1154);
+        set(ConfPaths.STRINGS + ".kickfastplace", kick + "Placing blocks too quickly.", 1154);
         set(ConfPaths.STRINGS + ".kickfly", kick + "Moved unexpectedly.", 1154);
         set(ConfPaths.STRINGS + ".kickflyingfrequency", kick + "Kicked for packet spam.", 1154);
         set(ConfPaths.STRINGS + ".kickfrequency", kick + "You did something too fast!", 1154);
         set(ConfPaths.STRINGS + ".kickgod", kick + "GodMode?", 1154);
-        set(ConfPaths.STRINGS + ".kickillegalblockinteract", kick + "Kicked for illegal block interactions.", 1154);
+        set(ConfPaths.STRINGS + ".kickillegalblockinteract", kick + "Illegal block interactions.", 1154);
         set(ConfPaths.STRINGS + ".kickillegalrotations", kick + "Invalid rotations.", 1154);
-        set(ConfPaths.STRINGS + ".kickimprobable", kick + "Kicked for suspicious behaviour.", 1154);
+        set(ConfPaths.STRINGS + ".kickimprobable", kick + "Illegal client modifications.", 1154);
         set(ConfPaths.STRINGS + ".kickinvaliddata", kick + "Invalid book data.", 1154);
         set(ConfPaths.STRINGS + ".kickpacketfrequency", kick + "Too many packets.", 1154);
         set(ConfPaths.STRINGS + ".kickpackets", kick + "You sent too many moves (extreme lag?)", 1154);
-        set(ConfPaths.STRINGS + ".kickselfhit", kick + "You tried to hit yourself!", 785);
-        set(ConfPaths.STRINGS + ".kicksuspiciouscombat", kick + "Kicked for suspicious combat.", 1154); // This might be too alienating to players.
+        set(ConfPaths.STRINGS + ".kickscaffold", kick + "Incorrect block placements.", 1154);
+        set(ConfPaths.STRINGS + ".kickselfhit", kick + "You tried to hit yourself!", 1154);
+        set(ConfPaths.STRINGS + ".kicksuspiciouscombat", kick + "Illegal combat modifications.", 1154); 
         set(ConfPaths.STRINGS + ".kickvehiclefly", kick + "Unexpected vehicle movement.", 1154);
         set(ConfPaths.STRINGS + ".kickwb", kick + "Block breaking out of sync.", 1154);
         set(ConfPaths.STRINGS + ".kreach", start + "is most likely using a killaura cheat" + end, 1154);
@@ -740,7 +741,6 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".vehicleenvelope", start + "tried to move a vehicle unexpectedly (Tags/Vehicle: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".wrongturn", start + "sent an illegal pitch rotation (&6>90° &7or&6 <-90°&7)" + end, 1154);
         // Clear a check data  
-        set(ConfPaths.STRINGS + ".clearblockdirection", clear + "BLOCKINTERACT_DIRECTION", 1154);
         set(ConfPaths.STRINGS + ".clearimprobable", clear + "COMBINED_IMPROBABLE", 1154);
         set(ConfPaths.STRINGS + ".clearsf", clear + "MOVING_SURVIVALFLY", 1154);
         set(ConfPaths.STRINGS + ".clearcf", clear + "MOVING_CREATIVEFLY", 1154);
