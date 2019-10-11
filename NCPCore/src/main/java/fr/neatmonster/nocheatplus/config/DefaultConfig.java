@@ -126,7 +126,7 @@ public class DefaultConfig extends ConfigFile {
 
         set(ConfPaths.BLOCKBREAK_FASTBREAK_CHECK, "default", 785);
         set(ConfPaths.BLOCKBREAK_FASTBREAK_STRICT, true, 785);
-        set(ConfPaths.BLOCKBREAK_FASTBREAK_DELAY, 100, 785);
+        set(ConfPaths.BLOCKBREAK_FASTBREAK_DELAY, 95, 785); //100
         set(ConfPaths.BLOCKBREAK_FASTBREAK_MOD_SURVIVAL, 100, 785);
         set(ConfPaths.BLOCKBREAK_FASTBREAK_GRACE, 2000, 785);
         set(ConfPaths.BLOCKBREAK_FASTBREAK_ACTIONS, "cancel vl>5 cancel log:fastbreak:4:2:i vl>50 cancel log:fastbreak:0:2:if cmdc:kickfastbreak:2:5", 1154);
@@ -273,7 +273,7 @@ public class DefaultConfig extends ConfigFile {
         // Warning (commands + chat).
         set(ConfPaths.CHAT_WARNING_CHECK, true, 785);
         set(ConfPaths.CHAT_WARNING_LEVEL, 67, 785);
-        set(ConfPaths.CHAT_WARNING_MESSAGE, "\n  &c&l(&c&l!&c&l)&7 Please slow down chat, you might get kicked by the antispam.\n \n", 1154);
+        set(ConfPaths.CHAT_WARNING_MESSAGE, "\n  &c&l(!)&7 Please slow down chat, you might get kicked by the antispam.\n \n", 1154);
         set(ConfPaths.CHAT_WARNING_TIMEOUT, 10, 785);
         // Relog
         set(ConfPaths.CHAT_RELOG_CHECK, "default", 785);
@@ -319,7 +319,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.COMBINED_MUNCHHAUSEN_ACTIONS, "cancel vl>100 cancel log:munchhausen:0:60:if", 785);
 
         // (No active flag set !?)
-        set(ConfPaths.COMBINED_YAWRATE_RATE , 280, 1154); // Old limit: 360
+        set(ConfPaths.COMBINED_YAWRATE_RATE , 290, 1154); // Old limit: 360
         set(ConfPaths.COMBINED_YAWRATE_PENALTY_FACTOR, 2.0, 1154); // 1.0
         set(ConfPaths.COMBINED_YAWRATE_PENALTY_MIN, 450, 1154); // 250
         set(ConfPaths.COMBINED_YAWRATE_PENALTY_MAX, 2500, 1154); // 1500
@@ -369,7 +369,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_GODMODE_ACTIONS, "cancel log:godmode:0:5:icf cmdc:kickgod:0:5", 1154);
 
         set(ConfPaths.FIGHT_NOSWING_CHECK, "default", 785);
-        set(ConfPaths.FIGHT_NOSWING_ACTIONS, "cancel vl>10 log:noswing:1:5:i cancel", 1154);
+        set(ConfPaths.FIGHT_NOSWING_ACTIONS, "vl>2 cancel vl>10 log:noswing:1:5:i cancel", 1154);
         // TODO: Merge @CaptainObvious' pitchpattern check in this fork.
         //set(ConfPaths.FIGHT_PITCHPATTERN_CHECK, "default", 1153);
         //set(ConfPaths.FIGHT_PITCHPATTERN_ALWAYSACTIVE, true, 1154); // false
@@ -380,7 +380,7 @@ public class DefaultConfig extends ConfigFile {
         //set(ConfPaths.FIGHT_PITCHPATTERN_ACTIONS, "vl>2 cancel vl>10 cancel log:pitchpattern:5:6:i vl>100 cancel log:pitchpattern:0:10:icf cmdc:kickillegalrotations:3:10", 1154);
 
         set(ConfPaths.FIGHT_REACH_CHECK, "default", 785);
-        set(ConfPaths.FIGHT_REACH_SURVIVALDISTANCE, 4.3, 1154); // 4.4
+        set(ConfPaths.FIGHT_REACH_SURVIVALDISTANCE, 4.3, 1154); // 4.4 
         set(ConfPaths.FIGHT_REACH_PENALTY, 250, 1154);
         set(ConfPaths.FIGHT_REACH_REDUCE, true, 785);
         set(ConfPaths.FIGHT_REACH_REDUCEDISTANCE, 0.9, 785);
@@ -509,7 +509,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_MOREPACKETS_BURST_PACKETS, 40, 785);
         set(ConfPaths.MOVING_MOREPACKETS_BURST_DIRECT, 60, 785);
         set(ConfPaths.MOVING_MOREPACKETS_BURST_EPM, 120, 1154);
-        set(ConfPaths.MOVING_MOREPACKETS_SETBACKAGE, 70, 1154);
+        set(ConfPaths.MOVING_MOREPACKETS_SETBACKAGE, 70, 1154); // 40
         set(ConfPaths.MOVING_MOREPACKETS_ACTIONS, "cancel vl>2 cancel log:morepackets:10:9:i vl>100 cancel log:morepackets:0:2:ifc cmdc:kickpackets:2:10", 1154);
         // NoFall
         set(ConfPaths.MOVING_NOFALL_CHECK, "default", 785);
@@ -647,9 +647,9 @@ public class DefaultConfig extends ConfigFile {
 
         // TODO: An extra file might suit these.
         final String start = "&c[player]&7 failed &c[check]&7: ";
-        final String end = ". &7(&cVL[violations]&7)";
+        final String end = " &7(&cVL[violations]&7)";
         final String tell = "ncp tell [player] &c&l(!)&7 ";
-        final String clear = "ncp delay delay=20 ncp removeplayer [player] ";
+        final String clear = "ncp delay delay=10 ncp removeplayer [player] ";
         final String kick = "ncp kick [player] &c&l(!)&7 ";
         set(ConfPaths.STRINGS + ".against", start + "tried to place a block against liquid blocks or air as if they were solid" + end, 1154);
         set(ConfPaths.STRINGS + ".angle", start + "tried to hit multiple entities at the same time (Tags: &6[tags]&7)" + end, 1154);
@@ -736,10 +736,10 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".survivalfly", start + "tried to move unexpectedly" + end, 1154);
         set(ConfPaths.STRINGS + ".survivalflyhighvl", start + "tried to perform an illegal move (Subchecks: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".tellchatnormal", tell + "Too many messages, slow down...", 1154);
-        set(ConfPaths.STRINGS + ".tempkick1", "ncp tempkick [player] 1 You have to wait 1 minute before joining this server again.", 1154);
-        set(ConfPaths.STRINGS + ".tempkick5", "ncp tempkick [player] 5 You have to wait 5 minutes before joining this server again.", 1154);
+        set(ConfPaths.STRINGS + ".tempkick1", "ncp tempkick [player] 1  &c&l(!)&7 You have to wait 1 minute before joining this server again.", 1154);
+        set(ConfPaths.STRINGS + ".tempkick5", "ncp tempkick [player] 5  &c&l(!)&7 You have to wait 5 minutes before joining this server again.", 1154);
         set(ConfPaths.STRINGS + ".vehicleenvelope", start + "tried to move a vehicle unexpectedly (Tags/Vehicle: &6[tags]&7)" + end, 1154);
-        set(ConfPaths.STRINGS + ".wrongturn", start + "sent an illegal pitch rotation (&6>90° &7or&6 <-90°&7)" + end, 1154);
+        set(ConfPaths.STRINGS + ".wrongturn", start + "sent an impossible pitch rotation (&6>90° &7or&6 <-90°&7)" + end, 1154);
         // Clear a check data  
         set(ConfPaths.STRINGS + ".clearimprobable", clear + "COMBINED_IMPROBABLE", 1154);
         set(ConfPaths.STRINGS + ".clearsf", clear + "MOVING_SURVIVALFLY", 1154);
