@@ -121,6 +121,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public boolean isusingitem = false;
     public long time_rl_item = 0;
     public boolean isHackingRI = false;
+    public boolean noslownostrict = false;
 
     /** Count set back (re-) setting. */
     private int playerMoveCount = 0;

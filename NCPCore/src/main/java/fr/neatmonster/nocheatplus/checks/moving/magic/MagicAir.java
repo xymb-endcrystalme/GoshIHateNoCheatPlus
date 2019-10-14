@@ -18,6 +18,8 @@ import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.moving.model.LiftOffEnvelope;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
+import fr.neatmonster.nocheatplus.checks.moving.velocity.SimpleEntry;
+import fr.neatmonster.nocheatplus.checks.moving.velocity.VelocityFlags;
 import fr.neatmonster.nocheatplus.checks.workaround.WRPT;
 import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
@@ -68,6 +70,22 @@ public class MagicAir {
                 && (data.isVelocityJumpPhase() || data.hasSetBack() && to.getY() - data.getSetBackY() < 1.35 && to.getY() - data.getSetBackY() > 0.0)
                 && data.ws.use(WRPT.W_M_SF_SLIME_JP_2X0)
                 ;
+    }
+    
+    public static boolean oddBounce(final PlayerLocation to, final double yDistance, final PlayerMoveData lastMove, final MovingData data) {
+    	final SimpleEntry entry = data.peekVerticalVelocity(yDistance, 0, 4);
+		if (entry != null && entry.hasFlag(VelocityFlags.ORIGIN_BLOCK_BOUNCE)) {
+			data.setFrictionJumpPhase();
+			return true;
+		} else {
+			// Try to use past yDis
+			final SimpleEntry entry2 = data.peekVerticalVelocity(lastMove.yDistance, 0, 4);
+			if (entry2 != null && entry2.hasFlag(VelocityFlags.ORIGIN_BLOCK_BOUNCE)) {
+				data.setFrictionJumpPhase();
+				return true;
+			}
+		}
+		return false;
     }
 
     /**
