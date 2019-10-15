@@ -1204,16 +1204,19 @@ public class SurvivalFly extends Check {
         boolean reset = false;
         final double past = data.yDis;
         if (fromOnGround || from.isInLiquid() || from.isInWeb() || from.isOnClimbable() || (thisMove.touchedGround && resetTo)) reset = true;
-        final double dis = TrigUtil.xzDistance(from, to);
-        if (dis < 0.4 && yDistance != 0.0 && !isWaterlogged(from) && !data.isVelocityJumpPhase()) {
+        if (yDistance != 0.0 && !isWaterlogged(from) && !data.isVelocityJumpPhase()) {
             data.yDis += yDistance;
             if (data.yDis < 0.0 || data.yDis > 3.0) {
                 data.yDis = 0.0;
             }
         }
+        // "Noob" tower
+        if (tags.contains("lostground_nbtwr")) {
+            data.yDis = 0.0;
+        }
         // Very likely to cause false positive if jump higher than 1.25 with no velocity is recorded
         if (data.yDis > (Bridge1_13.hasIsSwimming() ? 1.37 : 1.25) 
-            && data.timeRiptiding + 3500 < now && !tags.contains("lostground_nbtwr")
+            && data.timeRiptiding + 3500 < now
             && Double.isInfinite(PotionUtil.getPotionEffectAmplifier(player, PotionEffectType.JUMP))
             && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_STEP, player)) {
             tags.add("step");
