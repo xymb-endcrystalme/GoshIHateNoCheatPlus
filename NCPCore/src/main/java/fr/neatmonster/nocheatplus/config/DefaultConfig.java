@@ -23,6 +23,7 @@ import org.bukkit.Material;
 import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeMisc;
+import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 
 /**
  * These are the default settings for NoCheatPlus. They will be used in addition to/in replacement of configurations
@@ -193,7 +194,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_REACH_ACTIONS, "cancel", 1154);
 
         set(ConfPaths.BLOCKPLACE_NOSWING_CHECK, "default", 785);
-        set(ConfPaths.BLOCKPLACE_NOSWING_EXCEPTIONS, Arrays.asList("LILY_PAD", Material.FLINT_AND_STEEL.toString()), 785);
+        set(ConfPaths.BLOCKPLACE_NOSWING_EXCEPTIONS, Arrays.asList(BridgeMaterial.LILY_PAD.toString(), Material.FLINT_AND_STEEL.toString()), 1154);
         set(ConfPaths.BLOCKPLACE_NOSWING_ACTIONS, "cancel vl>10 log:noswing:2:5:i cancel", 1154);
         
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_CHECK, "default", 1154);
