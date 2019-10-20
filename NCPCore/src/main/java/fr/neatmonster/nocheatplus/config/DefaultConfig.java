@@ -216,8 +216,8 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.CHAT_CAPTCHA_SKIP_COMMANDS, false, 785);
         set(ConfPaths.CHAT_CAPTCHA_CHARACTERS, "abcdefghjkmnpqrtuvwxyzABCDEFGHJKMNPQRTUVWXYZ2346789!?><", 1154);
         set(ConfPaths.CHAT_CAPTCHA_LENGTH, 6, 785);
-        set(ConfPaths.CHAT_CAPTCHA_QUESTION, "&c&l(&c&l!&c&l)&7 Please type '&6[captcha]&7' to continue using chat.", 1154);
-        set(ConfPaths.CHAT_CAPTCHA_SUCCESS, "&c&l(&c&l!&c&l)&7 Antispam check passed.", 1154);
+        set(ConfPaths.CHAT_CAPTCHA_QUESTION, "&c&l(!)&7 Please type '&6[captcha]&7' to continue using chat.", 1154);
+        set(ConfPaths.CHAT_CAPTCHA_SUCCESS, "&c&l(!)&7 Antispam check passed.", 1154);
         set(ConfPaths.CHAT_CAPTCHA_TRIES, 3, 785);
         set(ConfPaths.CHAT_CAPTCHA_ACTIONS, "cancel cmdc:kickcaptcha vl>4 log:captcha:2:5:cf cancel cmdc:kickcaptcha", 785);
         // This check should be subject to removal
@@ -344,7 +344,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_ANGLE_THRESHOLD_SWITCH, 50, 1153);
         set(ConfPaths.FIGHT_ANGLE_ACTIONS, "cancel vl>100 log:angle:4:5:i cancel vl>500 log:angle:0:20:if cancel", 1154);
         
-        set(ConfPaths.FIGHT_CLICKPATTERN_CHECK, "default", 1154);
+        set(ConfPaths.FIGHT_CLICKPATTERN_CHECK, "false", 1154);
         set(ConfPaths.FIGHT_CLICKPATTERN_RANGE, 15, 1154); // 8
         set(ConfPaths.FIGHT_CLICKPATTERN_PENALTY, 150L, 1154);
         set(ConfPaths.FIGHT_CLICKPATTERN_ACTIONS, "vl>2 cancel vl>6 log:clickpat:2:3:if cancel", 1154);
@@ -373,9 +373,9 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_NOSWING_ACTIONS, "vl>2 cancel vl>10 log:noswing:1:5:i cancel", 1154);
         // TODO: Merge @CaptainObvious' pitchpattern check in this fork.
         //set(ConfPaths.FIGHT_PITCHPATTERN_CHECK, "default", 1153);
-        //set(ConfPaths.FIGHT_PITCHPATTERN_ALWAYSACTIVE, true, 1154); // false
+        //set(ConfPaths.FIGHT_PITCHPATTERN_ALWAYSACTIVE, false, 1154); // <- Cinematic/Zoom-like mods issue.
         //set(ConfPaths.FIGHT_PITCHPATTERN_LIMIT, 10F, 1153);
-        //set(ConfPaths.FIGHT_PITCHPATTERN_SAMPLE, 30, 1154); // 20
+        //set(ConfPaths.FIGHT_PITCHPATTERN_SAMPLE, 35, 1154);
         //set(ConfPaths.FIGHT_PITCHPATTERN_DIFF, 0.001D, 1153);
         //set(ConfPaths.FIGHT_PITCHPATTERN_DELTAGCD, 0.00001F, 1153);
         //set(ConfPaths.FIGHT_PITCHPATTERN_ACTIONS, "vl>2 cancel vl>10 cancel log:pitchpattern:5:6:i vl>100 cancel log:pitchpattern:0:10:icf cmdc:kickillegalrotations:3:10", 1154);
@@ -385,7 +385,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_REACH_PENALTY, 250, 1154);
         set(ConfPaths.FIGHT_REACH_REDUCE, true, 785);
         set(ConfPaths.FIGHT_REACH_REDUCEDISTANCE, 0.9, 785);
-        set(ConfPaths.FIGHT_REACH_REDUCESTEP, 0.15, 785);
+        set(ConfPaths.FIGHT_REACH_REDUCESTEP, 0.14, 785);
         set(ConfPaths.FIGHT_REACH_IMPROBABLE_FEEDONLY, false, 1154);
         set(ConfPaths.FIGHT_REACH_IMPROBABLE_WEIGHT, 2.0, 1154);
         set(ConfPaths.FIGHT_REACH_ACTIONS, "vl>1 log:freach:8:9:i vl>5 cancel log:freach:2:6:if vl>12 cancel log:kreach:1:5:i vl>35 cancel log:kreach:0:5:if cmdc:kicksuspiciouscombat:2:1", 1154);
@@ -607,7 +607,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.NET_ATTACKFREQUENCY_ACTIONS, "cancel vl>10 cancel log:attackfrequency:4:5:i vl>200 cancel log:attackfrequency:0:4:if cmdc:kickattackfrequency", 1154);
 
         // FightSync
-        set(ConfPaths.NET_FIGHTSYNC_ACTIVE, "default", 1154);
+        set(ConfPaths.NET_FIGHTSYNC_ACTIVE, "false", 1154); 
         set(ConfPaths.NET_FIGHTSYNC_THRESHOLD, 5, 1154);
         set(ConfPaths.NET_FIGHTSYNC_RESETCOUNT, 20, 1154); //Old: 11
         // Should be really difficult for legit players to reach 10.000VL, but fairly easily if you do go overboard with a killaura.
