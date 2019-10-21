@@ -301,7 +301,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.COMBINED_BEDLEAVE_CHECK, "default", 785);
         set(ConfPaths.COMBINED_BEDLEAVE_ACTIONS, "cancel log:bedleave:0:5:if cmdc:kickbedleave", 1154);
 
-        set(ConfPaths.COMBINED_ENDERPEARL_CHECK, "true", 1154); // 'default' activation flag issue
+        set(ConfPaths.COMBINED_ENDERPEARL_CHECK, true, 1154); // 'default' activation flag issue
         set(ConfPaths.COMBINED_ENDERPEARL_PREVENTCLICKBLOCK, true, 785);
 
         set(ConfPaths.COMBINED_IMPROBABLE_CHECK , "default", 785);
@@ -344,7 +344,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_ANGLE_THRESHOLD_SWITCH, 50, 1153);
         set(ConfPaths.FIGHT_ANGLE_ACTIONS, "cancel vl>100 log:angle:4:5:i cancel vl>500 log:angle:0:20:if cancel", 1154);
         
-        set(ConfPaths.FIGHT_CLICKPATTERN_CHECK, "false", 1154);
+        set(ConfPaths.FIGHT_CLICKPATTERN_CHECK, false, 1154);
         set(ConfPaths.FIGHT_CLICKPATTERN_RANGE, 15, 1154); // 8
         set(ConfPaths.FIGHT_CLICKPATTERN_PENALTY, 150L, 1154);
         set(ConfPaths.FIGHT_CLICKPATTERN_ACTIONS, "vl>2 cancel vl>6 log:clickpat:2:3:if cancel", 1154);
@@ -607,7 +607,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.NET_ATTACKFREQUENCY_ACTIONS, "cancel vl>10 cancel log:attackfrequency:4:5:i vl>200 cancel log:attackfrequency:0:4:if cmdc:kickattackfrequency", 1154);
 
         // FightSync
-        set(ConfPaths.NET_FIGHTSYNC_ACTIVE, "false", 1154); 
+        set(ConfPaths.NET_FIGHTSYNC_ACTIVE, false, 1154); 
         set(ConfPaths.NET_FIGHTSYNC_THRESHOLD, 5, 1154);
         set(ConfPaths.NET_FIGHTSYNC_RESETCOUNT, 20, 1154); //Old: 11
         // Should be really difficult for legit players to reach 10.000VL, but fairly easily if you do go overboard with a killaura.
