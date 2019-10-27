@@ -914,22 +914,13 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
             // Hack: Add velocity for transitions between creativefly and survivalfly.
             if (lastMove.toIsValid && lastMove.flyCheck == CheckType.MOVING_CREATIVEFLY) {
-                workaroundFlyNoFlyTransition(player, tick, debug, data);
-            }
-
-	    if (lastMove.toIsValid) {
-                PlayerMoveData lastMove2 = data.playerMoves.getSecondPastMove();
-                if (lastMove.modelFlying != null && lastMove.modelFlying.getId().equals("jetpack.elytra")) {
+                final long tickhaslag = data.delayWorkaround + Math.round(200 / TickTask.getLag(200, true));
+                if (data.delayWorkaround > time || tickhaslag < time) {
                     workaroundFlyNoFlyTransition(player, tick, debug, data);
-                } else
-                if (lastMove2.toIsValid && lastMove2.modelFlying != null && lastMove2.modelFlying.getId().equals("jetpack.elytra")) {
-                    workaroundFlyNoFlyTransition(player, tick, debug, data);
-                } else
-                if (Bridge1_9.isWearingElytra(player) && !pFrom.isOnGround() && !pTo.isOnGround()) {
-                    workaroundFlyNoFlyTransition(player, tick, debug, data);
+                    data.delayWorkaround = time;
                 }
             }
-		
+
             // Actual check.
             if (newTo == null) {
                 // Only check if passable has not already set back.
@@ -1434,6 +1425,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         data.clearActiveHorVel(); // Clear active velocity due to adding actual speed here.
         data.addHorizontalVelocity(new AccountEntry(tick, amount, 1, MovingData.getHorVelValCount(amount)));
         data.addVerticalVelocity(new SimpleEntry(lastMove.yDistance, 2));
+        data.addVerticalVelocity(new SimpleEntry(0.34, 3));
         data.addVerticalVelocity(new SimpleEntry(0.0, 2));
         data.setFrictionJumpPhase();
         // Reset fall height.
