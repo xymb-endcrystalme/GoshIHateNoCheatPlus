@@ -291,6 +291,8 @@ public class BridgeMaterial {
             "stone_brick_stairs", "smooth_stairs");
     public static final Material STONE_PRESSURE_PLATE = getFirstNotNull(
             "stone_pressure_plate", "stone_plate");
+    public static final Material WOODEN_PRESSURE_PLATE = getFirstNotNull(
+            "wooden_pressure_plate", "wood_plate", "acacia_pressure_plate", "birch_pressure_plate", "dark_oak_pressure_plate", "jungle_pressure_plate", "oak_pressure_plate", "spruce_pressure_plate");
     public static final Material STONE_SLAB = getFirstNotNull("stone_slab", "step");
 
     public static final Material SUGAR_CANE = getFirstNotNull("sugar_cane_block", "sugar_cane"); // Reversed

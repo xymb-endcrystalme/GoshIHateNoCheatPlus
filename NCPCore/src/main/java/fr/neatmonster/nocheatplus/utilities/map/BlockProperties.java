@@ -1152,7 +1152,8 @@ public class BlockProperties {
         // Ignore for passable.
         for (final Material mat : new Material[]{
                 // More strictly needed.
-                BridgeMaterial.STONE_PRESSURE_PLATE, 
+                BridgeMaterial.STONE_PRESSURE_PLATE,
+                BridgeMaterial.WOODEN_PRESSURE_PLATE,
                 BridgeMaterial.SIGN,
                 BridgeMaterial.get("DIODE_BLOCK_ON"), 
                 BridgeMaterial.get("DIODE_BLOCK_OFF"),
@@ -2867,7 +2868,7 @@ public class BlockProperties {
         final int data1 = access.getData(x, y, z);
         // (Trap door may be attached to top or bottom, regardless.)
         // Trap door must be open (really?).
-        if ((data1 & 0x04) != 0x04) {
+        if (data1 == 0) {
             return false;
         }
         // Need the facing direction.
@@ -3180,7 +3181,7 @@ public class BlockProperties {
         } else if (id.toString().equals("BELL") && (access.getData(bx, by, bz) & 0x4) != 0) {
         	if (Math.max(fy, fy + dY * dT) >0.39 && Math.max(fy, fy + dY * dT) < 0.9) return true;
         } else if (id.toString().equals("CHORUS_PLANT") && !collidesFence(fx, fz, dX, dZ, dT, 0.3)) return true;
-	else if (id.toString().equals("BAMBOO")) return true;
+        else if (id.toString().equals("BAMBOO")) return true;
         // Nothing found.
         return false;
     }
