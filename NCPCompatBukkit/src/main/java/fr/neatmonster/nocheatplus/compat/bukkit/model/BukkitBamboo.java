@@ -21,25 +21,26 @@ import org.bukkit.block.Block;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 
 public class BukkitBamboo implements BukkitShapeModel {
-	private DecimalFormat df = new DecimalFormat("#.000");
-	private final double xz = 0.375;
+	//private DecimalFormat df = new DecimalFormat("#.000");
+	//private final double xz = 0.375;
 
     @Override
     public double[] getShape(final BlockCache blockCache, 
             final World world, final int x, final int y, final int z) {
 
-        final Block block = world.getBlockAt(x, y, z);
+        //final Block block = world.getBlockAt(x, y, z);
         
-        double minX = Math.abs(block.getBoundingBox().getMinX()) - Math.abs((int) block.getBoundingBox().getMinX());
-        double minZ = Math.abs(block.getBoundingBox().getMinZ()) - Math.abs((int) block.getBoundingBox().getMinZ());
+        //double minX = Math.abs(block.getBoundingBox().getMinX()) - Math.abs((int) block.getBoundingBox().getMinX());
+        //double minZ = Math.abs(block.getBoundingBox().getMinZ()) - Math.abs((int) block.getBoundingBox().getMinZ());
         
-        minX = Double.parseDouble(df.format(minX));
-        minZ = Double.parseDouble(df.format(minZ));
+        //minX = Double.parseDouble(df.format(minX));
+        //minZ = Double.parseDouble(df.format(minZ));
 
         //return new double[] {1.0 - minX + 0.09, 0.0, minZ + 0.09, 1.0 - minX + xz - 0.09, 1.0, minZ + xz - 0.09}; (1)
         //return new double[] {minX + 0.09, 0.0, 1.0 - minZ + 0.09, minX + xz - 0.09, 1.0, 1.0 - minZ + xz - 0.09}; (2)
         // (1) + (2) =>
-        return new double[] {1.0 - minX + 0.09, 0.0, 1.0 - minZ + 0.09, 1.0 - minX + xz - 0.09, 1.0, 1.0 - minZ + xz - 0.09}; 
+        //return new double[] {1.0 - minX + 0.09, 0.0, 1.0 - minZ + 0.09, 1.0 - minX + xz - 0.09, 1.0, 1.0 - minZ + xz - 0.09};
+	return new double[] {0.0, 0.0, 0.0, 1.0, 1.0, 1.0};
     }
 
     @Override
