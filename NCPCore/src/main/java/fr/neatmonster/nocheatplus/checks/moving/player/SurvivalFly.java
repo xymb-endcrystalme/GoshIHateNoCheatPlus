@@ -503,15 +503,18 @@ public class SurvivalFly extends Check {
         }
 
         // Prevent players from sprinting if they're moving backwards (allow buffers to cover up !?).
+        // TODO: Will have to take a look this one later
         if (sprinting && data.lostSprintCount == 0 && hDistance > thisMove.walkSpeed && !data.isVelocityJumpPhase() && !player.hasPotionEffect(PotionEffectType.SPEED) && (attrMod == Double.MAX_VALUE || attrMod <= 1.0)
         && !((from.isInWater() || isWaterlogged(from) || player.getLocation().subtract(0.0, 0.3, 0.0).getBlock().getType() == Material.WATER) && !Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player)))) {
             // (Ignore some cases, in order to prevent false positives.)
             // TODO: speed effects ?
             if (TrigUtil.isMovingBackwards(xDistance, zDistance, from.getYaw()) 
-            && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_SPRINTING, player) && data.bunnyhopTick < 3) {
+            && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_SPRINTING, player)) {
+            	//System.out.println("bntick: " + data.bunnyhopTick + "dis:" + hDistance + ">" + thisMove.walkSpeed);
                 // (Might have to account for speeding permissions.)
                 // TODO: hDistance is too harsh?
                 hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
+                if (hDistanceAboveLimit < 0.5 && !(from.isOnGround() && to.isOnGround())) hDistanceAboveLimit =0.0;
                 tags.add("sprintback"); // Might add it anyway.
                 }
             }
@@ -1204,18 +1207,19 @@ public class SurvivalFly extends Check {
         boolean reset = false;
         final double past = data.yDis;
         if (fromOnGround || from.isInLiquid() || from.isInWeb() || from.isOnClimbable() || (thisMove.touchedGround && resetTo)) reset = true;
-        if (yDistance != 0.0 && !isWaterlogged(from) && !data.isVelocityJumpPhase()) {
+        if (yDistance != 0.0 && !isWaterlogged(from)) {
             data.yDis += yDistance;
             if (data.yDis < 0.0 || data.yDis > 3.0) {
                 data.yDis = 0.0;
             }
         }
-        // "Noob" tower
-        if (tags.contains("lostground_nbtwr")) {
+        // "Noob" tower, bunny slope, velocity
+        if (tags.contains("lostground_nbtwr") || data.isVelocityJumpPhase() || tags.contains("bunnyslope")) {
             data.yDis = 0.0;
         }
-        // Very likely to cause false positive if jump higher than 1.25 with no velocity is recorded
-        if (data.yDis > (Bridge1_13.hasIsSwimming() ? 1.37 : 1.25) 
+
+        //Will "feed" up to 1.4995 anyway
+        if (data.yDis > 1.4995
             && data.timeRiptiding + 3500 < now
             && Double.isInfinite(PotionUtil.getPotionEffectAmplifier(player, PotionEffectType.JUMP))
             && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_STEP, player)) {
