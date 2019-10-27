@@ -493,6 +493,7 @@ public class CreativeFly extends Check {
     }
 
     private double hackElytraH(final double hDistance, final double yDistance, final PlayerMoveData thisMove, final PlayerMoveData lastMove, final MovingData data, final Player player) {
+        if (!lastMove.valid || lastMove.flyCheck != CheckType.MOVING_CREATIVEFLY || lastMove.modelFlying != thisMove.modelFlying) return 0.0;
         if (Bridge1_9.isGlidingWithElytra(player)) {
             if (Math.abs(yDistance) <= (data.liqtick == 0 ? 0.0001 : -1.0) && data.fireworksBoostDuration == 0) {
                 tags.add("elytra_no_y");
