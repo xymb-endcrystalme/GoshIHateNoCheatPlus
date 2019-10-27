@@ -19,7 +19,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected.Half;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Openable;
 import org.bukkit.block.data.type.TrapDoor;
 
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
@@ -67,12 +66,23 @@ public class BukkitTrapDoor implements BukkitShapeModel {
         final Block block = world.getBlockAt(x, y, z);
         final BlockState state = block.getState();
         final BlockData blockData = state.getBlockData();
-        if (blockData instanceof Openable) {
-            return ((Openable) blockData).isOpen() ? 0x4 : 0;
+        if (blockData instanceof TrapDoor) {
+            final TrapDoor trapDoor = (TrapDoor) blockData;
+            if (trapDoor.isOpen()) {
+        	    switch(trapDoor.getFacing()) {
+                case EAST: 
+                    return 3;
+                case NORTH: 
+                    return 4;
+                case SOUTH: 
+                    return 5;
+                case WEST: 
+                    return 6;
+                default:
+                    break;
+                }
+            }
         }
-        else {
-            return 0;
-        }
+        return 0;
     }
-
 }

@@ -914,7 +914,11 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
             // Hack: Add velocity for transitions between creativefly and survivalfly.
             if (lastMove.toIsValid && lastMove.flyCheck == CheckType.MOVING_CREATIVEFLY) {
-                workaroundFlyNoFlyTransition(player, tick, debug, data);
+                final long tickhaslag = data.delayWorkaround + Math.round(200 / TickTask.getLag(200, true));
+                if (data.delayWorkaround > time || tickhaslag < time) {
+                    workaroundFlyNoFlyTransition(player, tick, debug, data);
+                    data.delayWorkaround = time;
+                }
             }
 
             // Actual check.
@@ -1371,6 +1375,10 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             final Check check;
             final ActionList actions;
             final double vL;
+            long now = System.currentTimeMillis();
+            if ((Bridge1_13.isRiptiding(player) || data.timeRiptiding + 4000 > now) && TrigUtil.distance(from, to)< 20) {
+            	return null;
+            }
             if (thisMove.flyCheck == CheckType.MOVING_SURVIVALFLY) {
                 check = survivalFly;
                 actions = cc.survivalFlyActions;
@@ -1390,10 +1398,6 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 vd.setParameter(ParameterName.LOCATION_TO, String.format(Locale.US, "%.2f, %.2f, %.2f", to.getX(), to.getY(), to.getZ()));
                 vd.setParameter(ParameterName.DISTANCE, String.format(Locale.US, "%.2f", TrigUtil.distance(from, to)));
                 vd.setParameter(ParameterName.TAGS, "EXTREME_MOVE");
-            }
-            long now = System.currentTimeMillis();
-            if ((Bridge1_13.isRiptiding(player) || data.timeRiptiding + 4000 > now ) && TrigUtil.distance(from, to)< (Bridge1_9.isGliding(player) ? 10.0 : 7.5)) {
-            	return null;
             }
             // Some resetting is done in MovingListener.
             if (check.executeActions(vd).willCancel()) {
@@ -1421,6 +1425,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         data.clearActiveHorVel(); // Clear active velocity due to adding actual speed here.
         data.addHorizontalVelocity(new AccountEntry(tick, amount, 1, MovingData.getHorVelValCount(amount)));
         data.addVerticalVelocity(new SimpleEntry(lastMove.yDistance, 2));
+        data.addVerticalVelocity(new SimpleEntry(0.34, 3));
         data.addVerticalVelocity(new SimpleEntry(0.0, 2));
         data.setFrictionJumpPhase();
         // Reset fall height.
@@ -2359,9 +2364,10 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 : NoFall.getDamage(Math.max(yDiff, Math.max(data.noFallFallDistance, fallDistance))) + (allowReset ? 0.0 : Magic.FALL_DAMAGE_DIST);
         if (maxD > damage) {
             // TODO: respect dealDamage ?
-            BridgeHealth.setRawDamage(event, maxD);
+            double damageafter = NoFall.calcDamagewithfeatherfalling(player, maxD);
+            BridgeHealth.setRawDamage(event, damageafter);
             if (debug) {
-                debug(player, "Adjust fall damage to: " + maxD);
+                debug(player, "Adjust fall damage to: " + (damageafter != maxD ? damageafter : maxD));
             }
         }
         if (allowReset) {

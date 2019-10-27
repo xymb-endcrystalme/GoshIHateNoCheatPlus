@@ -140,6 +140,8 @@ public class CreativeFly extends Check {
         double limitH = resH[0];
         double resultH = resH[1];
 
+        resultH = Math.max(resultH, hackElytraH(hDistance, yDistance, thisMove, lastMove, data, player));
+	    
         // Check velocity.
         if (resultH > 0) {
             double hFreedom = data.getHorizontalFreedom();
@@ -430,6 +432,10 @@ public class CreativeFly extends Check {
             // TODO: Better detection of an elytra model (extra flags?).
             limitV = Math.max(limitV, limitV = hackLytra(yDistance, limitV, thisMove, lastMove, data));
         }
+        if (Bridge1_9.isGlidingWithElytra(from.getPlayer()) && from.isInLiquid() || BlockProperties.isNewLiq(from.getTypeId()) 
+                || to.isInLiquid() || BlockProperties.isNewLiq(from.getTypeId())
+                || data.liqtick > 10) // recently left water
+            limitV = Math.max(limitV, 0.5);
 
         if (model.getGravity()) {
             // Friction with gravity.
@@ -486,6 +492,21 @@ public class CreativeFly extends Check {
         return new double[] {limitV, resultV};
     }
 
+    private double hackElytraH(final double hDistance, final double yDistance, final PlayerMoveData thisMove, final PlayerMoveData lastMove, final MovingData data, final Player player) {
+        if (!lastMove.valid || lastMove.flyCheck != CheckType.MOVING_CREATIVEFLY || lastMove.modelFlying != thisMove.modelFlying) return 0.0;
+        if (Bridge1_9.isGlidingWithElytra(player)) {
+            if (Math.abs(yDistance) <= (data.liqtick == 0 ? 0.0001 : -1.0) && data.fireworksBoostDuration == 0) {
+                tags.add("elytra_no_y");
+                return hDistance < 1.0 ? hDistance * 2.0 : hDistance;
+            }
+            if (player.getEyeHeight() > 0.45 && hDistance > 0.5) {
+                tags.add("elytra_wrongheight");
+                return hDistance < 1.0 ? hDistance * 2.0 : hDistance;
+            }
+        }
+        return 0.0;
+    }
+	
     private double hackLytra(final double yDistance, final double limitV, final PlayerMoveData thisMove, final PlayerMoveData lastMove, final MovingData data) {
         // TODO: Hack, move / config / something.
         // TODO: Confine more. hdist change relates to ydist change

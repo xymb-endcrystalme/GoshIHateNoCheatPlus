@@ -37,6 +37,8 @@ public final class BridgeEnchant {
     private final static Enchantment THORNS = parseEnchantment("THORNS");
     
     private final static Enchantment RIPTIDE = parseEnchantment("RIPTIDE");
+    
+    private final static Enchantment FEATHER_FALLING = parseEnchantment("PROTECTION_FALL");
 
     /**
      * Retrieve the maximum level for an enchantment, present in armor slots.
@@ -92,6 +94,10 @@ public final class BridgeEnchant {
     public static boolean hasDepthStrider() {
         return DEPTH_STRIDER != null;
     }
+    
+    public static boolean hasFeatherFalling() {
+        return FEATHER_FALLING != null;
+    }
 
     /**
      * Check if the player might return some damage due to the "thorns"
@@ -104,6 +110,17 @@ public final class BridgeEnchant {
         return hasArmor(player, THORNS);
     }
 
+    /**
+     * 
+     * @param player
+     * @return Maximum level of FEATHER_FALLING found on armor items, capped at 4.
+     *         Will return 0 if not available.
+     */
+    public static int getFeatherFallingLevel(final Player player) {
+        // Cap at three.
+        return Math.min(4, getMaxLevelArmor(player, FEATHER_FALLING));
+    }
+    
     /**
      * 
      * @param player
