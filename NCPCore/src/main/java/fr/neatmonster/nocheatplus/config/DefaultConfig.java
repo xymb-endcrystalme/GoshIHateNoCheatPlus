@@ -198,7 +198,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_NOSWING_ACTIONS, "cancel vl>10 log:noswing:2:5:i cancel", 1154);
         
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_CHECK, "default", 1154);
-        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, "vl>1 cancel vl>10 cancel log:scaffold:3:7:if vl>60 cancel log:scaffold:1:2:if cmdc:kickscaffold:2:10", 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, "vl>1 cancel vl>10 cancel log:scaffold:3:7:if vl>60 cancel log:scaffold:1:2:if cmdc:kickscaffold:2:10 cmd:clearscaffold:0:5", 1154);
 
         set(ConfPaths.BLOCKPLACE_SPEED_CHECK, "default", 785);
         set(ConfPaths.BLOCKPLACE_SPEED_INTERVAL, 30L, 1154); // Old limit: 45L < FPs with throwable potions.
@@ -307,7 +307,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.COMBINED_IMPROBABLE_CHECK , "default", 785);
         set(ConfPaths.COMBINED_IMPROBABLE_LEVEL, 300, 785);
         //        set(ConfPaths.COMBINED_IMPROBABLE_FASTBREAK_CHECK, false, 785);
-        set(ConfPaths.COMBINED_IMPROBABLE_ACTIONS, "cancel vl>10 log:improbable:8:9:if cancel vl>3000 cancel log:improbable:0:10:if cmdc:kickimprobable:0:10 cmdc:clearimprobable:0:10", 1154);
+        set(ConfPaths.COMBINED_IMPROBABLE_ACTIONS, "cancel vl>10 log:improbable:8:9:if cancel vl>1500 cancel log:improbable:0:10:if cmdc:kickimprobable:0:10 cmdc:clearimprobable:0:10", 1154);
 
         set(ConfPaths.COMBINED_INVULNERABLE_CHECK, true, 785); // Not a check type yet.
         set(ConfPaths.COMBINED_INVULNERABLE_TRIGGERS_ALWAYS, false, 785);
@@ -402,7 +402,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_SPEED_IMPROBABLE_WEIGHT, 2.0, 1154);
 
         set(ConfPaths.FIGHT_WRONGTURN_CHECK, "default", 1143);
-        set(ConfPaths.FIGHT_WRONGTURN_ACTIONS, "cancel cmdc:kickillegalrotations:0:15 log:wrongturn:0:15:fci", 1154);
+        set(ConfPaths.FIGHT_WRONGTURN_ACTIONS, "cancel cmdc:kickillegalrotations:0:15 log:wrongturn:0:15:fi", 1154);
 
 
         set(ConfPaths.INVENTORY_ACTIVE, "default", 1144);
@@ -418,7 +418,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.INVENTORY_FASTCLICK_TWEAKS1_5, true, 785);
         set(ConfPaths.INVENTORY_FASTCLICK_LIMIT_SHORTTERM, 4, 785);
         set(ConfPaths.INVENTORY_FASTCLICK_LIMIT_NORMAL, 15, 785);
-        set(ConfPaths.INVENTORY_FASTCLICK_LIMIT_CHEST, 152, 1154);
+        set(ConfPaths.INVENTORY_FASTCLICK_LIMIT_CHEST, 155, 1154);
         set(ConfPaths.INVENTORY_FASTCLICK_IMPROBABLE_WEIGHT, 0.7, 1154);
         set(ConfPaths.INVENTORY_FASTCLICK_ACTIONS, "cancel vl>200 cancel log:fastclick:7:5:i vl>600 cancel log:fastclick:1:5:if vl>5000 cancel log:fastclick:1:2:if cmdc:kickfastclick:2:15", 1154);
 
@@ -437,7 +437,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.INVENTORY_FASTCONSUME_DURATION, 1.4, 1154); // The actual consumption time needed would be 1.5s. Set to 1.4 for leniency
         set(ConfPaths.INVENTORY_FASTCONSUME_WHITELIST, false, 785);
         set(ConfPaths.INVENTORY_FASTCONSUME_ITEMS, Arrays.asList("DRIED_KELP"), 1154);
-        set(ConfPaths.INVENTORY_FASTCONSUME_ACTIONS, "cancel vl>2 log:fastconsume:2:5:if cancel", 1154);
+        set(ConfPaths.INVENTORY_FASTCONSUME_ACTIONS, "cancel vl>2 log:fastconsume:2:5:if cancel vl>35 cancel log:fastconsume:0:5:if cmdc:kickfastconsume:0:5", 1154);
         
         set(ConfPaths.INVENTORY_INVENTORYMOVE_CHECK, "default", 1153);
         set(ConfPaths.INVENTORY_INVENTORYMOVE_DISABLECREATIVE, true, 1153);
@@ -541,8 +541,8 @@ public class DefaultConfig extends ConfigFile {
             + " vl>50 cancel log:survivalfly:13:9:i log:flyfile:6:15:f" 
             + " vl>300 cancel log:survivalfly:7:8:i log:flyfile:1:3:f" 
             + " vl>830 cancel log:survivalflyhighvl:4:9:i log:flyfile:2:3:f" 
-            + " vl>2130 cancel log:survivalflyhighvl:3:4:i log:flyfile:1:2:f" 
-            + " vl>4900 cancel log:survivalflyhighvl:0:4:icf cmdc:kickfly:0:15 cmd:clearsf:0:15", 1154);     
+            + " vl>1500 cancel log:survivalflyhighvl:3:4:i log:flyfile:1:2:f" 
+            + " vl>2100 cancel log:survivalflyhighvl:0:4:icf cmdc:kickfly:0:15 cmd:clearsf:0:15", 1154);     
         // SurvivalFly - Hover Subcheck
         set(ConfPaths.MOVING_SURVIVALFLY_HOVER_CHECK, true, 785); // Not a check type yet.
         set(ConfPaths.MOVING_SURVIVALFLY_HOVER_STEP, 5, 785);
@@ -585,7 +585,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_VEHICLE_ENVELOPE_ACTIVE, "default", 785);
         set(ConfPaths.MOVING_VEHICLE_ENVELOPE_HSPEEDCAP + ".default", 0.9, 1154);
         set(ConfPaths.MOVING_VEHICLE_ENVELOPE_HSPEEDCAP + ".pig", 0.3, 1154);
-        set(ConfPaths.MOVING_VEHICLE_ENVELOPE_ACTIONS, "cancel vl>50 cancel log:vehicleenvelope:10:6:if vl>500 cancel log:vehicleenvelope:0:10:icf cmdc:kickvehiclefly:0:10 cmd:clearvehicle:0:15", 1154);
+        set(ConfPaths.MOVING_VEHICLE_ENVELOPE_ACTIONS, "cancel vl>50 cancel log:vehicleenvelope:10:6:if vl>300 cancel log:vehicleenvelope:0:10:icf cmdc:kickvehiclefly:0:10 cmd:clearvehicle:0:15", 1154);
 
         // Messages
         set(ConfPaths.MOVING_MESSAGE_ILLEGALPLAYERMOVE, "Illegal move.", 785);
@@ -650,7 +650,7 @@ public class DefaultConfig extends ConfigFile {
         final String start = "&c[player]&7 failed &c[check]&7: ";
         final String end = " &7(&cVL[violations]&7)";
         final String tell = "ncp tell [player] &c&l(!)&7 ";
-        final String clear = "ncp delay delay=10 ncp removeplayer [player] ";
+        final String clear = "ncp delay delay=2 ncp removeplayer [player] ";
         final String kick = "ncp kick [player] &c&l(!)&7 ";
         set(ConfPaths.STRINGS + ".against", start + "tried to place a block against liquid blocks or air as if they were solid" + end, 1154);
         set(ConfPaths.STRINGS + ".angle", start + "tried to hit multiple entities at the same time (Tags: &6[tags]&7)" + end, 1154);
@@ -698,7 +698,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".kickattackfrequency", kick + "Unlikely fast clicking.", 1154);
         set(ConfPaths.STRINGS + ".kickbedleave", kick + "Invalid bed-leave packets.", 1154);
         set(ConfPaths.STRINGS + ".kickbow", kick + "Shooting arrows too quickly.", 1154);
-        set(ConfPaths.STRINGS + ".kickbspeed", kick + "You interacted too fast.", 1154);
+        set(ConfPaths.STRINGS + ".kickbspeed", kick + "Too fast block interactions.", 1154);
         set(ConfPaths.STRINGS + ".kickcaptcha", kick + "Enter the captcha!", 1154);
         set(ConfPaths.STRINGS + ".kickchat1", "ncp tempkick [player] 1 &c&l(!)&7 Do not spam the server chat (1 minute tempkick)", 1154);
         set(ConfPaths.STRINGS + ".kickchat5", "ncp tempkick [player] 5 &c&l(!)&7 You are not allowed to spam the server chat (5 minutes tempkick)", 1154);
@@ -707,11 +707,12 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".kickcommands", "ncp tempkick [player] 1 &c&l(!)&7 Do not spam commands (1 minute tempkick)", 1154);
         set(ConfPaths.STRINGS + ".kickfastbreak", kick + "Breaking blocks too fast.", 1154);
         set(ConfPaths.STRINGS + ".kickfastclick", kick + "Unlikely inventory interactions.", 1154);
+        set(ConfPaths.STRINGS + ".kickfastconsume", kick + "Using items too quickly.", 1154);
         set(ConfPaths.STRINGS + ".kickfastheal", kick + "Too fast health regeneration.", 1154);
         set(ConfPaths.STRINGS + ".kickfastplace", kick + "Placing blocks too quickly.", 1154);
         set(ConfPaths.STRINGS + ".kickfly", kick + "Moved unexpectedly.", 1154);
         set(ConfPaths.STRINGS + ".kickflyingfrequency", kick + "Kicked for packet spam.", 1154);
-        set(ConfPaths.STRINGS + ".kickfrequency", kick + "You did something too fast!", 1154);
+        set(ConfPaths.STRINGS + ".kickfrequency", kick + "Illegal block-breaking frequency.", 1154);
         set(ConfPaths.STRINGS + ".kickgod", kick + "GodMode?", 1154);
         set(ConfPaths.STRINGS + ".kickillegalblockinteract", kick + "Illegal block interactions.", 1154);
         set(ConfPaths.STRINGS + ".kickillegalrotations", kick + "Invalid rotations.", 1154);
@@ -731,7 +732,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".nofall", start + "tried to alter fall damage or fall distance (Tags: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".noswing", start + "didn't swing arm before performing their action" + end, 1154);
         set(ConfPaths.STRINGS + ".passable", start + "tried to move into a block (bugged player of phase cheat)" + end, 1154);
-        set(ConfPaths.STRINGS + ".pitchpattern", start + "has pitch rotations patterns that are often associated with cheats" + end, 1154);
+        set(ConfPaths.STRINGS + ".pitchpattern", start + "has pitch rotation patterns that are often associated with cheats" + end, 1154);
         set(ConfPaths.STRINGS + ".relog", start + "tried to relog too fast" + end, 1154);
         set(ConfPaths.STRINGS + ".scaffold", start + "tried to place against a block face they did not interact with" + end, 1154);
         set(ConfPaths.STRINGS + ".survivalfly", start + "tried to move unexpectedly" + end, 1154);
@@ -748,6 +749,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".clearpassable", clear + "MOVING_PASSABLE", 1154);
         set(ConfPaths.STRINGS + ".clearvehicle", clear + "MOVING_VEHICLE_ENVELOPE", 1154);
         set(ConfPaths.STRINGS + ".clearcritical", clear + "FIGHT_CRITICAL", 1154);
+        set(ConfPaths.STRINGS + ".clearscaffold", clear + "BLOCKPLACE_SCAFFOLD", 1154);
 
         // Compatibility settings.
         set(ConfPaths.COMPATIBILITY_EXEMPTIONS_WILDCARD_DEFAULT_METADATA_ACTIVE, true, 785);
