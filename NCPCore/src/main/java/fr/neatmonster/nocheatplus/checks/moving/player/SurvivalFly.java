@@ -510,7 +510,7 @@ public class SurvivalFly extends Check {
             // TODO: speed effects ?
             if (TrigUtil.isMovingBackwards(xDistance, zDistance, from.getYaw()) 
             && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_SPRINTING, player)) {
-            	//System.out.println("bntick: " + data.bunnyhopTick + "dis:" + hDistance + ">" + thisMove.walkSpeed);
+                //System.out.println("bntick: " + data.bunnyhopTick + "dis:" + hDistance + ">" + thisMove.walkSpeed);
                 // (Might have to account for speeding permissions.)
                 // TODO: hDistance is too harsh?
                 hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
@@ -1213,9 +1213,42 @@ public class SurvivalFly extends Check {
                 data.yDis = 0.0;
             }
         }
-        // "Noob" tower, bunny slope, velocity
-        if (tags.contains("lostground_nbtwr") || data.isVelocityJumpPhase() || tags.contains("bunnyslope")) {
+        // "Noob" tower, bunny slope, velocity, recently left water 
+        if (tags.contains("lostground_nbtwr") || data.isVelocityJumpPhase() || tags.contains("bunnyslope") || data.liqtick != 0) {
             data.yDis = 0.0;
+        }
+
+        if (data.yDis > 1.4995) {
+            final double margin = 0.2;
+            final Location loc = from.getLocation();
+            if (BlockProperties.isCarpet(loc.clone().add(margin, 0.0, 0.0).getBlock().getType())) {
+                final long flag = BlockProperties.getBlockFlags(loc.clone().add(margin, -1.0, 0.0).getBlock().getType());
+                if ((flag & BlockProperties.F_THICK_FENCE) != 0 || (flag & BlockProperties.F_THICK_FENCE2) != 0) {
+                    data.yDis = 0.0;
+                    return false;
+                }
+            } else
+            if (BlockProperties.isCarpet(loc.clone().add(-margin, 0.0, 0.0).getBlock().getType())) {
+                final long flag = BlockProperties.getBlockFlags(loc.clone().add(-margin, -1.0, 0.0).getBlock().getType());
+                if ((flag & BlockProperties.F_THICK_FENCE) != 0 || (flag & BlockProperties.F_THICK_FENCE2) != 0) {
+                    data.yDis = 0.0;
+                    return false;
+                }
+            } else
+            if (BlockProperties.isCarpet(loc.clone().add(0.0, 0.0, margin).getBlock().getType())) {
+                final long flag = BlockProperties.getBlockFlags(loc.clone().add(0.0, -1.0, margin).getBlock().getType());
+                if ((flag & BlockProperties.F_THICK_FENCE) != 0 || (flag & BlockProperties.F_THICK_FENCE2) != 0) {
+                    data.yDis = 0.0;
+                    return false;
+                }
+            } else
+            if (BlockProperties.isCarpet(loc.clone().add(0.0, 0.0, -margin).getBlock().getType())) {
+                final long flag = BlockProperties.getBlockFlags(loc.clone().add(0.0, -1.0, -margin).getBlock().getType());
+                if ((flag & BlockProperties.F_THICK_FENCE) != 0 || (flag & BlockProperties.F_THICK_FENCE2) != 0) {
+                    data.yDis = 0.0;
+                    return false;
+                }
+            }
         }
 
         //Will "feed" up to 1.4995 anyway
@@ -1736,7 +1769,7 @@ public class SurvivalFly extends Check {
         World w = from.getWorld();
         final int iMinX = Location.locToBlock(from.getMinX());
         final int iMaxX = Location.locToBlock(from.getMaxX());
-        final int iMinY = Location.locToBlock(from.getMinY() - ((BlockProperties.getBlockFlags(from.getTypeIdBelow()) & BlockProperties.F_HEIGHT150) != 0 ? 0.5625 : 0));
+        final int iMinY = Location.locToBlock(from.getMinY());
         final int iMaxY = Math.min(Location.locToBlock(from.getMaxY()), from.getBlockCache().getMaxBlockY());
         final int iMinZ = Location.locToBlock(from.getMinZ());
         final int iMaxZ = Location.locToBlock(from.getMaxZ());
