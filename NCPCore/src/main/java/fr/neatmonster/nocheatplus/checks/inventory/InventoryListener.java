@@ -41,6 +41,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
@@ -53,6 +54,7 @@ import fr.neatmonster.nocheatplus.checks.CheckListener;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.combined.Combined;
 import fr.neatmonster.nocheatplus.checks.combined.Improbable;
+import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.moving.util.MovingUtil;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeHealth;
@@ -84,6 +86,9 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
     
     /** Inventory Move check */
     private final InventoryMove invMove = addCheck(new InventoryMove());
+    
+    /** More Inventory check */
+    private final MoreInventory moreInv = addCheck(new MoreInventory());
 
     /** The fast click check. */
     private final FastClick  fastClick  = addCheck(new FastClick());
@@ -572,6 +577,30 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                 if (passenger instanceof Player) {
                     // Note: ignore cancelother setting.
                     open.check((Player) passenger);
+                }
+            }
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onMove(final PlayerMoveEvent event) {
+        final Player player = event.getPlayer();
+        final Location from = event.getFrom();
+        final Location to = event.getTo();
+        final boolean PoYdiff = from.getPitch() != to.getPitch() || from.getYaw() != to.getYaw();
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        if (pData == null) return;
+        final MovingData data = pData.getGenericInstance(MovingData.class);
+        final Inventory inv = player.getOpenInventory().getTopInventory();
+        if (moreInv.isEnabled(player, pData) 
+            && moreInv.check(player, data, pData, inv.getType(), inv, PoYdiff)) {
+            for (int i =1; i<=4 ;i++) {
+                final ItemStack item = inv.getItem(i);
+                if (item != null && item.getType() != Material.AIR) {
+                    player.getWorld().dropItemNaturally(player.getLocation(), item);
+                    inv.setItem(i, null);
+                    if (pData.isDebugActive(CheckType.INVENTORY_MOREINVENTORY))
+                        debug(player , "Drop items from crafting slot:" + i);
                 }
             }
         }
