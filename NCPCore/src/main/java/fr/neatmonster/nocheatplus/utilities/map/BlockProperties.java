@@ -743,6 +743,9 @@ public class BlockProperties {
     // TODO: Separate no fall damage flag ? [-> on ground could return "dominating" flags, or extra flags]
     /** Like slime block: bounce back 25% of fall height without taking fall damage [TODO: Check/adjust]. */
     public static final long F_BOUNCE25                     = f_flag();
+    
+    /** HONEY_BLOCK */
+    public static final long F_STICKY                       = f_flag();
 
     /**
      * The facing direction is described by the lower 3 data bits in order of
