@@ -1451,6 +1451,10 @@ public class SurvivalFly extends Check {
                     //Slime
                     data.setFrictionJumpPhase();
                 }
+                // Need more testing
+                else if (isCollideWithHB(from, to, data) && yDistance < -0.125 && yDistance > -0.128) {
+
+                }
                 else {
                     // Violation.
                     vDistRelVL = true;
@@ -1733,7 +1737,7 @@ public class SurvivalFly extends Check {
                 // Here yDistance can be negative and positive.
                 //                if (yDistance != 0.0) {
 				if ((BlockProperties.isNewLiq(from.getTypeIdBelow())) || (data.timeRiptiding + 500 > now) || (data.bedLeaveTime + 500 > now && yDistance < 0.45) || (snowFix) || isLanternUpper(to) || 
-                    isWaterlogged(from) || isWaterlogged(to) || (lastMove.from.inLiquid && Math.abs(yDistance) < 0.31)) {
+                    isWaterlogged(from) || isWaterlogged(to) || (lastMove.from.inLiquid && Math.abs(yDistance) < 0.31) || isCollideWithHB(from, to, data)) {
 					// Ignore
 				}
 				else {
@@ -1755,6 +1759,16 @@ public class SurvivalFly extends Check {
         return vDistanceAboveLimit;
     }	    
 
+    /** Check if collide the side of HoneyBlock */
+    private boolean isCollideWithHB(PlayerLocation from ,PlayerLocation to, MovingData data) {
+        final boolean a = BlockProperties.collides(to.getBlockCache(), to.getMinX() - 0.1, to.getMinY(), to.getMinZ() - 0.1, to.getMaxX() + 0.1, to.getMaxY(), to.getMaxZ() + 0.1, BlockProperties.F_STICKY) ||
+        BlockProperties.collides(from.getBlockCache(), from.getMinX() - 0.1, from.getMinY(), from.getMinZ() - 0.1, from.getMaxX() + 0.1, from.getMaxY(), from.getMaxZ() + 0.1, BlockProperties.F_STICKY);
+        
+        // Moving on side block, remove nofall data
+        if (a) data.clearNoFallData();
+        return a;
+    }
+    
     private boolean isLanternUpper(PlayerLocation from) {
     	World w = from.getWorld();
     	final int x = from.getBlockX();
@@ -2080,20 +2094,20 @@ public class SurvivalFly extends Check {
                         hDistanceAboveLimit = 0.0;
                     }
                 }
-                else if (
-                        hDistDiff >= lastMove.hDistance / bunnyDivFriction || hDistDiff >= hDistanceAboveLimit / 33.3 || 
+                else if (hDistDiff >= lastMove.hDistance / bunnyDivFriction || hDistDiff >= hDistanceAboveLimit / 33.3 || 
                         hDistDiff >= (hDistance - hDistanceBaseRef) * (1.0 - Magic.FRICTION_MEDIUM_AIR)
                         ) {
                     // TODO: Confine friction by medium ?
                     // TODO: Also calculate an absolute (minimal) speed decrease over the whole time, at least max - count?
                     tags.add("bunnyfriction");
-                    //if (hDistanceAboveLimit <= someThreshold) { // To be covered by bunnyslope.
                     // Speed must decrease by "a lot" at first, then by some minimal amount per event.
                     // TODO: Confine buffer to only be used during low jump phase !?
                     //if (!(data.toWasReset && thisMove.from.onGround && thisMove.to.onGround)) { // FISHY
 
                     // Allow the move.
-                    hDistanceAboveLimit = 0.0;
+                    if (data.isVelocityJumpPhase()) {
+                        hDistanceAboveLimit = 0.0;
+                    } else if (hDistDiff * 15 >= hDistanceAboveLimit) hDistanceAboveLimit = 0.0;
                     if (data.bunnyhopDelay == 1 && !thisMove.to.onGround && !to.isResetCond()) {
                         // ... one move between toonground and liftoff remains for hbuf ...
                         data.bunnyhopDelay ++;
