@@ -12,6 +12,9 @@ import fr.neatmonster.nocheatplus.actions.ParameterName;
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
+import fr.neatmonster.nocheatplus.checks.moving.MovingData;
+import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
+import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
 
@@ -31,12 +34,19 @@ public class InventoryMove extends Check {
 		
     boolean cancel = false;
     
+    final MovingData Mdata = pData.getGenericInstance(MovingData.class);
+    final PlayerMoveData lastMove = Mdata.playerMoves.getCurrentMove();
+    final boolean isOnGround = lastMove.touchedGround || lastMove.from.onGround || lastMove.to.onGround;
+    
     // Tags 
     if (player.isBlocking()) {
     	tags.add("isBlocking");
     }
     else if (player.isSneaking()) {
     	tags.add("isSneaking");
+    }
+    else if (Bridge1_13.isSwimming(player)) {	
+        if (!isOnGround) tags.add("isSwimming");	
     }
     else if (player.isSprinting()) {
     	tags.add("isSprinting");
@@ -46,7 +56,8 @@ public class InventoryMove extends Check {
     }
     
      // Do the actual check 
-     if (player.isSneaking() || player.isSprinting() || player.isBlocking() || player.isDead()) {
+     if (player.isSneaking() || (player.isSprinting() && !Bridge1_13.isSwimming(player)) 
+     || player.isBlocking() || player.isDead() || (Bridge1_13.isSwimming(player) && !isOnGround)) {
            // Check if the player is in creative
    	   if (player.getGameMode() == GameMode.CREATIVE) {
    		   // (Skip hotbar interactions)
