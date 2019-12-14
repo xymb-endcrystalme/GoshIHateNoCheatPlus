@@ -424,7 +424,7 @@ public class DefaultConfig extends ConfigFile {
 
         set(ConfPaths.INVENTORY_INSTANTBOW_CHECK, "default", 785);
         set(ConfPaths.INVENTORY_INSTANTBOW_STRICT, true, 785);
-        set(ConfPaths.INVENTORY_INSTANTBOW_DELAY, 130, 785);
+        set(ConfPaths.INVENTORY_INSTANTBOW_DELAY, 75, 1154);
         set(ConfPaths.INVENTORY_INSTANTBOW_IMPROBABLE_FEEDONLY, false, 1085);
         set(ConfPaths.INVENTORY_INSTANTBOW_IMPROBABLE_WEIGHT, 0.6, 1085);
         set(ConfPaths.INVENTORY_INSTANTBOW_ACTIONS, "cancel vl>15 cancel log:instantbow:4:5:i vl>200 cancel log:instantbow:0:10:if cmdc:kickbow:2:10", 1154);
@@ -532,7 +532,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_SURVIVALFLY_CHECK, "default", 785);
         set(ConfPaths.MOVING_SURVIVALFLY_STEPHEIGHT, "default", 785);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_VACC, true, 785);
-        set(ConfPaths.MOVING_SURVIVALFLY_LENIENCY_HBUFMAX, 1.0, 1143);
+        set(ConfPaths.MOVING_SURVIVALFLY_LENIENCY_HBUFMAX, 0.5, 1154);
         set(ConfPaths.MOVING_SURVIVALFLY_LENIENCY_FREEZECOUNT, 40, 1144);
         set(ConfPaths.MOVING_SURVIVALFLY_LENIENCY_FREEZEINAIR, true, 1143);
         set(ConfPaths.MOVING_SURVIVALFLY_SETBACKPOLICY_FALLDAMAGE, true, 785);
@@ -653,7 +653,7 @@ public class DefaultConfig extends ConfigFile {
         final String clear = "ncp delay delay=2 ncp removeplayer [player] ";
         final String kick = "ncp kick [player] &c&l(!)&7 ";
         set(ConfPaths.STRINGS + ".against", start + "tried to place a block against liquid blocks or air as if they were solid" + end, 1154);
-        set(ConfPaths.STRINGS + ".angle", start + "tried to hit multiple entities at the same time (Tags: &6[tags]&7)" + end, 1154);
+        set(ConfPaths.STRINGS + ".angle", start + "potentially tried to hit multiple entities at the same time (Tags: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".attackfrequency", start + "seems to be using an autoclicker (Clicks: &6[packets]&7/LimitPerTime-frame:&7[limit]&7, &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".bautosign", start + "tried to use the autosign hack (Subcheck: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".bbfrequency", start + "tried to break too many blocks at once" + end, 1154);
@@ -662,13 +662,13 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".bpspeed", start + "tried to throw projectiles too quickly" + end, 1154);
         set(ConfPaths.STRINGS + ".breach", start + "tried to interact with a block too far away" + end, 1154);
         set(ConfPaths.STRINGS + ".bspeed", start + "is interacting with blocks beyond legit speeds" + end, 1154);
-        set(ConfPaths.STRINGS + ".bvisible", start + "tried to interact with a block through an obstacle/wall" + end, 1154);
+        set(ConfPaths.STRINGS + ".bvisible", start + "tried to interact with a block through a solid obstacle" + end, 1154);
         set(ConfPaths.STRINGS + ".bwrong", start + "tried to break another block than interacted with last" + end, 1154);
         set(ConfPaths.STRINGS + ".captcha", "[player] failed captcha repeatedly" + end, 785);
         set(ConfPaths.STRINGS + ".chatfast", start + "acted like spamming (message deleted) (IP: &6[ip]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".chatnormal", start + "seems to be spamming the server chat" + end, 1154);
-        set(ConfPaths.STRINGS + ".clickpat", start + " seems to be clicking with frequencies/patterns that are often associated with cheats" + end, 1154);
-        set(ConfPaths.STRINGS + ".commands", start + "issued too many commands" + end, 785);
+        set(ConfPaths.STRINGS + ".clickpat", start + " seems to be clicking with patterns that are often associated with cheats" + end, 1154);
+        set(ConfPaths.STRINGS + ".commands", start + "issued too many commands too quickly" + end, 785);
         set(ConfPaths.STRINGS + ".creativefly", start + "tried to move unexpectedly while in air (Tags: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".critical", start + "tried to perform an illegal critical hit (Tags: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".drop", start + "tried to drop more items than allowed" + end, 785);
