@@ -21,6 +21,7 @@ import java.util.List;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -135,59 +136,60 @@ public class NoSlow extends BaseAdapter {
 			return;
 			}
 		if (b != null && (
-				b.getType().toString().endsWith("DOOR")
-			 || b.getType().toString().endsWith("GATE")
-		     || b.getType().toString().endsWith("BUTTON")
-			 || b.getType().toString().endsWith("LEVER")
-		)) {
-			data.isusingitem = false;
-        	return;
-		}
-		if (e.hasItem()) {
-			ItemStack item = e.getItem();
-			Material m = item.getType();
-			if (InventoryUtil.isConsumable(item)) {
-			// pre1.9 splash potion
-			if (item.getDurability() > 16384) return;
-                if (m == Material.POTION || m == Material.MILK_BUCKET || m.toString().endsWith("_APPLE")) {
-                	data.isusingitem = true;
-					data.noslownostrict = true;
-                	return;
-				}
-				if (item.getType().isEdible() && p.getFoodLevel() < 20) {
-					data.isusingitem = true;
-					data.noslownostrict = true;
-					return;
-				}
-			}
-			if (m.toString().equals("BOW") && hasArrow(p.getInventory())) {
-				data.isusingitem = true;
-			}
-			if (m.toString().equals("CROSSBOW")) {
-				if (item.getItemMeta().serialize().get("charged").equals(false) && hasArrow(p.getInventory())) {
-					data.isusingitem = true;
-					return;
-				}
-			}
-		} else data.isusingitem = false;		
-	}
+               b.getType().toString().endsWith("DOOR")
+            || b.getType().toString().endsWith("GATE")
+            || b.getType().toString().endsWith("BUTTON")
+            || b.getType().toString().endsWith("LEVER")
+            || (b.getType().name().startsWith("SWEET_BERRY_BUSH") && ((Ageable) b.getBlockData()).getAge() > 1)
+        )) {
+            data.isusingitem = false;
+            return;
+        }
+        if (e.hasItem()) {
+            ItemStack item = e.getItem();
+            Material m = item.getType();
+            if (InventoryUtil.isConsumable(item)) {
+            // pre1.9 splash potion
+            if (item.getDurability() > 16384) return;
+                if (m == Material.POTION || m == Material.MILK_BUCKET || m.toString().endsWith("_APPLE") || m.name().startsWith("HONEY_BOTTLE")) {
+                    data.isusingitem = true;
+                    data.noslownostrict = true;
+                    return;
+                }
+                if (item.getType().isEdible() && p.getFoodLevel() < 20) {
+                    data.isusingitem = true;
+                    data.noslownostrict = true;
+                    return;
+                }
+            }
+            if (m.toString().equals("BOW") && hasArrow(p.getInventory())) {
+                data.isusingitem = true;
+            }
+            if (m.toString().equals("CROSSBOW")) {
+                if (item.getItemMeta().serialize().get("charged").equals(false) && hasArrow(p.getInventory())) {
+                    data.isusingitem = true;
+                    return;
+                }
+            }
+        } else data.isusingitem = false;        
+    }
     
     private static void onChangeSlot(final PlayerItemHeldEvent e) {
-    	final Player p = e.getPlayer();
-		final IPlayerData pData = DataManager.getPlayerData(p);
-		final MovingData data = pData.getGenericInstance(MovingData.class);
-		data.isusingitem = false;
+        final Player p = e.getPlayer();
+        final IPlayerData pData = DataManager.getPlayerData(p);
+        final MovingData data = pData.getGenericInstance(MovingData.class);
+        data.isusingitem = false;
     }
     
     private static boolean hasArrow(PlayerInventory i) {
-    	if (Bridge1_9.hasElytra()) {
-		Material m = i.getItemInOffHand().getType();
-		return i.contains(Material.ARROW) || m.toString().endsWith("ARROW") || i.contains(Material.TIPPED_ARROW) || i.contains(Material.SPECTRAL_ARROW);
-    	}
-    	return i.contains(Material.ARROW);
-	}
-	
-	private void handleDiggingPacket(PacketEvent event)
+        if (Bridge1_9.hasElytra()) {
+        Material m = i.getItemInOffHand().getType();
+        return i.contains(Material.ARROW) || m.toString().endsWith("ARROW") || i.contains(Material.TIPPED_ARROW) || i.contains(Material.SPECTRAL_ARROW);
+        }
+        return i.contains(Material.ARROW);
+    }
+    
+    private void handleDiggingPacket(PacketEvent event)
     {
         if(event.getPacketType() != PacketType.Play.Client.BLOCK_DIG) return;
 
@@ -208,22 +210,22 @@ public class NoSlow extends BaseAdapter {
         
         //Advanced check
         if(digtype == PlayerDigType.RELEASE_USE_ITEM) {
-        	long now = System.currentTimeMillis();
-        	if (data.time_rl_item != 0) {
-        		if (now < data.time_rl_item) {
-        			data.time_rl_item = now;
-        			data.isusingitem = false;
-        			return;
-        		}
-        		if (data.time_rl_item + timeBetweenRL > now) {
-        			data.isHackingRI = true;
-        		}
-        	}
-        	data.time_rl_item = now;
+            long now = System.currentTimeMillis();
+            if (data.time_rl_item != 0) {
+                if (now < data.time_rl_item) {
+                    data.time_rl_item = now;
+                    data.isusingitem = false;
+                    return;
+                }
+                if (data.time_rl_item + timeBetweenRL > now) {
+                    data.isHackingRI = true;
+                }
+            }
+            data.time_rl_item = now;
         }
     }
-	
-	/**
+    
+    /**
      * Set Minimum time between RELEASE_USE_ITEM packet is sent.
      * If time lower this value, A check will flag
      * Should be set from 51-100. Larger number, more protection more false-positive
@@ -231,6 +233,6 @@ public class NoSlow extends BaseAdapter {
      * @param milliseconds
      */ 
     public static void setuseRLThreshold(int time) {
-    	timeBetweenRL = time;
+        timeBetweenRL = time;
     }   
 }
