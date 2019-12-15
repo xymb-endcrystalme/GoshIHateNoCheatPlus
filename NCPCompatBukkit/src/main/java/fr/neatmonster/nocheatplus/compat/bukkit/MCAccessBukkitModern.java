@@ -78,7 +78,9 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     private static final BukkitShapeModel MODEL_GROUND_HEAD= new BukkitStatic(
             0.25, 0.5); // TODO: XZ-really? 275 ?
     private static final BukkitShapeModel MODEL_SINGLE_CHEST = new BukkitStatic(
-            0.062, .875); // TODO: 0.0625?
+            0.0625, 0.875);
+    private static final BukkitShapeModel MODEL_HONEY_BLOCK = new BukkitStatic(
+            0.0625, 0.9375);
 
     // Static blocks with full height sorted by inset.
     private static final BukkitShapeModel MODEL_INSET16_1_HEIGHT100 = new BukkitStatic(
@@ -122,7 +124,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
     @Override
     public String getMCVersion() {
-        return "1.13-1.14.4|?";
+        return "1.13.2-1.15|?";
     }
 
     @Override
@@ -342,6 +344,9 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         // Bell
         mt = BridgeMaterial.getBlock("bell");
         if (mt != null) addModel(mt, MODEL_BELL);
+        
+        mt = BridgeMaterial.getBlock("honey_block");
+        if (mt != null) addModel(mt, MODEL_HONEY_BLOCK);
         
         // Sort to processed by flags.
         for (final Material mat : Material.values()) {

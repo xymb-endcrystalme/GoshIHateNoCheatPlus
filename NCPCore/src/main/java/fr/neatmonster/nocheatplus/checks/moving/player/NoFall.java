@@ -41,6 +41,7 @@ import fr.neatmonster.nocheatplus.compat.BridgeHealth;
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
+import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 
 /**
  * A check to see if people cheat by tricking the server to not deal them fall damage.
@@ -96,7 +97,7 @@ public class NoFall extends Check {
         // Damage to be dealt.
         final float fallDist = (float) getApplicableFallHeight(player, y, previousSetBackY, data);
         double maxD = getDamage(fallDist);
-        maxD = calcDamagewithfeatherfalling(player, maxD);
+        maxD = calcDamagewithfeatherfalling(player, calcReducedDamageByHB(player, maxD));
         fallOn(player, fallDist);
         if (maxD >= Magic.FALL_DAMAGE_MINIMUM) {
             // Check skipping conditions.
@@ -146,6 +147,13 @@ public class NoFall extends Check {
             }
         }
         return damage;
+    }
+    
+    /** Calculate the damage was reduced by HoneyBlock */
+    public static double calcReducedDamageByHB(final Player player ,final double damage) {
+    	final Material blockmat = player.getLocation().subtract(0, 0.5, 0).getBlock().getType();
+    	if ((BlockProperties.getBlockFlags(blockmat) & BlockProperties.F_STICKY) != 0) return Math.round(damage / 5);
+    	return damage;
     }
 
     /**
