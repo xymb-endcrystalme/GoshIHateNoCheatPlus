@@ -471,7 +471,7 @@ public class SurvivalFly extends Check {
                     data.watermovect = data.watermovect > 0 ? data.watermovect - 1 : 0;
                 }
             }
-            if (blockAbove == Material.AIR) {
+            if (blockAbove.name().endsWith("AIR")) {
                 //Bouncing on water
                 // !data.isVelocityJumpPhase() is very coarse, should use friction instead.
                 if (!data.isVelocityJumpPhase() && hDistanceAboveLimit <= 0D && hDistance > (Bridge1_13.hasDolphinGrace() ? 0.19D : 0.13D)
