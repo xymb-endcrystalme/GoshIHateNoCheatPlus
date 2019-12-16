@@ -695,6 +695,13 @@ public abstract class ConfPaths {
     public static final String MOVING_SURVIVALFLY_SETBACKPOLICY_FALLDAMAGE  = MOVING_SURVIVALFLY_SETBACKPOLICY + "falldamage";
     public static final String MOVING_SURVIVALFLY_SETBACKPOLICY_VOIDTOVOID  = MOVING_SURVIVALFLY_SETBACKPOLICY + "voidtovoid";
     public static final String MOVING_SURVIVALFLY_ACTIONS                   = MOVING_SURVIVALFLY + "actions";
+    private static final String MOVING_SURVIVALFLY_VLFREQUENCY              = MOVING_SURVIVALFLY_LENIENCY + "violationfrequency.";
+    public static final String MOVING_SURVIVALFLY_VLFREQUENCY_ACTIVE        = MOVING_SURVIVALFLY_VLFREQUENCY + "active";
+    public static final String MOVING_SURVIVALFLY_VLFREQUENCY_DEBUG         = MOVING_SURVIVALFLY_VLFREQUENCY + "debug";
+    public static final String MOVING_SURVIVALFLY_VLFREQUENCY_MAXTOTALVLS   = MOVING_SURVIVALFLY_VLFREQUENCY + "maxleniencyvl";
+    public static final String MOVING_SURVIVALFLY_VLFREQUENCY_MINADDEDVLS   = MOVING_SURVIVALFLY_VLFREQUENCY + "mintoadd";
+    public static final String MOVING_SURVIVALFLY_VLFREQUENCY_MOVECOUNT     = MOVING_SURVIVALFLY_VLFREQUENCY + "movecount";
+    public static final String MOVING_SURVIVALFLY_VLFREQUENCY_MOREVLS       = MOVING_SURVIVALFLY_VLFREQUENCY + "morevls";
 
     @GlobalConfig
     public static final String  MOVING_SURVIVALFLY_HOVER                    = MOVING_SURVIVALFLY + "hover.";

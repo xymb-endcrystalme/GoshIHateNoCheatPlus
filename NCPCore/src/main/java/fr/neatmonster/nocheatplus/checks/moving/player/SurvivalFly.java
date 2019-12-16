@@ -2470,7 +2470,7 @@ public class SurvivalFly extends Check {
     {
         // Increment violation level.
         data.survivalFlyVL += result;
-        data.sfVLTime = data.getPlayerMoveCount();
+        //data.sfVLTime = data.getPlayerMoveCount();
         final ViolationData vd = new ViolationData(this, player, data.survivalFlyVL, result, cc.survivalFlyActions);
         if (vd.needsParameters()) {
             vd.setParameter(ParameterName.LOCATION_FROM, String.format(Locale.US, "%.2f, %.2f, %.2f", from.getX(), from.getY(), from.getZ()));
@@ -2480,12 +2480,14 @@ public class SurvivalFly extends Check {
         }
         // Some resetting is done in MovingListener.
         if (executeActions(vd).willCancel()) {
+            data.sfVLTime = data.getPlayerMoveCount();
             // Set back + view direction of to (more smooth).
             return MovingUtil.getApplicableSetBackLocation(player, 
                     to.getYaw(), to.getPitch(), to, 
                     data, cc);
         }
         else {
+            data.sfVLTime = data.getPlayerMoveCount();
             // TODO: Evaluate how data resetting can be done minimal (skip certain things flags)?
             data.clearAccounting();
             data.sfJumpPhase = 0;
