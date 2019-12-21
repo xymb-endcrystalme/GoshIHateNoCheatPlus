@@ -79,6 +79,12 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         // Shulker boxes.
         for (Material mat : MaterialUtil.SHULKER_BOXES) {
             BlockFlags.addFlags(mat, BlockProperties.F_XZ100 | BlockFlags.SOLID_GROUND);
+            BlockProperties.setBlockProps(mat, new BlockProps(BlockProperties.woodPickaxe, 2,
+                    BlockProperties.secToMs(3.0, 1.45, 0.7, 0.45, 0.35, 0.2)));
+        }
+        
+        for (Material mat : MaterialUtil.INFESTED_BLOCKS) {
+            BlockProperties.setBlockProps(mat, BlockProperties.instantType);
         }
 
         // Stone types.
