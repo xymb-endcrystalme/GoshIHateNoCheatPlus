@@ -463,15 +463,19 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
          * Early return / adapt, if necessary.
          */
 
-        final Location from = event.getFrom();
-        final Location to = event.getTo();
+        final Location from = event.getFrom().clone();
+        final Location to = event.getTo().clone();
         Location newTo = null;
 
-        //		// Check problematic yaw/pitch values.
-        //		if (LocUtil.needsDirectionCorrection(from.getYaw(), from.getPitch())
-        //				|| LocUtil.needsDirectionCorrection(to.getYaw(), to.getPitch())) {
-        //			DataManager.getPlayerData(player).task.correctDirection();
-        //		}
+        // Check problematic yaw/pitch values.
+        if (LocUtil.needsDirectionCorrection2(from.getYaw(), from.getPitch())) {
+            from.setYaw(LocUtil.correctYaw2(from.getYaw()));
+            from.setPitch(LocUtil.correctPitch(from.getPitch()));
+        }
+        if (LocUtil.needsDirectionCorrection2(to.getYaw(), to.getPitch())) {
+            to.setYaw(LocUtil.correctYaw2(to.getYaw()));
+            to.setPitch(LocUtil.correctPitch(to.getPitch()));
+        }
 
         // TODO: Check illegal moves here anyway (!).
         // TODO: Check if vehicle move logs correctly (fake).
