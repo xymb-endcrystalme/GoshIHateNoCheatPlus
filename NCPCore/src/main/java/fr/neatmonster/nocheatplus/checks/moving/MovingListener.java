@@ -924,6 +924,11 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                     data.delayWorkaround = time;
                 }
             }
+            if (thisMove.toIsValid && data.applyexplosionvel && thisMove.yDistance < 3.0 && thisMove.yDistance > -3.0) {
+                data.applyexplosionvel = false;
+                data.addVerticalVelocity(new SimpleEntry(thisMove.yDistance, 1));
+                data.setFrictionJumpPhase();
+            }
 
             // Actual check.
             if (newTo == null) {
