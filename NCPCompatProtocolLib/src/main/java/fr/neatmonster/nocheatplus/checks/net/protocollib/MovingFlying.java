@@ -82,7 +82,7 @@ public class MovingFlying extends BaseAdapter {
                 ));
         // Add confirm teleport.
         // PacketPlayInTeleportAccept
-        PacketType confirmType = ProtocolLibComponent.findPacketTypeByName(Protocol.PLAY, Sender.CLIENT, "PacketPlayInTeleportAccept");
+        PacketType confirmType = ProtocolLibComponent.findPacketTypeByName(Protocol.PLAY, Sender.CLIENT, "TeleportAccept");
         if (confirmType != null) {
             StaticLog.logInfo("Confirm teleport packet available (via name): " + confirmType);
             types.add(confirmType);
@@ -105,7 +105,7 @@ public class MovingFlying extends BaseAdapter {
     private long packetMismatchLogFrequency = 60000; // Every minute max, good for updating :).
 
     private final HashSet<PACKET_CONTENT> validContent = new LinkedHashSet<PACKET_CONTENT>();
-    private final PacketType confirmTeleportType = ProtocolLibComponent.findPacketTypeByName(Protocol.PLAY, Sender.CLIENT, "PacketPlayInTeleportAccept");
+    private final PacketType confirmTeleportType = ProtocolLibComponent.findPacketTypeByName(Protocol.PLAY, Sender.CLIENT, "TeleportAccept");
     private boolean acceptConfirmTeleportPackets = confirmTeleportType != null;
 
     public MovingFlying(Plugin plugin) {
