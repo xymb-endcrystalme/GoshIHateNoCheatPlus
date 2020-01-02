@@ -508,19 +508,28 @@ public class SurvivalFly extends Check {
         }
 
         // Prevent players from sprinting if they're moving backwards (allow buffers to cover up !?).
-        // TODO: Will have to take a look this one later
-        if (sprinting && data.lostSprintCount == 0 && hDistance > thisMove.walkSpeed && !data.isVelocityJumpPhase() && !player.hasPotionEffect(PotionEffectType.SPEED) && (attrMod == Double.MAX_VALUE || attrMod <= 1.0)
+        if (sprinting && data.lostSprintCount == 0 
+        && hDistance > thisMove.walkSpeed * 1.002 && !data.isVelocityJumpPhase() && !thisMove.touchedGroundWorkaround
+        && !player.hasPotionEffect(PotionEffectType.SPEED) && (attrMod == Double.MAX_VALUE || attrMod <= 1.0)
         && !((from.isInWater() || isWaterlogged(from) || player.getLocation().subtract(0.0, 0.3, 0.0).getBlock().getType() == Material.WATER) && !Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player)))) {
             // (Ignore some cases, in order to prevent false positives.)
-            // TODO: speed effects ?
-            if (TrigUtil.isMovingBackwards(xDistance, zDistance, from.getYaw()) 
+            if (TrigUtil.isMovingBackwards(xDistance, zDistance, LocUtil.correctYaw(from.getYaw())) 
             && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_SPRINTING, player)) {
-                //System.out.println("bntick: " + data.bunnyhopTick + "dis:" + hDistance + ">" + thisMove.walkSpeed);
-                // (Might have to account for speeding permissions.)
-                // TODO: hDistance is too harsh?
-                hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
-                if (hDistanceAboveLimit < 0.5 && !(from.isOnGround() && to.isOnGround())) hDistanceAboveLimit =0.0;
-                tags.add("sprintback"); // Might add it anyway.
+                //System.out.println("bntick: " + data.bunnyhopTick + "dis:" + hDistance + ">" + thisMove.walkSpeed * 1.002);
+                boolean flag = false;               	
+                if (data.bunnyhopTick > 0) {
+                    double newwalkSpeed = 0.0;
+                    if (data.bunnyhopTick > 3) newwalkSpeed = thisMove.walkSpeed * 1.4; else newwalkSpeed = thisMove.walkSpeed * 1.27;
+                    if (hDistance > newwalkSpeed) flag = true;
+                } else flag = true;
+
+                if (data.bunnyhopTick == 0 && islowheigh && from.isInLiquid() && !(hDistance > thisMove.walkSpeed * 1.27)) flag = false;
+                if (flag) {
+                    // (Might have to account for speeding permissions.)
+                    // TODO: hDistance is too harsh?
+                    hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance) * 0.7;
+                    tags.add("sprintback"); // Might add it anyway.
+                }
                 }
             }
         }
