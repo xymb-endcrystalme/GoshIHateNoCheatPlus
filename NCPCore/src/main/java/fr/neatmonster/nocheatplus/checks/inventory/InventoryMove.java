@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.bukkit.GameMode;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.entity.Player;
 
@@ -38,6 +39,9 @@ public class InventoryMove extends Check {
     final PlayerMoveData lastMove = Mdata.playerMoves.getCurrentMove();
     final boolean isOnGround = lastMove.touchedGround || lastMove.from.onGround || lastMove.to.onGround;
     
+    // Dummy way to fix bug when interacting shopkeeper trader
+    final boolean a = player.getOpenInventory().getTopInventory().getType() == InventoryType.MERCHANT;
+    
     // Tags 
     if (player.isBlocking()) {
     	tags.add("isBlocking");
@@ -57,7 +61,7 @@ public class InventoryMove extends Check {
     
      // Do the actual check 
      if (player.isSneaking() || (player.isSprinting() && !Bridge1_13.isSwimming(player)) 
-     || player.isBlocking() || player.isDead() || (Bridge1_13.isSwimming(player) && !isOnGround)) {
+     || (player.isBlocking() && !a) || player.isDead() || (Bridge1_13.isSwimming(player) && !isOnGround)) {
            // Check if the player is in creative
    	   if (player.getGameMode() == GameMode.CREATIVE) {
    		   // (Skip hotbar interactions)

@@ -54,6 +54,7 @@ public class NetData extends ACheckData {
     public boolean flyingFrequencyOnGround = false;
     public long flyingFrequencyTimeOnGround = 0L;
     public long flyingFrequencyTimeNotOnGround = 0L;
+    public double diffpacketVLs = 0;
     /**
      * Monitors redundant packets, when more than 20 packets per second are
      * sent. Use System.currentTimeMillis() for time.

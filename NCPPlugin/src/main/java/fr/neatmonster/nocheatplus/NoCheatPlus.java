@@ -114,6 +114,8 @@ import fr.neatmonster.nocheatplus.hooks.NCPExemptionManager;
 import fr.neatmonster.nocheatplus.hooks.NCPHookManager;
 import fr.neatmonster.nocheatplus.hooks.allviolations.AllViolationsConfig;
 import fr.neatmonster.nocheatplus.hooks.allviolations.AllViolationsHook;
+import fr.neatmonster.nocheatplus.hooks.violationfrequency.ViolationFrequencyConfig;
+import fr.neatmonster.nocheatplus.hooks.violationfrequency.ViolationFrequencyHook;
 import fr.neatmonster.nocheatplus.logging.BukkitLogManager;
 import fr.neatmonster.nocheatplus.logging.LogManager;
 import fr.neatmonster.nocheatplus.logging.StaticLog;
@@ -233,6 +235,8 @@ public class NoCheatPlus extends JavaPlugin implements NoCheatPlusAPI {
 
     /** Hook for logging all violations. */
     private final AllViolationsHook allViolationsHook = new AllViolationsHook();
+    
+    private final ViolationFrequencyHook vlFrequencyHook = new ViolationFrequencyHook();
 
     /** Block change tracking (pistons, other). */
     private final BlockChangeTracker blockChangeTracker = new BlockChangeTracker();
@@ -704,6 +708,7 @@ public class NoCheatPlus extends JavaPlugin implements NoCheatPlusAPI {
         NCPExemptionManager.clear();
 
         // Remove hooks.
+        vlFrequencyHook.unregister();
         allViolationsHook.unregister();
         NCPHookManager.removeAllHooks();
 
@@ -1045,6 +1050,7 @@ public class NoCheatPlus extends JavaPlugin implements NoCheatPlusAPI {
 
         // Setup allViolationsHook
         allViolationsHook.setConfig(new AllViolationsConfig(config));
+        vlFrequencyHook.setConfig(new ViolationFrequencyConfig(config));
 
         //        if (config.getBoolean(ConfPaths.MISCELLANEOUS_CHECKFORUPDATES)) {
         //            // Is a new update available?
@@ -1168,6 +1174,7 @@ public class NoCheatPlus extends JavaPlugin implements NoCheatPlusAPI {
         // Cache some things. TODO: Where is this comment from !?
         // Re-setup allViolationsHook.
         allViolationsHook.setConfig(new AllViolationsConfig(config));
+        vlFrequencyHook.setConfig(new ViolationFrequencyConfig(config));
         // Set block change tracker.
         updateBlockChangeTracker(config);
     }

@@ -534,10 +534,10 @@ public class BlockProperties {
     public static long[] glassTimes = secToMs(0.45);
 
     /** The Constant gravelTimes. */
-    public static final long[] gravelTimes = secToMs(0.9, 0.45, 0.25, 0.15, 0.15, 0.1);
+    public static final long[] gravelTimes = secToMs(0.85, 0.4, 0.21, 0.1, 0.1, 0.075);
 
     /** The rails times. */
-    public static long[] railsTimes = secToMs(1.05, 0.55, 0.3, 0.2, 0.15, 0.1);
+    public static long[] railsTimes = secToMs(1.05, 0.505, 0.25, 0.15, 0.1, 0.05);
 
     /** The Constant woodTimes. */
     public static final long[] woodTimes = secToMs(3, 1.5, 0.75, 0.5, 0.4, 0.25);
@@ -554,7 +554,7 @@ public class BlockProperties {
     /** The Constant gravelType. */
     public static final BlockProps gravelType = new BlockProps(woodSpade, 0.6f, gravelTimes);
     /** Stone type blocks. */
-    public static final BlockProps stoneType = new BlockProps(woodPickaxe, 1.5f);
+    public static final BlockProps stoneType = new BlockProps(woodPickaxe, 1.45f, secToMs(7.5, 1.1, 0.55, 0.35, 0.25, 0.15));
 
     /** The Constant woodType. */
     public static final BlockProps woodType = new BlockProps(woodAxe, 2, woodTimes);
@@ -1350,15 +1350,16 @@ public class BlockProperties {
         setBlock(Material.SOUL_SAND, sandType);
         for (Material mat: new Material[]{Material.LEVER, BridgeMaterial.PISTON, 
                 BridgeMaterial.PISTON_HEAD, BridgeMaterial.STICKY_PISTON,
-                Material.STONE_BUTTON, BridgeMaterial.PISTON}) {
+                BridgeMaterial.PISTON}) {
             setBlock(mat, leverType);
         }
+        setBlock(Material.STONE_BUTTON,new BlockProps(woodPickaxe, 0.5f, secToMs(0.7, 0.35, 0.15, 0.1, 0.06, 0.05)));
         //		setBlock(Material.ICE, new BlockProps(woodPickaxe, 0.5f, secToMs(2.5, 0.4, 0.2, 0.15, 0.1, 0.1)));
         setBlock(Material.ICE, new BlockProps(woodPickaxe, 0.5f, secToMs(0.7, 0.35, 0.18, 0.12, 0.09, 0.06 )));
         setBlock(Material.DIRT, sandType);
         setBlock(BridgeMaterial.CAKE, leverType);
-        setBlock(Material.BREWING_STAND, new BlockProps(woodPickaxe, 0.5f, secToMs(2.5, 0.4, 0.2, 0.15, 0.1, 0.1)));
-        setBlock(Material.SPONGE, new BlockProps(noTool, 0.6f, secToMs(0.9)));
+        setBlock(Material.BREWING_STAND, new BlockProps(woodPickaxe, 0.5f, secToMs(2.5, 0.35, 0.175, 0.12, 0.075, 0.05)));
+        setBlock(Material.SPONGE, new BlockProps(noTool, 0.6f, secToMs(0.85)));
         for (Material mat : new Material[]{
                 BridgeMaterial.MYCELIUM, BridgeMaterial.FARMLAND,
                 Material.GRAVEL, BridgeMaterial.GRASS_BLOCK, 
@@ -1381,7 +1382,7 @@ public class BlockProperties {
                 Material.STONE, BridgeMaterial.STONE_BRICKS, 
                 BridgeMaterial.STONE_BRICK_STAIRS,
         }) {
-            setBlock(mat,  stoneType);
+            setBlock(mat, stoneType);
         }
         setBlock(Material.NOTE_BLOCK, new BlockProps(woodAxe, 0.8f, secToMs(1.2, 0.6, 0.3, 0.2, 0.15, 0.1)));
         final BlockProps pumpkinType = new BlockProps(woodAxe, 1, secToMs(1.5, 0.75, 0.4, 0.25, 0.2, 0.15));
@@ -1489,7 +1490,8 @@ public class BlockProperties {
         setBlock(BridgeMaterial.COBBLESTONE_WALL, brickType);
         setFlag(BridgeMaterial.COBBLESTONE_WALL, F_HEIGHT150);
         for (Material mat : MaterialUtil.WOODEN_BUTTONS) {
-            setBlock(mat, leverType);
+            //setBlock(mat, leverType);
+            setBlock(mat,new BlockProps(woodAxe, 0.5f, secToMs(0.7, 0.3, 0.15, 0.1, 0.06, 0.05)));
         }
         props = new BlockProps(noTool, 8.5f, secToMs(1.45));
         for (Material mat : MaterialUtil.HEADS_GROUND) {

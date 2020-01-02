@@ -57,7 +57,8 @@ public class KeepAliveAdapter extends BaseAdapter {
 
     @Override
     public void onPacketReceiving(final PacketEvent event) {
-        final long time =  System.currentTimeMillis();
+        if (event.isPlayerTemporary()) return;
+        final long time = System.currentTimeMillis();
         final Player player = event.getPlayer();
         if (player == null) {
             counters.add(ProtocolLibComponent.idNullPlayer, 1);
