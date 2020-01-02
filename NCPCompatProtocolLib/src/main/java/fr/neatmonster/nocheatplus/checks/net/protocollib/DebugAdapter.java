@@ -35,6 +35,7 @@ public class DebugAdapter extends BaseAdapter {
 
     @Override
     public void onPacketReceiving(PacketEvent event) {
+        if (event.isPlayerTemporary()) return;
         final Player player = event.getPlayer();
         if (DataManager.getPlayerDataSafe(player).isDebugActive(CheckType.NET)) {
             debug(player, "packet: " + event.getPacketType());

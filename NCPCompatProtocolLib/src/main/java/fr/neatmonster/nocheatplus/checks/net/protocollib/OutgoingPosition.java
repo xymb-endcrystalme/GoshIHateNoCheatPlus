@@ -54,7 +54,8 @@ public class OutgoingPosition extends BaseAdapter {
 
     @Override
     public void onPacketSending(PacketEvent event) {
-        if (event.isCancelled()) {
+        if (event.isPlayerTemporary()) return;
+    	if (event.isCancelled()) {
             return;
         }
         final long time = System.currentTimeMillis();

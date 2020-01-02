@@ -87,7 +87,7 @@ public class NoSlow extends BaseAdapter {
         }
     };
 	
-	private static int timeBetweenRL = 53;
+	private static int timeBetweenRL = 70;
 	private static PacketType[] initPacketTypes() {
         final List<PacketType> types = new LinkedList<PacketType>(Arrays.asList(
         		PacketType.Play.Client.BLOCK_DIG
@@ -105,7 +105,8 @@ public class NoSlow extends BaseAdapter {
 	
 	@Override
     public void onPacketReceiving(final PacketEvent event) {
-		handleDiggingPacket(event);
+        if (event.isPlayerTemporary()) return;
+        handleDiggingPacket(event);
     }
 	
 	private static void onItemConsume(final PlayerItemConsumeEvent e){

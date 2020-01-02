@@ -123,6 +123,7 @@ public class UseEntityAdapter extends BaseAdapter {
 
     @Override
     public void onPacketReceiving(final PacketEvent event) {
+        if (event.isPlayerTemporary()) return;
         final long time = System.currentTimeMillis();
         final Player player = event.getPlayer();
         if (player == null) {

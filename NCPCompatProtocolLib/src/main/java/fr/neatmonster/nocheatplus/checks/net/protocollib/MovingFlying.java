@@ -129,7 +129,7 @@ public class MovingFlying extends BaseAdapter {
 
     @Override
     public void onPacketReceiving(final PacketEvent event) {
-
+        if (event.isPlayerTemporary()) return;
         if (event.getPacketType().equals(confirmTeleportType)) {
             if (acceptConfirmTeleportPackets) {
                 onConfirmTeleportPacket(event);
