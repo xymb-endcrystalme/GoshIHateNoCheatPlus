@@ -687,6 +687,14 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
                 attacker = (Player) source;
             }
         }
+		if (damagedPlayer != null && !damagedIsDead && (damageCause == DamageCause.BLOCK_EXPLOSION 
+                || damageCause == DamageCause.ENTITY_EXPLOSION)) {
+            final IPlayerData dpdata = DataManager.getPlayerData(damagedPlayer);
+            if (dpdata != null) {
+                MovingData data = dpdata.getGenericInstance(MovingData.class);
+                data.applyexplosionvel = true;
+            }
+        }
         final FightData attackerData;
         final IPlayerData attackerPData = attacker == null ? null : DataManager.getPlayerData(attacker);
         if (attacker != null) {

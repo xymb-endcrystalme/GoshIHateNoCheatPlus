@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -34,6 +35,7 @@ import com.comphenix.protocol.reflect.StructureModifier;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.checks.CheckType;
+import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.net.FlyingFrequency;
 import fr.neatmonster.nocheatplus.checks.net.NetConfig;
 import fr.neatmonster.nocheatplus.checks.net.NetData;
@@ -41,6 +43,7 @@ import fr.neatmonster.nocheatplus.checks.net.model.DataPacketFlying;
 import fr.neatmonster.nocheatplus.checks.net.model.DataPacketFlying.PACKET_CONTENT;
 import fr.neatmonster.nocheatplus.checks.net.model.TeleportQueue.AckReference;
 import fr.neatmonster.nocheatplus.compat.AlmostBoolean;
+import fr.neatmonster.nocheatplus.compat.BridgeMisc;
 import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.logging.Streams;
 import fr.neatmonster.nocheatplus.players.DataManager;
@@ -50,6 +53,7 @@ import fr.neatmonster.nocheatplus.utilities.CheckUtils;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
 import fr.neatmonster.nocheatplus.utilities.ds.count.ActionFrequency;
 import fr.neatmonster.nocheatplus.utilities.location.LocUtil;
+import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
 import fr.neatmonster.nocheatplus.worlds.IWorldData;
 
 /**
@@ -72,6 +76,8 @@ public class MovingFlying extends BaseAdapter {
     public static final int indexStance = 3;
     public static final int indexYaw = 0;
     public static final int indexPitch = 1;
+    
+    private final Plugin plugin = Bukkit.getPluginManager().getPlugin("NoCheatPlus");
 
     private static PacketType[] initPacketTypes() {
         final List<PacketType> types = new LinkedList<PacketType>(Arrays.asList(
@@ -222,6 +228,52 @@ public class MovingFlying extends BaseAdapter {
                     debug(player, "Incoming packet, cancel due to malicious content: " + packetData.toString());
                 }
                 return;
+            }
+            
+            // TODO: Should let it here?
+            // Work as ExtremeMove but for packet sent!
+            if (packetData.hasPos) {
+            	final MovingData Mdata = pData.getGenericInstance(MovingData.class);
+            	final Location loc1 = player.getLocation();
+            	final Location loc2 = new Location(null, packetData.getX(), packetData.getY(), packetData.getZ());
+            	final double xzdist = TrigUtil.distance(loc1, loc2);
+            	final double amount = xzdist - Mdata.getHorizontalFreedom();
+            	final double ydist = Math.abs(loc1.getY() - loc2.getY());
+            	final boolean allowVerticalVelocity = true; // TODO: Configurable
+            	final boolean allowHorizontalVelocity = true; // TODO: Configurable
+
+                // Vertical move.
+                if (ydist > 100.0 && !(allowVerticalVelocity && Mdata.getOrUseVerticalVelocity(ydist) != null)) {
+                    ++data.diffpacketVLs;
+                }
+                // Horizontal move.
+                else if (amount > 100.0 && !(allowHorizontalVelocity && Mdata.useHorizontalVelocity(amount) >= amount)) {
+                    ++data.diffpacketVLs;
+                } else data.diffpacketVLs *= 0.98;
+
+                if (data.diffpacketVLs > 7) {
+                    cancel = true;
+                }
+                if (data.diffpacketVLs > 15) {
+                    // Player might be freezed by canceling, set back might turn it to normal
+                	
+                    data.diffpacketVLs = 0.0;
+                    int task = -1;
+                    task = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, 
+                           (Runnable)new Runnable() {
+                                @Override
+                                public void run() {
+                                    // Mask player teleport as a set back.
+                                	Mdata.prepareSetBack(loc1);
+                                	player.teleport(LocUtil.clone(loc1), 
+                                            BridgeMisc.TELEPORT_CAUSE_CORRECTION_OF_POSITION);
+                                }
+                            });
+                    if (task == -1) {
+                        NCPAPIProvider.getNoCheatPlusAPI().getLogManager().warning(Streams.STATUS, "Failed to schedule set back task. Player: " + player.getName() + " , set back: " + loc1);
+                    }
+                    Mdata.resetTeleported(); // Cleanup, just in case.
+                }
             }
             switch(data.teleportQueue.processAck(packetData)) {
                 case WAITING: {

@@ -245,6 +245,16 @@ public class LocUtil {
     }
 
     /**
+     * Quick out of bounds check for yaw (-360 < yaw < 360).
+     * 
+     * @param yaw
+     * @return
+     */
+    public static final boolean needsYawCorrection2(final float yaw) {
+        return Float.isNaN(yaw) || yaw <= -360f || yaw >= 360f;
+    }
+
+    /**
      * Quick out of bounds check for yaw.
      * 
      * @param yaw
@@ -309,6 +319,17 @@ public class LocUtil {
     }
 
     /**
+     * Quick out of bounds check for yaw and pitch.
+     * 
+     * @param yaw
+     * @param pitch
+     * @return
+     */
+    public static final boolean needsDirectionCorrection2(final float yaw, final float pitch) {
+        return needsYawCorrection2(yaw) || needsPitchCorrection(pitch);
+    }
+
+    /**
      * Ensure 0 <= yaw < 360.
      * 
      * @param yaw
@@ -335,6 +356,25 @@ public class LocUtil {
                     yaw += 360f;
                 }
             }
+        }
+        return yaw;
+    }
+
+    /**
+     * Ensure -360 < yaw < 360.
+     * 
+     * @param yaw
+     * @return
+     */
+    public static final float correctYaw2(float yaw) {
+        if (Float.isNaN(yaw) || yaw == Float.NEGATIVE_INFINITY || yaw == Float.POSITIVE_INFINITY) {
+            return 0f;
+        }
+        if (yaw >= 360f) {
+            yaw -= 360f * Math.floor(yaw / 360f);
+        }
+        if (yaw <= -360f) {
+            yaw -= 360f * Math.ceil(yaw / 360f);
         }
         return yaw;
     }
