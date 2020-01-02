@@ -63,6 +63,7 @@ import fr.neatmonster.nocheatplus.utilities.CheckUtils;
 import fr.neatmonster.nocheatplus.utilities.PotionUtil;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
 import fr.neatmonster.nocheatplus.utilities.ds.count.ActionAccumulator;
+import fr.neatmonster.nocheatplus.utilities.location.LocUtil;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
@@ -548,6 +549,12 @@ public class SurvivalFly extends Check {
             // TODO: Which of (fromOnGround || data.noFallAssumeGround || lastMove.toIsValid && lastMove.yDistance < 0.0)?
             vAllowedDistance = cc.sfStepHeight;
         }
+        else if (ShouldApplyHBSpeed(from)) {
+            final Double Amplifier = PotionUtil.getPotionEffectAmplifier(from.getPlayer(), PotionEffectType.JUMP);
+            vAllowedDistance = 0.21 * (Double.isInfinite(Amplifier) ? 1.0 : 1.0 + 0.48*(Amplifier +1));
+            if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) vAllowedDistance = 1.5;
+            vDistanceAboveLimit = thisMove.yDistance - vAllowedDistance;
+        }
         else if (from.isInWeb()) {
             // TODO: Further confine conditions.
             final double[] res = vDistWeb(player, thisMove, toOnGround, hDistanceAboveLimit, now,data,cc,from);
@@ -997,6 +1004,12 @@ public class SurvivalFly extends Check {
         	hAllowedDistance = Magic.modSoulSand * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
         	useBaseModifiers = true;
         }
+        else if (ShouldApplyHBSpeed(from)) {
+            if (!thisMove.to.onGround) 
+            hAllowedDistance = Magic.modSoulSand * 1.75 * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D; else
+            hAllowedDistance = Magic.modSoulSand * 0.8 * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+            useBaseModifiers = true;
+		}
         else if (thisMove.from.inLiquid && thisMove.to.inLiquid) {
             // Check all liquids (lava might demand even slower speed though).
             // TODO: Test how to go with only checking from (less dolphins).
@@ -1075,7 +1088,7 @@ public class SurvivalFly extends Check {
                 } else if (data.bunnyhopTick > 0) {
                 	if (data.bunnyhopTick < 3) hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D * 1.1; 
                 	else hAllowedDistance = Magic.modSprint * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
-					if (snowFix && data.bunnyhopTick > 5) hAllowedDistance *= 1.6;
+                	if (snowFix && data.bunnyhopTick > 5) hAllowedDistance *= 1.6;
                 	data.bunnyhopTick--;
                 } else                
             	hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
@@ -1184,7 +1197,11 @@ public class SurvivalFly extends Check {
         return thisMove.hAllowedDistance;
     }
 
-    /**
+    private boolean ShouldApplyHBSpeed(PlayerLocation from) {
+        return (BlockProperties.getBlockFlags(from.getTypeId()) & BlockProperties.F_STICKY) !=0;
+    }
+
+	/**
      * Return a 'corrected' allowed horizontal speed. Call only if the player
      * has a SLOW effect.
      * 
@@ -1460,9 +1477,12 @@ public class SurvivalFly extends Check {
                     //Slime
                     data.setFrictionJumpPhase();
                 }
-                // Need more testing
                 else if (isCollideWithHB(from, to, data) && yDistance < -0.125 && yDistance > -0.128) {
 
+                }
+                else if (Bridge1_13.hasIsSwimming() && data.sfJumpPhase == 7 && yDistance < -0.02 && yDistance > -0.2) {
+                    //Weird 1.13 and upper version fly bug when tower 1 block and break it to fall down
+                    
                 }
                 else {
                     // Violation.
