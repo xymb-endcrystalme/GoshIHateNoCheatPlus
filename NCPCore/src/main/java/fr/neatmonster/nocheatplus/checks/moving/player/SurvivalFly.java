@@ -343,9 +343,13 @@ public class SurvivalFly extends Check {
 
         // Handle ice.
         // TODO: Re-model ice stuff and other (e.g. general thing: ground-modifier + reset conditions).
-        if (thisMove.from.onIce && !thisMove.to.onIce) {
+        //0: Jump
+        if ((thisMove.from.onIce && !thisMove.to.onIce && !data.sfLowJump) 
+           //0: Jump with head obstructed
+           || (thisMove.headObstructed && thisMove.yDistance > 0.15 && lastMove.from.onIce)
+           ) {
             // TODO: 1. Test if this can simply be removed. 2. Ensure data.sfOnIce resets with a violation.
-            data.sfOnIce = 12;
+            data.sfOnIce = 20;
         }
         else if (data.sfOnIce > 0) {
             // TODO: Here some friction might apply, could become a general thing with bunny and other.
@@ -1133,8 +1137,12 @@ public class SurvivalFly extends Check {
         }
 
         // If the player is on ice, give them a higher maximum speed.
-        if (data.sfOnIce > 0) {
+        if (data.sfOnIce > 9) {
             hAllowedDistance *= Magic.modIce;
+            if (data.bunnyhopTick > 3) hAllowedDistance *= 1.25;
+            else if (data.bunnyhopTick > 0) hAllowedDistance *= 1.1;
+        } else if (data.sfOnIce > 0) {
+            hAllowedDistance *= 1.0 + 0.025 * data.sfOnIce;
         }
 
         // Speeding bypass permission (can be combined with other bypasses).
