@@ -72,7 +72,6 @@ public enum CheckType {
 
     FIGHT(CheckTypeType.CHECK, CheckType.ALL, Permissions.FIGHT),
     FIGHT_ANGLE(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_ANGLE),
-    FIGHT_CLICKPATTERN(CheckTypeType.CHECK, FIGHT),
     FIGHT_CRITICAL(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_CRITICAL),
     FIGHT_DIRECTION(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_DIRECTION),
     FIGHT_FASTHEAL(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_FASTHEAL),
@@ -107,7 +106,6 @@ public enum CheckType {
 
     NET(CheckTypeType.GROUP, CheckType.ALL, Permissions.NET),
     NET_ATTACKFREQUENCY(CheckTypeType.CHECK, NET, Permissions.NET_ATTACKFREQUENCY),
-    NET_FIGHTSYNC(CheckTypeType.CHECK, NET, Permissions.NET_FLYINGFREQUENCY),
     NET_FLYINGFREQUENCY(CheckTypeType.CHECK, NET, Permissions.NET_FLYINGFREQUENCY),
     NET_KEEPALIVEFREQUENCY(CheckTypeType.CHECK, NET, Permissions.NET_KEEPALIVEFREQUENCY),
     NET_PACKETFREQUENCY(CheckTypeType.CHECK, NET, Permissions.NET_PACKETFREQUENCY),

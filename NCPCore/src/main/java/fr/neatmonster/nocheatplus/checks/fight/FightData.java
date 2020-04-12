@@ -35,7 +35,6 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
 
     // Violation levels.
     public double                  angleVL;
-    public double                  clickPatternVL;
     public double                  criticalVL;
     public double                  directionVL;
     public double                  fastHealVL;
@@ -140,8 +139,6 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
                     angleVL = 0;
                     angleHits.clear();
                     break;
-                case FIGHT_CLICKPATTERN:
-                	clickPatternVL = 0;
                 case FIGHT_SPEED:
                     speedVL = 0;
                     speedBuckets.clear(System.currentTimeMillis());
