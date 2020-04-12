@@ -285,9 +285,12 @@ public abstract class ConfPaths {
     private static final String BLOCKPLACE_REACH                         = BLOCKPLACE + "reach.";
     public static final String  BLOCKPLACE_REACH_CHECK                   = BLOCKPLACE_REACH + SUB_ACTIVE;
     public static final String  BLOCKPLACE_REACH_ACTIONS                 = BLOCKPLACE_REACH + "actions";
-    
+
     private static final String BLOCKPLACE_SCAFFOLD                      = BLOCKPLACE + "scaffold.";
     public static final String  BLOCKPLACE_SCAFFOLD_CHECK                = BLOCKPLACE_SCAFFOLD + SUB_ACTIVE;
+    public static final String  BLOCKPLACE_SCAFFOLD_ANGLE                = BLOCKPLACE_SCAFFOLD + "angle";
+    public static final String  BLOCKPLACE_SCAFFOLD_TIME                 = BLOCKPLACE_SCAFFOLD + "time";
+    public static final String  BLOCKPLACE_SCAFFOLD_SPRINT               = BLOCKPLACE_SCAFFOLD + "sprint";
     public static final String  BLOCKPLACE_SCAFFOLD_ACTIONS              = BLOCKPLACE_SCAFFOLD + "actions";
 
     private static final String BLOCKPLACE_SPEED                         = BLOCKPLACE + "speed.";
@@ -483,13 +486,13 @@ public abstract class ConfPaths {
     public static final String  FIGHT_ANGLE_THRESHOLD_YAW                = FIGHT_ANGLE_THRESHOLD + "average_yaw";
     public static final String  FIGHT_ANGLE_THRESHOLD_SWITCH             = FIGHT_ANGLE_THRESHOLD + "average_switch";
     public static final String  FIGHT_ANGLE_ACTIONS                      = FIGHT_ANGLE + "actions";
-    
+
     private static final String FIGHT_CLICKPATTERN                       = FIGHT + "clickpattern.";
     public static final String  FIGHT_CLICKPATTERN_CHECK                 = FIGHT_CLICKPATTERN + SUB_ACTIVE;
     public static final String  FIGHT_CLICKPATTERN_RANGE                 = FIGHT_CLICKPATTERN + "range";
     public static final String  FIGHT_CLICKPATTERN_PENALTY               = FIGHT_CLICKPATTERN + "penalty";
     public static final String  FIGHT_CLICKPATTERN_ACTIONS               = FIGHT_CLICKPATTERN + "actions";
-    
+
     private static final String FIGHT_CRITICAL                           = FIGHT + "critical.";
     public static final String  FIGHT_CRITICAL_CHECK                     = FIGHT_CRITICAL + SUB_ACTIVE;
     // TODO: Deprecate or rename (->falldistancemin)?
@@ -616,7 +619,7 @@ public abstract class ConfPaths {
     // TODO: close and cancelother on open-section-level are temporary.
     public static final  String INVENTORY_OPEN_CLOSE                     = INVENTORY_OPEN + "close";
     public static final  String INVENTORY_OPEN_CANCELOTHER               = INVENTORY_OPEN + "cancelother";
-    
+
     public static final  String INVENTORY_INVENTORYMOVE                  = INVENTORY + "inventorymove.";
     public static final  String INVENTORY_INVENTORYMOVE_CHECK            = INVENTORY_INVENTORYMOVE + SUB_ACTIVE;
     public static final  String INVENTORY_INVENTORYMOVE_DISABLECREATIVE  = INVENTORY_INVENTORYMOVE + "disable_creative";
@@ -777,7 +780,7 @@ public abstract class ConfPaths {
     private static final String NET_ATTACKFREQUENCY_IMPROBABLE              = NET_ATTACKFREQUENCY + "improbable.";
     public static final String  NET_ATTACKFREQUENCY_IMPROBABLE_WEIGHT       = NET_ATTACKFREQUENCY_IMPROBABLE + "weight";
     public static final String  NET_ATTACKFREQUENCY_ACTIONS                 = NET_ATTACKFREQUENCY + "actions";
-    
+
     private static final String NET_FIGHTSYNC                               = NET + "fightsync.";
     public static final String  NET_FIGHTSYNC_ACTIVE                        = NET_FIGHTSYNC + SUB_ACTIVE;
     public static final String  NET_FIGHTSYNC_THRESHOLD                     = NET_FIGHTSYNC + "threshold";

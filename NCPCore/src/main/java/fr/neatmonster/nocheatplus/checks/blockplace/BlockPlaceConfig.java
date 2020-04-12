@@ -50,8 +50,11 @@ public class BlockPlaceConfig extends ACheckConfig {
     public final ActionList noSwingActions;
 
     public final ActionList reachActions;
-    
+
     public final ActionList scaffoldActions;
+    public final boolean scaffoldAngle;
+    public final boolean scaffoldTime;
+    public final boolean scaffoldSprint;
 
     public final long       speedInterval;
     public final boolean    speedImprobableFeedOnly;
@@ -90,8 +93,11 @@ public class BlockPlaceConfig extends ACheckConfig {
         noSwingActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_NOSWING_ACTIONS, Permissions.BLOCKPLACE_NOSWING);
 
         reachActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_REACH_ACTIONS, Permissions.BLOCKPLACE_REACH);
-        
+
         scaffoldActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, Permissions.BLOCKPLACE_REACH);
+        scaffoldAngle = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_ANGLE);
+        scaffoldTime = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME);
+        scaffoldSprint = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_SPRINT);
 
         speedInterval = config.getLong(ConfPaths.BLOCKPLACE_SPEED_INTERVAL);
         speedImprobableFeedOnly = config.getBoolean(ConfPaths.BLOCKPLACE_SPEED_IMPROBABLE_FEEDONLY);

@@ -14,6 +14,8 @@
  */
 package fr.neatmonster.nocheatplus.checks.blockplace;
 
+import java.util.ArrayList;
+
 import fr.neatmonster.nocheatplus.checks.access.ACheckData;
 import fr.neatmonster.nocheatplus.utilities.ds.count.ActionFrequency;
 
@@ -36,6 +38,14 @@ public class BlockPlaceData extends ACheckData {
     public long autoSignPlacedTime = 0;
     /** Using Material.SIGN . */
     public long autoSignPlacedHash = 0;
+
+    // Scaffold data
+    public long lastPlaceTime = 0;
+	public  long lastPlaceAvg = 0;
+	public ArrayList<Long> placeTime = new ArrayList<Long>();
+	public long sneakTime = 0;
+	public long sprintTime = 0;
+	public boolean cancelNextPlace = false;
 
     // Data of the fast place check.
     public final ActionFrequency fastPlaceBuckets	= new ActionFrequency(2, 1000);

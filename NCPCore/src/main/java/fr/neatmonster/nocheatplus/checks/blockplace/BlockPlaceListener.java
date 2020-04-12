@@ -34,6 +34,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
@@ -114,7 +115,7 @@ public class BlockPlaceListener extends CheckListener {
 
 	/** The scaffold check. */
     private final Scaffold   Scaffold = addCheck(new Scaffold());
-	
+
 	/** The speed check. */
     private final Speed     speed     = addCheck(new Speed());
 
@@ -201,6 +202,12 @@ public class BlockPlaceListener extends CheckListener {
         int skippedRedundantChecks = 0;
         final boolean debug = pData.isDebugActive(CheckType.BLOCKPLACE);
 
+        final BlockFace placedFace = event.getBlock().getFace(event.getBlockAgainst());
+		final Block blockPlaced = event.getBlockPlaced();
+		// TODO: change to distsquared for possible performance boost
+		final double distance = player.getLocation().distance(blockPlaced.getLocation());
+		boolean shouldCheck = false;
+
         final boolean shouldSkipSome;
         if (blockMultiPlaceEvent != null && event.getClass() == blockMultiPlaceEvent) {
             if (placedMat == Material.BEDROCK 
@@ -253,6 +260,24 @@ public class BlockPlaceListener extends CheckListener {
             cancelled = true;
         }
 
+        switch (placedFace) {
+		case NORTH:
+		case SOUTH:
+		case EAST:
+		case WEST:
+			shouldCheck = true;
+			break;
+		default:
+			shouldCheck = false;
+			break;
+		}
+
+		if (Scaffold.isEnabled(player, pData) && player.getLocation().getY() - blockPlaced.getY() < 2D && blockPlaced.getType().isSolid() && shouldCheck && distance < 2D) {
+
+			cancelled = Scaffold.check(player, placedFace, pData, data, cc);
+
+		}
+
         final FlyingQueueHandle flyingHandle;
         final boolean reachCheck = pData.isCheckActive(CheckType.BLOCKPLACE_REACH, player);
         final boolean directionCheck = pData.isCheckActive(CheckType.BLOCKPLACE_DIRECTION, player);
@@ -269,6 +294,7 @@ public class BlockPlaceListener extends CheckListener {
                     cancelled = true;
                 }
             }
+
 
             // Direction check.
             if (!cancelled && !shouldSkipSome) {
@@ -405,33 +431,6 @@ public class BlockPlaceListener extends CheckListener {
                 event.setCancelled(true);
             }
         }
-    }
-	
-	/**
-	* Listens for PlayerInteract events to check for their target block face vs their 
-	* attempted block face. This is used for the scaffold check.
-	*/
-	@EventHandler(priority = EventPriority.MONITOR)
-    public void placeBlock(PlayerInteractEvent event) {
-		if (ServerVersion.compareMinecraftVersion("1.8") < 0) return;
-    	if (!Scaffold.isEnabled(event.getPlayer())) return;
-    	
-    	Player player = event.getPlayer();
-    
-    	if (event.getAction() != Action.RIGHT_CLICK_BLOCK || !event.isBlockInHand() || player.isFlying() && player.getAllowFlight() || player.isSneaking()) return;
-    	Block targetBlock = player.getTargetBlock((Set<Material>) null, 7);
-    	if (targetBlock.isLiquid()) return;
-	
-    	List<Block> lastTarget = player.getLastTwoTargetBlocks((Set<Material>) null, 7);
-    	BlockFace blockFace = event.getBlockFace();
-		
-		if (targetBlock.getY() != player.getLocation().subtract(0, 1, 0).getY()) return;
-    	
-    	final IPlayerData pData = DataManager.getPlayerData(player);
-    	final BlockPlaceData data = pData.getGenericInstance(BlockPlaceData.class);
-    	if (Scaffold.check(player, targetBlock, lastTarget, blockFace, pData, data)) {
-    		event.setCancelled(true);
-    	}
     }
 
     private void checkBoatsAnywhere(final Player player, final PlayerInteractEvent event, 
@@ -573,4 +572,19 @@ public class BlockPlaceListener extends CheckListener {
         // Cleanup.
         useLoc.setWorld(null);
     }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onMove(PlayerMoveEvent event) {
+    	Player player = event.getPlayer();
+    	final IPlayerData pData = DataManager.getPlayerData(player);
+        final BlockPlaceData data = pData.getGenericInstance(BlockPlaceData.class);
+
+        if (player.isSprinting()) {
+        	data.sprintTime = System.currentTimeMillis();
+        } else if (player.isSneaking()) {
+        	data.sneakTime = System.currentTimeMillis();
+        }
+
+    }
+
 }
