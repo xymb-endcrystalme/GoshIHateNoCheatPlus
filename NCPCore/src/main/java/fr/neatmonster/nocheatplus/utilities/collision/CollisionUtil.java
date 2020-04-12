@@ -14,8 +14,12 @@
  */
 package fr.neatmonster.nocheatplus.utilities.collision;
 
+import java.util.List;
+
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -196,9 +200,9 @@ public class CollisionUtil {
      *            the angle precision
      * @return the double
      */
-    public static double combinedDirectionCheck(final Location sourceFoot, final double eyeHeight, final Vector dir, final double targetX, final double targetY, final double targetZ, final double targetWidth, final double targetHeight, final double precision, final double anglePrecision)
+    public static double combinedDirectionCheck(final Location sourceFoot, final double eyeHeight, final Vector dir, final double targetX, final double targetY, final double targetZ, final double targetWidth, final double targetHeight, final double precision, final double anglePrecision, boolean isPlayer)
     {
-        return combinedDirectionCheck(sourceFoot.getX(), sourceFoot.getY() + eyeHeight, sourceFoot.getZ(), dir.getX(), dir.getY(), dir.getZ(), targetX, targetY, targetZ, targetWidth, targetHeight, precision, anglePrecision);					
+        return combinedDirectionCheck(sourceFoot.getX(), sourceFoot.getY() + eyeHeight, sourceFoot.getZ(), dir.getX(), dir.getY(), dir.getZ(), targetX, targetY, targetZ, targetWidth, targetHeight, precision, anglePrecision, isPlayer);					
     }
 
     /**
@@ -220,7 +224,7 @@ public class CollisionUtil {
      */
     public static double combinedDirectionCheck(final Location sourceFoot, final double eyeHeight, final Vector dir, final Block target, final double precision, final double anglePrecision)
     {
-        return combinedDirectionCheck(sourceFoot.getX(), sourceFoot.getY() + eyeHeight, sourceFoot.getZ(), dir.getX(), dir.getY(), dir.getZ(), target.getX(), target.getY(), target.getZ(), 1, 1, precision, anglePrecision);
+        return combinedDirectionCheck(sourceFoot.getX(), sourceFoot.getY() + eyeHeight, sourceFoot.getZ(), dir.getX(), dir.getY(), dir.getZ(), target.getX(), target.getY(), target.getZ(), 1, 1, precision, anglePrecision, true);
     }
 
     /**
@@ -255,7 +259,7 @@ public class CollisionUtil {
      *            Precision in grad.
      * @return the double
      */
-    public static double combinedDirectionCheck(final double sourceX, final double sourceY, final double sourceZ, final double dirX, final double dirY, final double dirZ, final double targetX, final double targetY, final double targetZ, final double targetWidth, final double targetHeight, final double blockPrecision, final double anglePrecision)
+    public static double combinedDirectionCheck(final double sourceX, final double sourceY, final double sourceZ, final double dirX, final double dirY, final double dirZ, final double targetX, final double targetY, final double targetZ, final double targetWidth, final double targetHeight, final double blockPrecision, final double anglePrecision, final boolean isPlayer)
     {
         double dirLength = Math.sqrt(dirX * dirX + dirY * dirY + dirZ * dirZ);
         if (dirLength == 0.0) dirLength = 1.0; // ...
@@ -265,9 +269,10 @@ public class CollisionUtil {
         final double dZ = targetZ - sourceZ;
 
         final double targetDist = Math.sqrt(dX * dX + dY * dY + dZ * dZ);
+        final double minDist = isPlayer ? Math.max(targetHeight, targetWidth) / 2.0 : Math.max(targetHeight, targetWidth);
 
-        if (targetDist > Math.max(targetHeight, targetWidth) / 2.0 && TrigUtil.angle(sourceX, sourceY, sourceZ, dirX, dirY, dirZ, targetX, targetY, targetZ) * TrigUtil.fRadToGrad > anglePrecision){
-            return targetDist - Math.max(targetHeight, targetWidth) / 2.0;
+        if (targetDist > minDist && TrigUtil.angle(sourceX, sourceY, sourceZ, dirX, dirY, dirZ, targetX, targetY, targetZ) * TrigUtil.fRadToGrad > anglePrecision){
+        	return targetDist - minDist;
         }
 
         final double xPrediction = targetDist * dirX / dirLength;
@@ -473,6 +478,15 @@ public class CollisionUtil {
      */
     public static double axisDistance(final double pos, final double minPos, final double maxPos) {
         return pos < minPos ? Math.abs(pos - minPos) : (pos > maxPos ? Math.abs(pos - maxPos) : 0.0);
+    }
+	
+	public static boolean isCollidingWithEntities(final Player p, final boolean onlylivingenitites) {
+        if (onlylivingenitites) {
+            List<Entity> entities = p.getNearbyEntities(0.15, 0.2, 0.15);
+            entities.removeIf(e -> !(e instanceof LivingEntity));
+            return !entities.isEmpty();
+        }
+        return !p.getNearbyEntities(0.15, 0.15, 0.15).isEmpty();
     }
 
 }

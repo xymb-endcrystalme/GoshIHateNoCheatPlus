@@ -97,6 +97,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int            liqtick = 0;
     public int            watermovect = 0;
     public int            bunnyhopDelay;
+	public int            lastbunnyhopDelay = 0;
     public int            bunnyhopTick = 0;
     public double         jumpAmplifier = 0;
     public long           delayWorkaround = 0;
@@ -123,7 +124,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public boolean isusingitem = false;
     public long time_rl_item = 0;
     public boolean isHackingRI = false;
-    public boolean noslownostrict = false;
+    public int noslowhop = 0;
 
     /** Count set back (re-) setting. */
     private int playerMoveCount = 0;
@@ -172,6 +173,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
 
     /** Duration of the boost effect in ticks. */
     public int fireworksBoostDuration = 0;
+	public int fireworksBoostTickNeedCheck = 0;
     /**
      * Expire at this tick.
      */

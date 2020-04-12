@@ -285,7 +285,7 @@ public abstract class ConfPaths {
     private static final String BLOCKPLACE_REACH                         = BLOCKPLACE + "reach.";
     public static final String  BLOCKPLACE_REACH_CHECK                   = BLOCKPLACE_REACH + SUB_ACTIVE;
     public static final String  BLOCKPLACE_REACH_ACTIONS                 = BLOCKPLACE_REACH + "actions";
-
+    
     private static final String BLOCKPLACE_SCAFFOLD                      = BLOCKPLACE + "scaffold.";
     public static final String  BLOCKPLACE_SCAFFOLD_CHECK                = BLOCKPLACE_SCAFFOLD + SUB_ACTIVE;
     public static final String  BLOCKPLACE_SCAFFOLD_ANGLE                = BLOCKPLACE_SCAFFOLD + "angle";
@@ -486,7 +486,7 @@ public abstract class ConfPaths {
     public static final String  FIGHT_ANGLE_THRESHOLD_YAW                = FIGHT_ANGLE_THRESHOLD + "average_yaw";
     public static final String  FIGHT_ANGLE_THRESHOLD_SWITCH             = FIGHT_ANGLE_THRESHOLD + "average_switch";
     public static final String  FIGHT_ANGLE_ACTIONS                      = FIGHT_ANGLE + "actions";
-
+    
     private static final String FIGHT_CRITICAL                           = FIGHT + "critical.";
     public static final String  FIGHT_CRITICAL_CHECK                     = FIGHT_CRITICAL + SUB_ACTIVE;
     // TODO: Deprecate or rename (->falldistancemin)?
@@ -549,11 +549,7 @@ public abstract class ConfPaths {
     public static final String  FIGHT_SPEED_IMPROBABLE_FEEDONLY          = FIGHT_SPEED_IMPROBABLE + "feedonly";
     public static final String  FIGHT_SPEED_IMPROBABLE_WEIGHT            = FIGHT_SPEED_IMPROBABLE + "weight";
     public static final String  FIGHT_SPEED_ACTIONS                      = FIGHT_SPEED + "actions";
-
-    private static final String FIGHT_WRONGTURN                          = FIGHT + "wrongturn.";
-    public static final String  FIGHT_WRONGTURN_CHECK                    = FIGHT_WRONGTURN + SUB_ACTIVE;
-    public static final String  FIGHT_WRONGTURN_ACTIONS                  = FIGHT_WRONGTURN + "actions";
-
+    
     private static final String FIGHT_YAWRATE                            = FIGHT + "yawrate.";
     public static final String  FIGHT_YAWRATE_CHECK                      = FIGHT_YAWRATE + SUB_ACTIVE;
 
@@ -613,7 +609,7 @@ public abstract class ConfPaths {
     // TODO: close and cancelother on open-section-level are temporary.
     public static final  String INVENTORY_OPEN_CLOSE                     = INVENTORY_OPEN + "close";
     public static final  String INVENTORY_OPEN_CANCELOTHER               = INVENTORY_OPEN + "cancelother";
-
+    
     public static final  String INVENTORY_INVENTORYMOVE                  = INVENTORY + "inventorymove.";
     public static final  String INVENTORY_INVENTORYMOVE_CHECK            = INVENTORY_INVENTORYMOVE + SUB_ACTIVE;
     public static final  String INVENTORY_INVENTORYMOVE_DISABLECREATIVE  = INVENTORY_INVENTORYMOVE + "disable_creative";
@@ -633,6 +629,8 @@ public abstract class ConfPaths {
     public static final String  MOVING_CREATIVEFLY_IGNOREALLOWFLIGHT     = MOVING_CREATIVEFLY + "ignoreallowflight";
     public static final String  MOVING_CREATIVEFLY_MODEL                 = MOVING_CREATIVEFLY + SUB_MODEL + ".";
     public static final String  MOVING_CREATIVEFLY_ACTIONS               = MOVING_CREATIVEFLY + "actions";
+	public static final String  MOVING_CREATIVEFLY_EYTRA_FWRESET         = MOVING_CREATIVEFLY_MODEL + "elytra.resetFwOnground";
+    public static final String  MOVING_CREATIVEFLY_EYTRA_STRICT          = MOVING_CREATIVEFLY_MODEL + "elytra.strict";
 
     private static final String MOVING_MOREPACKETS                       = MOVING + "morepackets.";
     public static final String  MOVING_MOREPACKETS_CHECK                 = MOVING_MOREPACKETS + SUB_ACTIVE;
@@ -808,6 +806,10 @@ public abstract class ConfPaths {
     private static final String NET_SUPERSEDED                              = NET + "superseded.";
     private static final String NET_SUPERSEDED_FLYING                       = NET_SUPERSEDED + "flying.";
     public static final String  NET_SUPERSEDED_FLYING_CANCELWAITING         = NET_SUPERSEDED_FLYING + "cancelwaiting";
+    
+    private static final String NET_WRONGTURN                               = NET + "wrongturn.";
+    public static final String  NET_WRONGTURN_ACTIVE                        = NET_WRONGTURN + SUB_ACTIVE;
+    public static final String  NET_WRONGTURN_ACTIONS                       = NET_WRONGTURN + "actions";
 
     public static final String  STRINGS                                     = "strings";
 
@@ -946,6 +948,10 @@ public abstract class ConfPaths {
     public static final String  FIGHT_CRITICAL_CANCEL_CANCEL             = "checks.fight.critical.cancel.cancel";
     @Deprecated
     public static final String  FIGHT_CRITICAL_CANCEL_DIVIDEDAMAGE       = "checks.fight.critical.cancel.dividedamage";
+    @Deprecated // Does this need to be done? 
+    private static final String FIGHT_CLICKPATTERN                       = "checks.fight.clickpattern";
+    @Deprecated
+    private static final String NET_FIGHTSYNC                            = "checks.net.fightsync";
 
     /**
      * Get moved paths for which an annotation doesn't work.

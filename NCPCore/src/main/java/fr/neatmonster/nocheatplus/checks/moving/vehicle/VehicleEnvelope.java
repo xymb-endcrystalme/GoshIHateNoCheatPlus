@@ -48,6 +48,7 @@ import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.PotionUtil;
 import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
+import fr.neatmonster.nocheatplus.utilities.location.RichEntityLocation;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 
 /**
@@ -117,7 +118,7 @@ public class VehicleEnvelope extends Check {
     public SetBackEntry check(final Player player, final Entity vehicle, 
             final VehicleMoveData thisMove, final boolean isFake, 
             final MovingData data, final MovingConfig cc, 
-            final IPlayerData pData) {
+            final IPlayerData pData, final VehicleMoveInfo moveInfo) {
         final boolean debug = pData.isDebugActive(type);
         // Delegate to a sub-check.
         tags.clear();
@@ -127,7 +128,7 @@ public class VehicleEnvelope extends Check {
             data.ws.setJustUsedIds(debugDetails); // Add just used workaround ids to this list directly, for now.
         }
         final boolean violation = checkEntity(player, vehicle, thisMove, isFake, 
-                data, cc, debug);
+                data, cc, debug, moveInfo);
         if (debug && !debugDetails.isEmpty()) {
             debugDetails(player);
             debugDetails.clear();
@@ -163,12 +164,14 @@ public class VehicleEnvelope extends Check {
         debugDetails.clear();
     }
 
-    private double getHDistCap(final EntityType type, final MovingConfig cc) {
+    private double getHDistCap(final EntityType type, final MovingConfig cc, final VehicleMoveData thisMove) {
         final Double v = cc.vehicleEnvelopeHorizontalSpeedCap.get(type);
         if (v == null) {
+            if (type == EntityType.BOAT && (thisMove.from.onIce || thisMove.to.onIce)) return 4.1;
             return cc.vehicleEnvelopeHorizontalSpeedCap.get(null);
         }
         else {
+            if (type == EntityType.BOAT && (thisMove.from.onIce || thisMove.to.onIce)) return v * 2.5;
             return v;
         }
     }
@@ -176,14 +179,14 @@ public class VehicleEnvelope extends Check {
     private boolean checkEntity(final Player player, final Entity vehicle, 
             final VehicleMoveData thisMove, final boolean isFake, 
             final MovingData data, final MovingConfig cc,
-            final boolean debug) {
+            final boolean debug, final VehicleMoveInfo moveInfo) {
         boolean violation = false;
         long now = System.currentTimeMillis();
         if (debug) {
             debugDetails.add("inair: " + data.sfJumpPhase);
         }
-        if (isBubbleColumn(vehicle.getLocation()) 
-            || (isBouncingBlock(vehicle.getLocation()) && thisMove.yDistance >= 0.0 && thisMove.yDistance <= 1.0)) {
+        if (isBubbleColumn(moveInfo.from) 
+            || (isBouncingBlock(moveInfo.from) && thisMove.yDistance >= 0.0 && thisMove.yDistance <= 1.0)) {
             data.timeVehicletoss = System.currentTimeMillis();
         }
 
@@ -196,10 +199,10 @@ public class VehicleEnvelope extends Check {
         if (vehicle instanceof LivingEntity) {
         	Double speed = PotionUtil.getPotionEffectAmplifier((LivingEntity)vehicle, PotionEffectType.SPEED);
         	if (!Double.isInfinite(speed)) {
-        		if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc) * (1 + 0.2 * (speed+1)))) return true;
-        	} else if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc))) return true;
+        		if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc, thisMove) * (1 + 0.2 * (speed+1)))) return true;
+        	} else if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc, thisMove) + (checkDetails.canJump ? 0.18 : 0.0))) return true;
         } else
-        if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc))) { // Override type for now.
+        if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc, thisMove))) { // Override type for now.
             return true;
         }
 
@@ -273,7 +276,7 @@ public class VehicleEnvelope extends Check {
         }
         else if (checkDetails.inAir) {
             // In-air move.
-            if (checkInAir(thisMove, data, debug, vehicle)) {
+            if (checkInAir(thisMove, data, debug, vehicle, moveInfo)) {
                 violation = true;
             }
         }
@@ -394,42 +397,14 @@ public class VehicleEnvelope extends Check {
         return violation;
     }
     
-    private boolean isBouncingBlock(Location from) {
-    	World w = from.getWorld();
-		int x = from.getBlockX();
-		int y = from.getBlockY() - 1;
-		int z = from.getBlockZ();
-		if ((BlockProperties.getBlockFlags(w.getBlockAt(x,y,z).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
-		if ((BlockProperties.getBlockFlags(w.getBlockAt(x + 1,y,z).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
-		if ((BlockProperties.getBlockFlags(w.getBlockAt(x - 1,y,z).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
-		if ((BlockProperties.getBlockFlags(w.getBlockAt(x,y,z + 1).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
-		if ((BlockProperties.getBlockFlags(w.getBlockAt(x,y,z - 1).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
-		if ((BlockProperties.getBlockFlags(w.getBlockAt(x + 1,y,z - 1).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
-		if ((BlockProperties.getBlockFlags(w.getBlockAt(x + 1,y,z + 1).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
-		if ((BlockProperties.getBlockFlags(w.getBlockAt(x - 1,y,z - 1).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
-		if ((BlockProperties.getBlockFlags(w.getBlockAt(x - 1,y,z + 1).getType()) & BlockProperties.F_BOUNCE25) != 0L) return true;
-		return false;
+    private boolean isBouncingBlock(RichEntityLocation from) {
+        return BlockProperties.collides(from.getBlockCache(), from.getMinX(), from.getMinY() - 1.0, from.getMinZ(), from.getMaxX(), from.getMaxY(), from.getMaxZ(), BlockProperties.F_BOUNCE25);
     }
     
-    private boolean isBubbleColumn(Location from) {
-    	if (!Bridge1_13.hasIsSwimming()) return false;
-    	if (from.getBlock().getType() == Material.BUBBLE_COLUMN) {
-        	return true;
-        }
-    	World w = from.getWorld();
-		int x = from.getBlockX();
-		int y = from.getBlockY();
-		int z = from.getBlockZ();
-		if (w.getBlockAt(x + 1,y,z).getType() == Material.BUBBLE_COLUMN) return true;
-		if (w.getBlockAt(x - 1,y,z).getType() == Material.BUBBLE_COLUMN) return true; 
-		if (w.getBlockAt(x,y,z + 1).getType() == Material.BUBBLE_COLUMN) return true; 
-		if (w.getBlockAt(x,y,z - 1).getType() == Material.BUBBLE_COLUMN) return true;
-		if (w.getBlockAt(x + 1,y,z - 1).getType() == Material.BUBBLE_COLUMN) return true;
-		if (w.getBlockAt(x + 1,y,z + 1).getType() == Material.BUBBLE_COLUMN) return true; 
-		if (w.getBlockAt(x - 1,y,z - 1).getType() == Material.BUBBLE_COLUMN) return true; 
-		if (w.getBlockAt(x - 1,y,z + 1).getType() == Material.BUBBLE_COLUMN) return true; 
-    	return false;
-    }
+    private boolean isBubbleColumn(RichEntityLocation from) {
+        if (!Bridge1_13.hasIsSwimming()) return false;
+        return BlockProperties.collidesId(from.getBlockCache(), from.getMinX(), from.getMinY(), from.getMinZ(), from.getMaxX(), from.getMaxY(), from.getMaxZ(), Material.BUBBLE_COLUMN);
+	}
 
     /**
      * Prepare checkDetails according to vehicle-specific interpretation of side
@@ -506,7 +481,9 @@ public class VehicleEnvelope extends Check {
      * @return
      */
     private boolean checkInAir(final VehicleMoveData thisMove, final MovingData data,
-            final boolean debug, final Entity vehicle) {
+            final boolean debug, final Entity vehicle, final VehicleMoveInfo moveInfo) {
+        final RichEntityLocation from = moveInfo.from;
+        final RichEntityLocation to = moveInfo.to;
 
         // TODO: Distinguish sfJumpPhase and inAirDescendCount (after reaching the highest point).
 
@@ -542,8 +519,9 @@ public class VehicleEnvelope extends Check {
         final double maxDescend = getInAirMaxDescend(thisMove, data);
         if (data.sfJumpPhase > (checkDetails.canJump ? MagicVehicle.maxJumpPhaseAscend : 1)
                 && thisMove.yDistance > Math.max(minDescend, -checkDetails.gravityTargetSpeed)) {
-        	if (!(vehicle instanceof LivingEntity && !Double.isInfinite(Bridge1_13.getSlowfallingAmplifier((LivingEntity)vehicle)))) {
-        		tags.add("slow_fall_vdist");
+        	if (ColliesHoneyBlock(from)) data.sfJumpPhase = 5; else
+            if (!(vehicle instanceof LivingEntity && !Double.isInfinite(Bridge1_13.getSlowfallingAmplifier((LivingEntity)vehicle)))) {
+                tags.add("slow_fall_vdist");
                 violation = true;
         	}
         }
@@ -592,6 +570,10 @@ public class VehicleEnvelope extends Check {
         else {
             return false;
         }
+    }
+	
+	private boolean ColliesHoneyBlock(RichEntityLocation from) {
+       return BlockProperties.collides(from.getBlockCache(), from.getMinX() - 0.1, from.getMinY(), from.getMinZ() - 0.1, from.getMaxX() + 0.1, from.getMaxY() + 0.3, from.getMaxZ() + 0.1, BlockProperties.F_STICKY);
     }
 
 }

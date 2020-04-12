@@ -676,7 +676,6 @@ public class BlockProperties {
     public static final long F_CLIMBABLE                    = f_flag();
     /** Allow climbable can climb up but they didn't use to like vine. */
     public static final long F_CLIMBUPABLE                  = f_flag();
-    public static final long F_CLIMBLIQ                     = f_flag();
     /** The block can change shape. This is most likely not 100% accurate... */
     public static final long F_VARIABLE                     = f_flag();
     //    /** The block has full bounds (0..1), inaccurate! */
@@ -861,6 +860,9 @@ public class BlockProperties {
 
     /** Height 15/16 (0.9375 = 1 - 0.0625). */
     public static final long F_HEIGHT16_15                  = f_flag();
+    
+    /** Flag for all slabs to fix issue when jumping on "stairs" of slabs, flagging for hackStep. */
+    public static final long F_SLAB                         = f_flag();
 
     // TODO: Convenience constants combining all height / minheight flags.
 
@@ -1063,7 +1065,7 @@ public class BlockProperties {
         }
 
         // Step (ground + full width).
-        final long stepFlags = F_GROUND | F_XZ100;
+        final long stepFlags = F_GROUND | F_XZ100 | F_SLAB;
         for (final Material mat : new Material[]{
                 BridgeMaterial.STONE_SLAB,
         }) {
@@ -1073,7 +1075,7 @@ public class BlockProperties {
             setFlag(mat, stepFlags);
         }
         for (final Material mat : MaterialUtil.NEWLIQ) {
-            setFlag(mat, F_XZ100 | F_CLIMBABLE | F_CLIMBLIQ);
+            setFlag(mat, F_XZ100 | F_NEWLIQ | F_LIQUID | F_WATER);
         }
 
         // Rails
@@ -1145,12 +1147,8 @@ public class BlockProperties {
         setFlag(Material.ICE, F_ICE);
 
         // Not ground (!).
-        for (final Material mat : new Material[]{
-                BridgeMaterial.SIGN,
-        }) {
-            // TODO: Might keep solid since it is meant to be related to block shapes rather ("original mc value").
-            maskFlag(mat, ~(F_GROUND | F_SOLID));
-        }
+        // TODO: Might keep solid since it is meant to be related to block shapes rather ("original mc value").
+        maskFlag(BridgeMaterial.SIGN, ~(F_GROUND | F_SOLID));
 
         // Ignore for passable.
         for (final Material mat : new Material[]{
@@ -2691,7 +2689,7 @@ public class BlockProperties {
      * @return true, if is liquid
      */
     public static final boolean isNewLiq(final Material blockType) {
-        return (getBlockFlags(blockType) & F_CLIMBLIQ) != 0;
+        return (getBlockFlags(blockType) & F_NEWLIQ) != 0;
     }
 
     /**
@@ -4924,7 +4922,7 @@ public class BlockProperties {
         int added = 0;
         final int iMinX = Location.locToBlock(minX);
         final int iMaxX = Location.locToBlock(maxX);
-        final int iMinY = Location.locToBlock(minY - 0.5); // Include height150 blocks.
+        final int iMinY = Location.locToBlock(minY); // Include height150 blocks.
         final int iMaxY = Location.locToBlock(maxY);
         final int iMinZ = Location.locToBlock(minZ);
         final int iMaxZ = Location.locToBlock(maxZ);

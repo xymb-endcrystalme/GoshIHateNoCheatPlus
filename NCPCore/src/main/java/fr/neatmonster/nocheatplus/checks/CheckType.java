@@ -110,6 +110,7 @@ public enum CheckType {
     NET_KEEPALIVEFREQUENCY(CheckTypeType.CHECK, NET, Permissions.NET_KEEPALIVEFREQUENCY),
     NET_PACKETFREQUENCY(CheckTypeType.CHECK, NET, Permissions.NET_PACKETFREQUENCY),
     NET_SOUNDDISTANCE(CheckTypeType.CHECK, NET), // Can not exempt players from this one.
+	NET_WRONGTURN(CheckTypeType.CHECK, NET, Permissions.NET_WRONGTURN),
 
     ;
 

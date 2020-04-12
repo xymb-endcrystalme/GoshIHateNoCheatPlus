@@ -3,7 +3,7 @@ version: ${project.version}-b1153-CustomFork
 description: ${project.description}
 
 author: NeatMonster
-authors: [asofold, Evenprime]
+authors: [asofold, Evenprime, CaptainObvious0, xaw3ep]
 website: ${project.url}
 dev-url: ${project.url}
 
@@ -105,8 +105,6 @@ permissions:
         default: false
     nocheatplus.checks.fight.speed.silent:
         default: false
-    nocheatplus.checks.fight.wrongturn.silent:
-        default: false
     nocheatplus.checks.inventory.drop.silent:
         default: false
     nocheatplus.checks.inventory.fastclick.silent:
@@ -146,6 +144,8 @@ permissions:
     nocheatplus.checks.net.keepalivefrequency.silent:
         default: false
     nocheatplus.checks.net.packetfrequency.silent:
+        default: false
+    nocheatplus.checks.net.wrongturn.silent:
         default: false
     # Check bypass permissions:
     nocheatplus.checks:
@@ -251,8 +251,6 @@ permissions:
                         description: Allow the player to bypass the SelfHit check.
                     nocheatplus.checks.fight.speed:
                         description: Allow the player to bypass the Speed check.
-                    nocheatplus.checks.fight.wrongturn:
-                        description: Allow the player to bypass the WrongTurn check.
             nocheatplus.checks.inventory:
                 description: Allow the player to bypass all Inventory checks.
                 children:
@@ -320,6 +318,8 @@ permissions:
                   description: Bypass the KeepAliveFrequency check (keep alive packet spam).
                 nocheatplus.checks.net.packetfrequency:
                   description: Bypass the PacketFrequency check (overall packet spam).
+                nocheatplus.checks.net.wrongturn:
+                  description: Allow the player to bypass the WrongTurn check.
     
     nocheatplus.mods:
         description: Allow the player to use all the client mods.
