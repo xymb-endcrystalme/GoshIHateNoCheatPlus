@@ -196,7 +196,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_NOSWING_CHECK, "default", 785);
         set(ConfPaths.BLOCKPLACE_NOSWING_EXCEPTIONS, Arrays.asList(BridgeMaterial.LILY_PAD.toString(), Material.FLINT_AND_STEEL.toString()), 1154);
         set(ConfPaths.BLOCKPLACE_NOSWING_ACTIONS, "cancel vl>10 log:noswing:2:5:i cancel", 1154);
-
+        
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_CHECK, "default", 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_ANGLE, true, 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_SPRINT, true, 1154);
@@ -244,7 +244,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.CHAT_TEXT_FREQ_NORM_WEIGHT, 6, 785);
         set(ConfPaths.CHAT_TEXT_FREQ_NORM_LEVEL, 160, 785);
         set(ConfPaths.CHAT_TEXT_FREQ_NORM_ACTIONS, "cancel cmdc:tellchatnormal vl>7 log:chatnormal:0:5:cif cancel cmdc:tellchatnormal vl>20 log:chatnormal:0:5:cif cancel cmdc:kickchatnormal vl>40 log:chatnormal:0:5:cif cancel cmdc:kickchat5", 1154);
-
+                                                    
         set(ConfPaths.CHAT_TEXT_FREQ_SHORTTERM_MIN, 2.0, 785);
         set(ConfPaths.CHAT_TEXT_FREQ_SHORTTERM_FACTOR, 0.7, 785);
         set(ConfPaths.CHAT_TEXT_FREQ_SHORTTERM_WEIGHT, 3.0, 785);
@@ -346,7 +346,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_ANGLE_THRESHOLD_YAW, 60, 1154); 
         set(ConfPaths.FIGHT_ANGLE_THRESHOLD_SWITCH, 50, 1153);
         set(ConfPaths.FIGHT_ANGLE_ACTIONS, "cancel vl>100 log:angle:4:5:i cancel vl>500 log:angle:0:20:if cancel", 1154);
-
+        
         set(ConfPaths.FIGHT_CLICKPATTERN_CHECK, false, 1154);
         set(ConfPaths.FIGHT_CLICKPATTERN_RANGE, 15, 1154); // 8
         set(ConfPaths.FIGHT_CLICKPATTERN_PENALTY, 150L, 1154);
@@ -441,7 +441,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.INVENTORY_FASTCONSUME_WHITELIST, false, 785);
         set(ConfPaths.INVENTORY_FASTCONSUME_ITEMS, Arrays.asList("DRIED_KELP"), 1154);
         set(ConfPaths.INVENTORY_FASTCONSUME_ACTIONS, "cancel vl>2 log:fastconsume:2:5:if cancel vl>35 cancel log:fastconsume:0:5:if cmdc:kickfastconsume:0:5", 1154);
-
+        
         set(ConfPaths.INVENTORY_INVENTORYMOVE_CHECK, "default", 1153);
         set(ConfPaths.INVENTORY_INVENTORYMOVE_DISABLECREATIVE, true, 1153);
         set(ConfPaths.INVENTORY_INVENTORYMOVE_ACTIONS, "log:inventorymove:2:5:i cancel", 1154);
@@ -623,7 +623,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.NET_FIGHTSYNC_RESETCOUNT, 20, 1154); //Old: 11
         // Should be really difficult for legit players to reach 10.000VL, but fairly easily if you do go overboard with a killaura.
         set(ConfPaths.NET_FIGHTSYNC_ACTIONS, "vl>10 log:fightsync:10:9:if vl>10000 cancel log:fightsync:2:10:if cmdc:kicksuspiciouscombat:0:10", 1154); 
-
+        
         // FlyingFrequency
         set(ConfPaths.NET_FLYINGFREQUENCY_ACTIVE, "default", 785);
         set(ConfPaths.NET_FLYINGFREQUENCY_SECONDS, 5, 785);
@@ -745,7 +745,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".passable", start + "tried to move into a block (bugged player of phase cheat)" + end, 1154);
         set(ConfPaths.STRINGS + ".pitchpattern", start + "has pitch rotation patterns that are often associated with cheats" + end, 1154);
         set(ConfPaths.STRINGS + ".relog", start + "tried to relog too fast" + end, 1154);
-        set(ConfPaths.STRINGS + ".scaffold", start + "tried to place a block in an unnatural way" + end, 1154);
+        set(ConfPaths.STRINGS + ".scaffold", start + "tried to place a block in an unnatural way (Tags: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".survivalfly", start + "tried to move unexpectedly" + end, 1154);
         set(ConfPaths.STRINGS + ".survivalflyhighvl", start + "tried to perform an illegal move (Subchecks: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".tellchatnormal", tell + "Too many messages, slow down...", 1154);
