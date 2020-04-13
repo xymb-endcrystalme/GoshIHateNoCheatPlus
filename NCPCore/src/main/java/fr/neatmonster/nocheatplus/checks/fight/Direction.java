@@ -76,13 +76,14 @@ public class Direction extends Check {
         final Vector direction = loc.getDirection();
 
         final double off;
-        if (cc.directionStrict){
+		off = CollisionUtil.directionCheck(loc, player.getEyeHeight(), direction, dLoc.getX(), dLoc.getY() + height / 2D, dLoc.getZ(), width, height, TrigUtil.DIRECTION_PRECISION);
+        /*if (cc.directionStrict){
             off = CollisionUtil.combinedDirectionCheck(loc, player.getEyeHeight(), direction, dLoc.getX(), dLoc.getY() + height / 2D, dLoc.getZ(), width, height, TrigUtil.DIRECTION_PRECISION, 80.0, isPlayer);
         }
         else{
             // Also take into account the angle.
             off = CollisionUtil.directionCheck(loc, player.getEyeHeight(), direction, dLoc.getX(), dLoc.getY() + height / 2D, dLoc.getZ(), width, height, TrigUtil.DIRECTION_PRECISION);
-        }
+        } */
 
         if (off > 0.1) {
             // Player failed the check. Let's try to guess how far they were from looking directly to the entity...
@@ -168,7 +169,7 @@ public class Direction extends Check {
         final double damagedBoxMarginVertical = dLoc.getBoxMarginVertical();
         final double off;
         if (cc.directionStrict){
-            off = CollisionUtil.combinedDirectionCheck(loc, player.getEyeHeight(), context.direction, dLoc.getX(), dLoc.getY() + damagedBoxMarginVertical / 2D, dLoc.getZ(), damagedBoxMarginHorizontal * 2.0, damagedBoxMarginVertical, TrigUtil.DIRECTION_LOOP_PRECISION, 80.0, isPlayer);
+            off = CollisionUtil.combinedDirectionCheck(loc, player.getEyeHeight(), context.direction, dLoc.getX(), dLoc.getY() + damagedBoxMarginVertical / 2D, dLoc.getZ(), damagedBoxMarginHorizontal * 2.0, damagedBoxMarginVertical, cc.directionloopprecision, cc.directionangleprecision, isPlayer);
         }
         else{
             // Also take into account the angle.
@@ -176,7 +177,7 @@ public class Direction extends Check {
                     context.direction, dLoc.getX(), 
                     dLoc.getY() + damagedBoxMarginVertical / 2D, dLoc.getZ(), 
                     damagedBoxMarginHorizontal * 2.0, damagedBoxMarginVertical, 
-                    TrigUtil.DIRECTION_LOOP_PRECISION);
+                    cc.directionloopprecision);
         }
 
         if (off > 0.0) {
@@ -194,7 +195,7 @@ public class Direction extends Check {
                 }
                 context.minResult = Math.min(context.minResult, off);
             }
-        }
+        } else if (cc.directionFailAll) context.minResult = 0.0;
 
         return cancel;
     }

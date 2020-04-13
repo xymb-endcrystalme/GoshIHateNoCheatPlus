@@ -94,7 +94,8 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
 
     // Data of the no swing check.
     public boolean                 noSwingArmSwung = true; // TODO: First is free for now, 1.12.2, other?
-    public boolean                 exemptArmSwing = true;
+    public boolean                 exemptArmSwing = false;
+    public boolean                 noSwingPacket = false;
 
     // Data of the reach check.
     public double                  reachMod = 1.0;

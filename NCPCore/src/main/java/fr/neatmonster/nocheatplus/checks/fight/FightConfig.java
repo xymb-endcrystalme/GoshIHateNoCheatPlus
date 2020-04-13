@@ -43,7 +43,10 @@ public class FightConfig extends ACheckConfig {
     public final double     criticalFallDistance;
     public final ActionList criticalActions;
 
-    public final boolean	directionStrict;
+    public final boolean    directionStrict;
+    public final boolean    directionFailAll;
+    public final double     directionloopprecision;
+    public final double     directionangleprecision;
     public final long       directionPenalty;
     public final ActionList directionActions;
 
@@ -69,6 +72,7 @@ public class FightConfig extends ACheckConfig {
     public final ActionList reachActions;
 
     public final ActionList selfHitActions;
+	public final boolean    selfHitExcludeprojectile;
 
     public final int        speedLimit;
     public final int        speedBuckets;
@@ -86,7 +90,7 @@ public class FightConfig extends ACheckConfig {
     public final boolean    knockBackVelocityPvP;
 
     /** Maximum latency counted in ticks for the loop checks (reach, direction). */
-    public final long       loopMaxLatencyTicks = 15; // TODO: Configurable,  sections for players and entities.
+    public final long       loopMaxLatencyTicks; // TODO: Configurable,  sections for players and entities.
 
     /**
      * Instantiates a new fight configuration.
@@ -109,6 +113,9 @@ public class FightConfig extends ACheckConfig {
         criticalActions = config.getOptimizedActionList(ConfPaths.FIGHT_CRITICAL_ACTIONS, Permissions.FIGHT_CRITICAL);
 
         directionStrict = config.getBoolean(ConfPaths.FIGHT_DIRECTION_STRICT);
+		directionFailAll = config.getBoolean(ConfPaths.FIGHT_DIRECTION_FAILALL);
+        directionangleprecision = config.getDouble(ConfPaths.FIGHT_DIRECTION_STRICTANGLEPRECISION, 50.0, 100.0, 80.0);
+        directionloopprecision = config.getDouble(ConfPaths.FIGHT_DIRECTION_LOOPPRECISION, 0.0, 2.0, 0.5);
         directionPenalty = config.getLong(ConfPaths.FIGHT_DIRECTION_PENALTY);
         directionActions = config.getOptimizedActionList(ConfPaths.FIGHT_DIRECTION_ACTIONS, Permissions.FIGHT_DIRECTION);
 
@@ -138,6 +145,7 @@ public class FightConfig extends ACheckConfig {
         reachActions = config.getOptimizedActionList(ConfPaths.FIGHT_REACH_ACTIONS, Permissions.FIGHT_REACH);
 
         selfHitActions = config.getOptimizedActionList(ConfPaths.FIGHT_SELFHIT_ACTIONS, Permissions.FIGHT_SELFHIT);
+		selfHitExcludeprojectile = config.getBoolean(ConfPaths.FIGHT_SELFHIT_EXCLUDEPROJECTILE);
 
         speedLimit = config.getInt(ConfPaths.FIGHT_SPEED_LIMIT);
         speedBuckets = config.getInt(ConfPaths.FIGHT_SPEED_BUCKETS_N, 6);
@@ -150,6 +158,7 @@ public class FightConfig extends ACheckConfig {
         speedActions = config.getOptimizedActionList(ConfPaths.FIGHT_SPEED_ACTIONS, Permissions.FIGHT_SPEED);
 
         cancelDead = config.getBoolean(ConfPaths.FIGHT_CANCELDEAD);
+		loopMaxLatencyTicks = config.getInt(ConfPaths.FIGHT_MAXLOOPLETENCYTICKS, 1, 15, 8);
         AlmostBoolean ref = config.getAlmostBoolean(ConfPaths.FIGHT_PVP_KNOCKBACKVELOCITY, AlmostBoolean.MAYBE);
         knockBackVelocityPvP = ref == AlmostBoolean.MAYBE ? Bugs.shouldPvpKnockBackVelocity() : ref.decide();
     }
