@@ -1090,7 +1090,7 @@ public class BlockProperties {
 
         // LAVA.
         for (final Material mat : MaterialUtil.LAVA) {
-            setFlag(mat, F_LIQUID | F_HEIGHT_8SIM_DEC | F_LAVA | F_FALLDIST_HALF);
+            setFlag(mat, F_LIQUID | F_LAVA | F_FALLDIST_HALF);
         }
 
         // Snow (1.4.x)
@@ -1301,6 +1301,7 @@ public class BlockProperties {
         }
         for (Material mat : MaterialUtil.BEDS) { // TODO: Beds are special.
             setBlock(mat, leafType);
+            setFlag(mat, F_GROUND | F_SOLID | F_BOUNCE25);
 	}
 
         // Cobweb
