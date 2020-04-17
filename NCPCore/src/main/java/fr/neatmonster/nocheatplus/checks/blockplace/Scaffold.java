@@ -3,6 +3,8 @@ package fr.neatmonster.nocheatplus.checks.blockplace;
 import java.util.LinkedList;
 import java.util.List;
 
+import fr.neatmonster.nocheatplus.components.registry.feature.TickListener;
+import fr.neatmonster.nocheatplus.utilities.TickTask;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
@@ -12,28 +14,27 @@ import fr.neatmonster.nocheatplus.actions.ParameterName;
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
-import fr.neatmonster.nocheatplus.checks.inventory.InventoryConfig;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
 
 public class Scaffold extends Check {
 	
-	private final List<String> tags = new LinkedList<String>();
-	
 	public Scaffold() {
-        super(CheckType.BLOCKPLACE_SCAFFOLD);
+		super(CheckType.BLOCKPLACE_SCAFFOLD);
     }
 	
 	final static double MAX_ANGLE = Math.toRadians(90);
 
-	public boolean check(Player player, BlockFace placedFace, final IPlayerData pData, final BlockPlaceData data, final BlockPlaceConfig cc) {
+	public boolean check(Player player, BlockFace placedFace, final IPlayerData pData,
+						 final BlockPlaceData data, final BlockPlaceConfig cc, final boolean isCancelled,
+						 final double yDistance, final int jumpPhase) {
 		boolean cancel = false;
+		Scaffold thisCheck = this;
+		List<String> tags = new LinkedList<>();
 		
 		final Vector placedVector = new Vector(placedFace.getModX(), placedFace.getModY(), placedFace.getModZ());
 	    float placedAngle = player.getLocation().getDirection().angle(placedVector);
 	    long now = System.currentTimeMillis();
-	    float pitchNow = player.getLocation().getPitch();
-	    int current = player.getInventory().getHeldItemSlot();
 	        
 	    // Angle Check
 	    if (cc.scaffoldAngle && placedAngle > MAX_ANGLE) {
@@ -47,7 +48,7 @@ public class Scaffold extends Check {
 	    }
 	    
 	    // Average time check
-	    if (cc.scaffoldTime && data.sneakTime + 150 < now && !player.hasPotionEffect(PotionEffectType.SPEED)) {
+	    if (!isCancelled && cc.scaffoldTime && data.sneakTime + 150 < now && !player.hasPotionEffect(PotionEffectType.SPEED)) {
 			// TODO: need to make this more efficient
 			if (data.placeTime.size() > 2) {
 				long avg = 0;
@@ -55,7 +56,7 @@ public class Scaffold extends Check {
 					avg += data.placeTime.get(i);
 				}
 				avg = avg / data.placeTime.size();
-				if (avg < 238L) {
+				if (avg < cc.scaffoldTimeAvg) {
 					ViolationData vd = new ViolationData(this, player, data.scaffoldVL, 1, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions);
 			    	tags.add("Time");
 			    	if (vd.needsParameters()) {
@@ -75,7 +76,7 @@ public class Scaffold extends Check {
 					long diff = now - data.lastPlaceTime;
 					data.placeTime.add(diff);
 					data.lastPlaceTime = now;
-					if (diff <= data.lastPlaceAvg && data.lastPlaceAvg < 238L) {
+					if (diff <= data.lastPlaceAvg && data.lastPlaceAvg < cc.scaffoldTimeAvg) {
 						ViolationData vd = new ViolationData(this, player, data.scaffoldVL, 1, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions);
 				    	tags.add("TimeAvg");
 				    	if (vd.needsParameters()) {
@@ -87,47 +88,74 @@ public class Scaffold extends Check {
 				}
 			}
 		}
-	    
-	    // Pitch Check
-	    //Bukkit.getScheduler().runTaskLater(data.plugin, checkDiff(player, now, pData, data), 2L);
-	    // Tool switch check
-	   // Bukkit.getScheduler().runTaskLater(data.plugin, checkTool(player, current, pData, data), 1L);
-	    
-	    // Sprint check
-	    long diff = System.currentTimeMillis() - data.sprintTime;
-		if (cc.scaffoldSprint && diff < 400) {
+
+		// Sprint check
+		long diff = System.currentTimeMillis() - data.sprintTime;
+		if (cc.scaffoldSprint && diff < 400 && yDistance < 0.1 && jumpPhase < 4) {
 			ViolationData vd = new ViolationData(this, player, data.scaffoldVL, 1, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions);
-	    	tags.add("Sprint");
-	    	if (vd.needsParameters()) {
-	    		vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
-	    	}
+			tags.add("Sprint");
+			if (vd.needsParameters()) {
+				vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
+			}
 			cancel = executeActions(vd).willCancel();
 			data.scaffoldVL += 1D;
+		}
+
+		data.currentTick = TickTask.getTick();
+
+	    // Pitch Check
+		if (cc.scaffoldPitch) {
+			data.lastPitch = player.getLocation().getPitch();
+			TickListener pitchTick = new TickListener() {
+				@Override
+				public void onTick(int tick, long timeLast) {
+					// Needs to be run on the next tick
+					// Most likely better way to to this with TickTask but this works as well
+					if (TickTask.getTick() != data.currentTick) {
+						float diff = Math.abs(data.lastPitch - player.getLocation().getPitch());
+
+						if (diff > cc.scaffoldPitchDiff) {
+							data.scaffoldVL += 1D;
+							ViolationData vd = new ViolationData(thisCheck, player, data.scaffoldVL, 1, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions);
+							tags.add("Pitch"); // TODO: Do we need to use tags here?
+							if (vd.needsParameters()) vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
+							data.cancelNextPlace = executeActions(vd).willCancel();
+							tags.clear();
+						}
+						TickTask.removeTickListener(this);
+					}
+				}
+			};
+			TickTask.addTickListener(pitchTick);
+		}
+
+		// Tool Switch
+		if (cc.scaffoldToolSwitch) {
+
+			data.lastSlot = player.getInventory().getHeldItemSlot();
+			TickListener toolSwitchTick = new TickListener() {
+				@Override
+				public void onTick(int tick, long timeLast) {
+					// Needs to be run on the next tick
+					// Most likely better way to to this with TickTask but this works as well
+					if (data.currentTick != TickTask.getTick()) {
+						if (data.lastSlot != player.getInventory().getHeldItemSlot()) {
+							data.scaffoldVL += 1D;
+							ViolationData vd = new ViolationData(thisCheck, player, data.scaffoldVL, 1, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions);
+							tags.add("ToolSwitch"); // TODO: Do we need to use tags here?
+							if (vd.needsParameters()) vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
+							data.cancelNextPlace = executeActions(vd).willCancel();
+							tags.clear();
+						}
+						TickTask.removeTickListener(this);
+					}
+				}
+			};
+			TickTask.addTickListener(toolSwitchTick);
 		}
 		
 		tags.clear();
 		return cancel;
 	}
-	
-		// Check diff
-		private void checkDiff(Player player, float now, final IPlayerData pData, final BlockPlaceData data) {
-			float pitchNow = player.getLocation().getPitch();
-			float diff = Math.abs(now - pitchNow);
-			
-			if (diff > 20F) {
-				executeActions(player, data.scaffoldVL, 1D, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions).willCancel();
-				data.scaffoldVL += 1D;
-			}
-
-		}
-		
-		private void checkTool(Player player, int item, final IPlayerData pData, final BlockPlaceData data) {
-				int newItem = player.getInventory().getHeldItemSlot();
-				
-				if (newItem != item) {
-					executeActions(player, data.scaffoldVL, 1D, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions).willCancel();
-					data.scaffoldVL += 1D;
-				}
-		}
 
 }
