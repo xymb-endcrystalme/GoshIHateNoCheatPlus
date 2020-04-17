@@ -1058,9 +1058,9 @@ public class SurvivalFly extends Check {
 		 // TODO: Should read hbufmax from config and adjust
         else if (from.isAboveStairs()) {
             useBaseModifiers = true;
-            hAllowedDistance = thisMove.yDistance == 0.5 ? 0.37 : 0.265;
+            hAllowedDistance = thisMove.yDistance == 0.5 ? 1.85 * thisMove.walkSpeed : 1.325 * thisMove.walkSpeed;
             if (TrigUtil.isMovingBackwards(thisMove.to.getX() - thisMove.from.getX(), thisMove.to.getZ() - thisMove.from.getZ(), LocUtil.correctYaw(from.getYaw())))
-                hAllowedDistance = Magic.DEFAULT_WALKSPEED * cc.survivalFlySprintingSpeed / 100D;
+                hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
             if (!Double.isInfinite(mcAccess.getHandle().getFasterMovementAmplifier(player))) hAllowedDistance *= 0.88;
         }
         //else if (snowFix && hAllowedDistance < 0.377D) {
