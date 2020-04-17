@@ -54,7 +54,11 @@ public class BlockPlaceConfig extends ACheckConfig {
     public final ActionList scaffoldActions;
     public final boolean scaffoldAngle;
     public final boolean scaffoldTime;
+    public final int     scaffoldTimeAvg;
     public final boolean scaffoldSprint;
+    public final boolean scaffoldPitch;
+    public final int     scaffoldPitchDiff;
+    public final boolean scaffoldToolSwitch;
 
     public final long       speedInterval;
     public final boolean    speedImprobableFeedOnly;
@@ -96,8 +100,12 @@ public class BlockPlaceConfig extends ACheckConfig {
 
         scaffoldActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, Permissions.BLOCKPLACE_REACH);
         scaffoldAngle = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_ANGLE);
-        scaffoldTime = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME);
+        scaffoldTime = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_ACTIVE);
+        scaffoldTimeAvg = config.getInt(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_AVG);
         scaffoldSprint = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_SPRINT);
+        scaffoldPitch = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_PITCH_ACTIVE);
+        scaffoldPitchDiff = config.getInt(ConfPaths.BLOCKPLACE_SCAFFOLD_PITCH_DIFFERENCE);
+        scaffoldToolSwitch = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_TOOLSWITCH);
 
         speedInterval = config.getLong(ConfPaths.BLOCKPLACE_SPEED_INTERVAL);
         speedImprobableFeedOnly = config.getBoolean(ConfPaths.BLOCKPLACE_SPEED_IMPROBABLE_FEEDONLY);

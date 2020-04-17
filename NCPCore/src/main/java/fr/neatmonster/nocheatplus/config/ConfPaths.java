@@ -289,8 +289,14 @@ public abstract class ConfPaths {
     private static final String BLOCKPLACE_SCAFFOLD                      = BLOCKPLACE + "scaffold.";
     public static final String  BLOCKPLACE_SCAFFOLD_CHECK                = BLOCKPLACE_SCAFFOLD + SUB_ACTIVE;
     public static final String  BLOCKPLACE_SCAFFOLD_ANGLE                = BLOCKPLACE_SCAFFOLD + "angle";
-    public static final String  BLOCKPLACE_SCAFFOLD_TIME                 = BLOCKPLACE_SCAFFOLD + "time";
+    private static final String BLOCKPLACE_SCAFFOLD_TIME                 = BLOCKPLACE_SCAFFOLD + "time.";
+    public static final String  BLOCKPLACE_SCAFFOLD_TIME_AVG             = BLOCKPLACE_SCAFFOLD_TIME + "average";
+    public static final String  BLOCKPLACE_SCAFFOLD_TIME_ACTIVE          = BLOCKPLACE_SCAFFOLD_TIME + "active";
     public static final String  BLOCKPLACE_SCAFFOLD_SPRINT               = BLOCKPLACE_SCAFFOLD + "sprint";
+    private static final String BLOCKPLACE_SCAFFOLD_PITCH                = BLOCKPLACE_SCAFFOLD + "pitch.";
+    public static final String  BLOCKPLACE_SCAFFOLD_PITCH_ACTIVE         = BLOCKPLACE_SCAFFOLD_PITCH + "active";
+    public static final String  BLOCKPLACE_SCAFFOLD_PITCH_DIFFERENCE     = BLOCKPLACE_SCAFFOLD_PITCH + "difference";
+    public static final String  BLOCKPLACE_SCAFFOLD_TOOLSWITCH           = BLOCKPLACE_SCAFFOLD + "toolswitch";
     public static final String  BLOCKPLACE_SCAFFOLD_ACTIONS              = BLOCKPLACE_SCAFFOLD + "actions";
 
     private static final String BLOCKPLACE_SPEED                         = BLOCKPLACE + "speed.";

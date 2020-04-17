@@ -45,6 +45,9 @@ public class BlockPlaceData extends ACheckData {
 	public ArrayList<Long> placeTime = new ArrayList<Long>();
 	public long sneakTime = 0;
 	public long sprintTime = 0;
+	public float lastPitch = 0;
+	public int lastSlot = 0;
+	public long currentTick = 0;
 	public boolean cancelNextPlace = false;
 
     // Data of the fast place check.

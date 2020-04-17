@@ -200,8 +200,12 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_CHECK, "default", 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_ANGLE, true, 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_SPRINT, true, 1154);
-        set(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME, true, 1154);
-        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, "vl>1 cancel vl>10 cancel log:scaffold:3:7:if vl>60 cancel log:scaffold:1:2:if cmdc:kickscaffold:2:10 cmd:clearscaffold:0:5", 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_ACTIVE, true, 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_AVG, 238, 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_PITCH_ACTIVE, true, 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_PITCH_DIFFERENCE, 20, 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_TOOLSWITCH, true, 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, "vl>1 cancel vl>10 cancel log:scaffold:3:7:if vl>60 cancel log:scaffold:1:2:if cmd:clearscaffold:0:5", 1154);
 
         set(ConfPaths.BLOCKPLACE_SPEED_CHECK, "default", 785);
         set(ConfPaths.BLOCKPLACE_SPEED_INTERVAL, 30L, 1154); // Old limit: 45L < FPs with throwable potions.

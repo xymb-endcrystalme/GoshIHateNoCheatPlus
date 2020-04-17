@@ -14,9 +14,8 @@
  */
 package fr.neatmonster.nocheatplus.checks.blockplace;
 
-import java.util.List;
-import java.util.Set;
-
+import fr.neatmonster.nocheatplus.checks.moving.MovingData;
+import fr.neatmonster.nocheatplus.checks.moving.model.LocationData;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -41,17 +40,14 @@ import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.checks.CheckListener;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.blockinteract.BlockInteractData;
-import fr.neatmonster.nocheatplus.checks.blockinteract.BlockInteractListener;
 import fr.neatmonster.nocheatplus.checks.combined.Combined;
 import fr.neatmonster.nocheatplus.checks.combined.CombinedConfig;
 import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
 import fr.neatmonster.nocheatplus.checks.moving.util.MovingUtil;
 import fr.neatmonster.nocheatplus.checks.net.FlyingQueueHandle;
-import fr.neatmonster.nocheatplus.checks.net.model.DataPacketFlying;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeMisc;
-import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import fr.neatmonster.nocheatplus.components.NoCheatPlusAPI;
 import fr.neatmonster.nocheatplus.components.data.ICheckData;
 import fr.neatmonster.nocheatplus.components.data.IData;
@@ -202,11 +198,10 @@ public class BlockPlaceListener extends CheckListener {
         int skippedRedundantChecks = 0;
         final boolean debug = pData.isDebugActive(CheckType.BLOCKPLACE);
 
-        final BlockFace placedFace = event.getBlock().getFace(event.getBlockAgainst());
+        final BlockFace placedFace = event.getBlock().getFace(blockAgainst);
 		final Block blockPlaced = event.getBlockPlaced();
-		// TODO: change to distsquared for possible performance boost
 		final double distance = player.getLocation().distance(blockPlaced.getLocation());
-		boolean shouldCheck = false;
+		boolean shouldCheck;
 
         final boolean shouldSkipSome;
         if (blockMultiPlaceEvent != null && event.getClass() == blockMultiPlaceEvent) {
@@ -220,11 +215,8 @@ public class BlockPlaceListener extends CheckListener {
                 }
                 shouldSkipSome = false;
             }
-        } else if (placedMat.toString().equals("SCAFFOLDING")) {
-        	shouldSkipSome = true;
-        }
-        else {
-            shouldSkipSome = false;
+        } else {
+            shouldSkipSome = placedMat.toString().equals("SCAFFOLDING");
         }
 
         if (placedMat.toString().endsWith("SIGN")) {
@@ -235,7 +227,7 @@ public class BlockPlaceListener extends CheckListener {
         }
 
         // Don't run checks, if a set back is scheduled.
-        if (!cancelled && pData.isPlayerSetBackScheduled()) {
+        if (pData.isPlayerSetBackScheduled()) {
             cancelled = true;
         }
 
@@ -260,23 +252,33 @@ public class BlockPlaceListener extends CheckListener {
             cancelled = true;
         }
 
-        switch (placedFace) {
-		case NORTH:
-		case SOUTH:
-		case EAST:
-		case WEST:
-			shouldCheck = true;
-			break;
-		default:
-			shouldCheck = false;
-			break;
-		}
+        // Null check because I guess it can return null sometimes?
+        if (Scaffold.isEnabled(player, pData) && placedFace != null) {
+            MovingData mData = pData.getGenericInstance(MovingData.class);
+            LocationData currentMove = mData.playerMoves.getCurrentMove().from;
+            Location fromLoc = new Location(player.getWorld(), currentMove.getX(), currentMove.getY(), currentMove.getZ());
+            double fromDist = fromLoc.distance(blockPlaced.getLocation());
+            switch (placedFace) {
+                case NORTH:
+                case SOUTH:
+                case EAST:
+                case WEST:
+                    shouldCheck = true;
+                    break;
+                default:
+                    shouldCheck = false;
+                    break;
+            }
 
-		if (Scaffold.isEnabled(player, pData) && player.getLocation().getY() - blockPlaced.getY() < 2D && blockPlaced.getType().isSolid() && shouldCheck && distance < 2D) {
-
-			cancelled = Scaffold.check(player, placedFace, pData, data, cc);
-
-		}
+            if (shouldCheck && player.getLocation().getY() - blockPlaced.getY() < 2D
+                    && player.getLocation().getY() - blockPlaced.getY() >= 1D
+                    && blockPlaced.getType().isSolid() && distance < 2D && fromDist < 2D && Math.abs(fromDist - distance) < 0.499) {
+                cancelled = data.cancelNextPlace && (Math.abs(data.currentTick - TickTask.getTick()) < 10)
+                        || Scaffold.check(player, placedFace, pData, data, cc, event.isCancelled(), mData.playerMoves.getCurrentMove().yDistance, mData.sfJumpPhase);
+                if (!cancelled) data.scaffoldVL *= 0.97;
+            }
+            data.cancelNextPlace = false;
+        }
 
         final FlyingQueueHandle flyingHandle;
         final boolean reachCheck = pData.isCheckActive(CheckType.BLOCKPLACE_REACH, player);
@@ -288,7 +290,7 @@ public class BlockPlaceListener extends CheckListener {
             // Reach check (distance).
             if (!cancelled && !shouldSkipSome) {
                 if (isInteractBlock && bdata.isPassedCheck(CheckType.BLOCKINTERACT_REACH)) {
-                    skippedRedundantChecks ++;
+                    skippedRedundantChecks++;
                 }
                 else if (reachCheck && reach.check(player, eyeHeight, block, data, cc)) {
                     cancelled = true;
@@ -299,7 +301,7 @@ public class BlockPlaceListener extends CheckListener {
             // Direction check.
             if (!cancelled && !shouldSkipSome) {
                 if (isInteractBlock && bdata.isPassedCheck(CheckType.BLOCKINTERACT_DIRECTION)) {
-                    skippedRedundantChecks ++;
+                    skippedRedundantChecks++;
                 }
                 else if (directionCheck) {
 		   if (blockAgainst.getType() == Material.LADDER || BlockProperties.isCarpet(blockAgainst.getType())) {
@@ -310,9 +312,6 @@ public class BlockPlaceListener extends CheckListener {
                 }
             }
             useLoc.setWorld(null);
-        }
-        else {
-            flyingHandle = null;
         }
 
         // Surrounding material.
@@ -421,7 +420,7 @@ public class BlockPlaceListener extends CheckListener {
             if (cc.preventBoatsAnywhere) {
                 // TODO: Alter config (activation, allow on top of ground).
                 // TODO: Version/plugin specific alteration for 'default'.
-                checkBoatsAnywhere(player, event, cc, pData);
+                checkBoatsAnywhere(player, event, pData);
             }
         }
         else if (MaterialUtil.isSpawnEgg(type)) {
@@ -433,8 +432,7 @@ public class BlockPlaceListener extends CheckListener {
         }
     }
 
-    private void checkBoatsAnywhere(final Player player, final PlayerInteractEvent event, 
-            final BlockPlaceConfig cc, final IPlayerData pData) {
+    private void checkBoatsAnywhere(final Player player, final PlayerInteractEvent event, final IPlayerData pData) {
         // Check boats-anywhere.
         final Block block = event.getClickedBlock();
         final Material mat = block.getType();
@@ -490,15 +488,10 @@ public class BlockPlaceListener extends CheckListener {
         EntityType type = event.getEntityType();
         switch (type) {
             case ENDER_PEARL:
-                break;
             case ENDER_SIGNAL:
-                break;
             case EGG:
-                break;
             case SNOWBALL:
-                break;
             case THROWN_EXP_BOTTLE:
-                break;
             case SPLASH_POTION:
                 break;
             default:
