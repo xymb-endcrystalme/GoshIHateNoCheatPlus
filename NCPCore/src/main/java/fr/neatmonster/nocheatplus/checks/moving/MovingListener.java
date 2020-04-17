@@ -1001,7 +1001,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 newTo = creativeFly.check(player, pFrom, pTo, 
                         data, cc, pData, time, tick, useBlockChangeTracker);
 				// NoFall.
-				if (checkNf) {
+				if (checkNf && noFall.isEnabled(player, pData)) {
 					noFall.check(player, pFrom, pTo, previousSetBackY, data, cc, pData);
 				}
             }
