@@ -17,6 +17,8 @@ package fr.neatmonster.nocheatplus.compat.blocks.init.vanilla.special;
 import java.util.LinkedList;
 import java.util.List;
 
+import fr.neatmonster.nocheatplus.compat.blocks.init.BlockInit;
+import fr.neatmonster.nocheatplus.utilities.map.MaterialUtil;
 import org.bukkit.Material;
 
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
@@ -73,8 +75,39 @@ public class MultiClientProtocolBlockShapePatch extends AbstractBlockPropertiesP
                     | BlockProperties.F_GROUND_HEIGHT);
             done.add("grass_path");
         }
+
         catch (Throwable t) {
             // TODO: What throws for enum not there.
+        }
+
+        try {
+            BlockInit.setAs("HONEY_BLOCK", BridgeMaterial.FARMLAND);
+            BlockFlags.addFlags("HONEY_BLOCK", BlockProperties.F_STICKY);
+            done.add("honey_block");
+        }
+
+        catch (Throwable t) {
+
+        }
+
+        try {
+            BlockInit.setAs("SWEET_BERRY_BUSH", Material.GRASS);
+            done.add("sweet_berry_bush");
+        }
+
+        catch (Throwable t)  {
+
+        }
+
+        try {
+            for (Material mat : MaterialUtil.SHULKER_BOXES) {
+                BlockFlags.addFlags(mat, BlockProperties.F_SOLID | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_GROUND);
+            }
+            done.add("shulker_box");
+        }
+
+        catch (Throwable t) {
+
         }
 
         StaticLog.logInfo("Applied block patches for multi client protocol support: " 
