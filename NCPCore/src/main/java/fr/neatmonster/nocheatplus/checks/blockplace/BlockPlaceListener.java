@@ -270,11 +270,12 @@ public class BlockPlaceListener extends CheckListener {
                     break;
             }
 
+            final boolean extraChecks = fromDist < 2D && Math.abs(fromDist - distance) < 0.499;
             if (shouldCheck && player.getLocation().getY() - blockPlaced.getY() < 2D
                     && player.getLocation().getY() - blockPlaced.getY() >= 1D
-                    && blockPlaced.getType().isSolid() && distance < 2D && fromDist < 2D && Math.abs(fromDist - distance) < 0.499) {
+                    && blockPlaced.getType().isSolid() && distance < 2D) {
                 cancelled = data.cancelNextPlace && (Math.abs(data.currentTick - TickTask.getTick()) < 10)
-                        || Scaffold.check(player, placedFace, pData, data, cc, event.isCancelled(), mData.playerMoves.getCurrentMove().yDistance, mData.sfJumpPhase);
+                        || Scaffold.check(player, placedFace, pData, data, cc, event.isCancelled(), mData.playerMoves.getCurrentMove().yDistance, mData.sfJumpPhase, extraChecks);
                 if (!cancelled) data.scaffoldVL *= 0.97;
             }
             data.cancelNextPlace = false;

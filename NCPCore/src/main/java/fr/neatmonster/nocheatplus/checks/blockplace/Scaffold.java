@@ -27,7 +27,7 @@ public class Scaffold extends Check {
 
 	public boolean check(Player player, BlockFace placedFace, final IPlayerData pData,
 						 final BlockPlaceData data, final BlockPlaceConfig cc, final boolean isCancelled,
-						 final double yDistance, final int jumpPhase) {
+						 final double yDistance, final int jumpPhase, final boolean extraChecks) {
 		boolean cancel = false;
 		Scaffold thisCheck = this;
 		List<String> tags = new LinkedList<>();
@@ -91,7 +91,7 @@ public class Scaffold extends Check {
 
 		// Sprint check
 		long diff = System.currentTimeMillis() - data.sprintTime;
-		if (cc.scaffoldSprint && diff < 400 && yDistance < 0.1 && jumpPhase < 4) {
+		if (extraChecks && cc.scaffoldSprint && diff < 400 && yDistance < 0.1 && jumpPhase < 4) {
 			ViolationData vd = new ViolationData(this, player, data.scaffoldVL, 1, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions);
 			tags.add("Sprint");
 			if (vd.needsParameters()) {
