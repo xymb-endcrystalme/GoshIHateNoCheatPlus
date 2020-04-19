@@ -985,7 +985,7 @@ public class SurvivalFly extends Check {
         if (sfDirty) data.noslowhop = 0;
 		if (!data.liftOffEnvelope.name().startsWith("LIMIT") || sfDirty) data.watermovect = 0;
 
-        if (thisMove.from.inWeb && (from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) == 0) {
+        if (thisMove.from.inWeb) {
             data.sfOnIce = 0;
             // TODO: if (from.isOnIce()) <- makes it even slower !
             // Does include sprinting by now (would need other accounting methods).
@@ -2609,21 +2609,15 @@ public class SurvivalFly extends Check {
                 // TODO: Could prevent not moving down if not on ground (or on ladder or in liquid?).
                 vAllowedDistance = thisMove.from.onGround ? 0.1D : 0;
                 from.collectBlockFlags();
-                if ((from.getBlockFlags() & BlockProperties.F_COBWEB2) != 0) vAllowedDistance = 0.315;
+                if ((from.getBlockFlags() & BlockProperties.F_COBWEB2) !=0) vAllowedDistance = 0.315;
             }
-
-            if ((from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) != 0) {
-                vAllowedDistance = LiftOffEnvelope.NORMAL.getMaxJumpGain(data.jumpAmplifier) + 0.005;
-            }
-
             vDistanceAboveLimit = yDistance - vAllowedDistance;
         }
         else {
         	
         	// Descending in web/sweet berry bushes.
         	// Is checking resetCond necessary here?
-        	if (thisMove.from.resetCond && thisMove.to.resetCond && (from.getBlockFlags() & BlockProperties.F_COBWEB2) == 0
-                    && (from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) == 0) {
+        	if (thisMove.from.resetCond && thisMove.to.resetCond && (from.getBlockFlags() & BlockProperties.F_COBWEB2) == 0) {
         		
         		// Players call decend faster if they're also moving horizontally 
         		if (thisMove.hDistance > 0.018) {
