@@ -66,6 +66,8 @@ public class InventoryConfig extends ACheckConfig {
     public final boolean	openCancelOther;
     
     public final boolean    invMoveDisableCreative;
+    public final double     invMoveHdistLeniency;
+    public final double     invMoveHdistMin;
     public final ActionList invMoveActionList;
 
     // Hot fixes.
@@ -113,6 +115,8 @@ public class InventoryConfig extends ACheckConfig {
         openCancelOther = data.getBoolean(ConfPaths.INVENTORY_OPEN_CANCELOTHER);
         
 	    invMoveDisableCreative = data.getBoolean(ConfPaths.INVENTORY_INVENTORYMOVE_DISABLECREATIVE);
+	    invMoveHdistLeniency = data.getDouble(ConfPaths.INVENTORY_INVENTORYMOVE_HDISTLENIENCY);
+	    invMoveHdistMin = data.getDouble(ConfPaths.INVENTORY_INVENTORYMOVE_HDISTMIN);
         invMoveActionList = data.getOptimizedActionList(ConfPaths.INVENTORY_INVENTORYMOVE_ACTIONS, Permissions.INVENTORY_INVENTORYMOVE);
 
         hotFixFallingBlockEndPortalActive = data.getBoolean(ConfPaths.INVENTORY_HOTFIX_DUPE_FALLINGBLOCKENDPORTAL);

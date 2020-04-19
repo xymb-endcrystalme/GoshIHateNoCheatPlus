@@ -241,7 +241,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         final int slot = event.getSlot();
         final String inventoryAction = hasInventoryAction ? event.getAction().name() : null;
         if (pData.isDebugActive(checkType)) {
-            outputDebugInventoryClick(player, slot, event, inventoryAction, data);
+            outputDebugInventoryClick(player, slot, event, inventoryAction);
         }
         if (slot == InventoryView.OUTSIDE || slot < 0) {
             data.lastClickTime = now;
@@ -253,7 +253,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         boolean cancel = false;
         // Illegal enchantment checks.
         try{
-            if (!cancel && Items.checkIllegalEnchantments(player, clicked, pData)) {
+            if (Items.checkIllegalEnchantments(player, clicked, pData)) {
                 cancel = true;
                 counters.addPrimaryThread(idIllegalItem, 1);
             }
@@ -320,7 +320,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
     */
     @EventHandler(priority = EventPriority.MONITOR)
     public void chestOpen(PlayerInteractEvent event) {
-    	final Player player = (Player) event.getPlayer();
+    	final Player player = event.getPlayer();
     	final IPlayerData pData = DataManager.getPlayerData(player);
     	final InventoryData data = pData.getGenericInstance(InventoryData.class);
     	
@@ -339,12 +339,10 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
      * @param player
      * @param slot
      * @param event
-     * @param data
      */
     private void outputDebugInventoryClick(final Player player, 
             final int slot, final InventoryClickEvent event, 
-            final String action,
-            final InventoryData data) {
+            final String action) {
         // TODO: Check if this breaks legacy compat (disable there perhaps).
         // TODO: Consider only logging where different from expected (CraftXY, more/other viewer than player). 
 
@@ -366,10 +364,10 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         builder.append(view.getClass().getName());
 
         // Bottom inventory.
-        addInventory(player, view.getBottomInventory(), view, " , Bottom: ", builder);
+        addInventory(view.getBottomInventory(), view, " , Bottom: ", builder);
 
         // Top inventory.
-        addInventory(player, view.getBottomInventory(), view, " , Top: ", builder);
+        addInventory(view.getBottomInventory(), view, " , Top: ", builder);
         
         if (action != null) {
             builder.append(" , Action: ");
@@ -384,7 +382,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         debug(player, builder.toString());
     }
 
-    private void addInventory(final Player player, final Inventory inventory, final InventoryView view, final String prefix, 
+    private void addInventory(final Inventory inventory, final InventoryView view, final String prefix,
             final StringBuilder builder) {
         builder.append(prefix);
         if (inventory == null) {
@@ -590,6 +588,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         final boolean PoYdiff = from.getPitch() != to.getPitch() || from.getYaw() != to.getYaw();
         final IPlayerData pData = DataManager.getPlayerData(player);
         if (pData == null) return;
+        final InventoryData iData = pData.getGenericInstance(InventoryData.class);
         final MovingData data = pData.getGenericInstance(MovingData.class);
         final Inventory inv = player.getOpenInventory().getTopInventory();
         if (moreInv.isEnabled(player, pData) 
@@ -604,6 +603,11 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                 }
             }
         }
+
+        // TODO: Let's check for certain conditions here, to see if the player is
+        // Actually moving and not just moving from other events (Ice, falling, velocity)
+        iData.lastMoveEvent = System.currentTimeMillis();
+
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

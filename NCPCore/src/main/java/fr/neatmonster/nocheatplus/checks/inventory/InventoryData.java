@@ -36,6 +36,7 @@ public class InventoryData extends ACheckData {
     // General.
     public long     lastClickTime = 0;
     public long     chestOpenTime = 0;
+    public long     lastMoveEvent = 0;
 
     // Data of the drop check.
     public int      dropCount;
