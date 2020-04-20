@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import fr.neatmonster.nocheatplus.compat.versions.GenericVersion;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import org.bukkit.Bukkit;
 
 import fr.neatmonster.nocheatplus.compat.MCAccess;
@@ -33,12 +35,6 @@ import fr.neatmonster.nocheatplus.logging.StaticLog;
  */
 public class MCAccessFactory {
 
-    //Message below is sent when CBDedicated and CBReflect failed to run and NCP switches to bukkit's api as it can't tell the server version.
-    private final String[] updateLocs = new String[] {
-//            " Check for updates and support at BukkitDev: https://dev.bukkit.org/projects/nocheatplus/",
-//            " Development builds (unsupported by the Bukkit Staff, use at your own risk): https://ci.md-5.net/job/NoCheatPlus/changes",
-    };
-
     /**
      * Get a new MCAccess instance.
      * @param bukkitOnly Set to true to force using an API-only module.
@@ -49,6 +45,17 @@ public class MCAccessFactory {
         final List<Throwable> throwables = new ArrayList<Throwable>();
         MCAccess mcAccess = null;
         // Try to set up native access.
+        
+        // CraftBukkit (dedicated).
+        // Use CraftBukkit dedicated if the server version is below/equal to 1.12.2
+        if (GenericVersion.compareVersions(ServerVersion.getMinecraftVersion(), "1.12.2") <= 0) {
+            if (config.enableCBDedicated) {
+                mcAccess = getMCAccessCraftBukkit(throwables);
+                if (mcAccess != null) {
+                    return mcAccess;
+                }
+            }
+        }
 
         // Bukkit API only: 1.13 (and possibly later).
         try {
@@ -56,14 +63,6 @@ public class MCAccessFactory {
         }
         catch(Throwable t) {
             throwables.add(t);
-        }
-        
-        // CraftBukkit (dedicated).
-        if (config.enableCBDedicated) {
-            mcAccess = getMCAccessCraftBukkit(throwables);
-            if (mcAccess != null) {
-                return mcAccess;
-            }
         }
 
         // CraftBukkit (reflection).
@@ -76,13 +75,18 @@ public class MCAccessFactory {
             }
         }
 
+        // Lets try it one more time?
+        if (config.enableCBDedicated) {
+            mcAccess = getMCAccessCraftBukkit(throwables);
+            if (mcAccess != null) {
+                return mcAccess;
+            }
+        }
+
         // Try to set up api-only access (since 1.4.6).
         try {
             mcAccess = new MCAccessBukkit();
             StaticLog.logWarning("Running in Bukkit-API-only mode (" + Bukkit.getServer().getVersion() + "). If this is not intended, please check for updates and consider to request support.");
-            for (String uMsg : updateLocs) {
-                StaticLog.logWarning(uMsg);
-            }
             //            if (ConfigManager.getConfigFile().getBoolean(ConfPaths.LOGGING_EXTENDED_STATUS)) {
             //                log(throwables); // Maybe later activate with TRACE explicitly set
             //            }
@@ -96,9 +100,6 @@ public class MCAccessFactory {
         // All went wrong.
         // TODO: Fall-back solution (disable plugin, disable checks).
         StaticLog.logSevere("Your version of NoCheatPlus is not compatible with the version of the server-mod (" + Bukkit.getServer().getVersion() + "). Please check for updates and consider to request support.");
-        for (String msg : updateLocs) {
-            StaticLog.logSevere(msg);
-        }
         StaticLog.logSevere(">>> Failed to set up MCAccess <<<");
         log(throwables);
         // TODO: Schedule disabling the plugin or running in circles.
