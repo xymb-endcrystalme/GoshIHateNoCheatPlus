@@ -164,6 +164,8 @@ public class BlockPlaceListener extends CheckListener {
             ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onBlockPlace(final BlockPlaceEvent event) {
 
+        if (!DataManager.getPlayerData(event.getPlayer()).isCheckActive(CheckType.BLOCKPLACE, event.getPlayer())) return;
+
         final Block block = event.getBlockPlaced();
         final Block blockAgainst = event.getBlockAgainst();
         // Skip any null blocks.
@@ -360,6 +362,9 @@ public class BlockPlaceListener extends CheckListener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onSignChange(final SignChangeEvent event) {
+
+        if (!DataManager.getPlayerData(event.getPlayer()).isCheckActive(CheckType.BLOCKPLACE, event.getPlayer())) return;
+
         if (event.getClass() != SignChangeEvent.class) {
             // Built in plugin compatibility.
             // TODO: Don't understand why two consecutive events editing the same block are a problem.
@@ -400,6 +405,9 @@ public class BlockPlaceListener extends CheckListener {
      */
     @EventHandler(ignoreCancelled = false, priority = EventPriority.LOWEST)
     public void onPlayerInteract(final PlayerInteractEvent event) {
+
+        if (!DataManager.getPlayerData(event.getPlayer()).isCheckActive(CheckType.BLOCKPLACE, event.getPlayer())) return;
+
         if (event.isCancelled()) {
             // TODO: Might run checks if (event.useInteractedBlock()) ...
             return;
@@ -478,6 +486,8 @@ public class BlockPlaceListener extends CheckListener {
         if (player == null) {
             return;
         }
+
+        if (!DataManager.getPlayerData(player).isCheckActive(CheckType.BLOCKPLACE, player)) return;
 
         if (MovingUtil.hasScheduledPlayerSetBack(player)) {
             // TODO: Should log.
@@ -572,6 +582,8 @@ public class BlockPlaceListener extends CheckListener {
     	Player player = event.getPlayer();
     	final IPlayerData pData = DataManager.getPlayerData(player);
         final BlockPlaceData data = pData.getGenericInstance(BlockPlaceData.class);
+
+        if (!pData.isCheckActive(CheckType.BLOCKPLACE, player)) return;
 
         if (player.isSprinting()) {
         	data.sprintTime = System.currentTimeMillis();

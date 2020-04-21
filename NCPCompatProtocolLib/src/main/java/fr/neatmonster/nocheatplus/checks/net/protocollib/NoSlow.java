@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import fr.neatmonster.nocheatplus.checks.CheckType;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -139,6 +140,9 @@ public class NoSlow extends BaseAdapter {
         if (e.getAction() != Action.RIGHT_CLICK_AIR && e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         final Player p = e.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(p);
+
+        if (!pData.isCheckActive(CheckType.NET, e.getPlayer())) return;
+
         final MovingData data = pData.getGenericInstance(MovingData.class);
         Block b = e.getClickedBlock();
         if (p.getGameMode() == GameMode.CREATIVE) {

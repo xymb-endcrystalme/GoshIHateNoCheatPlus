@@ -139,6 +139,8 @@ public class ChatListener extends CheckListener implements INotifyReload, JoinLe
         final Player player = event.getPlayer();
         final boolean alreadyCancelled = event.isCancelled();
 
+        if (!DataManager.getPlayerData(player).isCheckActive(CheckType.CHAT, player)) return;
+
         // Tell TickTask to update cached permissions.
         // (Might omit this if already cancelled.)
         final IPlayerData pData = DataManager.getPlayerData(player);
@@ -166,6 +168,8 @@ public class ChatListener extends CheckListener implements INotifyReload, JoinLe
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerCommandPreprocess(final PlayerCommandPreprocessEvent event) {
         final Player player = event.getPlayer();
+
+        if (!DataManager.getPlayerData(player).isCheckActive(CheckType.CHAT, player)) return;
 
         // Tell TickTask to update cached permissions.
         final IPlayerData pData = DataManager.getPlayerData(player);
@@ -276,6 +280,9 @@ public class ChatListener extends CheckListener implements INotifyReload, JoinLe
         if (event.getResult() != Result.ALLOWED) return;
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
+
+        if (!pData.isCheckActive(CheckType.CHAT, player)) return;
+
         final ChatConfig cc = pData.getGenericInstance(ChatConfig.class);
         final ChatData data = pData.getGenericInstance(ChatData.class);
 

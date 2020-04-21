@@ -100,6 +100,9 @@ public class CombinedListener extends CheckListener {
 
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
+
+        if (!pData.isCheckActive(CheckType.COMBINED, player)) return;
+
         final CombinedData data = pData.getGenericInstance(CombinedData.class);
         final CombinedConfig cc = pData.getGenericInstance(CombinedConfig.class);
 
@@ -124,6 +127,9 @@ public class CombinedListener extends CheckListener {
         if (!(entity instanceof Player)) return;
         final Player  player = (Player) entity;
         final IPlayerData pData = DataManager.getPlayerData(player);
+
+        if (!pData.isCheckActive(CheckType.COMBINED, player)) return;
+
         final CombinedConfig cc = pData.getGenericInstance(CombinedConfig.class);
         if (!cc.invulnerableCheck) return;
         final DamageCause cause = event.getCause();

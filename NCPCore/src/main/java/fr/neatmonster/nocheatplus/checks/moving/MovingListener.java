@@ -315,6 +315,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
     public void onPlayerBedLeave(final PlayerBedLeaveEvent event) {
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
+
+        if (!pData.isCheckActive(CheckType.MOVING, player)) return;
+
 	final MovingData data = pData.getGenericInstance(MovingData.class);
 	data.bedLeaveTime = System.currentTimeMillis();
         if (pData.isCheckActive(bedLeave.getType(), player) 
@@ -381,10 +384,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 }
                 final Material m = other.getLocation().getBlock().getType();
                 final double locY = other.getLocation().getY();
-                if (Math.abs(locY - minY) < 0.7 && BlockProperties.isLiquid(m)){
-                    return true; 
-                }
-                else return false;
+                return Math.abs(locY - minY) < 0.7 && BlockProperties.isLiquid(m);
             }
         return false;
     }	
@@ -403,6 +403,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
         final MovingData data = pData.getGenericInstance(MovingData.class);
+
+        if (!pData.isCheckActive(CheckType.MOVING, player)) return;
+
         final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
         data.clearMostMovingCheckData();
         // TODO: Might omit this if neither check is activated.
@@ -455,6 +458,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         processingEvents.put(player.getName(), event);
 
         final IPlayerData pData = DataManager.getPlayerData(player);
+
+        if (!pData.isCheckActive(CheckType.MOVING, player)) return;
+
         final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
         final MovingData data = pData.getGenericInstance(MovingData.class);
         data.increasePlayerMoveCount();
@@ -712,9 +718,6 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             else if (time < data.timeSprinting) {
                 data.timeSprinting = 0;
             }
-            else {
-                // keep sprinting time.
-            }
         }
         else if (time < data.timeSprinting) {
             data.timeSprinting = 0;
@@ -769,10 +772,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             prepareCreativeFlyCheck(player, from, to, moveInfo, thisMove, multiMoveCount, tick, data, cc);
         }
         else {
-            checkCf = true;
-            checkSf = false;
+            checkCf = checkSf = false;
             prepareCreativeFlyCheck(player, from, to, moveInfo, thisMove, multiMoveCount, tick, data, cc);
-			checkCf = checkSf = false;
             // (thisMove.flyCheck stays null.)
         }
 
@@ -1134,7 +1135,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
      * @param from
      * @param to
      * @param lastMove
-     * @param lastMove2 
+     * @param lastMove
      * @param tick
      * @param data
      * @param cc
@@ -1319,7 +1320,6 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
      * @param from
      * @param to
      * @param lastMove
-     * @param lastMove2 
      * @param tick
      * @param data
      * @return True, if bounce has been used, i.e. to do without fall damage.
@@ -1602,6 +1602,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
         final IPlayerData pData = DataManager.getPlayerData(event.getPlayer());
 
+        if (!pData.isCheckActive(CheckType.MOVING, player)) return;
+
         // Feed combined check.
         final CombinedData data = pData.getGenericInstance(CombinedData.class);
         data.lastMoveTime = now; // TODO: Move to MovingData ?
@@ -1833,6 +1835,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
         final IPlayerData pData = DataManager.getPlayerData(player);
         final boolean debug = pData.isDebugActive(checkType);
+
+        if (!pData.isCheckActive(CheckType.MOVING, player)) return;
+
         final MovingData data = pData.getGenericInstance(MovingData.class);
         final Location to = event.getTo();
         if (to == null) {
@@ -1967,6 +1972,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         // Evaluate result and adjust data.
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
+
+        if (!pData.isCheckActive(CheckType.MOVING, player)) return;
+
         final MovingData data = pData.getGenericInstance(MovingData.class);
 
         // Invalidate first-move thing.
@@ -2229,6 +2237,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
     public void onPlayerVelocity(final PlayerVelocityEvent event) {
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
+
+        if (!pData.isCheckActive(CheckType.MOVING, player)) return;
+
         final MovingData data = pData.getGenericInstance(MovingData.class);
         // Ignore players who are in vehicles.
         if (player.isInsideVehicle()) {
@@ -2289,6 +2300,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
     private void checkFallDamageEvent(final Player player, final EntityDamageEvent event) {
         final IPlayerData pData = DataManager.getPlayerData(player);
         final MovingData data = pData.getGenericInstance(MovingData.class);
+
+        if (!pData.isCheckActive(CheckType.MOVING, player)) return;
+
         if (player.isInsideVehicle()) {
             // Ignore vehicles (noFallFallDistance will be inaccurate anyway).
             data.clearNoFallData();
@@ -2452,6 +2466,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
     public void onPlayerRespawn(final PlayerRespawnEvent event) {
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
+
+        if (!pData.isCheckActive(CheckType.MOVING, player)) return;
+
         final MovingData data = pData.getGenericInstance(MovingData.class);
         // TODO: Prevent/cancel scheduled teleport (use PlayerData/task for teleport, or a sequence count).
         data.clearMostMovingCheckData();
@@ -2491,6 +2508,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
     @Override
     public void playerJoins(final Player player) {
         final IPlayerData pData = DataManager.getPlayerData(player);
+
+        if (!pData.isCheckActive(CheckType.MOVING, player)) return;
+
         dataOnJoin(player, player.getLocation(useLoc), 
                 false, pData.getGenericInstance(MovingData.class), 
                 pData.getGenericInstance(MovingConfig.class), 
@@ -2599,6 +2619,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
     @Override
     public void playerLeaves(final Player player) {
         final IPlayerData pData = DataManager.getPlayerData(player);
+
+        if (!pData.isCheckActive(CheckType.MOVING, player)) return;
+
         final MovingData data = pData.getGenericInstance(MovingData.class);
         final Location loc = player.getLocation(useLoc);
         // Debug logout.
@@ -2685,6 +2708,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             return;
         }
         final IPlayerData pData = DataManager.getPlayerData(player);
+
+        if (!pData.isCheckActive(CheckType.MOVING, player)) return;
+
         final MovingData data = pData.getGenericInstance(MovingData.class);
         final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
         final PlayerMoveInfo moveInfo = aux.usePlayerMoveInfo();

@@ -175,6 +175,8 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
             final int tick, final FightData data, final IPlayerData pData,
             final IPenaltyList penaltyList) {
 
+        if (!pData.isCheckActive(CheckType.FIGHT, player)) return false;
+
         final FightConfig cc = pData.getGenericInstance(FightConfig.class);
 
         // Hotfix attempt for enchanted books.
@@ -576,6 +578,9 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         IPenaltyList penaltyList = null;
         if (damagedPlayer != null) {
             final IPlayerData damagedPData = DataManager.getPlayerData(damagedPlayer);
+
+            if (!damagedPData.isCheckActive(CheckType.FIGHT, damagedPlayer)) return;
+
             damagedData = damagedPData.getGenericInstance(FightData.class);
             if (!damagedIsDead) {
                 // God mode check.
@@ -618,7 +623,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
             if (penaltyList == null) {
                 penaltyList = new DefaultPenaltyList();
             }
-            onEntityDamageByEntity(damaged, damagedPlayer, damagedIsDead, damagedIsFake, 
+            onEntityDamageByEntity(damaged, damagedPlayer, damagedIsDead, damagedIsFake,
                     damagedData, (EntityDamageByEntityEvent) event,
                     penaltyList);
         }
@@ -733,6 +738,9 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         if (damaged instanceof Player) {
             final Player damagedPlayer = (Player) damaged;
             final IPlayerData damagedPData = DataManager.getPlayerData(damagedPlayer);
+
+            if (!damagedPData.isCheckActive(CheckType.FIGHT, damagedPlayer)) return;
+
             final FightData damagedData = damagedPData.getGenericInstance(FightData.class);
             final int ndt = damagedPlayer.getNoDamageTicks();
             if (damagedData.lastDamageTick == TickTask.getTick() && damagedData.lastNoDamageTicks != ndt) {
@@ -956,6 +964,9 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
     public void onItemHeld(final PlayerItemHeldEvent event) {
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
+
+        if (!pData.isCheckActive(CheckType.FIGHT, player)) return;
+
         final long penalty = pData.getGenericInstance(FightConfig.class).toolChangeAttackPenalty;
         if (penalty > 0 ) {
             pData.getGenericInstance(FightData.class).attackPenalty.applyPenalty(penalty);

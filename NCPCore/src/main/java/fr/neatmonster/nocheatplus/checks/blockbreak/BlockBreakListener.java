@@ -132,6 +132,8 @@ public class BlockBreakListener extends CheckListener {
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
 
+        if (!pData.isCheckActive(CheckType.BLOCKBREAK, player)) return;
+
         // Illegal enchantments hotfix check.
         // TODO: Legacy / encapsulate fully there.
         if (Items.checkIllegalEnchantmentsAllHands(player, pData)) {
@@ -318,6 +320,9 @@ public class BlockBreakListener extends CheckListener {
 
         // Return if it is not left clicking a block. 
         // (Allows right click to be ignored.)
+
+        if (!DataManager.getPlayerData(event.getPlayer()).isCheckActive(CheckType.BLOCKBREAK, event.getPlayer())) return;
+
         isInstaBreak = AlmostBoolean.NO;
         if (event.getAction() != Action.LEFT_CLICK_BLOCK) {
             return;
@@ -343,6 +348,9 @@ public class BlockBreakListener extends CheckListener {
 
     @EventHandler(ignoreCancelled = false, priority = EventPriority.MONITOR)
     public void onBlockDamage(final BlockDamageEvent event) {
+
+        if (!DataManager.getPlayerData(event.getPlayer()).isCheckActive(CheckType.BLOCKBREAK, event.getPlayer())) return;
+
         if (!event.isCancelled() && event.getInstaBreak()) {
             // Keep MAYBE.
             if (isInstaBreak != AlmostBoolean.MAYBE) {
@@ -400,6 +408,9 @@ public class BlockBreakListener extends CheckListener {
 
     @EventHandler(ignoreCancelled = false, priority = EventPriority.MONITOR)
     public void onItemHeld(final PlayerItemHeldEvent event) {
+
+        if (!DataManager.getPlayerData(event.getPlayer()).isCheckActive(CheckType.BLOCKBREAK, event.getPlayer())) return;
+
         // Reset clicked block.
         // TODO: Not for 1.5.2 and before?
         final Player player = event.getPlayer();

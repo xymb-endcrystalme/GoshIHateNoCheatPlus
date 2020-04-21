@@ -145,6 +145,9 @@ public class BlockInteractListener extends CheckListener {
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
         final BlockInteractData data = pData.getGenericInstance(BlockInteractData.class);
+
+        if (!pData.isCheckActive(CheckType.BLOCKINTERACT, player)) return;
+
         data.resetLastBlock();
         // Early cancel for interact events with dead players and other.
         final int cancelId;
@@ -349,6 +352,9 @@ public class BlockInteractListener extends CheckListener {
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
         final BlockInteractData data = pData.getGenericInstance(BlockInteractData.class);
+
+        if (!pData.isCheckActive(CheckType.BLOCKINTERACT, player)) return;
+
         data.setPlayerInteractEventResolution(event);
         /*
          * TODO: BlockDamageEvent fires before BlockInteract/MONITOR level,
