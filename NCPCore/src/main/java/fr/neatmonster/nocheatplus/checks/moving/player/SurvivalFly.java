@@ -22,11 +22,11 @@ import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Levelled;
 import org.bukkit.block.data.Waterlogged;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
@@ -1152,6 +1152,7 @@ public class SurvivalFly extends Check {
             friction = 0.0; // Ensure friction can't be used to speed.
             useBaseModifiers = true;
             useBaseModifiersSprint = false;
+
         } else if (Bridge1_9.hasLevitation() && CollisionUtil.isCollidingWithEntities(player, true) && hAllowedDistance < 0.35) {
         	hAllowedDistance = 0.35;
         	useBaseModifiers = true;
@@ -2188,6 +2189,17 @@ public class SurvivalFly extends Check {
 			}
 			tags.add("hriptide");
 		}
+
+		// Attempt to fix server-side blocking
+		if (hDistanceAboveLimit > 0.0 && !Bridge1_9.hasGetItemInOffHand() && player.isBlocking() && tags.contains("usingitem")) {
+
+		    ItemStack stack = player.getInventory().getItemInHand();
+		    if (stack != null) {
+		        tags.add("itemreset");
+		        player.getInventory().setItemInHand(stack);
+            }
+
+        }
 
         // Add the hspeed tag on violation.
         if (hDistanceAboveLimit > 0.0) {
