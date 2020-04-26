@@ -773,7 +773,6 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
         else {
             checkCf = checkSf = false;
-            prepareCreativeFlyCheck(player, from, to, moveInfo, thisMove, multiMoveCount, tick, data, cc);
             // (thisMove.flyCheck stays null.)
         }
 
@@ -942,7 +941,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             }
             if (thisMove.toIsValid && data.applyexplosionvel && thisMove.yDistance < 3.0 && thisMove.yDistance > -3.0) {
                 data.applyexplosionvel = false;
-                data.addVerticalVelocity(new SimpleEntry(thisMove.yDistance, 1));
+                data.prependVerticalVelocity(new SimpleEntry(thisMove.yDistance, 1));
                 data.setFrictionJumpPhase();
             }
 

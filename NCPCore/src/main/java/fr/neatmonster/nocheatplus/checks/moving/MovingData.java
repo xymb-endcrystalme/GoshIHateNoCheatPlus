@@ -838,7 +838,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      * @return
      */
     public static int getHorVelValCount(double velocity) {
-        return Math.max(20,  1 + (int) Math.round(velocity * 10.0));
+        // TODO: Configable max cap
+        return Math.max(30,  1 + (int) Math.round(velocity * 10.0));
     }
 
     public void prependVerticalVelocity(final SimpleEntry entry) {

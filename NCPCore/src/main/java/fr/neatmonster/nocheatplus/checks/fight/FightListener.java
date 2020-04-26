@@ -673,7 +673,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
                 attacker = (Player) source;
             }
         }
-		if (damagedPlayer != null && !damagedIsDead && (damageCause == DamageCause.BLOCK_EXPLOSION 
+        if (damagedPlayer != null && !damagedIsDead && (damageCause == DamageCause.BLOCK_EXPLOSION 
                 || damageCause == DamageCause.ENTITY_EXPLOSION)) {
             final IPlayerData dpdata = DataManager.getPlayerData(damagedPlayer);
             if (dpdata != null) {
@@ -778,10 +778,10 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         final MovingConfig mcc = pData.getGenericInstance(MovingConfig.class);
         // TODO: How is the direction really calculated?
         // Aim at sqrt(vx * vx + vz * vz, 2), not the exact direction.
-        final double[] vel2Dvec = calculateHorizontalVelocity(attacker, damagedPlayer);
+        final double[] vel2Dvec = calculateVelocity(attacker, damagedPlayer);
         final double vx = vel2Dvec[0];
-        final double vz = vel2Dvec[1];
-        final double vy = 0.462; // TODO: (0.365) Needs other workarounds, to allow more when moving off ground (vel + GRAVITY_MAX or max jump gain + little?).
+        final double vz = vel2Dvec[2];
+        final double vy = vel2Dvec[1];
         useLoc1.setWorld(null); // Cleanup.
         if (pData.isDebugActive(checkType) || pData.isDebugActive(CheckType.MOVING)) {
             debug(damagedPlayer, "Received knockback level: " + level);
@@ -812,15 +812,15 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         // Cap the level to something reasonable. TODO: Config / cap the velocity anyway.
         return Math.min(20.0, level);
     }
-	
-	/**
-     * Better method to calculate horizontal velocity including direction!
+
+    /**
+     * Better method to calculate velocity including direction!
      * 
      * @param attacker
      * @param damagedPlayer
-     * @return velocityX, velocityZ
+     * @return velocityX, velocityY, velocityZ
      */
-    private double[] calculateHorizontalVelocity(final Player attacker, final Player damagedPlayer) {
+    private double[] calculateVelocity(final Player attacker, final Player damagedPlayer) {
         final Location aloc = attacker.getLocation();
         final Location dloc = damagedPlayer.getLocation();
         final double Xdiff = dloc.getX() - aloc.getX();
@@ -844,7 +844,8 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         if (Math.sqrt(Xdiff * Xdiff + Zdiff * Zdiff) < 1.0E-4D) {
             if (incknockbacklevel <= 0) incknockbacklevel = -~0;
             vx = vz = incknockbacklevel / Math.sqrt(8.0);
-            return new double[] {vx, vz};
+            final double vy = incknockbacklevel > 0 ? 0.465 : 0.365;
+            return new double[] {vx, vy, vz};
         } else {
             vx = Xdiff / diffdist * 0.4;
             vz = Zdiff / diffdist * 0.4;
@@ -858,7 +859,8 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
             //vx -= Math.sin(aloc.getYaw() * Math.PI / 180.0F) * incknockbacklevel * 0.5F;
             //vz += Math.cos(aloc.getYaw() * Math.PI / 180.0F) * incknockbacklevel * 0.5F;
         }
-        return new double[] {vx, vz};
+        final double vy = incknockbacklevel > 0 ? 0.465 : 0.365;
+        return new double[] {vx, vy, vz};
     }
 
     /**
@@ -946,8 +948,8 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
     	Entity entity = e.getRightClicked();
     	final Player player = e.getPlayer();
     	final FightData data = DataManager.getGenericInstance(player, FightData.class);
-    	
-    	data.exemptArmSwing = entity != null && entity.getType().name().equals("PARROT") ? true : false;
+
+        data.exemptArmSwing = entity != null && entity.getType().name().equals("PARROT") ? true : false;
     }
 
     @Override
