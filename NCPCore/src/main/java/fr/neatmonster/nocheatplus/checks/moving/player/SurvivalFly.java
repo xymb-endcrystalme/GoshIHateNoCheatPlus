@@ -1016,8 +1016,10 @@ public class SurvivalFly extends Check {
             // TODO: Test how to go with only checking from (less dolphins).
             // TODO: Sneaking and blocking applies to when in water !
             hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed / 100D;
-			useBaseModifiers = false;
-			if (sfDirty) friction = 0.0;
+            useBaseModifiers = false;
+            if (sfDirty) friction = 0.0;
+            // Pass downstream for later uses
+            if (!data.isdownstream) data.isdownstream = thisMove.downStream;
             if (thisMove.from.inWater || !thisMove.from.inLava) { // (We don't really have other liquids, though.)
                 final int level = BridgeEnchant.getDepthStriderLevel(player);
                 if (level > 0) {
@@ -1090,15 +1092,14 @@ public class SurvivalFly extends Check {
 				hAllowedDistance *= Magic.modDolphinsGrace;
                 if (level > 1) hAllowedDistance *= 1.0 + 0.07 * level;
             }
-            if (data.watermovect == 1) {
-                hAllowedDistance *= 1.35;
-                data.watermovect = 0;
-            }
+            if (data.watermovect == 1) hAllowedDistance *= 1.35;
+            data.watermovect = 1;
             final int blockdata = from.getData(from.getBlockX(), from.getBlockY(), from.getBlockZ());
             final int blockunderdata = from.getData(from.getBlockX(), from.getBlockY() -1, from.getBlockZ());
-            if (blockdata > 3 || blockunderdata > 3) {
+            if (blockdata > 3 || blockunderdata > 3 || data.isdownstream) {
                 data.watermovect = 0;
                 hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
+                data.isdownstream = false;
             }
 		}
         // TODO: !sfDirty is very coarse, should use friction instead.
