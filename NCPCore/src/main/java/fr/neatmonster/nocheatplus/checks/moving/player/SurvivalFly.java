@@ -360,11 +360,6 @@ public class SurvivalFly extends Check {
             data.sfOnIce--;
         }
 
-        /*
-         * TODO: if (Bridge1_9.isGlidingWithElytra(player)) { // Force stop
-         * gliding?
-         */
-
         // TODO: Remove these local variables ?
         double hAllowedDistance = 0.0, hDistanceAboveLimit = 0.0, hFreedom = 0.0;
         if (hasHdist) {
@@ -601,6 +596,7 @@ public class SurvivalFly extends Check {
                 vDistanceAboveLimit = blockMoveResult[1];
             }
         }
+
         // Push/pull sideways.
         // TODO: Slightly itchy: regard x and z separately (Better in another spot).
 
@@ -1094,8 +1090,10 @@ public class SurvivalFly extends Check {
 				hAllowedDistance *= Magic.modDolphinsGrace;
                 if (level > 1) hAllowedDistance *= 1.0 + 0.07 * level;
             }
-            if (data.watermovect == 1) hAllowedDistance *= 1.35;
-            data.watermovect = 1;
+            if (data.watermovect == 1) {
+                hAllowedDistance *= 1.35;
+                data.watermovect = 0;
+            }
             final int blockdata = from.getData(from.getBlockX(), from.getBlockY(), from.getBlockZ());
             final int blockunderdata = from.getData(from.getBlockX(), from.getBlockY() -1, from.getBlockZ());
             if (blockdata > 3 || blockunderdata > 3) {
