@@ -278,12 +278,8 @@ public class SurvivalFly extends Check {
 
         // Renew the "dirty"-flag (in-air phase affected by velocity).
         if (data.isVelocityJumpPhase() || data.resetVelocityJumpPhase(tags)) {
-			if (data.timeRiptiding + 500 > now) {
-				
-			} else {
             // (Reset is done after checks run.) 
             tags.add("dirty");
-			}
         }
 
         // Check if head is obstructed.
@@ -301,11 +297,7 @@ public class SurvivalFly extends Check {
             data.sfNoLowJump = true;
         }
     // Moving half on farmland(or end_potal_frame) and half on water
-    if (BlockProperties.collides(from.getBlockCache(), from.getMinX(), from.getMinY(), from.getMinZ(), from.getMaxX(), from.getMaxY(), from.getMaxZ(), BlockProperties.F_HEIGHT16_15) && (from.isInWater() || to.isInWater())) {
-        data.newHDist = true;
-    } else {
-        data.newHDist = false;
-    }
+    data.newHDist = BlockProperties.collides(from.getBlockCache(), from.getMinX(), from.getMinY(), from.getMinZ(), from.getMaxX(), from.getMaxY(), from.getMaxZ(), BlockProperties.F_HEIGHT16_15) && (from.isInWater() || to.isInWater());
 	
 	// Waterlogged 
     if (isWaterlogged(from)) {
@@ -318,12 +310,8 @@ public class SurvivalFly extends Check {
         thisMove.to.inWater = true;
         thisMove.to.inLiquid = true;
     }
-	
-	if ((from.getBlockFlags() & BlockProperties.F_HEIGHT_8_INC) != 0) {
-	    snowFix = true;
-	} else {
-	    snowFix = false;
-	}
+
+	snowFix = (from.getBlockFlags() & BlockProperties.F_HEIGHT_8_INC) != 0;
 
         //////////////////////
         // Horizontal move.
@@ -370,6 +358,7 @@ public class SurvivalFly extends Check {
             // Judge if horizontal speed is above limit.
             hDistanceAboveLimit = hDistance - hAllowedDistance;
 
+            // TODO: Remove this
 			if ((Bridge1_13.isRiptiding(player) || data.timeRiptiding + 4000 > now) && hDistanceAboveLimit < 3.0) {
             	hDistanceAboveLimit = 0;
             }
@@ -2271,7 +2260,7 @@ public class SurvivalFly extends Check {
                     } else if (hDistDiff * 15 >= hDistanceAboveLimit && hDistance < hDistanceBaseRef * 1.25) hDistanceAboveLimit = 0.0;
                     if (data.bunnyhopDelay == 1 && !thisMove.to.onGround && !to.isResetCond()) {
                         // ... one move between toonground and liftoff remains for hbuf ...
-                        data.bunnyhopDelay ++;
+                        data.bunnyhopDelay++;
                         tags.add("bunnyfly(keep)");
                     }
                     else {
@@ -2320,6 +2309,15 @@ public class SurvivalFly extends Check {
                 }
             }
 
+        }
+
+        // Fix jumping on slime blocks
+        if ((from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0
+                && (data.bunnyhopDelay <= 4 && data.bunnyhopTick == 0 || data.bunnyhopDelay == 6 && data.bunnyhopTick == 1)
+                && !thisMove.from.onGround && hDistance < 0.5) {
+            hDistanceAboveLimit = 0.0;
+            data.sfHorizontalBuffer = 0.5;
+            tags.add("bounce_bunny");
         }
 		
         // bunnyhop-> bunnyslope-> bunnyfriction-> ground-> microjump(still bunnyfriction)-> bunnyfriction
