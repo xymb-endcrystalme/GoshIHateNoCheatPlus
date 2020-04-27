@@ -555,7 +555,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
             debug(player, "PlayerItemHeldEvent, reset fastconsume (legacy: instanteat).");
         }
         data.instantBowInteract = 0;
-        data.instantEatInteract = 0;
+        data.instantEatInteract = System.currentTimeMillis();
         data.instantEatFood = null;
 
         // Illegal enchantments hotfix check.
