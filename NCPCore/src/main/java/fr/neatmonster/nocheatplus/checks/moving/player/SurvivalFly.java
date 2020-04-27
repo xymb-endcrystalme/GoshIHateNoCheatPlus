@@ -2273,6 +2273,21 @@ public class SurvivalFly extends Check {
                 }
             }
 
+            // More leniency for jumping with head obstructed
+            if (from.isHeadObstructed() && thisMove.to.onGround) {
+                if (data.bunnyhopTick == 5 && data.bunnyhopDelay == 7 && thisMove.from.onGround && hDistance <= 0.47) {
+                    hDistanceAboveLimit = 0.0;
+                    data.sfHorizontalBuffer = cc.hBufMax;
+                    tags.add("bunny_hbuf");
+                }
+
+                if (data.bunnyhopTick == 6 && data.bunnyhopDelay == 8 && hDistance <= 0.4) {
+                    hDistanceAboveLimit = 0.0;
+                    data.sfHorizontalBuffer = cc.hBufMax;
+                    tags.add("bunny_hbuf");
+                }
+            }
+
             // 2x horizontal speed increase detection.
             if (!allowHop && hDistance - lastMove.hDistance >= hDistanceBaseRef * 0.5 && hopTime == 1) {
                 if (lastMove.yDistance >= -Magic.GRAVITY_MAX / 2.0 && lastMove.yDistance <= 0.0 && yDistance >= 0.4 
