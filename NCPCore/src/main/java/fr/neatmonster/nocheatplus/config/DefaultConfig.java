@@ -393,7 +393,8 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_REACH_ACTIONS, "vl>1 log:freach:8:9:i vl>5 cancel log:freach:2:6:if vl>12 cancel log:freachhighvl:1:5:i vl>35 cancel log:freachhighvl:0:5:if cmdc:kicksuspiciouscombat:2:1", 1154);
         // SelfHit, legacy
         set(ConfPaths.FIGHT_SELFHIT_CHECK, "default", 785);
-	set(ConfPaths.FIGHT_SELFHIT_EXCLUDEPROJECTILE, false, 1154);
+	    set(ConfPaths.FIGHT_SELFHIT_EXCLUDEPROJECTILE, false, 1154);
+	    set(ConfPaths.FIGHT_SELFHIT_MESSAGE, true, 1154);
         set(ConfPaths.FIGHT_SELFHIT_ACTIONS, "cancel log:fselfhit:0:5:icf cmdc:kickselfhit:0:5", 1154);
         // Speed
         set(ConfPaths.FIGHT_SPEED_CHECK, "default", 785);

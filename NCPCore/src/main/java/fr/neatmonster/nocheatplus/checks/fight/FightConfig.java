@@ -73,6 +73,7 @@ public class FightConfig extends ACheckConfig {
 
     public final ActionList selfHitActions;
 	public final boolean    selfHitExcludeprojectile;
+	public final boolean    selfHitMessage;
 
     public final int        speedLimit;
     public final int        speedBuckets;
@@ -146,6 +147,7 @@ public class FightConfig extends ACheckConfig {
 
         selfHitActions = config.getOptimizedActionList(ConfPaths.FIGHT_SELFHIT_ACTIONS, Permissions.FIGHT_SELFHIT);
 		selfHitExcludeprojectile = config.getBoolean(ConfPaths.FIGHT_SELFHIT_EXCLUDEPROJECTILE);
+        selfHitMessage = config.getBoolean(ConfPaths.FIGHT_SELFHIT_MESSAGE);
 
         speedLimit = config.getInt(ConfPaths.FIGHT_SPEED_LIMIT);
         speedBuckets = config.getInt(ConfPaths.FIGHT_SPEED_BUCKETS_N, 6);

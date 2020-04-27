@@ -541,6 +541,7 @@ public abstract class ConfPaths {
     public static final String FIGHT_SELFHIT                             = FIGHT + "selfhit.";
     public static final String FIGHT_SELFHIT_CHECK                       = FIGHT_SELFHIT + SUB_ACTIVE;
 	public static final String FIGHT_SELFHIT_EXCLUDEPROJECTILE           = FIGHT_SELFHIT + "excludeprojectile";
+	public static final String FIGHT_SELFHIT_MESSAGE                     = FIGHT_SELFHIT + "warn_player";
     public static final String FIGHT_SELFHIT_ACTIONS                     = FIGHT_SELFHIT + "actions";
 
 

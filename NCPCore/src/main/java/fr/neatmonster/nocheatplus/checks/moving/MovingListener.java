@@ -2276,7 +2276,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                     if (!fconfig.selfHitExcludeprojectile && !pData.hasPermission(Permissions.FIGHT_SELFHIT, player) && data.selfhittime != 0 && data.selfhittime + 1100 > now) {
             		    // TODO: This feature must be configurable
             		    event.setCancelled(true);
-            		    player.sendMessage(ChatColor.DARK_RED + "Self-velocity is not allowed!");
+            		    if (fconfig.selfHitMessage) {
+                            player.sendMessage(ChatColor.DARK_RED + "Self-velocity is not allowed!");
+                        }
             		}
                     data.selfhittime = now;
                 }
