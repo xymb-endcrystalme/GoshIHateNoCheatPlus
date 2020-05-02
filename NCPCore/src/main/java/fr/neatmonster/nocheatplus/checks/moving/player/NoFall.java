@@ -16,6 +16,8 @@ package fr.neatmonster.nocheatplus.checks.moving.player;
 
 import java.util.Random;
 
+import fr.neatmonster.nocheatplus.components.registry.feature.TickListener;
+import fr.neatmonster.nocheatplus.utilities.TickTask;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -99,6 +101,7 @@ public class NoFall extends Check {
         double maxD = getDamage(fallDist);
         maxD = calcDamagewithfeatherfalling(player, calcReducedDamageByHB(player, maxD));
         fallOn(player, fallDist);
+
         if (maxD >= Magic.FALL_DAMAGE_MINIMUM) {
             // Check skipping conditions.
             if (cc.noFallSkipAllowFlight && player.getAllowFlight()) {
@@ -238,9 +241,23 @@ public class NoFall extends Check {
             final EntityDamageEvent event = BridgeHealth.getEntityDamageEvent(player, DamageCause.FALL, damage);
             Bukkit.getPluginManager().callEvent(event);
             if (!event.isCancelled()) {
-                // TODO: account for no damage ticks etc.
-                player.setLastDamageCause(event);
-                mcAccess.getHandle().dealFallDamage(player, BridgeHealth.getRawDamage(event));
+                // For some odd reason, player#setNoDamageTicks does not actually
+                // set the no damage ticks. As a workaround, wait for it to be zero and then damage the player.
+                if (player.getNoDamageTicks() > 0) {
+                    TickListener damagePlayer = new TickListener() {
+                        @Override
+                        public void onTick(int tick, long timeLast) {
+                            if (player.getNoDamageTicks() > 0) return;
+                            player.setLastDamageCause(event);
+                            mcAccess.getHandle().dealFallDamage(player, BridgeHealth.getRawDamage(event));
+                            TickTask.removeTickListener(this);
+                        }
+                    };
+                    TickTask.addTickListener(damagePlayer);
+                } else {
+                    player.setLastDamageCause(event);
+                    mcAccess.getHandle().dealFallDamage(player, BridgeHealth.getRawDamage(event));
+                }
             }
         }
 

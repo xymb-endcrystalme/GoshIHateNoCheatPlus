@@ -2547,7 +2547,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
 
         // Correct set back on join.
-        if (!data.hasSetBack() || data.hasSetBackWorldChanged(loc)) {
+        if (!data.hasSetBack() || !data.hasSetBackWorldChanged(loc)) {
             data.clearFlyData();
             data.setSetBack(loc);
             // (resetPositions is called below)
