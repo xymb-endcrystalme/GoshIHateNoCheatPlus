@@ -33,6 +33,7 @@ public class WrongTurnAdapter extends BaseAdapter {
 
 	@Override
 	public void onPacketReceiving(final PacketEvent event) {
+		if (event.isPlayerTemporary() || event.getPlayer() == null) return;
 		final StructureModifier<Float> floats = event.getPacket().getFloat();
 		final float pitch = floats.read(1);
 		final Player player = event.getPlayer();

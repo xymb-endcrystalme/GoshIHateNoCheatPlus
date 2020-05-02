@@ -45,7 +45,7 @@ public class Fight extends BaseAdapter{
     }
 
     public void handleAnmationPacket(final PacketEvent event) {
-        if (event.isPlayerTemporary()) return;
+        if (event.isPlayerTemporary() || event.getPlayer() == null) return;
         final FightData data = DataManager.getGenericInstance(event.getPlayer(), FightData.class);
         data.noSwingPacket = true;
         data.noSwingArmSwung = true;
