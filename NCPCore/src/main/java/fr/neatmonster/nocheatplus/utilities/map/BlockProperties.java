@@ -2028,7 +2028,7 @@ public class BlockProperties {
         // TODO: more configurability / load from file for blocks (i.e. set for shears etc.
         if (isAir(itemInHand)) {
             return getBreakingDuration(blockId, getBlockProps(blockId), noTool, 
-                    onGround, inWater, aquaAffinity, 0, 0); // Nor efficiency nor haste do apply.
+                    onGround, inWater, aquaAffinity, 0, haste); // Nor efficiency nor haste do apply.
         }
         else {
             int efficiency = 0;
