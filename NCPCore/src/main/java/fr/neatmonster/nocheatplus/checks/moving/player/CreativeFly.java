@@ -179,7 +179,7 @@ public class CreativeFly extends Check {
         }
 
         // Vertical move.
-        double limitV = 0.0; // Limit.
+        double limitV = 0.0; // Limit. - What's the use of limitV & limitH?
         double resultV = rese[0]; // Violation (normalized to 100 * 1 block, applies if > 0.0).
 
         // Distinguish checking method by y-direction of the move.
@@ -596,7 +596,7 @@ public class CreativeFly extends Check {
                     // Inversion (neg -> pos , pos -> neg).
                     && !(allwyDistance > 0.0 && yDistance > -0.25)) {
                     tags.add("elytra_v_desc");
-                    return new double[] {Math.abs(yDistance), 0.0};
+                    return new double[] {yDistance, 0.0};
                 }
             }
             if (allwHDistance < hDistance) {
