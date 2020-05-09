@@ -150,6 +150,17 @@ public class Bridge1_9 {
     }
 
     /**
+     * Set the main hand item
+     *
+     * @param player
+     * @param item
+     */
+    public static void setItemInMainHand(final Player player, final ItemStack item) {
+        if (hasGetItemInMainHand) player.getInventory().setItemInMainHand(item);
+        else player.setItemInHand(item);
+    }
+
+    /**
      * Get the off hand item.
      * 
      * @param player

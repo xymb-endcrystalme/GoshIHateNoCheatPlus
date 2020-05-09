@@ -2180,13 +2180,14 @@ public class SurvivalFly extends Check {
 			tags.add("hriptide");
 		}
 
-		// Attempt to fix server-side blocking
-		if (hDistanceAboveLimit > 0.0 && !Bridge1_9.hasGetItemInOffHand() && player.isBlocking() && tags.contains("usingitem")) {
+        // Attempt to fix server-side blocking & bow drawn
+        if (hDistanceAboveLimit > 0.0 && tags.contains("usingitem") && (!Bridge1_9.hasGetItemInOffHand() && player.isBlocking() || Bridge1_9.getItemInMainHand(player).getType() == Material.BOW)) {
 
-		    ItemStack stack = player.getInventory().getItemInHand();
-		    if (stack != null) {
-		        tags.add("itemreset");
-		        player.getInventory().setItemInHand(stack);
+            ItemStack stack = Bridge1_9.getItemInMainHand(player);
+            if (stack != null) {
+                tags.add("itemreset");
+                Bridge1_9.setItemInMainHand(player, new ItemStack(Material.AIR));
+                Bridge1_9.setItemInMainHand(player, stack);
             }
 
         }
