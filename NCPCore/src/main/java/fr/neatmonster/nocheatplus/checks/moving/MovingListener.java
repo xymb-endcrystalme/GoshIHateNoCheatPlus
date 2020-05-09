@@ -2367,6 +2367,15 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                     if (debug) {
                         debug(player, "NoFall/Damage: allow fall damage in lava (hotfix).");
                     }
+                } else if (moveInfo.to.isOnClimbable() && moveInfo.from.isOnClimbable()) {
+
+                    // Fix issues when gliding down vines with elytra.
+                    // TODO: Maybe more conditions to check to see if the player was gliding?
+                    // Checking for velocity does not work since sometimes it can be applied after this check runs
+
+                    if (debug) {
+                        debug(player, "Ignore fakefall on climbable");
+                    }
                 }
                 else if (noFallVL(player, "fakefall", data, cc)) {
                     // NOTE: Double violations are possible with the in-air check below.
