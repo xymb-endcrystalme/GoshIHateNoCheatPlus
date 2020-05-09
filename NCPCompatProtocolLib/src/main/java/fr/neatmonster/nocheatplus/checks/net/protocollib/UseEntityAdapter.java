@@ -45,7 +45,7 @@ public class UseEntityAdapter extends BaseAdapter {
         final Method methodName_legacy;
 
         /**
-         * 
+         *
          * @param versionDetail
          * @throws RuntimeException
          *             if not matching/supported.
@@ -130,7 +130,7 @@ public class UseEntityAdapter extends BaseAdapter {
             // TODO: Warn once?
             return;
         }
-        final IPlayerData pData = DataManager.getPlayerData(player);
+        final IPlayerData pData = DataManager.getPlayerDataSafe(player);
 
         if (!pData.isCheckActive(CheckType.NET, player)) return;
 
@@ -185,7 +185,7 @@ public class UseEntityAdapter extends BaseAdapter {
         // AttackFrequency
         if (isAttack) {
             final NetConfig cc = pData.getGenericInstance(NetConfig.class);
-            if (attackFrequency.isEnabled(player, pData) 
+            if (attackFrequency.isEnabled(player, pData)
                     && attackFrequency.check(player, time, data, cc, pData)) {
                 cancel = true;
             }

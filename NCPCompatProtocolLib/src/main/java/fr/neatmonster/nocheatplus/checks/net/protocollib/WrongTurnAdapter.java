@@ -22,7 +22,7 @@ import fr.neatmonster.nocheatplus.players.IPlayerData;
 
 public class WrongTurnAdapter extends BaseAdapter {
 
-	private final WrongTurn wrongTurn = new WrongTurn(); 
+	private final WrongTurn wrongTurn = new WrongTurn();
 
 	public WrongTurnAdapter(Plugin plugin) {
 		super(plugin, ListenerPriority.LOW, PacketType.Play.Client.LOOK, PacketType.Play.Client.POSITION_LOOK);
@@ -38,9 +38,9 @@ public class WrongTurnAdapter extends BaseAdapter {
 		final float pitch = floats.read(1);
 		final Player player = event.getPlayer();
 
-		final IPlayerData pData = DataManager.getPlayerData(player);
-        final NetData data = pData.getGenericInstance(NetData.class);
-        final NetConfig cc = pData.getGenericInstance(NetConfig.class);
+		final IPlayerData pData = DataManager.getPlayerDataSafe(player);
+		final NetData data = pData.getGenericInstance(NetData.class);
+		final NetConfig cc = pData.getGenericInstance(NetConfig.class);
 
 		if (pData.isCheckActive(CheckType.NET_WRONGTURN, player) && wrongTurn.check(player, pitch, data, cc)) {
 			event.setCancelled(true); // Is it a good idea to cancel or should we just reset the players pitch?

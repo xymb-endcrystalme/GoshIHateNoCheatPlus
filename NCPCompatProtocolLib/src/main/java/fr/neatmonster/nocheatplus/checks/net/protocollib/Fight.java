@@ -25,13 +25,14 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketEvent;
 
 import fr.neatmonster.nocheatplus.checks.fight.FightData;
+import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.players.DataManager;
 
 public class Fight extends BaseAdapter{
     private static PacketType[] initPacketTypes() {
         final List<PacketType> types = new LinkedList<PacketType>(Arrays.asList(
                 PacketType.Play.Client.ARM_ANIMATION
-                ));
+        ));
         return types.toArray(new PacketType[types.size()]);
     }
 
@@ -46,7 +47,8 @@ public class Fight extends BaseAdapter{
 
     public void handleAnmationPacket(final PacketEvent event) {
         if (event.isPlayerTemporary() || event.getPlayer() == null) return;
-        final FightData data = DataManager.getGenericInstance(event.getPlayer(), FightData.class);
+        final IPlayerData pData = DataManager.getPlayerDataSafe(event.getPlayer());
+        final FightData data = pData.getGenericInstance(FightData.class);
         data.noSwingPacket = true;
         data.noSwingArmSwung = true;
     }
