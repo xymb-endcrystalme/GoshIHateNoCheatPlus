@@ -575,7 +575,7 @@ public class CreativeFly extends Check {
             && Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player)) && !isCollideWithHB(from, to)
                 ) {
                 tags.add("elytra_v_keep");
-                return new double[] {yDistance == 0.0 ? 0.1 : Math.abs(yDistance), 0.0};
+                return new double[] {yDistance == 0.0 ? 0.1 : yDistance, 0.0};
             }
 
             // Adjust false
@@ -596,7 +596,7 @@ public class CreativeFly extends Check {
                     // Inversion (neg -> pos , pos -> neg).
                     && !(allwyDistance > 0.0 && yDistance > -0.25)) {
                     tags.add("elytra_v_desc");
-                    return new double[] {yDistance, 0.0};
+                    return new double[] {0.0, 0.0};
                 }
             }
             if (allwHDistance < hDistance) {
