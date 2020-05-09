@@ -497,7 +497,7 @@ public class SurvivalFly extends Check {
         
         // Simple way to prevent players from sprinting if they have the blindness effect. 
         // Possibly just merge this with sprintback?
-        if (sprinting && player.hasPotionEffect(PotionEffectType.BLINDNESS)
+        if (player.isSprinting() && player.hasPotionEffect(PotionEffectType.BLINDNESS)
 	    && data.lostSprintCount == 0
             && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_SPRINTING, player)) {
             hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
