@@ -26,6 +26,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -125,14 +126,17 @@ public class NoFall extends Check {
             player.setFallDistance(0);
         }
     }
-    
+
     private void fallOn(final Player player, final double fallDist) {
         Block block = player.getLocation().subtract(0, 1, 0).getBlock();
         if (block.getType() == BridgeMaterial.FARMLAND && fallDist > 0.5 && random.nextFloat() < fallDist - 0.5) {
             final PlayerInteractEvent event = new PlayerInteractEvent(player, Action.PHYSICAL, null, block, BlockFace.SELF);
+            final EntityChangeBlockEvent blockEvent = new EntityChangeBlockEvent(player, block, Bukkit.createBlockData(Material.DIRT));
             Bukkit.getPluginManager().callEvent(event);
-            if (!event.isCancelled()) {
+            Bukkit.getPluginManager().callEvent(blockEvent);
+            if (!event.isCancelled() && !blockEvent.isCancelled()) {
                 //Move up a little bit in order not to stuck in a block
+                // TODO: Change the players velocity to be smoother
                 player.setVelocity(player.getLocation().getDirection().clone().setY(0.0626).setX(-0.004).setZ(-0.004));
                 block.setType(Material.DIRT);
             }
