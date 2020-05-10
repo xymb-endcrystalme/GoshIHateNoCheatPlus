@@ -3,8 +3,12 @@ package fr.neatmonster.nocheatplus.checks.blockplace;
 import java.util.LinkedList;
 import java.util.List;
 
+import fr.neatmonster.nocheatplus.checks.moving.MovingData;
+import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.components.registry.feature.TickListener;
 import fr.neatmonster.nocheatplus.utilities.TickTask;
+import fr.neatmonster.nocheatplus.utilities.location.LocUtil;
+import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
@@ -22,6 +26,11 @@ public class Scaffold extends Check {
 	public Scaffold() {
 		super(CheckType.BLOCKPLACE_SCAFFOLD);
     }
+
+    // TODO: Need to clean this up do some more testing to see if some of these conditions are actually needed now.
+	// More specifically: Time needs to be redone. Total mess right now and doesn't always work as intended
+	// VL calculation needs to be better, each sub-check should effect the VL in a different way. It can be hard
+	// to increase VL unless used for a longer time.
 	
 	final static double MAX_ANGLE = Math.toRadians(90);
 
@@ -35,6 +44,8 @@ public class Scaffold extends Check {
 		final Vector placedVector = new Vector(placedFace.getModX(), placedFace.getModY(), placedFace.getModZ());
 	    float placedAngle = player.getLocation().getDirection().angle(placedVector);
 	    long now = System.currentTimeMillis();
+	    final PlayerMoveData thisMove = pData.getGenericInstance(MovingData.class).playerMoves.getCurrentMove();
+	    final boolean backwards = TrigUtil.isMovingBackwards(thisMove.to.getX() - thisMove.from.getX(), thisMove.to.getZ() - thisMove.from.getZ(), LocUtil.correctYaw(thisMove.from.getYaw()));
 	        
 	    // Angle Check
 	    if (cc.scaffoldAngle && placedAngle > MAX_ANGLE) {
@@ -48,7 +59,7 @@ public class Scaffold extends Check {
 	    }
 	    
 	    // Average time check
-	    if (!isCancelled && cc.scaffoldTime && data.sneakTime + 150 < now && !player.hasPotionEffect(PotionEffectType.SPEED)) {
+	    if (backwards && !isCancelled && cc.scaffoldTime && data.sneakTime + 150 < now && !player.hasPotionEffect(PotionEffectType.SPEED)) {
 			// TODO: need to make this more efficient
 			if (data.placeTime.size() > 2) {
 				long avg = 0;
@@ -91,7 +102,7 @@ public class Scaffold extends Check {
 
 		// Sprint check
 		long diff = System.currentTimeMillis() - data.sprintTime;
-		if (extraChecks && cc.scaffoldSprint && diff < 400 && yDistance < 0.1 && jumpPhase < 4) {
+		if (backwards && extraChecks && cc.scaffoldSprint && diff < 400 && yDistance < 0.1 && jumpPhase < 4) {
 			ViolationData vd = new ViolationData(this, player, data.scaffoldVL, 1, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions);
 			tags.add("Sprint");
 			if (vd.needsParameters()) {
