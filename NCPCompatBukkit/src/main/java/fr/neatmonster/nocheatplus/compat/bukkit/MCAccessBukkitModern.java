@@ -81,6 +81,8 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             0.0625, 0.875);
     private static final BukkitShapeModel MODEL_HONEY_BLOCK = new BukkitStatic(
             0.0625, 0.9375);
+    private static final BukkitShapeModel MODEL_HOPPER = new BukkitStatic(
+            0, 0.25, 0, 1, 1, 1);
 
     // Static blocks with full height sorted by inset.
     private static final BukkitShapeModel MODEL_INSET16_1_HEIGHT100 = new BukkitStatic(
@@ -162,7 +164,6 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         for (final Material mat : new Material[] {
                 Material.CAULDRON,
                 BridgeMaterial.COBWEB,
-                Material.HOPPER,
                 BridgeMaterial.MOVING_PISTON,
                 Material.SNOW,
                 Material.CAKE,
@@ -191,6 +192,9 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
         // End rod.
         addModel(Material.END_ROD, MODEL_END_ROD);
+
+        // Hoppers - min height changed in 1.13+
+        addModel(Material.HOPPER, MODEL_HOPPER);
 
         // 1/16 inset at full height.
         for (Material mat : new Material[] {

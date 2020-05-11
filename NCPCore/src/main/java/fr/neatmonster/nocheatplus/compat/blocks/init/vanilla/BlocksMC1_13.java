@@ -186,6 +186,9 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         BlockProperties.setBlockProps("TURTLE_EGG", new BlockProps(
                 BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.7)));
 
+        BlockProperties.setBlockFlags(Material.HOPPER,
+                BlockProperties.F_GROUND | BlockProperties.F_SOLID | BlockProperties.F_XZ100 | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_IGN_PASSABLE);
+
         // Grass path.
         BlockFlags.removeFlags(Material.GRASS_PATH, BlockProperties.F_HEIGHT100);
         BlockFlags.addFlags(Material.GRASS_PATH, 
