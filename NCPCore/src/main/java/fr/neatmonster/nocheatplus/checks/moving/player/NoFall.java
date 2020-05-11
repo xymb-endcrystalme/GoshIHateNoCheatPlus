@@ -134,7 +134,7 @@ public class NoFall extends Check {
             final EntityChangeBlockEvent blockEvent = new EntityChangeBlockEvent(player, block, Bukkit.createBlockData(Material.DIRT));
             Bukkit.getPluginManager().callEvent(event);
             Bukkit.getPluginManager().callEvent(blockEvent);
-            if (!event.isCancelled() || !blockEvent.isCancelled()) {
+            if (!event.isCancelled() && !blockEvent.isCancelled()) {
                 //Move up a little bit in order not to stuck in a block
                 // TODO: Change the players velocity to be smoother
                 player.setVelocity(player.getLocation().getDirection().clone().setY(0.0626).setX(-0.004).setZ(-0.004));
