@@ -204,11 +204,11 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_ANGLE, true, 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_SPRINT, true, 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_ACTIVE, true, 1154);
-        set(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_AVG, 238, 1154);
-        set(ConfPaths.BLOCKPLACE_SCAFFOLD_PITCH_ACTIVE, true, 1154);
-        set(ConfPaths.BLOCKPLACE_SCAFFOLD_PITCH_DIFFERENCE, 20, 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_AVG, 6, 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_ACTIVE, true, 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_DIFFERENCE, 90, 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_TOOLSWITCH, true, 1154);
-        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, "vl>2 cancel vl>10 cancel log:scaffold:3:7:if vl>60 cancel log:scaffold:0:5:if cmd:clearscaffold:0:1 cmdc:kickscaffold:0:1", 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, "vl>1 cancel vl>15 cancel log:scaffold:3:7:if vl>70 cancel log:scaffold:0:5:if cmd:clearscaffold:0:1 cmdc:kickscaffold:0:1", 1154);
         // Speed
         set(ConfPaths.BLOCKPLACE_SPEED_CHECK, "default", 785);
         set(ConfPaths.BLOCKPLACE_SPEED_INTERVAL, 35L, 1154); // Old limit: 45L < FPs with throwable potions.

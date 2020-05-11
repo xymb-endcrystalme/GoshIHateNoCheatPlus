@@ -15,6 +15,7 @@
 package fr.neatmonster.nocheatplus.checks.blockplace;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import fr.neatmonster.nocheatplus.checks.access.ACheckData;
 import fr.neatmonster.nocheatplus.utilities.ds.count.ActionFrequency;
@@ -40,12 +41,10 @@ public class BlockPlaceData extends ACheckData {
     public long autoSignPlacedHash = 0;
 
     // Scaffold data
-    public long lastPlaceTime = 0;
-	public  long lastPlaceAvg = 0;
-	public ArrayList<Long> placeTime = new ArrayList<Long>();
+    public List<Long> placeTick = new ArrayList<>();
 	public long sneakTime = 0;
 	public long sprintTime = 0;
-	public float lastPitch = 0;
+	public float lastYaw = 0;
 	public int lastSlot = 0;
 	public long currentTick = 0;
 	public boolean cancelNextPlace = false;

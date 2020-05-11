@@ -56,8 +56,8 @@ public class BlockPlaceConfig extends ACheckConfig {
     public final boolean scaffoldTime;
     public final int     scaffoldTimeAvg;
     public final boolean scaffoldSprint;
-    public final boolean scaffoldPitch;
-    public final int     scaffoldPitchDiff;
+    public final boolean scaffoldRotate;
+    public final int     scaffoldRotateDiff;
     public final boolean scaffoldToolSwitch;
 
     public final long       speedInterval;
@@ -103,8 +103,8 @@ public class BlockPlaceConfig extends ACheckConfig {
         scaffoldTime = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_ACTIVE);
         scaffoldTimeAvg = config.getInt(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_AVG);
         scaffoldSprint = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_SPRINT);
-        scaffoldPitch = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_PITCH_ACTIVE);
-        scaffoldPitchDiff = config.getInt(ConfPaths.BLOCKPLACE_SCAFFOLD_PITCH_DIFFERENCE);
+        scaffoldRotate = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_ACTIVE);
+        scaffoldRotateDiff = config.getInt(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_DIFFERENCE);
         scaffoldToolSwitch = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_TOOLSWITCH);
 
         speedInterval = config.getLong(ConfPaths.BLOCKPLACE_SPEED_INTERVAL);

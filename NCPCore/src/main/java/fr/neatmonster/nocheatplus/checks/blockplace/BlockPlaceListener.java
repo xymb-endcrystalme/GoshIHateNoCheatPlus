@@ -15,7 +15,6 @@
 package fr.neatmonster.nocheatplus.checks.blockplace;
 
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
-import fr.neatmonster.nocheatplus.checks.moving.model.LocationData;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -62,6 +61,9 @@ import fr.neatmonster.nocheatplus.utilities.TickTask;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 import fr.neatmonster.nocheatplus.utilities.map.MaterialUtil;
 import fr.neatmonster.nocheatplus.worlds.WorldFactoryArgument;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Central location to listen to events that are relevant for the block place checks.
@@ -124,11 +126,13 @@ public class BlockPlaceListener extends CheckListener {
 
     private final Class<?> blockMultiPlaceEvent = ReflectionUtil.getClass("org.bukkit.event.block.BlockMultiPlaceEvent");
     private final boolean hasGetReplacedState = ReflectionUtil.getMethodNoArgs(BlockPlaceEvent.class, "getReplacedState", BlockState.class) != null;
+    public final List<BlockFace> faces;
 
     @SuppressWarnings("unchecked")
     public BlockPlaceListener() {
         super(CheckType.BLOCKPLACE);
         final NoCheatPlusAPI api = NCPAPIProvider.getNoCheatPlusAPI();
+        faces = Arrays.asList(new BlockFace[] {BlockFace.SOUTH, BlockFace.WEST, BlockFace.EAST, BlockFace.NORTH});
         api.register(api.newRegistrationContext()
                 // BlockPlaceConfig
                 .registerConfigWorld(BlockPlaceConfig.class)
@@ -254,31 +258,18 @@ public class BlockPlaceListener extends CheckListener {
             cancelled = true;
         }
 
+        // Scaffold Check
         // Null check because I guess it can return null sometimes?
         if (Scaffold.isEnabled(player, pData) && placedFace != null) {
             MovingData mData = pData.getGenericInstance(MovingData.class);
-            LocationData currentMove = mData.playerMoves.getCurrentMove().from;
-            Location fromLoc = new Location(player.getWorld(), currentMove.getX(), currentMove.getY(), currentMove.getZ());
-            double fromDist = fromLoc.distance(blockPlaced.getLocation());
-            switch (placedFace) {
-                case NORTH:
-                case SOUTH:
-                case EAST:
-                case WEST:
-                    shouldCheck = true;
-                    break;
-                default:
-                    shouldCheck = false;
-                    break;
-            }
 
-            final boolean extraChecks = fromDist < 2D && Math.abs(fromDist - distance) < 0.499;
-            if (shouldCheck && player.getLocation().getY() - blockPlaced.getY() < 2D
+            if (faces.contains(placedFace) && player.getLocation().getY() - blockPlaced.getY() < 2D
                     && player.getLocation().getY() - blockPlaced.getY() >= 1D
                     && blockPlaced.getType().isSolid() && distance < 2D) {
+
                 cancelled = data.cancelNextPlace && (Math.abs(data.currentTick - TickTask.getTick()) < 10)
-                        || Scaffold.check(player, placedFace, pData, data, cc, event.isCancelled(), mData.playerMoves.getCurrentMove().yDistance, mData.sfJumpPhase, extraChecks);
-                if (!cancelled) data.scaffoldVL *= 0.97;
+                        || Scaffold.check(player, placedFace, pData, data, cc, event.isCancelled(), mData.playerMoves.getCurrentMove().yDistance, mData.sfJumpPhase);
+                if (!cancelled) data.scaffoldVL *= 0.98;
             }
             data.cancelNextPlace = false;
         }
@@ -577,6 +568,7 @@ public class BlockPlaceListener extends CheckListener {
         useLoc.setWorld(null);
     }
 
+    // TODO: remove this
     @EventHandler(priority = EventPriority.MONITOR)
     public void onMove(PlayerMoveEvent event) {
     	Player player = event.getPlayer();
@@ -586,9 +578,9 @@ public class BlockPlaceListener extends CheckListener {
         if (!pData.isCheckActive(CheckType.BLOCKPLACE, player)) return;
 
         if (player.isSprinting()) {
-        	data.sprintTime = System.currentTimeMillis();
+        	data.sprintTime = TickTask.getTick();
         } else if (player.isSneaking()) {
-        	data.sneakTime = System.currentTimeMillis();
+        	data.sneakTime = TickTask.getTick();
         }
 
     }

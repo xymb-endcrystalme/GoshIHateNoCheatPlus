@@ -3,12 +3,8 @@ package fr.neatmonster.nocheatplus.checks.blockplace;
 import java.util.LinkedList;
 import java.util.List;
 
-import fr.neatmonster.nocheatplus.checks.moving.MovingData;
-import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.components.registry.feature.TickListener;
 import fr.neatmonster.nocheatplus.utilities.TickTask;
-import fr.neatmonster.nocheatplus.utilities.location.LocUtil;
-import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
@@ -21,116 +17,105 @@ import fr.neatmonster.nocheatplus.checks.ViolationData;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
 
+/**
+ * Check for common behavior from a client using the "Scaffold" cheat.
+ * Each sub-check should cover areas that one sub-check may not cover.
+ * If the cheat does not flag any other sub-checks, the time sub-check
+ * Should enforce realistic time between block placements.
+ */
+
 public class Scaffold extends Check {
+
+	final static double MAX_ANGLE = Math.toRadians(90);
+	public List<String> tags = new LinkedList<>();
 	
 	public Scaffold() {
 		super(CheckType.BLOCKPLACE_SCAFFOLD);
     }
 
-    // TODO: Need to clean this up do some more testing to see if some of these conditions are actually needed now.
-	// More specifically: Time needs to be redone. Total mess right now and doesn't always work as intended
-	// VL calculation needs to be better, each sub-check should effect the VL in a different way. It can be hard
-	// to increase VL unless used for a longer time.
-	
-	final static double MAX_ANGLE = Math.toRadians(90);
-
-	public boolean check(Player player, BlockFace placedFace, final IPlayerData pData,
+	/**
+	 * Check the player for Scaffold cheats
+	 *
+	 * @param player the player
+	 * @param placedFace blockface player placed against
+	 * @param pData player data
+	 * @param data block place data
+	 * @param cc block place config
+	 * @param isCancelled is the event cancelled
+	 * @param yDistance players current yDistance for this move
+	 * @param jumpPhase players jump phase
+	 * @return
+	 */
+	public boolean check(final Player player, final BlockFace placedFace, final IPlayerData pData,
 						 final BlockPlaceData data, final BlockPlaceConfig cc, final boolean isCancelled,
-						 final double yDistance, final int jumpPhase, final boolean extraChecks) {
+						 final double yDistance, final int jumpPhase) {
 		boolean cancel = false;
-		Scaffold thisCheck = this;
-		List<String> tags = new LinkedList<>();
-		
-		final Vector placedVector = new Vector(placedFace.getModX(), placedFace.getModY(), placedFace.getModZ());
-	    float placedAngle = player.getLocation().getDirection().angle(placedVector);
-	    long now = System.currentTimeMillis();
-	    final PlayerMoveData thisMove = pData.getGenericInstance(MovingData.class).playerMoves.getCurrentMove();
-	    final boolean backwards = TrigUtil.isMovingBackwards(thisMove.to.getX() - thisMove.from.getX(), thisMove.to.getZ() - thisMove.from.getZ(), LocUtil.correctYaw(thisMove.from.getYaw()));
-	        
-	    // Angle Check
-	    if (cc.scaffoldAngle && placedAngle > MAX_ANGLE) {
-	    	ViolationData vd = new ViolationData(this, player, data.scaffoldVL, 1, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions);
-	    	tags.add("Angle");
-	    	if (vd.needsParameters()) {
-	    		vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
-	    	}
-	    	cancel = executeActions(vd).willCancel();
-			data.scaffoldVL += 1D;
-	    }
-	    
-	    // Average time check
-	    if (backwards && !isCancelled && cc.scaffoldTime && data.sneakTime + 150 < now && !player.hasPotionEffect(PotionEffectType.SPEED)) {
-			// TODO: need to make this more efficient
-			if (data.placeTime.size() > 2) {
-				long avg = 0;
-				for (int i = 0; i < data.placeTime.size(); i++) {
-					avg += data.placeTime.get(i);
-				}
-				avg = avg / data.placeTime.size();
-				if (avg < cc.scaffoldTimeAvg) {
-					ViolationData vd = new ViolationData(this, player, data.scaffoldVL, 1, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions);
-			    	tags.add("Time");
-			    	if (vd.needsParameters()) {
-			    		vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
-			    	}
-					cancel = executeActions(vd).willCancel();
-					data.scaffoldVL += 1D;
-				}
-				data.lastPlaceAvg = avg;
-				data.placeTime.clear();
-				data.lastPlaceTime = 0L;
-				
-			} else {
-				if (data.lastPlaceTime == 0) {
-					data.lastPlaceTime = now;
-				} else {
-					long diff = now - data.lastPlaceTime;
-					data.placeTime.add(diff);
-					data.lastPlaceTime = now;
-					if (diff <= data.lastPlaceAvg && data.lastPlaceAvg < cc.scaffoldTimeAvg) {
-						ViolationData vd = new ViolationData(this, player, data.scaffoldVL, 1, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions);
-				    	tags.add("TimeAvg");
-				    	if (vd.needsParameters()) {
-				    		vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
-				    	}
-						cancel = executeActions(vd).willCancel();
-						data.scaffoldVL += 1D;
-					}
-				}
-			}
-		}
 
-		// Sprint check
-		long diff = System.currentTimeMillis() - data.sprintTime;
-		if (backwards && extraChecks && cc.scaffoldSprint && diff < 400 && yDistance < 0.1 && jumpPhase < 4) {
-			ViolationData vd = new ViolationData(this, player, data.scaffoldVL, 1, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions);
-			tags.add("Sprint");
-			if (vd.needsParameters()) {
-				vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
-			}
-			cancel = executeActions(vd).willCancel();
-			data.scaffoldVL += 1D;
+		// Update sneakTime since the player may have unsneaked after the last move.
+		if (player.isSneaking()) {
+			data.sneakTime = data.currentTick;
 		}
 
 		data.currentTick = TickTask.getTick();
 
-	    // Pitch Check
-		if (cc.scaffoldPitch) {
-			data.lastPitch = player.getLocation().getPitch();
+	    // Angle Check - Check if the player is looking at the block (Should already be covered by BlockInteract.Direction)
+	    if (cc.scaffoldAngle) {
+			final Vector placedVector = new Vector(placedFace.getModX(), placedFace.getModY(), placedFace.getModZ());
+			float placedAngle = player.getLocation().getDirection().angle(placedVector);
+
+			if (placedAngle > MAX_ANGLE) cancel = violation("Angle", Math.min(Math.max(1, (int) (placedAngle - MAX_ANGLE) * 10), 10), player, data, pData);
+	    }
+
+	    // Time Check - A FastPlace check but for Scaffold type block placements. If all other sub-checks fail to detect the cheat this
+		// Should ensure the player cannot quickly place blocks below themselves.
+	    if (cc.scaffoldTime && !isCancelled && Math.abs(player.getLocation().getPitch()) > 70
+				&& (data.currentTick - data.sneakTime) > 3 && !player.hasPotionEffect(PotionEffectType.SPEED)) {
+	    	data.placeTick.add(data.currentTick);
+	    	if (data.placeTick.size() > 2) {
+	    		long sum = 0;
+	    		long lastTick = 0;
+	    		for (int i = 0; i < data.placeTick.size(); i++) {
+	    			long tick = data.placeTick.get(i);
+
+					if (lastTick != 0) {
+						sum += (tick - lastTick);
+					}
+
+					lastTick = tick;
+
+				}
+
+	    		double avg = sum /data.placeTick.size();
+	    		if (avg < cc.scaffoldTimeAvg) {
+	    			cancel = violation("Time", Math.min((cc.scaffoldTimeAvg - (int) avg), 5), player, data, pData);
+	    			if (data.placeTick.size() > 20) data.placeTick.clear(); // Clear if it gets too big to prevent players being unable to place blocks
+				} else {
+	    			data.placeTick.clear();
+				}
+			}
+		}
+
+		// Sprint check - Prevent players from sprinting while placing blocks below them
+		long diff = data.currentTick - data.sprintTime;
+		if (cc.scaffoldSprint && Math.abs(player.getLocation().getPitch()) > 70
+				&& diff < 8 && yDistance < 0.1 && jumpPhase < 4) {
+
+				cancel = violation("Sprint", 1, player, data, pData);
+		}
+
+	    // Rotate Check - Check for large changes in rotation between block placements
+		if (cc.scaffoldRotate) {
+			data.lastYaw = player.getLocation().getYaw();
 			TickListener pitchTick = new TickListener() {
 				@Override
 				public void onTick(int tick, long timeLast) {
 					// Needs to be run on the next tick
 					// Most likely better way to to this with TickTask but this works as well
 					if (TickTask.getTick() != data.currentTick) {
-						float diff = Math.abs(data.lastPitch - player.getLocation().getPitch());
+						float diff = Math.abs(data.lastYaw - player.getLocation().getYaw());
 
-						if (diff > cc.scaffoldPitchDiff) {
-							data.scaffoldVL += 1D;
-							ViolationData vd = new ViolationData(thisCheck, player, data.scaffoldVL, 1, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions);
-							tags.add("Pitch"); // TODO: Do we need to use tags here?
-							if (vd.needsParameters()) vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
-							data.cancelNextPlace = executeActions(vd).willCancel();
+						if (diff > cc.scaffoldRotateDiff) {
+							data.cancelNextPlace = violation("Rotate", Math.min((int) (diff - cc.scaffoldRotateDiff) / 10, 5), player, data, pData);
 							tags.clear();
 						}
 						TickTask.removeTickListener(this);
@@ -140,7 +125,7 @@ public class Scaffold extends Check {
 			TickTask.addTickListener(pitchTick);
 		}
 
-		// Tool Switch
+		// Tool Switch - Check if the player is quickly switching inventory slots between block placements
 		if (cc.scaffoldToolSwitch) {
 
 			data.lastSlot = player.getInventory().getHeldItemSlot();
@@ -151,11 +136,7 @@ public class Scaffold extends Check {
 					// Most likely better way to to this with TickTask but this works as well
 					if (data.currentTick != TickTask.getTick()) {
 						if (data.lastSlot != player.getInventory().getHeldItemSlot()) {
-							data.scaffoldVL += 1D;
-							ViolationData vd = new ViolationData(thisCheck, player, data.scaffoldVL, 1, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions);
-							tags.add("ToolSwitch"); // TODO: Do we need to use tags here?
-							if (vd.needsParameters()) vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
-							data.cancelNextPlace = executeActions(vd).willCancel();
+							data.cancelNextPlace = violation("ToolSwitch", 1, player, data, pData);
 							tags.clear();
 						}
 						TickTask.removeTickListener(this);
@@ -167,6 +148,27 @@ public class Scaffold extends Check {
 		
 		tags.clear();
 		return cancel;
+	}
+
+	/**
+	 * Create a violation for Scaffold
+	 *
+	 * @param addTags
+	 * @param weight
+	 * @param player
+	 * @param data
+	 * @param pData
+	 * @return
+	 */
+	public boolean violation(final String addTags, final int weight, final Player player,
+							 final BlockPlaceData data, final IPlayerData pData) {
+
+		ViolationData vd = new ViolationData(this, player, data.scaffoldVL, weight, pData.getGenericInstance(BlockPlaceConfig.class).scaffoldActions);
+		tags.add(addTags);
+		if (vd.needsParameters()) vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
+		data.scaffoldVL += weight;
+
+		return executeActions(vd).willCancel();
 	}
 
 }

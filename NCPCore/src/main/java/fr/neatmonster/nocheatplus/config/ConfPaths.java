@@ -293,9 +293,9 @@ public abstract class ConfPaths {
     public static final String  BLOCKPLACE_SCAFFOLD_TIME_AVG             = BLOCKPLACE_SCAFFOLD_TIME + "average";
     public static final String  BLOCKPLACE_SCAFFOLD_TIME_ACTIVE          = BLOCKPLACE_SCAFFOLD_TIME + "active";
     public static final String  BLOCKPLACE_SCAFFOLD_SPRINT               = BLOCKPLACE_SCAFFOLD + "sprint";
-    private static final String BLOCKPLACE_SCAFFOLD_PITCH                = BLOCKPLACE_SCAFFOLD + "pitch.";
-    public static final String  BLOCKPLACE_SCAFFOLD_PITCH_ACTIVE         = BLOCKPLACE_SCAFFOLD_PITCH + "active";
-    public static final String  BLOCKPLACE_SCAFFOLD_PITCH_DIFFERENCE     = BLOCKPLACE_SCAFFOLD_PITCH + "difference";
+    private static final String BLOCKPLACE_SCAFFOLD_ROTATE               = BLOCKPLACE_SCAFFOLD + "rotate.";
+    public static final String  BLOCKPLACE_SCAFFOLD_ROTATE_ACTIVE        = BLOCKPLACE_SCAFFOLD_ROTATE + "active";
+    public static final String  BLOCKPLACE_SCAFFOLD_ROTATE_DIFFERENCE    = BLOCKPLACE_SCAFFOLD_ROTATE + "difference";
     public static final String  BLOCKPLACE_SCAFFOLD_TOOLSWITCH           = BLOCKPLACE_SCAFFOLD + "toolswitch";
     public static final String  BLOCKPLACE_SCAFFOLD_ACTIONS              = BLOCKPLACE_SCAFFOLD + "actions";
 
@@ -764,7 +764,7 @@ public abstract class ConfPaths {
     public static final String  MOVING_VEHICLE_MOREPACKETS_ACTIONS          = MOVING_VEHICLE_MOREPACKETS + "actions";
     private static final String MOVING_VEHICLE_ENVELOPE                     = MOVING_VEHICLE + "envelope.";
     public static final String  MOVING_VEHICLE_ENVELOPE_ACTIVE              = MOVING_VEHICLE_ENVELOPE + SUB_ACTIVE;
-    public static final String  MOVING_VEHICLE_ENVELOPE_HSPEEDCAP              = MOVING_VEHICLE_ENVELOPE + "hdistcap"; // Section.
+    public static final String  MOVING_VEHICLE_ENVELOPE_HSPEEDCAP           = MOVING_VEHICLE_ENVELOPE + "hdistcap"; // Section.
     public static final String  MOVING_VEHICLE_ENVELOPE_ACTIONS             = MOVING_VEHICLE_ENVELOPE + "actions";
 
     private static final String MOVING_MESSAGE                              = MOVING + "message.";
