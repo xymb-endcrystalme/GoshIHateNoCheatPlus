@@ -22,6 +22,7 @@ import fr.neatmonster.nocheatplus.compat.blocks.init.BlockInit;
 import fr.neatmonster.nocheatplus.config.WorldConfigProvider;
 import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
+import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 
 
 public class BlocksMC1_6_1 implements BlockPropertiesSetup{
@@ -35,11 +36,12 @@ public class BlocksMC1_6_1 implements BlockPropertiesSetup{
 
         // Block of Coal: like block of redstone.
         BlockInit.setAs("COAL_BLOCK", "REDSTONE_BLOCK");
+        BlockInit.setAsIfExists("THIN_GLASS", BridgeMaterial.IRON_BARS);
 
         // (hard_clay and stained clay via generic setup.)
 
         // Hay Bale
-        BlockInit.setPropsAs("HAY_BLOCK", Material.STONE_BUTTON);
+        BlockProperties.setBlockProps("HAY_BLOCK", BlockProperties.leverType);
         BlockFlags.setFlagsAs("HAY_BLOCK", Material.STONE); // TODO: Assumption (!).
         
         if (BridgeMaterial.getBlock("wall_sign") != null) BlockInit.setAs("WALL_SIGN", BridgeMaterial.SIGN);

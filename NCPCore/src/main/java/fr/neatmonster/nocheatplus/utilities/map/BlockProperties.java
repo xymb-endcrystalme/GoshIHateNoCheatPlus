@@ -860,9 +860,11 @@ public class BlockProperties {
 
     /** Height 15/16 (0.9375 = 1 - 0.0625). */
     public static final long F_HEIGHT16_15                  = f_flag();
-    
+
     /** Flag for all slabs to fix issue when jumping on "stairs" of slabs, flagging for hackStep. */
     public static final long F_SLAB                         = f_flag();
+    public static final long F_ANVIL                        = f_flag();
+    public static final long F_FAKEBOUNDS                   = f_flag();
 
     // TODO: Convenience constants combining all height / minheight flags.
 
@@ -1065,7 +1067,7 @@ public class BlockProperties {
         }
 
         // Step (ground + full width).
-        final long stepFlags = F_GROUND | F_XZ100 | F_SLAB;
+        final long stepFlags = F_GROUND | F_XZ100;
         for (final Material mat : new Material[]{
                 BridgeMaterial.STONE_SLAB,
         }) {
@@ -3137,12 +3139,9 @@ public class BlockProperties {
             // (Allow checking further entries.)
             return true; 
         }
-	else if ((flags & F_THICK_FENCE2) != 0) {
-            if (!collidesFence(fx, fz, dX, dZ, dT, 0.26)) {
+        else if ((flags & F_THICK_FENCE2) != 0) {
+            if (!collidesFence(fx, fz, dX, dZ, dT, 0.1875)) {
                 return true;
-            }
-            if (!collidesFence(fx, fz, dX, dZ, dT, 0.13)) {
-            	return true;
             }
         }
         else if ((flags & F_THICK_FENCE) != 0) {
@@ -3151,7 +3150,7 @@ public class BlockProperties {
             }
         }
         else if ((flags & F_THIN_FENCE) != 0) {
-            if (!collidesFence(fx, fz, dX, dZ, dT, 0.05)) {
+            if (!collidesFence(fx, fz, dX, dZ, dT, 0.0625)) {
                 return true;
             }
         }
@@ -3957,8 +3956,8 @@ public class BlockProperties {
         if (bounds == null) {
             return false;
         }
-        final double bminX, bminZ, bminY;
-        final double bmaxX, bmaxY, bmaxZ;
+        double bminX, bminZ, bminY;
+        double bmaxX, bmaxY, bmaxZ;
         // TODO: Consider a quick shortcut checks flags == F_NORMAL_GROUND
         if ((flags & F_STAIRS) != 0) { // TODO: make this a full block flag ?
             // Mainly for on ground style checks, would not go too well with passable.
@@ -4041,6 +4040,27 @@ public class BlockProperties {
             else {
                 bminY = bounds[1]; // minY
                 bmaxY = bounds[4]; // maxY
+            }
+        }
+        // Fake the bound of thin glass or anvil
+        if ((flags & F_FAKEBOUNDS) != 0) {
+            if ((flags & F_THIN_FENCE) != 0) {
+                if (Math.abs(bmaxZ - bminZ) == 0.125) {
+                    if (bminX == 0.0) bmaxX = 0.5;
+                    if (bmaxX == 1.0) bminX = 0.5;
+                } else if (Math.abs(bmaxX - bminX) == 0.125) {
+                    if (bminZ == 0.0) bmaxZ = 0.5;
+                    if (bmaxZ == 1.0) bminZ = 0.5;
+                }
+            }
+            if ((flags & F_ANVIL) != 0) {
+                if (bminX == 0.125) {
+                    bminZ = 0.125;
+                    bmaxZ = 0.875;
+                } else if (bminZ == 0.125) {
+                    bminX = 0.125;
+                    bmaxX = 0.875;
+                }
             }
         }
         // Clearly outside of bounds.
