@@ -325,6 +325,10 @@ public class SurvivalFly extends Check {
 
         // Set flag for swimming with the flowing direction of liquid.
         thisMove.downStream = from.isDownStream(xDistance, zDistance);
+        // Pass downstream for later uses
+        if (!data.isdownstream) data.isdownstream = thisMove.downStream;
+        else if (from.isOnGround() && !from.isInLiquid()) data.isdownstream = false;
+
         // Handle ice.
         // TODO: Re-model ice stuff and other (e.g. general thing: ground-modifier + reset conditions).
         // 0: Jump with head obstructed and trap door on ice
@@ -1006,8 +1010,6 @@ public class SurvivalFly extends Check {
             hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed / 100D;
             useBaseModifiers = false;
             if (sfDirty) friction = 0.0;
-            // Pass downstream for later uses
-            if (!data.isdownstream) data.isdownstream = thisMove.downStream;
             if (thisMove.from.inWater || !thisMove.from.inLava) { // (We don't really have other liquids, though.)
                 final int level = BridgeEnchant.getDepthStriderLevel(player);
                 if (level > 0) {

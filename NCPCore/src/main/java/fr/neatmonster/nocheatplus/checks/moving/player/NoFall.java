@@ -24,12 +24,16 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.util.Vector;
 
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
@@ -39,10 +43,12 @@ import fr.neatmonster.nocheatplus.checks.moving.magic.Magic;
 import fr.neatmonster.nocheatplus.checks.moving.model.LocationData;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.compat.Bridge1_13;
+import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeEnchant;
 import fr.neatmonster.nocheatplus.compat.BridgeHealth;
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
+import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 
@@ -127,20 +133,62 @@ public class NoFall extends Check {
         }
     }
 
+    /**
+     * Change state of some blocks when they fall on like Farmland
+     * 
+     * @param player
+     * @param fallDist
+     * @return if allow to change the block
+     */
     private void fallOn(final Player player, final double fallDist) {
-        Block block = player.getLocation().subtract(0, 1, 0).getBlock();
-        if (block.getType() == BridgeMaterial.FARMLAND && fallDist > 0.5 && random.nextFloat() < fallDist - 0.5) {
-            final PlayerInteractEvent event = new PlayerInteractEvent(player, Action.PHYSICAL, null, block, BlockFace.SELF);
-            final EntityChangeBlockEvent blockEvent = new EntityChangeBlockEvent(player, block, Bukkit.createBlockData(Material.DIRT));
-            Bukkit.getPluginManager().callEvent(event);
-            Bukkit.getPluginManager().callEvent(blockEvent);
-            if (!event.isCancelled() && !blockEvent.isCancelled()) {
-                //Move up a little bit in order not to stuck in a block
-                // TODO: Change the players velocity to be smoother
-                player.setVelocity(player.getLocation().getDirection().clone().setY(0.0626).setX(-0.004).setZ(-0.004));
-                block.setType(Material.DIRT);
-            }
+        // TODO: Turtle eggs too?
+        Block block = player.getLocation().subtract(0.0, 1.0, 0.0).getBlock();
+        if (block.getType() == BridgeMaterial.FARMLAND && fallDist > 0.5 && random.nextFloat() < fallDist - 0.5 && ShouldChangeBlock(player, block)) {
+            // Move up a little bit in order not to stuck in a block
+            // Smoother?
+            player.setVelocity(new Vector(player.getVelocity().getX() * -1, 0.062501, player.getVelocity().getZ() * -1));
+            block.setType(Material.DIRT);  
         }
+    }
+    
+    /**
+     * Fire events to see if other plugins allow to change the block
+     * 
+     * @param player
+     * @param block
+     * @return boolean
+     */
+    private boolean ShouldChangeBlock(final Player player, final Block block) {
+        final PlayerInteractEvent interactevent = new PlayerInteractEvent(player, Action.PHYSICAL, null, block, BlockFace.SELF);
+        Bukkit.getPluginManager().callEvent(interactevent);
+        if (interactevent.isCancelled()) return false;
+
+        if (!Bridge1_13.hasIsSwimming()) {
+            // 1.6.4-1.12.2 backward compatibility
+            Object o = ReflectionUtil.newInstance(
+               ReflectionUtil.getConstructor(EntityChangeBlockEvent.class, Entity.class, Block.class, Material.class, byte.class),
+               player, block, Material.DIRT, (byte)0
+            );
+            if (o instanceof EntityChangeBlockEvent) {
+                EntityChangeBlockEvent event = (EntityChangeBlockEvent)o;
+                Bukkit.getPluginManager().callEvent(event);
+                if (event.isCancelled()) return false;
+            }
+        } else {
+            final EntityChangeBlockEvent blockevent = new EntityChangeBlockEvent(player, block, Bukkit.createBlockData(Material.DIRT)); 
+            Bukkit.getPluginManager().callEvent(blockevent);
+            if (blockevent.isCancelled()) return false;
+        }
+
+        // Not fire on 1.8 below
+        if (Bridge1_9.hasGetItemInOffHand()) {
+            final BlockState newstate = block.getState();
+            newstate.setType(Material.DIRT);
+            final BlockFadeEvent fadeevent = new BlockFadeEvent(block, newstate);
+            Bukkit.getPluginManager().callEvent(fadeevent);
+            if (fadeevent.isCancelled()) return false;
+        }
+    	return true;
     }
     
     public static double calcDamagewithfeatherfalling(Player player, double damage) {
@@ -233,6 +281,10 @@ public class NoFall extends Check {
             }
         }
         data.clearNoFallData();
+        // Force damage on event fire, no need air checking!
+        // TODO: Later on use deal damage and override on ground at packet level
+        // (don't have to calculate reduced damage or account for block change things)
+        data.noFallSkipAirCheck = true;
     }
 
 
