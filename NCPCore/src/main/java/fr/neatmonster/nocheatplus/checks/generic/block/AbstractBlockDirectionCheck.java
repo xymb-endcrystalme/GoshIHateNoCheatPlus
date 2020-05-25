@@ -14,8 +14,11 @@
  */
 package fr.neatmonster.nocheatplus.checks.generic.block;
 
+import java.util.ArrayList;
+
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -31,6 +34,7 @@ import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.collision.CollideRayVsAABB;
 import fr.neatmonster.nocheatplus.utilities.collision.ICollideRayVsAABB;
 import fr.neatmonster.nocheatplus.utilities.location.LocUtil;
+import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 
 /**
  * A first made-abstract version of a direction-towards-a-block-check.
@@ -130,7 +134,7 @@ public abstract class AbstractBlockDirectionCheck<D extends ICheckData, C extend
      * @return True, if the check has been failed.
      */
     public boolean check(final Player player, final Location loc, final double eyeHeight, 
-            final Block block, final FlyingQueueHandle flyingHandle, 
+            final Block block, final BlockFace face, final FlyingQueueHandle flyingHandle, 
             final D data, final C cc, final IPlayerData pData) {
 
         boolean cancel = false;
@@ -149,6 +153,14 @@ public abstract class AbstractBlockDirectionCheck<D extends ICheckData, C extend
         }
         else {
             distance = checker.getMinDistance();
+        }
+
+        if (face != null) {
+            final long blockflags = BlockProperties.getBlockFlags(block.getRelative(face).getType());
+            if ((blockflags & BlockProperties.F_IGN_PASSABLE) == 0
+            && (blockflags & BlockProperties.F_HEIGHT100) != 0 && (blockflags & BlockProperties.F_XZ100) != 0) {
+                distance = 1.0;
+            } else if (!isInteractable(loc, Location.locToBlock(y), block, face)) distance = 1.0;          
         }
 
         // TODO: Consider a protected field with a tolerance value.
@@ -214,5 +226,48 @@ public abstract class AbstractBlockDirectionCheck<D extends ICheckData, C extend
         debug(player, "Failed: collides: " + boulder.collides() + " , dist: " + distance + " , pos: " + LocUtil.simpleFormat(boulder));
     }
 
+    /**
+     * Check if interact with right direction block facing.
+     * 
+     * @param loc player location
+     * @param locY yblock at eye location 
+     * @param block interacted block
+     * @param face interacted face
+     * @return boolean if are allowed to interact the block with given direction
+     */
+    private static boolean isInteractable(final Location loc, final int locY, final Block block, final BlockFace face) {
+        final int locX = loc.getBlockX();
+        final int locZ = loc.getBlockZ();
+        final int blockX = block.getX();
+        final int blockZ = block.getZ();
+        final int blockY = block.getY();
+        if (locX == blockX && locZ == blockZ && locY == blockY) return true;
+        final long blockflags = BlockProperties.getBlockFlags(block.getType());
+        final boolean fullbounds = (blockflags & BlockProperties.F_HEIGHT100) != 0 && (blockflags & BlockProperties.F_XZ100) != 0;
+        if (getInteractableFaces(locX - blockX, locZ - blockZ, locY - blockY, fullbounds).contains(face)) return true;
+        return false;
+    }
 
+    /**
+     * Get block faces player can intractable
+     * 
+     * @param xdiff different X_Axis from player to block
+     * @param zdiff different Z_Axis from player to block
+     * @param ydiff different Y_Axis from player eye to block
+     * @param fullbounds is given block has full bounding boxes
+     * @return List of block faces are allowed to touch 
+     */
+    private static ArrayList<BlockFace> getInteractableFaces(final int xdiff, final int zdiff, final int ydiff, final boolean fullbounds) {
+        final ArrayList<BlockFace> faces = new ArrayList<BlockFace>(6);
+        // Allow on sides if isn't interact with full_bounds block 
+        if (!fullbounds) {
+            if (xdiff == 0) {faces.add(BlockFace.EAST); faces.add(BlockFace.WEST);}
+            if (zdiff == 0) {faces.add(BlockFace.SOUTH); faces.add(BlockFace.NORTH);}
+        }
+        if (ydiff == 0) {faces.add(BlockFace.UP); faces.add(BlockFace.DOWN);} else
+            faces.add(ydiff > 0 ? BlockFace.UP : BlockFace.DOWN);
+        if (xdiff != 0) faces.add(xdiff > 0 ? BlockFace.EAST : BlockFace.WEST);
+        if (zdiff != 0) faces.add(zdiff > 0 ? BlockFace.SOUTH : BlockFace.NORTH);
+        return faces;
+    }
 }
