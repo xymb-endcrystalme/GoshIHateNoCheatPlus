@@ -504,7 +504,8 @@ public class SurvivalFly extends Check {
             hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
             tags.add("badsprint");
         }
-
+        // Decrease tick after checking
+        if (data.bunnyhopTick > 0) data.bunnyhopTick--;
         }
         else {
             /*
@@ -1121,7 +1122,7 @@ public class SurvivalFly extends Check {
                 // Jump/left ground
                 if (!thisMove.to.onGround) {
                     final double speedAmplifier = mcAccess.getHandle().getFasterMovementAmplifier(player);
-                    hAllowedDistance = (lastMove.hDistance > 0.23 ? 0.4 : 0.2 + (Bridge1_13.hasIsSwimming() ? 0.15 : 0.0)) +
+                    hAllowedDistance = (lastMove.hDistance > 0.23 ? 0.4 : 0.23 + (Bridge1_13.hasIsSwimming() ? 0.15 : 0.0)) +
                     0.02 * (Double.isInfinite(speedAmplifier) ? 0 : speedAmplifier + 1.0);
                     hAllowedDistance *= cc.survivalFlyBlockingSpeed / 100D;
                     data.noslowhop = 1;
@@ -1148,7 +1149,7 @@ public class SurvivalFly extends Check {
                 // Air friction
                 hAllowedDistance = lastMove.hAllowedDistance * 0.96 * cc.survivalFlyBlockingSpeed / 100D;
                 // Fake data for air blocking
-                data.noslowhop = 1;
+                data.noslowhop = 2;
             }
             // Check if too small horizontal last move allowed
             // 0.063 for old vers, 0.08 for 1.13+
@@ -1157,22 +1158,22 @@ public class SurvivalFly extends Check {
             useBaseModifiers = true;
             useBaseModifiersSprint = false;
 
-        } else if (Bridge1_9.hasLevitation() && CollisionUtil.isCollidingWithEntities(player, true) && hAllowedDistance < 0.35) {
-        	hAllowedDistance = 0.35;
-        	useBaseModifiers = true;
-        	data.bunnyhopTick = 6;
+        } else if (Bridge1_9.hasLevitation() && CollisionUtil.isCollidingWithEntities(player, true)) {
+            hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D * 1.36;
+            useBaseModifiers = true;
+            data.bunnyhopTick = 20;
+            friction = 0.0;
         }
         else {
             useBaseModifiers = true;
             if (sprinting) {
                 if (!thisMove.from.onGround && thisMove.to.onGround) {
                     data.bunnyhopTick = Bridge1_13.hasIsSwimming() ? 6 : 3;
-                    hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
+                    hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D * 1.14;
                 } else if (data.bunnyhopTick > 0) {
-                	if (data.bunnyhopTick < 3) hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D * 1.1; 
-                	else hAllowedDistance = Magic.modSprint * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
-                	if (snowFix && data.bunnyhopTick > 5) hAllowedDistance *= 1.6;
-                	data.bunnyhopTick--;
+                    if (data.bunnyhopTick < 3) hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D * 1.15; 
+                    else hAllowedDistance = Magic.modSprint * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
+                    if (snowFix && data.bunnyhopTick > 5) hAllowedDistance *= 1.6;
                 } else                
             	hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
             }
@@ -1833,9 +1834,11 @@ public class SurvivalFly extends Check {
             // Allow falling.
             vAllowedDistance = thisMove.yDistance;
         }
-        else if (thisMove.from.onGround) {
+        else if (thisMove.from.onGround || (lastMove.valid && lastMove.to.onGround)) {
             // Allow jumping.
+            // TODO: Is (lastMove.valid && lastMove.to.onGround) safe?
             vAllowedDistance = maxJumpGain + jumpGainMargin;
+            if (lastMove.to.onGround && vAllowedDistance < 0.1) vAllowedDistance = 0.42 + jumpGainMargin;
             if (thisMove.to.onGround) {
                 vAllowedDistance = Math.max(cc.sfStepHeight, vAllowedDistance);
             }
@@ -2184,7 +2187,7 @@ public class SurvivalFly extends Check {
             data.sfHorizontalBuffer = Math.max(0.0, data.sfHorizontalBuffer - amount);
         	//}
         }
-		
+
 		if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
 			if (Bridge1_9.isGliding(player) && hDistanceAboveLimit< 0.5) {
 				hDistanceAboveLimit=0.0;
@@ -2264,15 +2267,15 @@ public class SurvivalFly extends Check {
                         ) {
                     // TODO: Confine friction by medium ?
                     // TODO: Also calculate an absolute (minimal) speed decrease over the whole time, at least max - count?
+                    final double maxspeed = hDistanceBaseRef * (data.bunnyhopTick > 0 ? 1.09 : 1.255);
+                    final double allowedspeed = maxspeed * Math.pow(0.99, bunnyHopMax - data.bunnyhopDelay);
                     tags.add("bunnyfriction");
                     // Speed must decrease by "a lot" at first, then by some minimal amount per event.
                     // TODO: Confine buffer to only be used during low jump phase !?
                     //if (!(data.toWasReset && thisMove.from.onGround && thisMove.to.onGround)) { // FISHY
 
                     // Allow the move.
-                    if (data.isVelocityJumpPhase()) {
-                        hDistanceAboveLimit = 0.0;
-                    } else if (hDistDiff * 15 >= hDistanceAboveLimit && hDistance < hDistanceBaseRef * 1.25) hDistanceAboveLimit = 0.0;
+                    if (hDistance <= allowedspeed || data.bunnyhopTick > 6 || data.isVelocityJumpPhase()) hDistanceAboveLimit = 0.0;
                     if (data.bunnyhopDelay == 1 && !thisMove.to.onGround && !to.isResetCond()) {
                         // ... one move between toonground and liftoff remains for hbuf ...
                         data.bunnyhopDelay++;
@@ -2371,7 +2374,8 @@ public class SurvivalFly extends Check {
                     if (data.sfLowJump) {
                         data.sfLowJump = false;
                         tags.add("lowjump_remove");
-                        if (data.lastbunnyhopDelay > 3) data.lastbunnyhopDelay = 3;
+                        data.bunnyhopDelay = data.lastbunnyhopDelay - 1;
+                        data.lastbunnyhopDelay = 0;
                     }
                 } else data.lastbunnyhopDelay = 0;
             } else data.lastbunnyhopDelay = 0;
