@@ -297,7 +297,7 @@ public class SurvivalFly extends Check {
             data.sfNoLowJump = true;
         }
     // Moving half on farmland(or end_potal_frame) and half on water
-    data.newHDist = BlockProperties.collides(from.getBlockCache(), from.getMinX(), from.getMinY(), from.getMinZ(), from.getMaxX(), from.getMaxY(), from.getMaxZ(), BlockProperties.F_HEIGHT16_15) && (from.isInWater() || to.isInWater());
+    data.newHDist = (from.getBlockFlags() & BlockProperties.F_MIN_HEIGHT16_15) != 0 && (from.isInWater() || to.isInWater());
 
 	// Waterlogged 
     if (isWaterlogged(from)) {
@@ -446,7 +446,7 @@ public class SurvivalFly extends Check {
 	        // Detects walking directly above water
             Block blockUnder = player.getLocation().subtract(0, 0.3, 0).getBlock();
             Material blockAbove = player.getLocation().add(0, 0.10, 0).getBlock().getType();
-            final boolean islowheigh = BlockProperties.collides(from.getBlockCache(), from.getMinX(), from.getMinY(), from.getMinZ(), from.getMaxX(), from.getMaxY(), from.getMaxZ(), BlockProperties.F_HEIGHT16_15);
+            final boolean islowheigh = data.newHDist;
             if (blockUnder != null && blockAbove != null && blockUnder.getType().toString().endsWith("WATER") && blockAbove.name().endsWith("AIR")) {
                 // hDist and vDist checks, simply checks for horizontal movement with little y distance
                 if (!islowheigh && hDistanceAboveLimit <= 0D && hDistance > 0.11D && yDistance <= 0.1D && !toOnGround && !fromOnGround
@@ -994,7 +994,7 @@ public class SurvivalFly extends Check {
             friction = 0.0; // Ensure friction can't be used to speed.
             useBaseModifiers = true;
         }
-		else if (thisMove.to.onSoulSand && thisMove.from.onSoulSand) {
+		else if (thisMove.from.onSoulSand) {
         	hAllowedDistance = Magic.modSoulSand * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
         	useBaseModifiers = true;
         }
@@ -1033,16 +1033,12 @@ public class SurvivalFly extends Check {
             // Allow moving half on farmland and half on water to have higher speed
             if (data.newHDist && hAllowedDistance < 0.345D) {
                 useBaseModifiers = true;
-   	            hAllowedDistance = 0.445D;
+                hAllowedDistance = 0.345D;
             }
                 // (Friction is used as is.)
         }
         else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
              hAllowedDistance = Magic.modRiptide[data.RiptideLevel] * thisMove.walkSpeed * cc.survivalFlySpeedingSpeed / 100D;
-        } 
-        else if (data.newHDist && hAllowedDistance < 0.345D) {
-             useBaseModifiers = true;
-             hAllowedDistance = 0.445D;
         }
         // TODO: Should read hbufmax from config and adjust
         else if (from.isAboveStairs()) {
@@ -1087,7 +1083,7 @@ public class SurvivalFly extends Check {
             data.watermovect = 1;
             final int blockdata = from.getData(from.getBlockX(), from.getBlockY(), from.getBlockZ());
             final int blockunderdata = from.getData(from.getBlockX(), from.getBlockY() -1, from.getBlockZ());
-            if (blockdata > 3 || blockunderdata > 3 || data.isdownstream) {
+            if (blockdata > 3 || blockunderdata > 3 || data.isdownstream || data.newHDist) {
                 data.watermovect = 0;
                 hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
                 data.isdownstream = false;
@@ -1615,7 +1611,7 @@ public class SurvivalFly extends Check {
                 // TODO: Extreme anti-jump effects, perhaps.
             }
             else if (yDistance > 0.0 && lastMove.toIsValid && lastMove.yDistance > yDistance
-                    && lastMove.yDistance - yDistance <= lastMove.yDistance / 4.0
+                    && lastMove.yDistance - yDistance <= lastMove.yDistance / (lastMove.from.inLiquid ? 1.76 : 4.0)
                     && data.isVelocityJumpPhase()
                     ) {
                 // Too strong decrease with velocity.
@@ -1718,7 +1714,7 @@ public class SurvivalFly extends Check {
             // TODO: LIMIT_JUMP 
             final double vAllowedAbsoluteDistance = data.liftOffEnvelope.getMaxJumpHeight(data.jumpAmplifier);
             final double totalVDistViolation =  to.getY() - data.getSetBackY() - vAllowedAbsoluteDistance;
-            if (totalVDistViolation > 2) {
+            if (totalVDistViolation > 0.0) {
                 // Skip actually stepping up.
                 if ((fromOnGround || thisMove.touchedGroundWorkaround || lastMove.touchedGround) 
                         && toOnGround && yDistance <= cc.sfStepHeight) {
@@ -2275,7 +2271,10 @@ public class SurvivalFly extends Check {
                     //if (!(data.toWasReset && thisMove.from.onGround && thisMove.to.onGround)) { // FISHY
 
                     // Allow the move.
-                    if (hDistance <= allowedspeed || data.bunnyhopTick > 6 || data.isVelocityJumpPhase()) hDistanceAboveLimit = 0.0;
+                    // Normal speed
+                    if (hDistance <= allowedspeed
+                        // Exemption
+                        || data.bunnyhopTick > 6 || data.isVelocityJumpPhase() || (thisMove.headObstructed && hDistance < 0.39)) hDistanceAboveLimit = 0.0;
                     if (data.bunnyhopDelay == 1 && !thisMove.to.onGround && !to.isResetCond()) {
                         // ... one move between toonground and liftoff remains for hbuf ...
                         data.bunnyhopDelay++;
@@ -2286,21 +2285,6 @@ public class SurvivalFly extends Check {
                     }
                     //}
                     //}
-                }
-            }
-
-            // More leniency for jumping with head obstructed
-            if (from.isHeadObstructed() && thisMove.to.onGround) {
-                if (data.bunnyhopTick == 5 && data.bunnyhopDelay == 7 && thisMove.from.onGround && hDistance <= 0.47) {
-                    hDistanceAboveLimit = 0.0;
-                    data.sfHorizontalBuffer = cc.hBufMax;
-                    tags.add("bunny_hbuf");
-                }
-
-                if (data.bunnyhopTick == 6 && data.bunnyhopDelay == 8 && hDistance <= 0.4) {
-                    hDistanceAboveLimit = 0.0;
-                    data.sfHorizontalBuffer = cc.hBufMax;
-                    tags.add("bunny_hbuf");
                 }
             }
 
@@ -2346,10 +2330,11 @@ public class SurvivalFly extends Check {
 
         // Fix jumping on slime blocks
         if ((from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0
-                && (data.bunnyhopDelay <= 4 && data.bunnyhopTick == 0 || data.bunnyhopDelay == 6 && data.bunnyhopTick == 1)
-                && !thisMove.from.onGround && hDistance < 0.5) {
+                && data.bunnyhopDelay == 9
+                && !thisMove.from.onGround && hDistance < 0.45) {
             hDistanceAboveLimit = 0.0;
-            data.sfHorizontalBuffer = 0.5;
+            data.bunnyhopTick = 15;
+            data.sfHorizontalBuffer = Math.max(data.sfHorizontalBuffer, 0.5);
             tags.add("bounce_bunny");
         }
 
