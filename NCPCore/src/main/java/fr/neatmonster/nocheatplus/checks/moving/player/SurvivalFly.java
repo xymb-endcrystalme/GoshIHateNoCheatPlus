@@ -996,6 +996,7 @@ public class SurvivalFly extends Check {
         }
 		else if (thisMove.from.onSoulSand) {
         	hAllowedDistance = Magic.modSoulSand * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+			if (BridgeEnchant.hasSoulSpeed(player)) hAllowedDistance *= 1.4;
         	useBaseModifiers = true;
         }
         else if (ShouldApplyHBSpeed(from)) {
