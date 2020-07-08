@@ -77,34 +77,22 @@ public class SurvivalFly extends Check {
 
     // Tags
     private static final String DOUBLE_BUNNY = "doublebunny";
-
     // Other.
     /** Bunny-hop delay. */
     private static final int   bunnyHopMax = 10;
     /** Divisor vs. last hDist for minimum slow down. */
     private static final double bunnyDivFriction = 160.0; // Rather in-air, blocks would differ by friction.
-    
     public boolean snowFix;
-
-
-
     // TODO: Friction by block to walk on (horizontal only, possibly to be in BlockProperties rather).
-
     /** To join some tags with moving check violations. */
     private final ArrayList<String> tags = new ArrayList<String>(15);
     private final ArrayList<String> justUsedWorkarounds = new ArrayList<String>();
-
-
     private final Set<String> reallySneaking = new HashSet<String>(30);
-
     /** For temporary use: LocUtil.clone before passing deeply, call setWorld(null) after use. */
     private final Location useLoc = new Location(null, 0, 0, 0);
-
     private final BlockChangeTracker blockChangeTracker;
-
     // TODO: handle
     private final AuxMoving aux = NCPAPIProvider.getNoCheatPlusAPI().getGenericInstance(AuxMoving.class);
-
     private IGenericInstanceHandle<IAttributeAccess> attributeAccess = NCPAPIProvider.getNoCheatPlusAPI().getGenericInstanceHandle(IAttributeAccess.class);
 
 
@@ -135,6 +123,7 @@ public class SurvivalFly extends Check {
             final int multiMoveCount, 
             final MovingData data, final MovingConfig cc, final IPlayerData pData,
             final int tick, final long now, final boolean useBlockChangeTracker) {
+
         tags.clear();
         final boolean debug = pData.isDebugActive(type);
         if (debug) {
@@ -175,8 +164,7 @@ public class SurvivalFly extends Check {
         // Set some flags.
         final boolean fromOnGround = thisMove.from.onGround;
         // TODO: Work in the past ground stuff differently (thisMove, touchedGround?, from/to ...)
-        final boolean toOnGround = thisMove.to.onGround 
-                || useBlockChangeTracker && toOnGroundPastStates(from, to, thisMove, tick, data, cc);
+        final boolean toOnGround = thisMove.to.onGround || useBlockChangeTracker && toOnGroundPastStates(from, to, thisMove, tick, data, cc);
         final boolean resetTo = toOnGround || to.isResetCond();
 
         // Determine if the player is actually sprinting.
@@ -221,7 +209,6 @@ public class SurvivalFly extends Check {
         // TODO: Might get from listener.
         // TODO: Use in lostground?
         thisMove.walkSpeed = Magic.WALK_SPEED * ((double) data.walkSpeed / Magic.DEFAULT_WALKSPEED);
-
         setNextFriction(thisMove, data, cc);
 
         /////////////////////////////////
@@ -296,22 +283,23 @@ public class SurvivalFly extends Check {
             // TODO: Specialize - test for foot region?
             data.sfNoLowJump = true;
         }
-    // Moving half on farmland(or end_potal_frame) and half on water
-    data.newHDist = (from.getBlockFlags() & BlockProperties.F_MIN_HEIGHT16_15) != 0 && (from.isInWater() || to.isInWater());
 
-	// Waterlogged 
-    if (isWaterlogged(from)) {
-        // thisMove.from.onGround = false; ?
-        thisMove.from.inWater = true;
-        thisMove.from.inLiquid = true;
-    }
-    if (isWaterlogged(to)) {
-        // thisMove.to.onGround = false; ?
-        thisMove.to.inWater = true;
-        thisMove.to.inLiquid = true;
-    }
+       // Moving half on farmland(or end_potal_frame) and half on water
+       data.newHDist = (from.getBlockFlags() & BlockProperties.F_MIN_HEIGHT16_15) != 0 && (from.isInWater() || to.isInWater());
 
-    snowFix = (from.getBlockFlags() & BlockProperties.F_HEIGHT_8_INC) != 0;
+          // Waterlogged 
+        if (isWaterlogged(from)) {
+            // thisMove.from.onGround = false; ?
+            thisMove.from.inWater = true;
+            thisMove.from.inLiquid = true;
+        }
+        if (isWaterlogged(to)) {
+            // thisMove.to.onGround = false; ?
+            thisMove.to.inWater = true;
+            thisMove.to.inLiquid = true;
+        }
+        
+        snowFix = (from.getBlockFlags() & BlockProperties.F_HEIGHT_8_INC) != 0;
 
         //////////////////////
         // Horizontal move.
@@ -362,8 +350,8 @@ public class SurvivalFly extends Check {
             hDistanceAboveLimit = hDistance - hAllowedDistance;
 
             // TODO: Remove this
-			if ((Bridge1_13.isRiptiding(player) || data.timeRiptiding + 4000 > now) && hDistanceAboveLimit < 3.0) {
-            	hDistanceAboveLimit = 0;
+            if ((Bridge1_13.isRiptiding(player) || data.timeRiptiding + 4000 > now) && hDistanceAboveLimit < 3.0) {
+                hDistanceAboveLimit = 0.0;
             }
             // Velocity, buffers and after failure checks.
             if (hDistanceAboveLimit > 0) {
@@ -422,90 +410,88 @@ public class SurvivalFly extends Check {
                 }
             }
 
-            // Debug purposes only
-            if (hDistanceAboveLimit >= 0D && from.isAboveStairs()) {
-                tags.add("stairs");
-            }
-
             // Prevent players from walking on a liquid in a too simple way.
             // TODO: Find something more effective against more smart methods (limitjump helps already).
             // TODO: yDistance == 0D <- should there not be a tolerance +- or 0...x ?
             // TODO: Complete re-modeling.
             if (!pData.hasPermission(Permissions.MOVING_SURVIVALFLY_WATERWALK, player)) {
-            if (hDistanceAboveLimit <= 0D && hDistance > 0.1D && yDistance == 0D && !toOnGround && !fromOnGround 
+                if (hDistanceAboveLimit <= 0D && hDistance > 0.1D && yDistance == 0D 
+                    && !toOnGround && !fromOnGround 
                     && lastMove.toIsValid && lastMove.yDistance == 0D 
                     && BlockProperties.isLiquid(to.getTypeId()) && BlockProperties.isLiquid(from.getTypeId())
                     && !from.isHeadObstructed() && !to.isHeadObstructed() && !Bridge1_13.isSwimming(player) // TODO: Might decrease margin here.
                     ) {
-                // TODO: Relative hdistance.
-                // TODO: Might check actual bounds (collidesBlock). Might implement + use BlockProperties.getCorrectedBounds or getSomeHeight.
-                hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
-                tags.add("waterwalk");
-            }
+                    // TODO: Relative hdistance.
+                    // TODO: Might check actual bounds (collidesBlock). Might implement + use BlockProperties.getCorrectedBounds or getSomeHeight.
+                    hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
+                    tags.add("waterwalk");
+                }
             
-	        // Detects walking directly above water
-            Block blockUnder = player.getLocation().subtract(0, 0.3, 0).getBlock();
-            Material blockAbove = player.getLocation().add(0, 0.10, 0).getBlock().getType();
-            final boolean islowheigh = data.newHDist;
-            if (blockUnder != null && blockAbove != null && blockUnder.getType().toString().endsWith("WATER") && blockAbove.name().endsWith("AIR")) {
-                // hDist and vDist checks, simply checks for horizontal movement with little y distance
-                if (!islowheigh && hDistanceAboveLimit <= 0D && hDistance > 0.11D && yDistance <= 0.1D && !toOnGround && !fromOnGround
-                && lastMove.toIsValid && lastMove.yDistance == yDistance || lastMove.yDistance == yDistance * -1 && lastMove.yDistance != 0D
-                && !from.isHeadObstructed() && !to.isHeadObstructed() && !Bridge1_13.isSwimming(player)) {
-                    // Prevent being flagged if a player transitions from a block to water and the player falls into the water.
-                    if (!(yDistance < 0 && yDistance != 0 && lastMove.yDistance < 0 && lastMove.yDistance != 0)) {
-                        hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
-                        tags.add("watermove");
+                // Detects walking directly above water
+                Block blockUnder = player.getLocation().subtract(0, 0.3, 0).getBlock();
+                Material blockAbove = player.getLocation().add(0, 0.10, 0).getBlock().getType();
+                final boolean islowheigh = data.newHDist;
+                if (blockUnder != null && blockAbove != null && blockUnder.getType().toString().endsWith("WATER") && blockAbove.name().endsWith("AIR")) {
+                   // hDist and vDist checks, simply checks for horizontal movement with little y distance
+                   if (!islowheigh && hDistanceAboveLimit <= 0D && hDistance > 0.11D && yDistance <= 0.1D && !toOnGround && !fromOnGround
+                      && lastMove.toIsValid && lastMove.yDistance == yDistance || lastMove.yDistance == yDistance * -1 && lastMove.yDistance != 0D
+                      && !from.isHeadObstructed() && !to.isHeadObstructed() && !Bridge1_13.isSwimming(player)) {
+                        // Prevent being flagged if a player transitions from a block to water and the player falls into the water.
+                        if (!(yDistance < 0 && yDistance != 0 && lastMove.yDistance < 0 && lastMove.yDistance != 0)) {
+                           hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
+                           tags.add("watermove");
+                        }
                     }
                 }
             }
-            }
 
-        // TODO: Complete re-modeling
-        // Prevent players from sprinting if they're moving backwards (allow buffers to cover up !?).
-        //if (sprinting && data.lostSprintCount == 0 && hDistance > thisMove.walkSpeed * 1.2
-        //&& !data.isVelocityJumpPhase() && !thisMove.touchedGroundWorkaround
-        //&& !player.hasPotionEffect(PotionEffectType.SPEED) && (attrMod == Double.MAX_VALUE || attrMod <= 1.0)
-        //&& !(Bridge1_13.isRiptiding(player) || data.timeRiptiding + 4000 > now) // Quick direction rotate
-        //&& !(data.liftOffEnvelope.name().startsWith("LIMIT") || BlockProperties.isLiquid(to.getOrCreateBlockCacheNodeBelow().getType()) || isWaterlogged(from) || isWaterlogged(to))) {
-        //    // (Ignore some cases, in order to prevent false positives.)
-        //    if (TrigUtil.isMovingBackwards(xDistance, zDistance, LocUtil.correctYaw(from.getYaw())) 
-        //    && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_SPRINTING, player)) {
-        //        boolean flag = false;               	
-        //        if (data.bunnyhopTick > 0) {
-        //            double newwalkSpeed = 0.0;
-        //            if (data.bunnyhopTick > 3) newwalkSpeed = thisMove.walkSpeed * 1.4; else newwalkSpeed = thisMove.walkSpeed * 1.27;
-        //            if (hDistance > newwalkSpeed) flag = true;
-        //        } else flag = true;
+            // TODO: Complete re-modeling
+            // Prevent players from sprinting if they're moving backwards (allow buffers to cover up !?).
+            //if (sprinting && data.lostSprintCount == 0 && hDistance > thisMove.walkSpeed * 1.2
+            //&& !data.isVelocityJumpPhase() && !thisMove.touchedGroundWorkaround
+            //&& !player.hasPotionEffect(PotionEffectType.SPEED) && (attrMod == Double.MAX_VALUE || attrMod <= 1.0)
+            //&& !(Bridge1_13.isRiptiding(player) || data.timeRiptiding + 4000 > now) // Quick direction rotate
+            //&& !(data.liftOffEnvelope.name().startsWith("LIMIT") || BlockProperties.isLiquid(to.getOrCreateBlockCacheNodeBelow().getType()) || isWaterlogged(from) || isWaterlogged(to))) {
+            //    // (Ignore some cases, in order to prevent false positives.)
+            //    if (TrigUtil.isMovingBackwards(xDistance, zDistance, LocUtil.correctYaw(from.getYaw())) 
+            //    && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_SPRINTING, player)) {
+            //        boolean flag = false;                 
+            //        if (data.bunnyhopTick > 0) {
+            //            double newwalkSpeed = 0.0;
+            //            if (data.bunnyhopTick > 3) newwalkSpeed = thisMove.walkSpeed * 1.4; else newwalkSpeed = thisMove.walkSpeed * 1.27;
+            //            if (hDistance > newwalkSpeed) flag = true;
+            //        } else flag = true;
 
-        //        // TODO: Better modeling when on ice
-        //        // TODO: Add Piston+Slime
-        //        // Quick rotate back in-air
-        //        if ((!thisMove.from.onGround && !thisMove.to.onGround && Math.abs(lastMove.from.getYaw() - thisMove.to.getYaw()) > 10.0) 
-        //        || data.sfOnIce > 5 
-        //        || (Bridge1_9.hasLevitation() && CollisionUtil.isCollidingWithEntities(player, true))
-        //        || from.isAboveStairs()
-        //        ) flag = false;
+            //        // TODO: Better modeling when on ice
+            //        // TODO: Add Piston+Slime
+            //        // Quick rotate back in-air
+            //        if ((!thisMove.from.onGround && !thisMove.to.onGround && Math.abs(lastMove.from.getYaw() - thisMove.to.getYaw()) > 10.0) 
+            //           || data.sfOnIce > 5 
+            //           || (Bridge1_9.hasLevitation() && CollisionUtil.isCollidingWithEntities(player, true))
+            //           || from.isAboveStairs()
+            //        ) flag = false;
 
-        //        if (flag) {
-        //            // (Might have to account for speeding permissions.)
-        //            // TODO: hDistance is too harsh?
-        //            hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance) * 0.7;
-        //            tags.add("sprintback"); // Might add it anyway.
-        //        }
-        //    }
-        //}
+            //        if (flag) {
+            //            // (Might have to account for speeding permissions.)
+            //            // TODO: hDistance is too harsh?
+            //            hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance) * 0.7;
+            //            tags.add("sprintback"); // Might add it anyway.
+            //        }
+            //    }
+            //}
 
-        // Simple way to prevent players from sprinting if they have the blindness effect. 
-        // Possibly just merge this with sprintback?
-        if (player.isSprinting() && player.hasPotionEffect(PotionEffectType.BLINDNESS)
-	    && data.lostSprintCount == 0
-            && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_SPRINTING, player)) {
-            hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
-            tags.add("badsprint");
-        }
-        // Decrease tick after checking
-        if (data.bunnyhopTick > 0) data.bunnyhopTick--;
+           // Simple way to prevent players from sprinting if they have the blindness effect. 
+           // Possibly just merge this with sprintback?
+           if (player.isSprinting() && player.hasPotionEffect(PotionEffectType.BLINDNESS)
+               && data.lostSprintCount == 0
+               && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_SPRINTING, player)) {
+               hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
+               tags.add("badsprint");
+           }
+
+           // Decrease tick after checking
+           if (data.bunnyhopTick > 0) data.bunnyhopTick--;
+
         }
         else {
             /*
@@ -526,18 +512,24 @@ public class SurvivalFly extends Check {
         
         // Calculate the vertical speed limit based on the current jump phase.
         double vAllowedDistance = 0, vDistanceAboveLimit = 0;
+
+
         // Distinguish certain media.
         if (yDistance >= 0.0 && yDistance <= cc.sfStepHeight && toOnGround && fromOnGround ) {
             // Wild-card allow step height from ground to ground.
             // TODO: Which of (fromOnGround || data.noFallAssumeGround || lastMove.toIsValid && lastMove.yDistance < 0.0)?
             vAllowedDistance = cc.sfStepHeight;
         }
+
+        // HoneyBlock
         else if (ShouldApplyHBSpeed(from)) {
             final Double Amplifier = PotionUtil.getPotionEffectAmplifier(from.getPlayer(), PotionEffectType.JUMP);
             vAllowedDistance = 0.21 * (Double.isInfinite(Amplifier) ? 1.0 : 1.0 + 0.48*(Amplifier +1));
             if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) vAllowedDistance = 1.5;
             vDistanceAboveLimit = thisMove.yDistance - vAllowedDistance;
         }
+
+        // Webs
         else if (from.isInWeb()) {
             // TODO: Further confine conditions.
             final double[] res = vDistWeb(player, thisMove, toOnGround, hDistanceAboveLimit, now,data,cc,from);
@@ -555,13 +547,14 @@ public class SurvivalFly extends Check {
                 return data.getSetBack(to); // (OK)
             }
         }
+
+        // Climbable blocks
         else if (from.isOnClimbable()) {
-            // Ladder types.
-            vDistanceAboveLimit = vDistClimbable(player, from, to, fromOnGround, toOnGround, 
-                    thisMove, lastMove, yDistance, data);
+            vDistanceAboveLimit = vDistClimbable(player, from, to, fromOnGround, toOnGround, thisMove, lastMove, yDistance, data);
         }
+
+        // In liquid
         else if (thisMove.from.inLiquid) { // && (Math.abs(yDistance) > 0.2 || to.isInLiquid())) {
-            // Swimming...
             final double[] res = vDistLiquid(thisMove, from, to, toOnGround, yDistance, lastMove, data, player);
             vAllowedDistance = res[0];
             vDistanceAboveLimit = res[1];
@@ -569,6 +562,8 @@ public class SurvivalFly extends Check {
                 data.setFrictionJumpPhase();
             }
         }
+
+        // Fallback to in-air checks
         else {
             final double[] res = vDistAir(now, player, from, fromOnGround, resetFrom, 
                     to, toOnGround, resetTo, hDistanceAboveLimit, yDistance, multiMoveCount, lastMove, 
@@ -576,6 +571,7 @@ public class SurvivalFly extends Check {
             vAllowedDistance = res[0];
             vDistanceAboveLimit = res[1];
         }
+
 
         // Post-check recovery.
         if (useBlockChangeTracker && vDistanceAboveLimit > 0.0 
@@ -662,7 +658,7 @@ public class SurvivalFly extends Check {
             else if (to.isNextToGround(0.15, 0.4)) {
                 // Consent with ground.
                 data.liftOffEnvelope = LiftOffEnvelope.LIMIT_NEAR_GROUND;
-            } 
+            }
             else {
                 // TODO: Distinguish strong limit from normal.
                 data.liftOffEnvelope = LiftOffEnvelope.LIMIT_LIQUID;
@@ -958,57 +954,72 @@ public class SurvivalFly extends Check {
     private double setAllowedhDist(final Player player, final boolean sprinting, 
             final PlayerMoveData thisMove, 
             final MovingData data, final MovingConfig cc, final IPlayerData pData, final PlayerLocation from,
-            final boolean checkPermissions)
-    {
+            final boolean checkPermissions) {
+
         // TODO: Optimize for double checking?
         final PlayerMoveData lastMove = data.playerMoves.getFirstPastMove();
+        final boolean sfDirty = data.isVelocityJumpPhase();  // TODO: sfDirty: Better friction/envelope-based.
         double hAllowedDistance = 0D;
-		long now = System.currentTimeMillis();
-
-        final boolean sfDirty = data.isVelocityJumpPhase();
+        long now = System.currentTimeMillis();
         double friction = data.lastFrictionHorizontal; // Friction to use with this move.
-        // TODO: sfDirty: Better friction/envelope-based.
         boolean useBaseModifiers = false;
         boolean useBaseModifiersSprint = true;
+
         // Reset noslow check if has velocity
         if (data.noslowhop != 0 && (sfDirty || (!data.isusingitem && !player.isBlocking()))) data.noslowhop = 0;
         if (!data.liftOffEnvelope.name().startsWith("LIMIT") || sfDirty) data.watermovect = 0;
 
+        // Webs
         if (thisMove.from.inWeb && (from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) == 0) {
             data.sfOnIce = 0;
+            tags.add("hweb");
             // TODO: if (from.isOnIce()) <- makes it even slower !
             // Does include sprinting by now (would need other accounting methods).
             hAllowedDistance = Magic.modWeb * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             // Cobweb doesn't apply speed effect but BerryBush does
             useBaseModifiersSprint = false;
             from.collectBlockFlags(); // Just ensure.
-            // 
+            // Berry bush
             if ((from.getBlockFlags() & BlockProperties.F_COBWEB2) !=0) {
-                if (thisMove.yDistance > 0) 
+                tags.add("hbush");
+                if (thisMove.yDistance > 0) {
                     hAllowedDistance = 1.1 * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
-                else
+                }
+                else {
                     hAllowedDistance = 0.362 * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
-                
+                }
                 if (sprinting) hAllowedDistance += 0.0255;
             }
             friction = 0.0; // Ensure friction can't be used to speed.
             useBaseModifiers = true;
         }
-		else if (thisMove.from.onSoulSand) {
-        	hAllowedDistance = Magic.modSoulSand * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
-			if (BridgeEnchant.hasSoulSpeed(player)) hAllowedDistance *= 1.4;
-        	useBaseModifiers = true;
-        }
-        else if (ShouldApplyHBSpeed(from)) {
-            if (!thisMove.to.onGround) 
-            hAllowedDistance = Magic.modSoulSand * 1.75 * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D; else
-            hAllowedDistance = Magic.modSoulSand * 0.8 * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+
+        else if (thisMove.from.onSoulSand) {
+             tags.add("hsoulsand");
+            //friction = 0.0;
+            hAllowedDistance = Magic.modSoulSand * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+            if (BridgeEnchant.hasSoulSpeed(player)) hAllowedDistance *= 1.4;
             useBaseModifiers = true;
-		}
+        }
+
+        // Honeyblock
+        else if (ShouldApplyHBSpeed(from)) {
+            tags.add("hhoneyblock");
+            if (!thisMove.to.onGround) {
+               hAllowedDistance = Magic.modSoulSand * 1.75 * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D; 
+            }
+            else {
+               hAllowedDistance = Magic.modSoulSand * 0.8 * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+            }
+               useBaseModifiers = true;
+        }
+
+        // In liquid
         else if (thisMove.from.inLiquid && thisMove.to.inLiquid) {
             // Check all liquids (lava might demand even slower speed though).
             // TODO: Test how to go with only checking from (less dolphins).
             // TODO: Sneaking and blocking applies to when in water !
+            tags.add("hliquid");
             hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed / 100D;
             useBaseModifiers = false;
             if (sfDirty) friction = 0.0;
@@ -1024,7 +1035,7 @@ public class SurvivalFly extends Check {
                 }
                 if (!Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
                     // TODO: Allow for faster swimming above water with Dolhphins Grace
-				    hAllowedDistance *= Magic.modDolphinsGrace;
+                    hAllowedDistance *= Magic.modDolphinsGrace;
                     if (level > 1) hAllowedDistance *= 1.0 + 0.07 * level;
                 }
                 if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
@@ -1036,36 +1047,45 @@ public class SurvivalFly extends Check {
                 useBaseModifiers = true;
                 hAllowedDistance = 0.345D;
             }
-                // (Friction is used as is.)
+            // (Friction is used as is.)
         }
+
+        // Riptiding
         else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
-             hAllowedDistance = Magic.modRiptide[data.RiptideLevel] * thisMove.walkSpeed * cc.survivalFlySpeedingSpeed / 100D;
+            tags.add("hriptide");
+            hAllowedDistance = Magic.modRiptide[data.RiptideLevel] * thisMove.walkSpeed * cc.survivalFlySpeedingSpeed / 100D;
         }
+
+        // Stairs
         // TODO: Should read hbufmax from config and adjust
         else if (from.isAboveStairs()) {
+            tags.add("hstairs");
             useBaseModifiers = true;
             hAllowedDistance = thisMove.yDistance == 0.5 ? 1.85 * thisMove.walkSpeed : 1.325 * thisMove.walkSpeed;
-            if (TrigUtil.isMovingBackwards(thisMove.to.getX() - thisMove.from.getX(), thisMove.to.getZ() - thisMove.from.getZ(), LocUtil.correctYaw(from.getYaw())))
+            if (TrigUtil.isMovingBackwards(thisMove.to.getX() - thisMove.from.getX(), thisMove.to.getZ() - thisMove.from.getZ(), LocUtil.correctYaw(from.getYaw()))){
                 hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
+            }
             if (!Double.isInfinite(mcAccess.getHandle().getFasterMovementAmplifier(player))) hAllowedDistance *= 0.88;
         }
-        //else if (snowFix && hAllowedDistance < 0.377D) {
-        //     hAllowedDistance = 0.377D;
-        //     useBaseModifiers = true;
-        //}			
-		// Allows faster speed for player when swimming above water since from -> to does not seem to detect correctly
-		else if (BlockProperties.isLiquid(from.getTypeIdBelow()) && !Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
-			hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed * Magic.modDolphinsGrace / 100D;
-			final int level = BridgeEnchant.getDepthStriderLevel(player);
-			if (level > 0) {
-			hAllowedDistance = Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed * Magic.modDolphinsGrace * Magic.modDepthStrider[level] / 100D;
-			}
+
+
+        // Allows faster speed for player when swimming above water since from -> to does not seem to detect correctly
+        else if (BlockProperties.isLiquid(from.getTypeIdBelow()) && !Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
+            hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed * Magic.modDolphinsGrace / 100D;
+            final int level = BridgeEnchant.getDepthStriderLevel(player);
+            if (level > 0) {
+                hAllowedDistance = Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed * Magic.modDolphinsGrace * Magic.modDepthStrider[level] / 100D;
+            }
+        }
+
         // Speed restrict when leaving water(mostly duplicate with normal liquid modeling above)
         // TODO: Still check with velocity?
-        }
         else if (!sfDirty && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_WATERWALK, player) 
-            && ((thisMove.from.inLiquid && !thisMove.to.inLiquid) || data.watermovect == 1) && data.liftOffEnvelope.name().startsWith("LIMIT")) {
-			hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * 1.06 * cc.survivalFlySwimmingSpeed / 100D;
+                && ((thisMove.from.inLiquid && !thisMove.to.inLiquid) || data.watermovect == 1) 
+                && data.liftOffEnvelope.name().startsWith("LIMIT")
+                ) {
+            tags.add("hsurface");
+            hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * 1.06 * cc.survivalFlySwimmingSpeed / 100D;
             useBaseModifiersSprint = false;
             friction = 0.0;
             final int level = BridgeEnchant.getDepthStriderLevel(player);
@@ -1077,7 +1097,7 @@ public class SurvivalFly extends Check {
                hAllowedDistance *= Magic.modDepthStrider[level];
             }
             if (!Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
-				hAllowedDistance *= Magic.modDolphinsGrace;
+                hAllowedDistance *= Magic.modDolphinsGrace;
                 if (level > 1) hAllowedDistance *= 1.0 + 0.07 * level;
             }
             if (data.watermovect == 1) hAllowedDistance *= 1.35;
@@ -1089,10 +1109,15 @@ public class SurvivalFly extends Check {
                 hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
                 data.isdownstream = false;
             }
-		}
+        }
+
+        // Sneaking
         // TODO: !sfDirty is very coarse, should use friction instead.
-        else if (!sfDirty && thisMove.from.onGround && player.isSneaking() && reallySneaking.contains(player.getName()) 
-                && (!checkPermissions || !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_SNEAKING, player))) {
+        else if (!sfDirty && thisMove.from.onGround && player.isSneaking() 
+                && reallySneaking.contains(player.getName()) 
+                && (!checkPermissions || !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_SNEAKING, player))
+                ) {
+            tags.add("sneaking");
             hAllowedDistance = Magic.modSneak * thisMove.walkSpeed * cc.survivalFlySneakingSpeed / 100D;
             friction = 0.0; // Ensure friction can't be used to speed.
             useBaseModifiers = true;
@@ -1103,6 +1128,8 @@ public class SurvivalFly extends Check {
             }
             // TODO: Attribute modifiers can count in here, e.g. +0.5 (+ 50% doesn't seem to pose a problem, neither speed effect 2).
         }
+
+        // NoSlow
         else if (data.isHackingRI && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_BLOCKING, player)) {
             data.isHackingRI = false;
             hAllowedDistance = 0.0;
@@ -1111,9 +1138,12 @@ public class SurvivalFly extends Check {
             tags.add("usingitem(cancel)");
         }
 
+        // Using items
         // TODO: !sfDirty is very coarse, should use friction instead.
-        else if (!sfDirty && (data.isusingitem || player.isBlocking()) && (thisMove.from.onGround || data.noslowhop > 0 || player.isBlocking())
-            && (!checkPermissions || !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_BLOCKING, player)) && data.liftOffEnvelope == LiftOffEnvelope.NORMAL) {
+        else if (!sfDirty && (data.isusingitem || player.isBlocking()) 
+                && (thisMove.from.onGround || data.noslowhop > 0 || player.isBlocking())
+                && (!checkPermissions || !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_BLOCKING, player)) 
+                && data.liftOffEnvelope == LiftOffEnvelope.NORMAL) {
             tags.add("usingitem");
             if (thisMove.from.onGround) {
                 // Jump/left ground
@@ -1123,26 +1153,29 @@ public class SurvivalFly extends Check {
                     0.02 * (Double.isInfinite(speedAmplifier) ? 0 : speedAmplifier + 1.0);
                     hAllowedDistance *= cc.survivalFlyBlockingSpeed / 100D;
                     data.noslowhop = 1;
+                }
                 // OnGround
-                } else {
+                else {
                     // TODO: Need testing
                     if (lastMove.toIsValid && lastMove.hDistance > 0.0)
-                    hAllowedDistance = data.noslowhop < 7 ?
-                    // 0.6 for old vers, 0.621 for 1.13+
-                    (lastMove.hAllowedDistance * (0.621 + 0.055 * ++data.noslowhop)) : lastMove.hAllowedDistance;
-                    // Failed or no hDistance in last move, return to default speed
+                       hAllowedDistance = data.noslowhop < 7 ?
+                       // 0.6 for old vers, 0.621 for 1.13+
+                       (lastMove.hAllowedDistance * (0.621 + 0.055 * ++data.noslowhop)) : lastMove.hAllowedDistance;
+                       // Failed or no hDistance in last move, return to default speed
                     else hAllowedDistance = Magic.modBlock * thisMove.walkSpeed * cc.survivalFlyBlockingSpeed / 100D;
                 }
-            } else if (data.noslowhop > 0) {
+            }
+            else if (data.noslowhop > 0) {
                 if (data.noslowhop == 1 && lastMove.toIsValid) {
                     // Second move after jump, high decay
                     hAllowedDistance = lastMove.hAllowedDistance * 0.6 * cc.survivalFlyBlockingSpeed / 100D;
                     // Fake data, prevent too much friction after slow - rejump
                     data.noslowhop = 4;
-                } else
+                }
                 // Air friction
-                hAllowedDistance = lastMove.hAllowedDistance * 0.96 * cc.survivalFlyBlockingSpeed / 100D;
-            } else if (player.isBlocking() && lastMove.toIsValid) {
+                else hAllowedDistance = lastMove.hAllowedDistance * 0.96 * cc.survivalFlyBlockingSpeed / 100D;
+            }
+            else if (player.isBlocking() && lastMove.toIsValid) {
                 // Air friction
                 hAllowedDistance = lastMove.hAllowedDistance * 0.96 * cc.survivalFlyBlockingSpeed / 100D;
                 // Fake data for air blocking
@@ -1154,27 +1187,35 @@ public class SurvivalFly extends Check {
             friction = 0.0; // Ensure friction can't be used to speed.
             useBaseModifiers = true;
             useBaseModifiersSprint = false;
-
-        } else if (Bridge1_9.hasLevitation() && CollisionUtil.isCollidingWithEntities(player, true)) {
+        }
+        
+        // Collision with entities (1.9+)
+        else if (Bridge1_9.hasLevitation() && CollisionUtil.isCollidingWithEntities(player, true) && hAllowedDistance < 0.35) {
+            tags.add("hcollision");
             hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D * 1.36;
             useBaseModifiers = true;
             data.bunnyhopTick = 20;
-            friction = 0.0;
+           friction = 0.0;
         }
+
+        // Sprinting/Walking
         else {
             useBaseModifiers = true;
             if (sprinting) {
+                tags.add("sprinting");
                 if (!thisMove.from.onGround && thisMove.to.onGround) {
                     data.bunnyhopTick = Bridge1_13.hasIsSwimming() ? 6 : 3;
                     hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D * 1.14;
-                } else if (data.bunnyhopTick > 0) {
+                }
+                else if (data.bunnyhopTick > 0) {
                     if (data.bunnyhopTick < 3) hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D * 1.15; 
                     else hAllowedDistance = Magic.modSprint * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
                     if (snowFix && data.bunnyhopTick > 5) hAllowedDistance *= 1.6;
-                } else                
-            	hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
+                }
+                else hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;               
             }
             else {
+                tags.add("walking");
                 hAllowedDistance = thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             }
             // Ensure friction can't be used to speed.
@@ -1214,7 +1255,7 @@ public class SurvivalFly extends Check {
                 }
                 //useBaseModifiersSprint = false mean not apply speed effect in it 
                 if (!useBaseModifiersSprint) {
-                	final double speedAmplifier = mcAccess.getHandle().getFasterMovementAmplifier(player);
+                    final double speedAmplifier = mcAccess.getHandle().getFasterMovementAmplifier(player);
                     if (!Double.isInfinite(speedAmplifier)) {
                         hAllowedDistance /= attrMod;
                         hAllowedDistance *= attrMod - 0.2D * (speedAmplifier + 1);
@@ -1232,10 +1273,13 @@ public class SurvivalFly extends Check {
 
         // If the player is on ice, give them a higher maximum speed.
         if (data.sfOnIce > 9) {
+            tags.add("hice");
             hAllowedDistance *= Magic.modIce;
             if (data.bunnyhopTick > 3) hAllowedDistance *= 1.25;
             else if (data.bunnyhopTick > 0) hAllowedDistance *= 1.1;
-        } else if (data.sfOnIce > 0) {
+        }
+        else if (data.sfOnIce > 0) {
+            tags.add("hice");
             hAllowedDistance *= 1.0 + 0.025 * data.sfOnIce;
         }
 
@@ -1259,6 +1303,7 @@ public class SurvivalFly extends Check {
             // Consider friction.
             // TODO: Invalidation mechanics.
             // TODO: Friction model for high speeds?
+        tags.add("hfrict");
             hAllowedDistance = Math.max(hAllowedDistance, lastMove.hDistance * friction);
         }
         //        if (hAllowedDistance < thisMove.hDistance) {
@@ -1282,7 +1327,7 @@ public class SurvivalFly extends Check {
         return (BlockProperties.getBlockFlags(from.getTypeId()) & BlockProperties.F_STICKY) !=0;
     }
 
-	/**
+    /**
      * Return a 'corrected' allowed horizontal speed. Call only if the player
      * has a SLOW effect.
      * 
@@ -1395,15 +1440,17 @@ public class SurvivalFly extends Check {
             final double hDistance, final double yDistance, 
             final int multiMoveCount, final PlayerMoveData lastMove, 
             final MovingData data, final MovingConfig cc, final IPlayerData pData) {
+
         final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
         // Y-distance for normal jumping, like in air.
         double vAllowedDistance = 0.0;
         double vDistanceAboveLimit = 0.0;
-
         // Change seen from last yDistance.
         final double yDistChange = lastMove.toIsValid ? yDistance - lastMove.yDistance :  Double.MAX_VALUE;
         // Hacks.
         final boolean envelopeHack;
+
+
         if (!resetFrom && !resetTo && MagicAir.venvHacks(from, to, yDistance, yDistChange, thisMove, lastMove, data)) {
             envelopeHack = true;
             tags.add("hack_venv");
@@ -1425,6 +1472,7 @@ public class SurvivalFly extends Check {
         final double maxJumpGain = data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier);
         final double jumpGainMargin = 0.005; // TODO: Model differently, workarounds where needed. 0.05 interferes with max height vs. velocity (<= 0.47 gain).
         // TODO: Add/set 'allow starting to fall' first (data reset / from ground on if no speed).
+        // Strict vDistRel //
         if (lastMove.toIsValid && Magic.fallingEnvelope(yDistance, lastMove.yDistance, data.lastFrictionVertical, 0.0)) {
             // Less headache: Always allow falling. 
             // TODO: Base should be data.lastFrictionVertical? Problem: "not set" detection?
@@ -1459,14 +1507,16 @@ public class SurvivalFly extends Check {
                 }
             }
             strictVdistRel = false;
-        } else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
-            vAllowedDistance = lastMove.yDistance * 5.0D;
-            strictVdistRel = false;
-    } else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
-        strictVdistRel = false;
-        vAllowedDistance = yDistance;			
-    }
-    else if (lastMove.toIsValid) {
+        }
+        else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
+              vAllowedDistance = lastMove.yDistance * 5.0D;
+              strictVdistRel = false;
+        }
+        else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
+             strictVdistRel = false;
+             vAllowedDistance = yDistance;          
+        }
+        else if (lastMove.toIsValid) {
             if (lastMove.yDistance >= -Math.max(Magic.GRAVITY_MAX / 2.0, 1.3 * Math.abs(yDistance)) && lastMove.yDistance <= 0.0 
                     && (lastMove.touchedGround || lastMove.to.extraPropertiesValid && lastMove.to.resetCond)) {
                 if (resetTo) { // TODO: Might have to use max if resetto.
@@ -1482,7 +1532,7 @@ public class SurvivalFly extends Check {
             else {
                 // Friction.
                 // TODO: data.lastFrictionVertical (see above).
-            	// Slime fix ?
+                // Slime fix ?
                 vAllowedDistance = lastMove.yDistance * data.lastFrictionVertical - Magic.GRAVITY_ODD; // Upper bound.
                 strictVdistRel = true;
                 
@@ -1494,6 +1544,9 @@ public class SurvivalFly extends Check {
             strictVdistRel = false;
             
         }
+
+
+        // vDistRel //
         //System.out.println("=========: " + vAllowedDistance + " " + yDistance);
         // Compare yDistance to expected, use velocity on violation.
         // TODO: Quick detect valid envelope and move workaround code into a method.
@@ -1512,14 +1565,12 @@ public class SurvivalFly extends Check {
             // (Clearly accepted envelopes first.)
             vDistRelVL = false;
             //vAllowedDistance = yDistance;
-            
         }
         else if (yDistDiffEx > 0.0) { // Upper bound violation.
             // && (yDistance > 0.0 || (!resetTo && !data.noFallAssumeGround))
             if (yDistance <= 0.0 && (resetTo || thisMove.touchedGround)) {
                 // Allow falling shorter than expected, if onto ground.
                 // Note resetFrom should usually mean that allowed dist is > 0 ?
-            	
             }
             else if (lastMove.toIsValid) {
                 // TODO: Sort in workarounds to methods, unless extremely frequent.
@@ -1529,7 +1580,6 @@ public class SurvivalFly extends Check {
                     // (OR loc... needs different model, distanceToGround, proper set back, moveHitGround)
                     // TODO: Slightly too short move onto the same level as snow (0.75), but into air (yDistance > -0.5).
                     // TODO: Better on-ground model (adapt to actual client code).
-                	
                 }
                 //                else if (yDistance < 0.0 && yDistChange > 0.0 && tags.contains("lostground_edgedesc")) {
                 //                    // Falling less far than expected by hitting an edge.
@@ -1539,23 +1589,19 @@ public class SurvivalFly extends Check {
                         && to.getY() - data.getSetBackY() <= data.liftOffEnvelope.getMaxJumpHeight(data.jumpAmplifier)
                         && lastMove.yDistance <= maxJumpGain && yDistance > -Magic.GRAVITY_MAX  && yDistance < lastMove.yDistance
                         && lastMove.yDistance - yDistance > Magic.GRAVITY_ODD / 3.0) {
-                    // Special jump (water/edges/assume-ground), too small decrease.
-                	
+                    // Special jump (water/edges/assume-ground), too small decrease.    
                 }
                 else if (yDistDiffEx < Magic.GRAVITY_MIN && data.sfJumpPhase == 1 
                         && data.liftOffEnvelope != LiftOffEnvelope.NORMAL 
                         && lastMove.from.extraPropertiesValid && lastMove.from.inLiquid
                         && lastMove.yDistance < -Magic.GRAVITY_ODD / 2.0 && lastMove.yDistance > -Magic.GRAVITY_MAX - Magic.GRAVITY_SPAN
                         && yDistance < lastMove.yDistance - 0.001) {
-                    // Odd decrease with water.
-                	
+                    // Odd decrease with water.             
                 }
                 else if (MagicAir.oddJunction(from, to, yDistance, yDistChange, yDistDiffEx, maxJumpGain, resetTo, thisMove, lastMove, data, cc)) {
-
+                    // Gravity effects
                 }
-                else if (yDistDiffEx < 0.025 
-                        && Magic.noobJumpsOffTower(yDistance, maxJumpGain, thisMove, lastMove, data)) {
-                	
+                else if (yDistDiffEx < 0.025 && Magic.noobJumpsOffTower(yDistance, maxJumpGain, thisMove, lastMove, data)) {
                     /*
                      * On (noob) tower up, the second move has a higher distance
                      * than expected, because the first had been starting
@@ -1563,7 +1609,7 @@ public class SurvivalFly extends Check {
                      */
                 }
                 else if (isLanternUpper(to) || isWaterlogged(from) || isWaterlogged(to)) {
-					
+                     // Ignore
                 }
                 else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
                     vDistRelVL = false;
@@ -1572,28 +1618,26 @@ public class SurvivalFly extends Check {
                     vDistRelVL = false;
                 }
                 else if (lastMove.from.inLiquid && lastMove.from.onClimbable) {
-					
+                    // Ignore.
                 }
                 else if (yDistance > 0.0 && lastMove.yDistance < 0.0
                         && data.ws.use(WRPT.W_M_SF_SLIME_JP_2X0)
                         && MagicAir.oddBounce(to, yDistance, lastMove, data)) {
-                	
                     //Slime
                     data.setFrictionJumpPhase();
                 }
                 else if (isCollideWithHB(from, to, data) && yDistance < -0.125 && yDistance > -0.128) {
-
+                    // Side collision with a honey block thus slower movement than expected.
                 }
                 else if (Bridge1_13.hasIsSwimming() && 
                     (data.sfJumpPhase == 7 && yDistance < -0.02 && yDistance > -0.2
                     || data.sfJumpPhase == 3 && lastMove.yDistance < -0.139 && yDistance > -0.1 && yDistance < 0.005
                     || yDistance < -0.288 && yDistance > -0.32 && lastMove.yDistance > -0.1 && lastMove.yDistance < 0.005
                     )) {
-                    // False positives when break block below too fast. Seem newly appeared in recent versions
-                    
+                    // False positives when break block below too fast. Seem newly appeared in recent versions 
                 }
                 //else if (Bridge1_13.hasIsSwimming() && from.isOnGround(0.125) && (from.getBlockFlags() & BlockProperties.F_HEIGHT_8_INC) != 0 && yDistance > 0.0 && yDistance < 0.43) {
-                //	thisMove.touchedGround = true;
+                //  thisMove.touchedGround = true;
                 //}
                 else {
                     // Violation.
@@ -1631,9 +1675,9 @@ public class SurvivalFly extends Check {
                 // Allow too strong decrease.
                 // TODO: Another magic check here? Route most checks through methods anyway?
             }
-			else if (isLanternUpper(to)) {
-					
-			}
+        else if (isLanternUpper(to)) {
+                // Ignore
+        }
             else {
                 vDistRelVL = true;
             }
@@ -1672,10 +1716,10 @@ public class SurvivalFly extends Check {
                 // Several types of odd in-air moves, mostly with gravity near maximum, friction, medium change.
             }
             else if (isLanternUpper(to)) {
-
+                // Ignore.
             }
             else if (isCollideWithHB(from, to, data) && yDistance < -0.125 && yDistance > -0.128) {
-
+                // Side collision with a honey block thus slower movement than expected.
             }
             else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
                 vDistRelVL = false;
@@ -1687,7 +1731,7 @@ public class SurvivalFly extends Check {
                 // False positives when break block below too fast. Seem newly appeared in recent versions
             }
             else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
-                vDistRelVL = false;		
+                vDistRelVL = false;
             }
             else {
                 // Violation.
@@ -1701,12 +1745,14 @@ public class SurvivalFly extends Check {
             vDistanceAboveLimit = Math.max(vDistanceAboveLimit, 1.25);
         }
 
+
         if (vDistRelVL) {
             if (data.getOrUseVerticalVelocity(yDistance) == null) {
                 vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance - vAllowedDistance));
                 tags.add("vdistrel");
             }
         }
+
 
         // Absolute y-distance to set back.
         if (yDistance > 0.0 && !data.isVelocityJumpPhase()) {
@@ -1725,16 +1771,16 @@ public class SurvivalFly extends Check {
                 else if (yDistance <= cc.sfStepHeight && thisMove.touchedGroundWorkaround && tags.contains("lostground_couldstep")) {
                     // Ignore: Envelope already checked.
                 }
-                // Teleport to in-air (PaperSpigot 1.7.10).
                 else if (Magic.skipPaper(thisMove, lastMove, data)) {
                     // Tag already set above.
+                    // Teleport to in-air (PaperSpigot 1.7.10).
                 }
-				else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
-					tags.add("yriptide");
-				}
-				else if (isWaterlogged(from)) {
-					// Ignore water logged blocks 
-				}
+                else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
+                    // Ignore riptiding for now
+                }
+                else if (isWaterlogged(from)) {
+                    // Ignore water logged blocks 
+                }
                 // Attempt to use velocity.
                 else if (data.getOrUseVerticalVelocity(yDistance) == null) {
                     // Violation.
@@ -1744,29 +1790,31 @@ public class SurvivalFly extends Check {
             }
         }
 
+
         if (data.sfLowJump) {
             tags.add("lowjump");
         }
+
 
         // More in air checks.
         // TODO: move into the in air checking above !?
         if (!envelopeHack && !resetFrom && !resetTo) {
             // "On-air" checks (vertical, already use velocity if needed).
-            vDistanceAboveLimit = Math.max(vDistanceAboveLimit, 
-                    inAirChecks(now, from, to, hDistance, yDistance, thisMove, lastMove, data, cc));
+            vDistanceAboveLimit = Math.max(vDistanceAboveLimit, inAirChecks(now, from, to, hDistance, yDistance, thisMove, lastMove, data, cc));
         }
+
 
         // Block 'step' with yDistance between step height and minJumpGain (vdistrel and vdistsb should catch the rest).
         // TODO: Model other cases of unexpectedly low 'jumping', such as using too few velocity?
         // (Actual step cheats are probably better detected by generalized patterns.)
         if (vDistanceAboveLimit <= 0D 
-                && yDistance > cc.sfStepHeight && yDistance < data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier) 
-                && !thisMove.headObstructed && !thisMove.from.resetCond && !thisMove.to.resetCond
-                && (thisMove.from.onGround || thisMove.touchedGroundWorkaround) && thisMove.to.onGround 
-                ) {
+            && yDistance > cc.sfStepHeight && yDistance < data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier) 
+            && !thisMove.headObstructed && !thisMove.from.resetCond && !thisMove.to.resetCond
+            && (thisMove.from.onGround || thisMove.touchedGroundWorkaround) && thisMove.to.onGround 
+            ) {
             // Exclude a lost-ground case.
             if (thisMove.touchedGroundWorkaround && lastMove.toIsValid && lastMove.yDistance <= 0.0
-                    && yDistance + Math.abs(lastMove.yDistance) <= 2.0 * (maxJumpGain + 0.1)) {
+                && yDistance + Math.abs(lastMove.yDistance) <= 2.0 * (maxJumpGain + 0.1)) {
                 // TODO: Review: still needed?
             }
             else {
@@ -1779,18 +1827,18 @@ public class SurvivalFly extends Check {
             }
         }
 
+
         // Air-stay-time.
         // TODO: max-phase only when from is not reset !?
         // TODO: Only allow higher yDistance when in water (1.13 swimming)
         final int maxJumpPhase = data.liftOffEnvelope.getMaxJumpPhase(data.jumpAmplifier);
         if (!envelopeHack && data.sfJumpPhase > maxJumpPhase && !data.isVelocityJumpPhase()) {
-            if (yDistance < 0.5) {
+            if (yDistance < 0.0) {
                 // Ignore falling, and let accounting deal with it.
             }
-		    else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
-				
-			}
-			
+            else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
+               // Ignore riptiding.
+            }
             else if (resetFrom) {
                 // Ignore bunny etc.
             }
@@ -1913,7 +1961,7 @@ public class SurvivalFly extends Check {
             }
         }
         return vDistanceAboveLimit;
-    }	    
+    }
 
     /** Check if collide the side of HoneyBlock */
     private boolean isCollideWithHB(PlayerLocation from ,PlayerLocation to, MovingData data) {
@@ -1926,14 +1974,14 @@ public class SurvivalFly extends Check {
     }
     
     private boolean isLanternUpper(PlayerLocation from) {
-    	World w = from.getWorld();
-    	final int x = from.getBlockX();
-    	final int y = from.getBlockY() + 2;
-    	final int z = from.getBlockZ();
-    	if (w.getBlockAt(x, y, z).getType().toString().equals("LANTERN")) return true;
-    	return false;	
+        World w = from.getWorld();
+        final int x = from.getBlockX();
+        final int y = from.getBlockY() + 2;
+        final int z = from.getBlockZ();
+        if (w.getBlockAt(x, y, z).getType().toString().equals("LANTERN")) return true;
+        return false;
     }
-	
+
     private boolean isWaterlogged(PlayerLocation from) {
         if (!Bridge1_13.hasIsSwimming()) return false;
         World w = from.getWorld();
@@ -2011,7 +2059,7 @@ public class SurvivalFly extends Check {
     private double yDirChange(final PlayerLocation from, final PlayerLocation to, 
             final double yDistance, double vDistanceAboveLimit, 
             final PlayerMoveData lastMove, final MovingData data) {
-			long now = System.currentTimeMillis();
+            long now = System.currentTimeMillis();
         // TODO: Does this account for velocity in a sufficient way?
         if (yDistance > 0) {
             // TODO: Clear active vertical velocity here ?
@@ -2024,12 +2072,15 @@ public class SurvivalFly extends Check {
                 // Moving upwards after falling without having touched the ground.
                 if (data.bunnyhopDelay < 9 && !((lastMove.touchedGround || lastMove.from.onGroundOrResetCond) && lastMove.yDistance == 0D) && data.getOrUseVerticalVelocity(yDistance) == null) {
                     // TODO: adjust limit for bunny-hop.
-                    if ((data.timeRiptiding + 500 > now) || (data.bedLeaveTime + 500 > now && yDistance < 0.45) || isLanternUpper(to) || isWaterlogged(from)) {
-					
-		            } else {
-		                vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance));
+                    if ((data.timeRiptiding + 500 > now) 
+                        || (data.bedLeaveTime + 500 > now && yDistance < 0.45) 
+                        || isLanternUpper(to) || isWaterlogged(from)) {
+                        // Ignore.
+                    }
+                    else {
+                        vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance));
                         tags.add("ychincfly");
-			        }
+                    }
                 }
                 else {
                     tags.add("ychincair");
@@ -2096,34 +2147,42 @@ public class SurvivalFly extends Check {
             final PlayerMoveData thisMove, final PlayerMoveData lastMove, 
             final MovingData data, final MovingConfig cc, final IPlayerData pData, 
             final boolean skipPermChecks) {
-				
-		long now = System.currentTimeMillis();
 
+        long now = System.currentTimeMillis();
         // TODO: Still not entirely sure about this checking order.
         // TODO: Would quick returns make sense for hDistanceAfterFailure == 0.0?
 
         // Test bunny early, because it applies often and destroys as little as possible.
-        if (!(from.isAboveStairs() && to.isAboveStairs() && to.isOnGround()))
-        hDistanceAboveLimit = bunnyHop(from, to, hAllowedDistance, hDistanceAboveLimit, sprinting, thisMove, lastMove, data, cc);
-
+        if (!(from.isAboveStairs() && to.isAboveStairs() && to.isOnGround())){
+            hDistanceAboveLimit = bunnyHop(from, to, hAllowedDistance, hDistanceAboveLimit, sprinting, thisMove, lastMove, data, cc);
+        }
         // After failure permission checks ( + speed modifier + sneaking + blocking + speeding) and velocity (!).
         // Noslow require no permission rechecks
-        if (hDistanceAboveLimit > 0.12 && !tags.contains("usingitem(cancel)") && !skipPermChecks && !thisMove.from.inLiquid && !thisMove.to.inLiquid && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player)))  {
+        if (hDistanceAboveLimit > 0.12 
+            && !tags.contains("usingitem(cancel)") 
+            && !skipPermChecks 
+            && !thisMove.from.inLiquid && !thisMove.to.inLiquid 
+            && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))
+            )  {
             // TODO: Most cases these will not apply. Consider redesign to do these last or checking right away and skip here on some conditions.
             hAllowedDistance = setAllowedhDist(player, sprinting, thisMove, data, cc, pData, from, true);
             hDistanceAboveLimit = thisMove.hDistance - hAllowedDistance;
             tags.add("permchecks-outliq");
         }
-		if (hDistanceAboveLimit > 0.6 && !skipPermChecks && thisMove.from.inLiquid && thisMove.to.inLiquid && !Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
-			hAllowedDistance = setAllowedhDist(player, sprinting, thisMove, data, cc, pData, from, true);
+        if (hDistanceAboveLimit > 0.6 
+            && !skipPermChecks 
+            && thisMove.from.inLiquid && thisMove.to.inLiquid 
+            && !Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))
+            ) {
+            hAllowedDistance = setAllowedhDist(player, sprinting, thisMove, data, cc, pData, from, true);
             hDistanceAboveLimit = thisMove.hDistance - hAllowedDistance;
             tags.add("permchecks-inliq");
-		}
+        }
+
 
         // Check being moved by blocks.
-        if (cc.trackBlockMove && hDistanceAboveLimit > 0.0 
-                && hDistanceAboveLimit < 1.025 // MAGIC
-                ) {
+        if (cc.trackBlockMove && hDistanceAboveLimit > 0.0 && hDistanceAboveLimit < 1.025 // MAGIC
+            ) {
             // Push by 0.49-0.51 in one direction. Also observed 1.02.
             // TODO: Better also test if the per axis distance is equal to or exceeds hDistanceAboveLimit?
             // TODO: The minimum push value can be misleading (blocked by a block?)
@@ -2143,6 +2202,7 @@ public class SurvivalFly extends Check {
             }
         }
 
+
         // Check velocity.
         double hFreedom = 0.0; // Horizontal velocity used.
         if (hDistanceAboveLimit > 0.0) {
@@ -2158,10 +2218,11 @@ public class SurvivalFly extends Check {
                 if (hDistanceAboveLimit <= 0.0) {
                     data.combinedMediumHCount = 0;
                     data.combinedMediumHValue = 0.0;
-                	tags.add("hvel_no_hacc");
+                    tags.add("hvel_no_hacc");
                 }
             }
         }
+
 
         // After failure bunny (2nd).
         if (hDistanceAboveLimit > 0 && !(from.isAboveStairs() && to.isAboveStairs() && to.isOnGround())) {
@@ -2169,31 +2230,35 @@ public class SurvivalFly extends Check {
             hDistanceAboveLimit = bunnyHop(from, to, hAllowedDistance, hDistanceAboveLimit, sprinting, thisMove, lastMove, data, cc);
         }
 
+
         // Horizontal buffer.
         // TODO: Consider to confine use to "not in air" and similar.
         if (hDistanceAboveLimit > 0.0 && data.sfHorizontalBuffer > 0.0) {
-        	//if (snowFix && data.sfHorizontalBuffer == 1) {
+            //if (snowFix && data.sfHorizontalBuffer == 1) {
             // Ignore
-        	//} else {
-        	// Handle buffer only if moving too far.
+            //} else {
+            // Handle buffer only if moving too far.
             // Consume buffer.
             tags.add("hbufuse");
             final double amount = Math.min(data.sfHorizontalBuffer, hDistanceAboveLimit);
             hDistanceAboveLimit -= amount;
             // Ensure we never end up below zero.
             data.sfHorizontalBuffer = Math.max(0.0, data.sfHorizontalBuffer - amount);
-        	//}
+            //}
         }
 
-		if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
-			if (Bridge1_9.isGliding(player) && hDistanceAboveLimit< 0.5) {
-				hDistanceAboveLimit=0.0;
-			}
-			tags.add("hriptide");
-		}
+
+        if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
+            if (Bridge1_9.isGliding(player) && hDistanceAboveLimit< 0.5) {
+                hDistanceAboveLimit=0.0;
+            }
+            tags.add("hriptide");
+        }
+
 
         // Attempt to fix server-side blocking & bow drawn
-        if (hDistanceAboveLimit > 0.0 && tags.contains("usingitem") && (!Bridge1_9.hasGetItemInOffHand() && player.isBlocking() || Bridge1_9.getItemInMainHand(player).getType() == Material.BOW)) {
+        if (hDistanceAboveLimit > 0.0 && tags.contains("usingitem") && (!Bridge1_9.hasGetItemInOffHand() && player.isBlocking() 
+        || Bridge1_9.getItemInMainHand(player).getType() == Material.BOW)) {
 
             ItemStack stack = Bridge1_9.getItemInMainHand(player);
             if (stack != null) {
@@ -2201,7 +2266,6 @@ public class SurvivalFly extends Check {
                 Bridge1_9.setItemInMainHand(player, new ItemStack(Material.AIR));
                 Bridge1_9.setItemInMainHand(player, stack);
             }
-
         }
 
         // Add the hspeed tag on violation.
@@ -2326,18 +2390,19 @@ public class SurvivalFly extends Check {
                     }
                 }
             }
-
         }
 
-        // Fix jumping on slime blocks
+
+        // Allow sprintjumping on slime blocks
         if ((from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0
                 && data.bunnyhopDelay == 9
                 && !thisMove.from.onGround && hDistance < 0.45) {
             hDistanceAboveLimit = 0.0;
             data.bunnyhopTick = 15;
             data.sfHorizontalBuffer = Math.max(data.sfHorizontalBuffer, 0.5);
-            tags.add("bounce_bunny");
+            tags.add("bouncebunny");
         }
+
 
         // bunnyhop-> bunnyslope-> bunnyfriction-> ground-> microjump(still bunnyfriction)-> bunnyfriction
         //or bunnyhop-> ground-> slidedown-> bunnyfriction
@@ -2355,7 +2420,7 @@ public class SurvivalFly extends Check {
                 if (hDistDiff < 0.01) {
                     // Allow the move
                     hDistanceAboveLimit = 0.0;
-                    tags.add("bunnyfriction");
+                    tags.add("bunnyfriction(2)");
                     // Remove lowjump in this hop, prevent false in next hop
                     if (data.sfLowJump) {
                         data.sfLowJump = false;
@@ -2434,9 +2499,9 @@ public class SurvivalFly extends Check {
             final MovingData data, final MovingConfig cc) {
         /*
          * TODO: Consider different concepts: 
-         * 			- full resetting with harder conditions.
-         * 			- maximum regain amount.
-         * 			- reset or regain only every x blocks h distance.
+         *          - full resetting with harder conditions.
+         *          - maximum regain amount.
+         *          - reset or regain only every x blocks h distance.
          */
         // TODO: Confine general conditions for buffer regain further (regain in air, whatever)?
         data.sfHorizontalBuffer = Math.min(cc.hBufMax, data.sfHorizontalBuffer + amount);
@@ -2456,8 +2521,9 @@ public class SurvivalFly extends Check {
     private double[] vDistLiquid(final PlayerMoveData thisMove, final PlayerLocation from, final PlayerLocation to, 
             final boolean toOnGround, final double yDistance, final PlayerMoveData lastMove, 
             final MovingData data, final Player player) {
+
         data.sfNoLowJump = true;
-		long now = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
 
         // Expected envelopes.
         final double baseSpeed;
@@ -2505,10 +2571,11 @@ public class SurvivalFly extends Check {
             return new double[]{yDistance, 0.0};
         }
 
-		// TODO: Set magic speeds
-		if (isBubbleColumn(from)) {
-        	return new double[]{yDistance, 0.0};
+        // TODO: Set magic speeds
+        if (isBubbleColumn(from)) {
+            return new double[]{yDistance, 0.0};
         }
+
         // At this point a violation.
         tags.add(yDistance < 0.0 ? "swimdown" : "swimup");
         final double vl1 = yDistAbs - baseSpeed;
@@ -2528,7 +2595,7 @@ public class SurvivalFly extends Check {
         }
         return false;
     }
-	
+
     /**
      * On-climbable vertical distance checking.
      * @param from
@@ -2545,19 +2612,21 @@ public class SurvivalFly extends Check {
             final boolean fromOnGround, final boolean toOnGround, 
             final PlayerMoveData thisMove, final PlayerMoveData lastMove, 
             final double yDistance, final MovingData data) {
+
         double vDistanceAboveLimit = 0.0;
         data.sfNoLowJump = true;
+        long now = System.currentTimeMillis();
 
         // Clear active horizontal velocity.
         data.clearActiveHorVel();
         // TODO: Might not be able to ignore vertical velocity if moving off climbable (!).
 
         // TODO: bring in in-medium accounting.
-        //    	// TODO: make these extra checks to the jumpphase thing ?
-        //    	if (fromOnGround) vAllowedDistance = climbSpeed + 0.3;
-        //    	else vAllowedDistance = climbSpeed;
-        //    	vDistanceAboveLimit = Math.abs(yDistance) - vAllowedDistance;
-        //    	if (vDistanceAboveLimit > 0) tags.add("vclimb");
+        //      // TODO: make these extra checks to the jumpphase thing ?
+        //      if (fromOnGround) vAllowedDistance = climbSpeed + 0.3;
+        //      else vAllowedDistance = climbSpeed;
+        //      vDistanceAboveLimit = Math.abs(yDistance) - vAllowedDistance;
+        //      if (vDistanceAboveLimit > 0) tags.add("vclimb");
         final double jumpHeight = 1.35 + (data.jumpAmplifier > 0 ? (0.6 + data.jumpAmplifier - 1.0) : 0.0);
         // TODO: ladders are ground !
         // TODO: yDistance < 0.0 ?
@@ -2567,16 +2636,17 @@ public class SurvivalFly extends Check {
                 if (yDistance > data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier)+ 0.1) {
                     tags.add("climbstep");
                     vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance) - maxSpeed);
-				}
-                } else if (!isWaterlogged(from)) {
+                }
+            }
+            else if (!isWaterlogged(from)) {
                 tags.add("climbspeed");
                 vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance) - maxSpeed);
             }
-	    long now = System.currentTimeMillis();
             if ((Bridge1_13.isRiptiding(player) || data.timeRiptiding + 3000 > now) && vDistanceAboveLimit< 4.0) {
-            	vDistanceAboveLimit = 0.0;
-            } 
+                vDistanceAboveLimit = 0.0;
+            }
         }
+
         if (yDistance > 0) {
             if (!data.playerMoves.getCurrentMove().touchedGround) {
                 // Check if player may climb up.
@@ -2587,19 +2657,22 @@ public class SurvivalFly extends Check {
                 }
             }
         }
+
         // Do allow friction with velocity.
         if (vDistanceAboveLimit > 0.0 && thisMove.yDistance > 0.0 
-                && lastMove.yDistance - (Magic.GRAVITY_MAX + Magic.GRAVITY_MIN) / 2.0 > thisMove.yDistance) {
+            && lastMove.yDistance - (Magic.GRAVITY_MAX + Magic.GRAVITY_MIN) / 2.0 > thisMove.yDistance) {
             // TODO: Actual friction or limit by absolute y-distance?
             // TODO: Looks like it's only a problem when on ground?
             vDistanceAboveLimit = 0.0;
             tags.add("vfrict_climb");
         }
+
         // Do allow vertical velocity.
         // TODO: Looks like less velocity is used here (normal hitting 0.361 of 0.462).
         if (vDistanceAboveLimit > 0.0 && data.getOrUseVerticalVelocity(yDistance) != null) {
             vDistanceAboveLimit = 0.0;
         }
+
         return vDistanceAboveLimit;
     }
 
@@ -2619,12 +2692,14 @@ public class SurvivalFly extends Check {
     private double[] vDistWeb(final Player player, final PlayerMoveData thisMove, 
             final boolean toOnGround, final double hDistanceAboveLimit, final long now, 
             final MovingData data, final MovingConfig cc, final PlayerLocation from) {
+
         final double yDistance = thisMove.yDistance;
         double vAllowedDistance = 0.0;
         double vDistanceAboveLimit = 0.0;
         data.sfNoLowJump = true;
         data.jumpAmplifier = 0; // TODO: later maybe fetch.
-        // Very simple: force players to descend or stay.
+
+        // Players cannot ascend in webs
         if (yDistance >= 0.0) {
             if (toOnGround && yDistance <= 0.5) {
                 // Step up. Note: Does not take into account jump effect on purpose.
@@ -2635,43 +2710,47 @@ public class SurvivalFly extends Check {
             }
             else {
                 // TODO: Could prevent not moving down if not on ground (or on ladder or in liquid?).
+                // Allow moving upwards a bit if the player is on ground
                 vAllowedDistance = thisMove.from.onGround ? 0.1D : 0;
                 from.collectBlockFlags();
-                if ((from.getBlockFlags() & BlockProperties.F_COBWEB2) != 0) vAllowedDistance = 0.315;
+                // Players can "halfjump" in berry bushes
+                if ((from.getBlockFlags() & BlockProperties.F_COBWEB2) != 0) {
+                    vAllowedDistance = 0.315;
+                }
             }
-
+            // Compatibility with multiprotocol plugins
             if ((from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) != 0) {
                 vAllowedDistance = LiftOffEnvelope.NORMAL.getMaxJumpGain(data.jumpAmplifier) + 0.005;
             }
-
             vDistanceAboveLimit = yDistance - vAllowedDistance;
         }
+        // Descending in web/sweet berry bushes.
         else {
-
-        	// Descending in web/sweet berry bushes.
-        	// Is checking resetCond necessary here?
-        	if (thisMove.from.resetCond && thisMove.to.resetCond && (from.getBlockFlags() & BlockProperties.F_COBWEB2) == 0
-                    && (from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) == 0) {
-
-        		// Players call decend faster if they're also moving horizontally 
+            // Is checking resetCond necessary here?
+            if (thisMove.from.resetCond && thisMove.to.resetCond && (from.getBlockFlags() & BlockProperties.F_COBWEB2) == 0
+               && (from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) == 0) {
+               // Players can descend faster if they're also moving horizontally 
                 if (thisMove.hDistance > 0.018) {
                     vAllowedDistance = -0.062;
                     vDistanceAboveLimit = yDistance < -0.06 ? Math.abs(yDistance - 0.06) : 0;
-                } else {
+                }
+                else {
                     vAllowedDistance = -0.032;
                     vDistanceAboveLimit = yDistance < -0.035 ? Math.abs(yDistance - 0.032) : 0;
                 }
-        	} else if ((from.getBlockFlags() & BlockProperties.F_COBWEB2) != 0) {
-        		// Allow a faster decend speed when the player first enters berry (jumping on from the top)
-        		if (data.insideMediumCount == 0) {
-        			vAllowedDistance = -0.227;
-        			vDistanceAboveLimit = yDistance < -0.227 ? Math.abs(yDistance - 0.227) : 0;
-        		} else {
-        			vAllowedDistance = -0.06;
-            		vDistanceAboveLimit = yDistance < -0.06 ? Math.abs(yDistance - 0.06) : 0;
-        		}
+            }
+            else if ((from.getBlockFlags() & BlockProperties.F_COBWEB2) != 0) {
+               // Allow a faster descend speed when the player first enters berry (jumping on from the top)
+                if (data.insideMediumCount == 0) {
+                    vAllowedDistance = -0.227;
+                }
+                else {
+                    vAllowedDistance = -0.06;
+                }
+                vDistanceAboveLimit = yDistance < vAllowedDistance ? Math.abs(yDistance + vAllowedDistance) : 0;
             }
         }
+
         /* Should flag as normal rather than doing silent setbacks. Also causes issues with descend check, meaning the player is never flagged.
         if (cc.survivalFlyCobwebHack && vDistanceAboveLimit > 0.0 && hDistanceAboveLimit <= 0.0) {
             // TODO: Seemed fixed at first by CB/MC, but still does occur due to jumping. 
@@ -2679,9 +2758,14 @@ public class SurvivalFly extends Check {
                 return new double[]{Double.MIN_VALUE, Double.MIN_VALUE};
             }
         } */
-        // TODO: Prevent too fast moving down ?
+
         if (vDistanceAboveLimit > 0.0) {
-            tags.add("vweb");
+            if ((from.getBlockFlags() & BlockProperties.F_COBWEB2) != 0) {
+                tags.add(yDistance > 0.0 ? "vbush" : "vbushdesc");
+            }
+            else {
+                tags.add(yDistance > 0.0 ? "vweb" : "vwebdesc");
+            }
         }
         return new double[]{vAllowedDistance, vDistanceAboveLimit};
     }
@@ -2854,9 +2938,9 @@ public class SurvivalFly extends Check {
             builder.append(" , vVelUsed: " + thisMove.verVelUsed + " ");
         }
         data.addVerticalVelocity(builder);
-        //		if (data.horizontalVelocityCounter > 0 || data.horizontalFreedom >= 0.001) {
-        //			builder.append("\n" + player.getName() + " horizontal freedom: " +  StringUtil.fdec3.format(data.horizontalFreedom) + " (counter=" + data.horizontalVelocityCounter +"/used="+data.horizontalVelocityUsed);
-        //		}
+        //      if (data.horizontalVelocityCounter > 0 || data.horizontalFreedom >= 0.001) {
+        //          builder.append("\n" + player.getName() + " horizontal freedom: " +  StringUtil.fdec3.format(data.horizontalFreedom) + " (counter=" + data.horizontalVelocityCounter +"/used="+data.horizontalVelocityUsed);
+        //      }
         data.addHorizontalVelocity(builder);
         if (!resetFrom && !resetTo) {
             if (cc.survivalFlyAccountingV && data.vDistAcc.count() > data.vDistAcc.bucketCapacity()) {
@@ -2885,7 +2969,7 @@ public class SurvivalFly extends Check {
             builder.append("\n" + " workarounds: " + StringUtil.join(justUsedWorkarounds, "+"));
         }
         builder.append("\n");
-        //		builder.append(data.stats.getStatsStr(false));
+        //      builder.append(data.stats.getStatsStr(false));
         NCPAPIProvider.getNoCheatPlusAPI().getLogManager().debug(Streams.TRACE_FILE, builder.toString());
     }
 
