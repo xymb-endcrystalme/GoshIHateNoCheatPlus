@@ -48,7 +48,7 @@ public class MaterialUtil {
     ///////////////////////
 
     private static final List<String> woodTypes = Arrays.asList(
-            "acacia", "birch", "dark_oak", "jungle", "oak", "spruce", 
+            "acacia", "birch", "dark_oak", "jungle", "oak", "spruce", "warped", "crimson",
             "wood" // Legacy
             );
 
@@ -153,6 +153,9 @@ public class MaterialUtil {
                     null, Arrays.asList("_door"), AlmostBoolean.YES,
                     "trap", "legacy")
             );
+
+    public static final Set<Material> ALL_STAIRS = Collections.unmodifiableSet(
+            BridgeMaterial.getBySuffix("_stairs", AlmostBoolean.YES, "legacy"));
 
     public static final Set<Material> ALL_TRAP_DOORS = Collections.unmodifiableSet(
             BridgeMaterial.getByPrefixAndSuffix(
@@ -343,7 +346,7 @@ public class MaterialUtil {
             "piston", "sticky_piston", "piston_base", "piston_sticky_base",
             "dispenser", "dropper", "furnace", "observer", "beacon",
             "pumpkin", "melon_block", "hay_block", "bone_block", "dried_kelp_block",
-            "nether_wart_block", "netherrack",
+            "nether_wart_block", "netherrack", "warped_wart_block",
             "snow_block", "ice", "magma_block",
             "diamond_block", "gold_block", "iron_block", "coal_block", 
             "emerald_block", "lapis_block", "redstone_block", 
@@ -376,6 +379,14 @@ public class MaterialUtil {
                     AlmostBoolean.YES
                     // , ...
                     ), "wood"));
+
+    public static final Set<Material> WOODEN_SIGNS = Collections.unmodifiableSet(addBlocks(
+            BridgeMaterial.getByPrefixAndSuffix(
+                    woodTypes, 
+                    Arrays.asList("_sign"),
+                    AlmostBoolean.YES
+                    // , ...
+                    ), "sign", "wall_sign"));
 
     public static final Set<Material> WOODEN_BUTTONS = Collections.unmodifiableSet(
             BridgeMaterial.getByPrefixAndSuffix(
@@ -458,7 +469,7 @@ public class MaterialUtil {
     @SuppressWarnings("unchecked")
     public static final Set<Material> INSTANT_PLANTS = Collections.unmodifiableSet(join(
             BridgeMaterial.getBySuffix(Arrays.asList(
-                    "bush", "sapling", "tulip", "orchid", "mushroom", "bluet"), 
+                    "bush", "sapling", "tulip", "orchid", "mushroom", "bluet", "fungus", "roots"), 
                     AlmostBoolean.YES, "legacy", "potted"),
             BridgeMaterial.getByPrefixAndSuffix(
                     null,

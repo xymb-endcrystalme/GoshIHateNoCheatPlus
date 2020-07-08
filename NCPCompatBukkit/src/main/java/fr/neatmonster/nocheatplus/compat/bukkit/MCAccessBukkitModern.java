@@ -83,6 +83,8 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             0.0625, 0.9375);
     private static final BukkitShapeModel MODEL_HOPPER = new BukkitStatic(
             0, 0.25, 0, 1, 1, 1);
+    private static final BukkitShapeModel MODEL_CHAIN = new BukkitStatic(
+            0.4375, 1.0);
 
     // Static blocks with full height sorted by inset.
     private static final BukkitShapeModel MODEL_INSET16_1_HEIGHT100 = new BukkitStatic(
@@ -126,7 +128,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
     @Override
     public String getMCVersion() {
-        return "1.13.2-1.15|?";
+        return "1.13-1.16|?";
     }
 
     @Override
@@ -334,11 +336,13 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         }
 
         //Lantern
-        Material mt = BridgeMaterial.getBlock("lantern");
-        if (mt != null) addModel(mt, MODEL_LANTERN);
-        
+        for (Material mat : BridgeMaterial.getAllBlocks(
+                "lantern", "soul_lantern"
+            )) {
+            addModel(mat, MODEL_LANTERN);
+        }
         // Lectern
-        mt = BridgeMaterial.getBlock("lectern");
+        Material mt = BridgeMaterial.getBlock("lectern");
         if (mt != null) addModel(mt, MODEL_LECTERN);
         
         // Bamboo        
@@ -351,7 +355,10 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         
         mt = BridgeMaterial.getBlock("honey_block");
         if (mt != null) addModel(mt, MODEL_HONEY_BLOCK);
-        
+
+        mt = BridgeMaterial.getBlock("chain");
+        if (mt != null) addModel(mt, MODEL_CHAIN);
+
         // Sort to processed by flags.
         for (final Material mat : Material.values()) {
             final long flags = BlockProperties.getBlockFlags(mat);

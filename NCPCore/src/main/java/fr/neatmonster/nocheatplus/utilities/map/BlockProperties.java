@@ -520,6 +520,9 @@ public class BlockProperties {
     /** The Constant woodAxe. */
     public static final ToolProps woodAxe = new ToolProps(ToolType.AXE, MaterialBase.WOOD);
 
+    /** The Constant woodHoe. */
+    public static final ToolProps woodHoe = new ToolProps(ToolType.HOE, MaterialBase.WOOD);
+
     /** The Constant stonePickaxe. */
     public static final ToolProps stonePickaxe = new ToolProps(ToolType.PICKAXE, MaterialBase.STONE);
 
@@ -1073,16 +1076,12 @@ public class BlockProperties {
 
         // Stairs.
         final long stairFlags = F_STAIRS | F_XZ100 | F_GROUND | F_GROUND_HEIGHT;
-        for (final Material mat : new Material[] { 
-                Material.NETHER_BRICK_STAIRS, Material.COBBLESTONE_STAIRS, 
-                BridgeMaterial.STONE_BRICK_STAIRS, 
-                Material.BRICK_STAIRS, Material.SANDSTONE_STAIRS, 
-        }) {
+        for (final Material mat : MaterialUtil.ALL_STAIRS) {
             setFlag(mat, stairFlags);
         }
-        for (final Material mat : MaterialUtil.WOODEN_STAIRS) {
-            setFlag(mat, stairFlags);
-        }
+        //for (final Material mat : MaterialUtil.WOODEN_STAIRS) {
+        //    setFlag(mat, stairFlags);
+        //}
 
         // Step (ground + full width).
         final long stepFlags = F_GROUND | F_XZ100;
@@ -2208,6 +2207,10 @@ public class BlockProperties {
             else {
                 duration = 0;
             }
+        }
+        else if (blockId.name() == "BAMBOO" && toolProps.toolType == ToolType.SWORD) {
+            isValidTool = true;
+            duration = 0;
         }
 
         if (isValidTool || blockProps.tool.toolType == ToolType.NONE) {

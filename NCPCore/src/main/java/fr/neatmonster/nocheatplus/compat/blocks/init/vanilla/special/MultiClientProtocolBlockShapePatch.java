@@ -41,7 +41,7 @@ public class MultiClientProtocolBlockShapePatch extends AbstractBlockPropertiesP
 
     public MultiClientProtocolBlockShapePatch() {
         activation
-        .neutralDescription("Block shape patch for multi client protocol support around 1.7.x - 1.14.x.")
+        .neutralDescription("Block shape patch for multi client protocol support around 1.7.x - 1.16.x.")
         .advertise(true)
         .setConditionsAND()
         .notUnitTest()

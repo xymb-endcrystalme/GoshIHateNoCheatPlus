@@ -23,7 +23,7 @@ import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 
 public class BukkitLantern implements BukkitShapeModel {
 
-	private double xz = 0.33;
+	private double xz = 0.3125;
     @Override
     public double[] getShape(final BlockCache blockCache, 
             final World world, final int x, final int y, final int z) {
