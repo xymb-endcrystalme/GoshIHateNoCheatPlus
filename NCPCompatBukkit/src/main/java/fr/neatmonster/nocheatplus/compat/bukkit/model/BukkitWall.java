@@ -22,7 +22,9 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.MultipleFacing;
+import org.bukkit.util.BoundingBox;
 
+import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 
 public class BukkitWall implements BukkitShapeModel {
@@ -46,9 +48,12 @@ public class BukkitWall implements BukkitShapeModel {
             final World world, final int x, final int y, final int z) {
 
         final Block block = world.getBlockAt(x, y, z);
+        if (Bridge1_13.hasBoundingBox()) {
+            BoundingBox bd = block.getBoundingBox();
+            return new double[] {bd.getMinX()-x, bd.getMinY()-y, bd.getMinZ()-z, bd.getMaxX()-x, bd.getMaxY()-y, bd.getMaxZ()-z};
+        }
         final BlockState state = block.getState();
         final BlockData blockData = state.getBlockData();
-
         if (blockData instanceof MultipleFacing) {
             // Note isPassableWorkaround for these (no voxel shapes / multi cuboid yet).
             final MultipleFacing fence = (MultipleFacing) blockData;
@@ -86,7 +91,6 @@ public class BukkitWall implements BukkitShapeModel {
             }
             return res;
         }
-
 
         return new double[] {0.0, 0.0, 0.0, 1.0, 1.0, 1.0};
     }

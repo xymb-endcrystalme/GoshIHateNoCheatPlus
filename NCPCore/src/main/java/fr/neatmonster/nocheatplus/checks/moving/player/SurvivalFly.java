@@ -26,8 +26,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Waterlogged;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.actions.ParameterName;
@@ -247,7 +245,7 @@ public class SurvivalFly extends Check {
             // Note: if not setting resetFrom, other places have to check assumeGround...
         }
 
-        if (thisMove.touchedGround ) {
+        if (thisMove.touchedGround) {
             if (!thisMove.from.onGround && !thisMove.to.onGround) {
                 // Lost ground workaround has just been applied, check resetting of the dirty flag.
                 // TODO: Always/never reset with any ground touched?
@@ -284,21 +282,9 @@ public class SurvivalFly extends Check {
             data.sfNoLowJump = true;
         }
 
-       // Moving half on farmland(or end_potal_frame) and half on water
-       data.newHDist = (from.getBlockFlags() & BlockProperties.F_MIN_HEIGHT16_15) != 0 && (from.isInWater() || to.isInWater());
+        // Moving half on farmland(or end_potal_frame) and half on water
+        data.newHDist = (from.getBlockFlags() & BlockProperties.F_MIN_HEIGHT16_15) != 0 && (from.isInWater() || to.isInWater());
 
-          // Waterlogged 
-        if (isWaterlogged(from)) {
-            // thisMove.from.onGround = false; ?
-            thisMove.from.inWater = true;
-            thisMove.from.inLiquid = true;
-        }
-        if (isWaterlogged(to)) {
-            // thisMove.to.onGround = false; ?
-            thisMove.to.inWater = true;
-            thisMove.to.inLiquid = true;
-        }
-        
         snowFix = (from.getBlockFlags() & BlockProperties.F_HEIGHT_8_INC) != 0;
 
         //////////////////////
@@ -1360,7 +1346,7 @@ public class SurvivalFly extends Check {
         final double past = data.yDis;
         
         if (fromOnGround || from.isInLiquid() || from.isInWeb() || from.isOnClimbable() || (thisMove.touchedGround && resetTo)) reset = true;
-        if (yDistance != 0.0 && !isWaterlogged(from)) {
+        if (yDistance != 0.0) {
             data.yDis += yDistance;
             if (data.yDis < 0.0 || data.yDis > 3.0) {
                 data.yDis = 0.0;
@@ -1608,7 +1594,7 @@ public class SurvivalFly extends Check {
                      * slightly above the top.
                      */
                 }
-                else if (isLanternUpper(to) || isWaterlogged(from) || isWaterlogged(to)) {
+                else if (isLanternUpper(to)) {
                      // Ignore
                 }
                 else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
@@ -1778,7 +1764,7 @@ public class SurvivalFly extends Check {
                 else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
                     // Ignore riptiding for now
                 }
-                else if (isWaterlogged(from)) {
+                else if ((totalVDistViolation < 1.0 && data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID)) {
                     // Ignore water logged blocks 
                 }
                 // Attempt to use velocity.
@@ -1833,7 +1819,7 @@ public class SurvivalFly extends Check {
         // TODO: Only allow higher yDistance when in water (1.13 swimming)
         final int maxJumpPhase = data.liftOffEnvelope.getMaxJumpPhase(data.jumpAmplifier);
         if (!envelopeHack && data.sfJumpPhase > maxJumpPhase && !data.isVelocityJumpPhase()) {
-            if (yDistance < 0.0) {
+            if (yDistance < 0.5) {
                 // Ignore falling, and let accounting deal with it.
             }
             else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
@@ -1941,7 +1927,7 @@ public class SurvivalFly extends Check {
                 // Here yDistance can be negative and positive.
                 //                if (yDistance != 0.0) {
                 if ((data.timeRiptiding + 500 > now) || (data.bedLeaveTime + 500 > now && yDistance < 0.45) || isLanternUpper(to) || 
-                    isWaterlogged(from) || isWaterlogged(to) || (lastMove.from.inLiquid && Math.abs(yDistance) < 0.31)) {
+                    (lastMove.from.inLiquid && Math.abs(yDistance) < 0.31)) {
                     // Ignore
                 }
                 else {
@@ -1979,29 +1965,6 @@ public class SurvivalFly extends Check {
         final int y = from.getBlockY() + 2;
         final int z = from.getBlockZ();
         if (w.getBlockAt(x, y, z).getType().toString().equals("LANTERN")) return true;
-        return false;
-    }
-
-    private boolean isWaterlogged(PlayerLocation from) {
-        if (!Bridge1_13.hasIsSwimming()) return false;
-        World w = from.getWorld();
-        final int iMinX = Location.locToBlock(from.getMinX());
-        final int iMaxX = Location.locToBlock(from.getMaxX());
-        final int iMinY = Location.locToBlock(from.getMinY());
-        final int iMaxY = Math.min(Location.locToBlock(from.getMaxY()), from.getBlockCache().getMaxBlockY());
-        final int iMinZ = Location.locToBlock(from.getMinZ());
-        final int iMaxZ = Location.locToBlock(from.getMaxZ());
-        
-        for (int x = iMinX; x <= iMaxX; x++) {
-            for (int z = iMinZ; z <= iMaxZ; z++) {
-                 for (int y = iMaxY; y >= iMinY; y--) {
-                     BlockData bd = w.getBlockAt(x,y,z).getBlockData();
-                     if (bd instanceof Waterlogged) {
-                         return ((Waterlogged)bd).isWaterlogged();
-                     }
-                 }
-            }
-        }
         return false;
     }
     
@@ -2074,7 +2037,7 @@ public class SurvivalFly extends Check {
                     // TODO: adjust limit for bunny-hop.
                     if ((data.timeRiptiding + 500 > now) 
                         || (data.bedLeaveTime + 500 > now && yDistance < 0.45) 
-                        || isLanternUpper(to) || isWaterlogged(from)) {
+                        || isLanternUpper(to)) {
                         // Ignore.
                     }
                     else {
@@ -2638,7 +2601,7 @@ public class SurvivalFly extends Check {
                     vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance) - maxSpeed);
                 }
             }
-            else if (!isWaterlogged(from)) {
+            else if (!(from.isInWaterLogged() && Math.abs(yDistance) < 0.31)) {
                 tags.add("climbspeed");
                 vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance) - maxSpeed);
             }

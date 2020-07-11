@@ -86,13 +86,13 @@ public class BlocksMC1_14 implements BlockPropertiesSetup{
 		BlockFlags.addFlags("COMPOSTER", BlockFlags.SOLID_GROUND | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_MIN_HEIGHT8_1);
 
 		BlockInit.setPropsAs("LECTERN", Material.OAK_PLANKS);
-		BlockFlags.addFlags("LECTERN", BlockProperties.F_MIN_HEIGHT8_1 | BlockProperties.F_GROUND_HEIGHT | BlockFlags.SOLID_GROUND);
+		BlockFlags.addFlags("LECTERN", BlockProperties.F_MIN_HEIGHT8_1 | BlockProperties.F_GROUND_HEIGHT | BlockFlags.SOLID_GROUND | BlockProperties.F_XZ100);
 
 		BlockInit.setAs("BARREL", Material.OAK_PLANKS);
 
         BlockProperties.setBlockProps("SCAFFOLDING", instant);
         BlockFlags.addFlags("SCAFFOLDING", 
-        BlockProperties.F_CLIMBABLE | BlockProperties.F_GROUND | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_XZ100);
+        BlockProperties.F_IGN_PASSABLE |  BlockProperties.F_CLIMBABLE | BlockProperties.F_GROUND | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_XZ100);
 
 		BlockProperties.setBlockProps("STONECUTTER", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 6.0f, BlockProperties.secToMs(17.0, 2.6, 1.3, 0.85, 0.65, 0.55, 0.4)));
 		BlockFlags.addFlags("STONECUTTER", BlockProperties.F_MIN_HEIGHT16_9 | BlockProperties.F_GROUND_HEIGHT | BlockFlags.SOLID_GROUND);

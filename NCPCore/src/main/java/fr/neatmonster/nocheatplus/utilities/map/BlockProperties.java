@@ -33,6 +33,8 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -42,6 +44,7 @@ import org.bukkit.potion.PotionEffectType;
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.checks.moving.util.MovingUtil;
 import fr.neatmonster.nocheatplus.compat.AlmostBoolean;
+import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 import fr.neatmonster.nocheatplus.compat.MCAccess;
@@ -3173,6 +3176,10 @@ public class BlockProperties {
             if (!collidesFence(fx, fz, dX, dZ, dT, 0.0625)) {
                 return true;
             }
+        } else if ((flags & F_ANVIL) != 0) {
+            if (!collidesCenter(fx, fz, dX, dZ, dT, 0.1875)) {
+                return true;
+            }
         }
         else if (id == BridgeMaterial.CAKE) {
             if (Math.min(fy, fy + dY * dT) >= 0.4375) {
@@ -3828,6 +3835,51 @@ public class BlockProperties {
                         return true;
                     }
                 }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if the given bounding box collides with water logged blocks.
+     *
+     * @param world
+     *            the world
+     * @param access
+     *            the access
+     * @param minX
+     *            the min x
+     * @param minY
+     *            the min y
+     * @param minZ
+     *            the min z
+     * @param maxX
+     *            the max x
+     * @param maxY
+     *            the max y
+     * @param maxZ
+     *            the max z
+     * @return true, if successful
+     */
+    public static final boolean isWaterlogged(final World world, final BlockCache access, 
+            final double minX, final double minY, final double minZ, 
+            final double maxX, final double maxY, final double maxZ) {
+        if (!Bridge1_13.hasIsSwimming()) return false;
+        final int iMinX = Location.locToBlock(minX);
+        final int iMaxX = Location.locToBlock(maxX);
+        final int iMinY = Location.locToBlock(minY);
+        final int iMaxY = Math.min(Location.locToBlock(maxY), access.getMaxBlockY());
+        final int iMinZ = Location.locToBlock(minZ);
+        final int iMaxZ = Location.locToBlock(maxZ);
+
+        for (int x = iMinX; x <= iMaxX; x++) {
+            for (int z = iMinZ; z <= iMaxZ; z++) {
+                 for (int y = iMaxY; y >= iMinY; y--) {
+                     BlockData bd = world.getBlockAt(x,y,z).getBlockData();
+                     if (bd instanceof Waterlogged) {
+                         if (((Waterlogged)bd).isWaterlogged()) return true;
+                     }
+                 }
             }
         }
         return false;

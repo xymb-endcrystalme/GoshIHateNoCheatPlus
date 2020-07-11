@@ -112,6 +112,9 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     /** Is the player in water?. */
     Boolean inWater = null;
 
+    /** Is the player in water logged block?. */
+    Boolean inWaterLogged = null;
+
     /** Is the player is web?. */
     Boolean inWeb = null;
 
@@ -643,7 +646,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isInWater() {
         if (inWater == null) {
-            if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_WATER) == 0 ) {
+            if (!isInWaterLogged() && blockFlags != null && (blockFlags.longValue() & BlockProperties.F_WATER) == 0 ) {
                 inWater = false;
                 return false;
             }
@@ -652,10 +655,17 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
             //          final double dY = -0.40000000596046448D - 0.001D;
             //          final double dZ = dX;
             //          inWater = BlockProperties.collides(blockCache, minX - dX, minY - dY, minZ - dZ, maxX + dX, maxY + dY, maxZ + dZ, BlockProperties.F_WATER);
-            inWater = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockProperties.F_WATER);
+            inWater = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockProperties.F_WATER) || isInWaterLogged();
 
         }
         return inWater;
+    }
+
+    public boolean isInWaterLogged() {
+        if (inWaterLogged == null) {
+            inWaterLogged = BlockProperties.isWaterlogged(world, blockCache, minX, minY, minZ, maxX, maxY, maxZ);
+        }
+        return inWaterLogged;
     }
 
     /**
@@ -665,7 +675,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isInLiquid() {
         // TODO: optimize (check liquid first and only if liquid check further)
-        if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_LIQUID) == 0 ) return false;
+        if (!isInWaterLogged() && blockFlags != null && (blockFlags.longValue() & BlockProperties.F_LIQUID) == 0 ) return false;
         // TODO: This should check for F_LIQUID too, Use a method that returns all found flags (!).
         return isInWater() || isInLava();
     }
@@ -1362,6 +1372,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         this.nodeBelow = other.nodeBelow;
         this.onGround = other.isOnGround();
         this.inWater = other.isInWater();
+        this.inWaterLogged = other.isInWaterLogged();
         this.inLava = other.isInLava();
         this.inWeb = other.isInWeb();
         this.onIce = other.isOnIce();
@@ -1434,7 +1445,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
 
         // Reset cached values.
         node = nodeBelow = null;
-        aboveStairs = inLava = inWater = inWeb = onIce = onSoulSand = onGround = onClimbable = passable = passableBox = null;
+        aboveStairs = inLava = inWater = inWaterLogged = inWeb = onIce = onSoulSand = onGround = onClimbable = passable = passableBox = null;
         onGroundMinY = Double.MAX_VALUE;
         notOnGroundMaxY = Double.MIN_VALUE;
         blockFlags = null;
