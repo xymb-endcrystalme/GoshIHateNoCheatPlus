@@ -1951,11 +1951,11 @@ public class SurvivalFly extends Check {
 
     /** Check if collide the side of HoneyBlock */
     private boolean isCollideWithHB(PlayerLocation from ,PlayerLocation to, MovingData data) {
-        final boolean a = BlockProperties.collides(to.getBlockCache(), to.getMinX() - 0.1, to.getMinY(), to.getMinZ() - 0.1, to.getMaxX() + 0.1, to.getMaxY(), to.getMaxZ() + 0.1, BlockProperties.F_STICKY) ||
-        BlockProperties.collides(from.getBlockCache(), from.getMinX() - 0.1, from.getMinY(), from.getMinZ() - 0.1, from.getMaxX() + 0.1, from.getMaxY(), from.getMaxZ() + 0.1, BlockProperties.F_STICKY);
-        
+        final boolean a = (from.getBlockFlags() & BlockProperties.F_STICKY) != 0 ||
+                (to.getBlockFlags() & BlockProperties.F_STICKY) != 0;
+
         // Moving on side block, remove nofall data
-        if (a) data.clearNoFallData();
+        if (a && BlockProperties.collides(to.getBlockCache(), to.getMinX() - 0.1, to.getMinY(), to.getMinZ() - 0.1, to.getMaxX() + 0.1, to.getMaxY(), to.getMaxZ() + 0.1, BlockProperties.F_STICKY)) data.clearNoFallData();
         return a;
     }
     
@@ -2601,7 +2601,7 @@ public class SurvivalFly extends Check {
                     vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance) - maxSpeed);
                 }
             }
-            else if (!(from.isInWaterLogged() && Math.abs(yDistance) < 0.31)) {
+            else if (!(lastMove.from.inLiquid && Math.abs(yDistance) < Magic.swimBaseSpeedV(Bridge1_13.hasIsSwimming()))) {
                 tags.add("climbspeed");
                 vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance) - maxSpeed);
             }

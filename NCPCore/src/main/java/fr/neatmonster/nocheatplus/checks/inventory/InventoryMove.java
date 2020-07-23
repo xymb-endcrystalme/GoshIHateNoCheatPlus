@@ -42,16 +42,15 @@ public class InventoryMove extends Check {
     //if (player.isBlocking() && !(player.getOpenInventory().getTopInventory().getType() == InventoryType.MERCHANT)) {
     //	tags.add("isBlocking");
     //}
-    if (player.isSneaking()) {
-    	tags.add("isSneaking");
-    }
-    else if (Bridge1_13.isSwimming(player)) {	
+    //if (player.isSneaking()) {
+    //	tags.add("isSneaking");
+    //}
+    if (Bridge1_13.isSwimming(player)) {	
         if (!isOnGround) tags.add("isSwimming");	
     }
-    // Remove? Seem bugged like isBlocking but such a rarer case
-    else if (player.isSprinting() && !tags.contains("isSwimming")) {
-    	tags.add("isSprinting");
-    }
+    //else if (player.isSprinting() && !tags.contains("isSwimming")) {
+    //	tags.add("isSprinting");
+    //}
     else if (player.isDead()) {
     	tags.add("isDead");
     }

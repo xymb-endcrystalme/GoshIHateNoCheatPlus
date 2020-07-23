@@ -37,10 +37,13 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
     @Override
     public void setupBlockProperties(WorldConfigProvider<?> worldConfigProvider) {
         // Add flag for anvil
-        BlockFlags.addFlags("ANVIL", BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_GROUND | BlockProperties.F_MIN_HEIGHT4_1 | BlockProperties.F_ANVIL);
+        BlockFlags.addFlags("ANVIL", BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_GROUND | BlockProperties.F_ANVIL | BlockProperties.F_XZ100);
         // Change flag for walls
         BlockFlags.addFlags("COBBLESTONE_WALL", BlockProperties.F_THICK_FENCE2);
         BlockFlags.removeFlags("COBBLESTONE_WALL", BlockProperties.F_THICK_FENCE);
+
+        // Workaround for ladder
+        BlockFlags.addFlags(Material.LADDER, BlockProperties.F_GROUND_HEIGHT);
         // Void air.
         BlockInit.setAs("VOID_AIR", Material.AIR);
         // Cave air.

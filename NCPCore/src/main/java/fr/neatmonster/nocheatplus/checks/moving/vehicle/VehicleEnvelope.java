@@ -48,6 +48,7 @@ import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.PotionUtil;
 import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
+import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.location.RichEntityLocation;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 
@@ -107,12 +108,15 @@ public class VehicleEnvelope extends Check {
     /** Details for re-use. */
     private final CheckDetails checkDetails = new CheckDetails();
 
-    private final Class<?> bestHorse; 
+    private final Class<?> bestHorse;
+    
+    private final Class<?> strider;
 
     public VehicleEnvelope() {
         super(CheckType.MOVING_VEHICLE_ENVELOPE);
         Class<?> clazz = ReflectionUtil.getClass("org.bukkit.entity.AbstractHorse");
         bestHorse = clazz == null ? ReflectionUtil.getClass("org.bukkit.entity.Horse") : clazz;
+        strider = ReflectionUtil.getClass("org.bukkit.entity.Strider");
     }
 
     public SetBackEntry check(final Player player, final Entity vehicle, 
@@ -404,7 +408,7 @@ public class VehicleEnvelope extends Check {
     private boolean isBubbleColumn(RichEntityLocation from) {
         if (!Bridge1_13.hasIsSwimming()) return false;
         return BlockProperties.collidesId(from.getBlockCache(), from.getMinX(), from.getMinY(), from.getMinZ(), from.getMaxX(), from.getMaxY(), from.getMaxZ(), Material.BUBBLE_COLUMN);
-	}
+    }
 
     /**
      * Prepare checkDetails according to vehicle-specific interpretation of side
@@ -444,6 +448,19 @@ public class VehicleEnvelope extends Check {
             // TODO: Climbable? -> seems not.
             checkDetails.simplifiedType = EntityType.HORSE; // TODO: 1.11 - Use AbstractHorse?
             checkDetails.canJump = checkDetails.canStepUpBlock = true;
+        }
+        else if (strider != null && strider.isAssignableFrom(vehicle.getClass())) {
+            checkDetails.simplifiedType = EntityType.PIG;
+            checkDetails.canJump = false;
+            checkDetails.canStepUpBlock = true;
+            checkDetails.canClimb = true;
+            // Step problem
+            checkDetails.maxAscend = 1.0;
+            // Fall in lava
+            if (thisMove.from.inLava || thisMove.to.inLava) checkDetails.inAir = false;
+            // ....
+            if (!thisMove.from.onGround && thisMove.to.onGround) checkDetails.gravityTargetSpeed = 0.07;
+            // Updated by PlayerMoveEvent, hdist fps when a player want to ride on strider
         }
         else if (vehicle instanceof Pig) {
             // TODO: Climbable!
@@ -571,9 +588,8 @@ public class VehicleEnvelope extends Check {
             return false;
         }
     }
-	
-	private boolean ColliesHoneyBlock(RichEntityLocation from) {
-       return BlockProperties.collides(from.getBlockCache(), from.getMinX() - 0.1, from.getMinY(), from.getMinZ() - 0.1, from.getMaxX() + 0.1, from.getMaxY() + 0.3, from.getMaxZ() + 0.1, BlockProperties.F_STICKY);
-    }
 
+    private boolean ColliesHoneyBlock(RichEntityLocation from) {
+        return BlockProperties.collides(from.getBlockCache(), from.getMinX() - 0.1, from.getMinY(), from.getMinZ() - 0.1, from.getMaxX() + 0.1, from.getMaxY() + 0.3, from.getMaxZ() + 0.1, BlockProperties.F_STICKY);
+    }
 }

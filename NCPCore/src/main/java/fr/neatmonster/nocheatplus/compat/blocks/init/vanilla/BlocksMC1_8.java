@@ -62,7 +62,7 @@ public class BlocksMC1_8 implements BlockPropertiesSetup {
         // 165(SLIME_BLOCK
         BlockInit.setAs("SLIME_BLOCK", Material.TNT); // Full block, instant break.
         // Add the bouncing flag.
-        BlockFlags.addFlags("SLIME_BLOCK", BlockProperties.F_BOUNCE25);
+        BlockFlags.addFlags("SLIME_BLOCK", BlockProperties.F_BOUNCE25 | BlockProperties.F_ALLOW_LOWJUMP);
 
         // 166(BARRIER
         BlockInit.setAs("BARRIER", Material.BEDROCK); // Full block, unbreakable.

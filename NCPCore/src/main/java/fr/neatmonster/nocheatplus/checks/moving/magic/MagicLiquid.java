@@ -51,18 +51,17 @@ public class MagicLiquid {
             // TODO: liftOffEnvelope: refine conditions (general) , should be near water level.
             // TODO: 1.5 high blocks ?
             // TODO: Conditions seem warped.
-			final int blockdata = from.getData(from.getBlockX(), from.getBlockY(), from.getBlockZ());
             if (yDistance <= 0.5) {
                 if (lastMove.toIsValid && yDistance < lastMove.yDistance
                         && lastMove.yDistance - yDistance > Math.max(0.001, yDistance - baseSpeed)) {
                     // Decrease more than difference to baseSpeed.
                     return yDistance;
                 }
-                if (!(data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(from.getPlayer())) && blockdata < 4) && (yDistance <= data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier) && !BlockProperties.isLiquid(from.getTypeIdAbove()) 
+                if (!(data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(from.getPlayer()))) && (yDistance <= data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier) && !BlockProperties.isLiquid(from.getTypeIdAbove()) 
                         // TODO: What now !?
                         || !to.isInLiquid() // TODO: impossible !?
                         || (thisMove.to.onGround || lastMove.toIsValid && lastMove.yDistance - yDistance >= 0.010 || to.isAboveStairs()))) {
-                    double vAllowedDistance = baseSpeed + (blockdata > 3 || data.liftOffEnvelope == LiftOffEnvelope.NORMAL ? 0.397 : 0.197); // asc by water level
+                    double vAllowedDistance = baseSpeed + 0.397; // asc by water level
                     double vDistanceAboveLimit = yDistance - vAllowedDistance;
                     if (vDistanceAboveLimit <= 0.0) {
                         return vAllowedDistance;
