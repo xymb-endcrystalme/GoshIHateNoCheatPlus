@@ -47,9 +47,9 @@ public class Passable extends Check {
     // TODO: Test cases.
     // TODO: Should keep an eye on passable vs. on-ground, when checking with reduced margins.
     // rt_xzFactor = 1.0; // Problems: Doors, fences.
-    private static double rt_xzFactor = 0.99999999999;
+    //private static double rt_xzFactor = 0.99999999999;
     // rt_heightFactor = 1.0; // Since 10.2 (at some point) passable FP with 2-high ceiling.
-    private static double rt_heightFactor = 0.99999999999;
+    //private static double rt_heightFactor = 0.99999999999;
 
     /**
      * Convenience for player moving, to keep a better overview.
@@ -156,7 +156,7 @@ public class Passable extends Check {
             final int tick, final boolean useBlockChangeTracker) {
         String tags = null;
         // NOTE: axis order is set externally.
-        setNormalMargins(rayTracing, from);
+        setNormalMargins(rayTracing, from, cc);
         rayTracing.set(from, to);
         rayTracing.setIgnoreInitiallyColliding(true);
         if (useBlockChangeTracker) { // TODO: Extra flag for 'any' block changes.
@@ -185,8 +185,8 @@ public class Passable extends Check {
      * @param rayTracing
      * @param from
      */
-    private void setNormalMargins(final ICollidePassable rayTracing, final PlayerLocation from) {
-        rayTracing.setMargins(from.getBoxMarginVertical() * rt_heightFactor, from.getWidth() / 2.0 * rt_xzFactor); // max from/to + resolution ?
+    private void setNormalMargins(final ICollidePassable rayTracing, final PlayerLocation from, final MovingConfig cc) {
+        rayTracing.setMargins(from.getBoxMarginVertical() * cc.passableVerticalMargins, from.getWidth() / 2.0 * cc.passableHorizontalMargins); // max from/to + resolution ?
     }
 
     /**

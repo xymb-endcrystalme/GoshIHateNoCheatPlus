@@ -673,6 +673,8 @@ public abstract class ConfPaths {
     public static final String  MOVING_PASSABLE_CHECK                       = MOVING_PASSABLE + SUB_ACTIVE;
     //private static final String MOVING_PASSABLE_RAYTRACING                  = MOVING_PASSABLE + "raytracing.";
     public static final String  MOVING_PASSABLE_ACTIONS                     = MOVING_PASSABLE + "actions";
+    public static final String  MOVING_PASSABLE_RT_XZ_FACTOR                = MOVING_PASSABLE + "horizontalmargins";
+    public static final String  MOVING_PASSABLE_RT_Y_FACTOR                 = MOVING_PASSABLE + "verticalmargins";
     private static final String MOVING_PASSABLE_UNTRACKED                   = MOVING_PASSABLE + "untracked.";
     private static final String MOVING_PASSABLE_UNTRACKED_TELEPORT          = MOVING_PASSABLE_UNTRACKED + "teleport.";
     public static final String  MOVING_PASSABLE_UNTRACKED_TELEPORT_ACTIVE   = MOVING_PASSABLE_UNTRACKED_TELEPORT + SUB_ACTIVE;
@@ -758,6 +760,7 @@ public abstract class ConfPaths {
     public static final String  MOVING_VEHICLE_ENFORCELOCATION              = MOVING_VEHICLE + "enforcelocation";
     public static final String  MOVING_VEHICLE_PREVENTDESTROYOWN            = MOVING_VEHICLE + "preventdestroyown";
     public static final String  MOVING_VEHICLE_SCHEDULESETBACKS             = MOVING_VEHICLE + "schedulesetbacks";
+    public static final String  MOVING_VEHICLE_DELAYADDPASSENGER            = MOVING_VEHICLE + "schedulesetpassenger";
     public static final String  MOVING_VEHICLE_IGNOREDVEHICLES              = MOVING_VEHICLE + "ignoredvehicles";
     private static final String MOVING_VEHICLE_MOREPACKETS                  = MOVING_VEHICLE + "morepackets.";
     public static final String  MOVING_VEHICLE_MOREPACKETS_CHECK            = MOVING_VEHICLE_MOREPACKETS + SUB_ACTIVE;

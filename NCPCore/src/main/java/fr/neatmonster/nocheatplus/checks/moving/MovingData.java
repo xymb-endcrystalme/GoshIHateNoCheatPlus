@@ -174,7 +174,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
 
     /** Duration of the boost effect in ticks. */
     public int fireworksBoostDuration = 0;
-	public int fireworksBoostTickNeedCheck = 0;
+    public int fireworksBoostTickNeedCheck = 0;
     /**
      * Expire at this tick.
      */
@@ -308,6 +308,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public long             vehicleMorePacketsLastTime;
     /** Task id of the vehicle set back task. */ 
     public int              vehicleSetBackTaskId = -1;
+    /** Task id of the passenger set back task. */ 
+    public int              vehicleSetPassengerTaskId = -1;
 
     private final IPlayerData pData;
 

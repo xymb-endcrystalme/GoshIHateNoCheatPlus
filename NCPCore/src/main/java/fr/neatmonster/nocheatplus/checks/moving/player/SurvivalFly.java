@@ -358,41 +358,43 @@ public class SurvivalFly extends Check {
             }
 
             // hacc (if enabled, always update)
-            final double fcmhv = Math.max(1.0, Math.min(10.0, thisMove.hDistance / thisMove.hAllowedDistanceBase));
-            data.combinedMediumHCount ++;
-            data.combinedMediumHValue += fcmhv;
-            // TODO: Balance, where to check / use (...).
-            if (data.combinedMediumHCount > 30) {
-                // TODO: Early trigger (> 0,1,2,5?), for way too high values. [in that case don't reset]
-                final double fcmh = data.combinedMediumHValue / (double) data.combinedMediumHCount;
-                final double limitFCMH;
-                // TODO: with buffer use, might want to skip.
-                if (data.liftOffEnvelope == LiftOffEnvelope.NORMAL) {
-                    limitFCMH = 1.34;
-                }
-                else if (data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID 
-                        || data.liftOffEnvelope == LiftOffEnvelope.LIMIT_NEAR_GROUND) {
-                    // limitFCMH = 1.05; // Seems to work on 1.10
-                    limitFCMH = 1.1; // 1.8.8 in-water moves with jumping near/on surface. 1.2 is max factor for one move (!).
-                    // TODO: Version+context dependent setting and/or confine by in-water moves, whatever.
-                }
-                else {
-                    limitFCMH = 1.0;
-                }
-                // TODO: Configurable / adjust by medium type.
-                // TODO: Instead of velocityJumpPhase account for friction directly?
-                // TODO: Fly-NoFly + bunny-water transitions pose issues.
-                if (fcmh > limitFCMH && !data.isVelocityJumpPhase()) {
-                    hDistanceAboveLimit = hDistance * (fcmh - limitFCMH);
-                    tags.add("hacc");
-                    // Reset for now.
-                    data.combinedMediumHCount = 0;
-                    data.combinedMediumHValue = 0.0;
-                }
-                else {
-                    // TODO: Other cases (1.0, between, ...)?
-                    data.combinedMediumHCount = 1;
-                    data.combinedMediumHValue = fcmhv;
+            if (cc.survivalFlyAccountingH) {
+                final double fcmhv = Math.max(1.0, Math.min(10.0, thisMove.hDistance / thisMove.hAllowedDistanceBase));
+                data.combinedMediumHCount ++;
+                data.combinedMediumHValue += fcmhv;
+                // TODO: Balance, where to check / use (...).
+                if (data.combinedMediumHCount > 30) {
+                    // TODO: Early trigger (> 0,1,2,5?), for way too high values. [in that case don't reset]
+                    final double fcmh = data.combinedMediumHValue / (double) data.combinedMediumHCount;
+                    final double limitFCMH;
+                    // TODO: with buffer use, might want to skip.
+                    if (data.liftOffEnvelope == LiftOffEnvelope.NORMAL) {
+                        limitFCMH = 1.34;
+                    }
+                    else if (data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID 
+                            || data.liftOffEnvelope == LiftOffEnvelope.LIMIT_NEAR_GROUND) {
+                        // limitFCMH = 1.05; // Seems to work on 1.10
+                        limitFCMH = 1.1; // 1.8.8 in-water moves with jumping near/on surface. 1.2 is max factor for one move (!).
+                        // TODO: Version+context dependent setting and/or confine by in-water moves, whatever.
+                    }
+                    else {
+                        limitFCMH = 1.0;
+                    }
+                    // TODO: Configurable / adjust by medium type.
+                    // TODO: Instead of velocityJumpPhase account for friction directly?
+                    // TODO: Fly-NoFly + bunny-water transitions pose issues.
+                    if (fcmh > limitFCMH && !data.isVelocityJumpPhase()) {
+                        hDistanceAboveLimit = hDistance * (fcmh - limitFCMH);
+                        tags.add("hacc");
+                        // Reset for now.
+                        data.combinedMediumHCount = 0;
+                        data.combinedMediumHValue = 0.0;
+                    }
+                    else {
+                        // TODO: Other cases (1.0, between, ...)?
+                        data.combinedMediumHCount = 1;
+                        data.combinedMediumHValue = fcmhv;
+                    }
                 }
             }
 
@@ -2910,8 +2912,7 @@ public class SurvivalFly extends Check {
                 builder.append("\n" + " vacc: " + data.vDistAcc.toInformalString());
             }
         }
-        if (data.combinedMediumHCount > 0) {
-            // TODO: if hacc activated:
+        if (cc.survivalFlyAccountingH && data.combinedMediumHCount > 0) {
             builder.append("\n hacc: " + StringUtil.fdec3.format(data.combinedMediumHValue / (double) data.combinedMediumHCount) + "(" + data.combinedMediumHCount + ")");
         }
         if (player.isSleeping()) {

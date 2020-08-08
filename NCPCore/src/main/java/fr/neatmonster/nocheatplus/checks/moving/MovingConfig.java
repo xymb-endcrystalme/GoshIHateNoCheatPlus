@@ -102,6 +102,8 @@ public class MovingConfig extends ACheckConfig {
 
     // TODO: passableAccuracy: also use if not using ray-tracing
     public final ActionList passableActions;
+    public final double     passableHorizontalMargins;
+    public final double     passableVerticalMargins;
     public final boolean    passableUntrackedTeleportCheck;
     public final boolean    passableUntrackedCommandCheck;
     public final boolean    passableUntrackedCommandTryTeleport;
@@ -169,13 +171,14 @@ public class MovingConfig extends ACheckConfig {
     public final boolean enforceLocation;
     public final boolean trackBlockMove;
     public final PlayerSetBackMethod playerSetBackMethod;
-	public final boolean resetFwOnground;
+    public final boolean resetFwOnground;
     public final boolean elytraStrict;
 
     // Vehicles
     public final boolean vehicleEnforceLocation;
     public final boolean vehiclePreventDestroyOwn;
     public final boolean scheduleVehicleSetBacks;
+    public final boolean schedulevehicleSetPassenger;
 
     public final Set<EntityType> ignoredVehicles = new HashSet<EntityType>();
 
@@ -220,7 +223,7 @@ public class MovingConfig extends ACheckConfig {
         flyingModelElytra = new ModelFlying(ID_JETPACK_ELYTRA, config, 
                 ConfPaths.MOVING_CREATIVEFLY_MODEL + "elytra.", 
                 new ModelFlying(null, defaultModel).verticalAscendGliding(true).lock());
-	    resetFwOnground = config.getBoolean(ConfPaths.MOVING_CREATIVEFLY_EYTRA_FWRESET);
+        resetFwOnground = config.getBoolean(ConfPaths.MOVING_CREATIVEFLY_EYTRA_FWRESET);
         elytraStrict = config.getBoolean(ConfPaths.MOVING_CREATIVEFLY_EYTRA_STRICT);
         creativeFlyActions = config.getOptimizedActionList(ConfPaths.MOVING_CREATIVEFLY_ACTIONS, 
                 Permissions.MOVING_CREATIVEFLY);
@@ -243,6 +246,8 @@ public class MovingConfig extends ACheckConfig {
         noFallActions = config.getOptimizedActionList(ConfPaths.MOVING_NOFALL_ACTIONS, Permissions.MOVING_NOFALL);
 
         passableActions = config.getOptimizedActionList(ConfPaths.MOVING_PASSABLE_ACTIONS, Permissions.MOVING_PASSABLE);
+        passableHorizontalMargins = config.getDouble(ConfPaths.MOVING_PASSABLE_RT_XZ_FACTOR, 0.1, 1.0, 0.999999);
+        passableVerticalMargins = config.getDouble(ConfPaths.MOVING_PASSABLE_RT_Y_FACTOR, 0.1, 1.0, 0.999999);
         passableUntrackedTeleportCheck = config.getBoolean(ConfPaths.MOVING_PASSABLE_UNTRACKED_TELEPORT_ACTIVE);
         passableUntrackedCommandCheck = config.getBoolean(ConfPaths.MOVING_PASSABLE_UNTRACKED_CMD_ACTIVE);
         passableUntrackedCommandTryTeleport = config.getBoolean(ConfPaths.MOVING_PASSABLE_UNTRACKED_CMD_TRYTELEPORT);
@@ -339,6 +344,7 @@ public class MovingConfig extends ACheckConfig {
         vehiclePreventDestroyOwn = config.getBoolean(ConfPaths.MOVING_VEHICLE_PREVENTDESTROYOWN);
         scheduleVehicleSetBacks = config.getAlmostBoolean(ConfPaths.MOVING_VEHICLE_SCHEDULESETBACKS, AlmostBoolean.MAYBE).decide();
         vehicleMorePacketsActions = config.getOptimizedActionList(ConfPaths.MOVING_VEHICLE_MOREPACKETS_ACTIONS, Permissions.MOVING_MOREPACKETS);
+        schedulevehicleSetPassenger = config.getAlmostBoolean(ConfPaths.MOVING_VEHICLE_DELAYADDPASSENGER, AlmostBoolean.MAYBE).decide();
         ref = config.getAlmostBoolean(ConfPaths.MOVING_VEHICLE_ENVELOPE_ACTIVE, AlmostBoolean.MAYBE);
         if (ServerVersion.compareMinecraftVersion("1.9") < 0) {
             worldData.overrideCheckActivation(CheckType.MOVING_VEHICLE_ENVELOPE, 

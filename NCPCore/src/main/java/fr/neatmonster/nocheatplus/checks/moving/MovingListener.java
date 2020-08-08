@@ -2698,6 +2698,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             // TODO: Should rather force teleport (needs storing the task + data).
             data.vehicleSetBackTaskId = -1;
         }
+        data.vehicleSetPassengerTaskId = -1;
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

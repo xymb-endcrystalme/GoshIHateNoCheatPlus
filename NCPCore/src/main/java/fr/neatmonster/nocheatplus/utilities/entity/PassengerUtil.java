@@ -16,9 +16,12 @@ package fr.neatmonster.nocheatplus.utilities.entity;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.checks.CheckType;
@@ -26,6 +29,7 @@ import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.moving.model.VehicleMoveData;
 import fr.neatmonster.nocheatplus.checks.moving.util.AuxMoving;
+import fr.neatmonster.nocheatplus.checks.moving.vehicle.VehicleSetPassengerTask;
 import fr.neatmonster.nocheatplus.checks.workaround.WRPT;
 import fr.neatmonster.nocheatplus.compat.BridgeMisc;
 import fr.neatmonster.nocheatplus.components.entity.IEntityAccessVehicle;
@@ -51,6 +55,8 @@ public class PassengerUtil {
     private final Location useLoc = new Location(null, 0, 0, 0);
     /** Temp use. LocUtil.clone on passing. setWorld(null) after use. */
     private final Location useLoc2 = new Location(null, 0, 0, 0);
+    
+    private final Plugin plugin = Bukkit.getPluginManager().getPlugin("NoCheatPlus");
 
     /**
      * Test if the given entity is a passenger of the given vehicle.
@@ -335,6 +341,7 @@ public class PassengerUtil {
             final boolean debug) {
         final boolean playerTeleported;
         if (player.isOnline() && !player.isDead()) {
+            final MovingConfig cc = DataManager.getGenericInstance(player, MovingConfig.class);
             // Mask player teleport as a set back.
             data.prepareSetBack(location);
             playerTeleported = player.teleport(LocUtil.clone(location), 
@@ -347,9 +354,25 @@ public class PassengerUtil {
                     && player.getLocation(useLoc2).distance(vehicle.getLocation(useLoc)) < 1.5) {
                 // Still set as passenger.
                 // NOTE: VehicleEnter fires, unknown TP fires.
-                if (!handleVehicle.getHandle().addPassenger(player, vehicle)) {
-                    // TODO: What?
-                }
+                boolean scheduledelay = cc.schedulevehicleSetPassenger;
+                if (data.vehicleSetPassengerTaskId == -1) {
+                    if (vehicle.getType() == EntityType.BOAT) {
+                        // Not schedule set passenger for boat due to location async
+                    } else
+                    if (scheduledelay) {
+                        data.vehicleSetPassengerTaskId = Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new VehicleSetPassengerTask(handleVehicle, vehicle, player), 2L);
+                        if (data.vehicleSetPassengerTaskId == -1) {
+                            if (debug) CheckUtils.debug(player, CheckType.MOVING_VEHICLE, "Failed to schedule set passenger!");
+                            scheduledelay = false;
+                        } else if (debug) CheckUtils.debug(player, CheckType.MOVING_VEHICLE, "Schedule set passenger task id: " + data.vehicleSetPassengerTaskId);
+                    }
+                    if (!scheduledelay) {
+                        if (debug) CheckUtils.debug(player, CheckType.MOVING_VEHICLE, "Attempt set passenger directly");
+                        if (!handleVehicle.getHandle().addPassenger(player, vehicle)) {
+                            // TODO: What?
+                        }
+                    }
+                } else if (debug) CheckUtils.debug(player, CheckType.MOVING_VEHICLE, "Set passenger task already scheduled, skip this time.");
                 // Ensure a set back.
                 // TODO: Set backs get invalidated somewhere, likely on an extra unknown TP. Use data.isVehicleSetBack in MovingListener/teleport.
                 if (data.vehicleSetBacks.getFirstValidEntry(location) == null) {
@@ -363,7 +386,6 @@ public class PassengerUtil {
                 final VehicleMoveData firstPastMove = data.vehicleMoves.getFirstPastMove();
                 if (!firstPastMove.valid || firstPastMove.toIsValid 
                         || !TrigUtil.isSamePos(firstPastMove.from, location)) {
-                    final MovingConfig cc = DataManager.getGenericInstance(player, MovingConfig.class);
                     NCPAPIProvider.getNoCheatPlusAPI().getGenericInstance(AuxMoving.class).resetVehiclePositions(vehicle, location, data, cc);
                 }
             }
