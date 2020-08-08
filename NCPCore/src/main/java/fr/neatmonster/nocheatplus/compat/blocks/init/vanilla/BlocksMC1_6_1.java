@@ -36,7 +36,6 @@ public class BlocksMC1_6_1 implements BlockPropertiesSetup{
 
         // Block of Coal: like block of redstone.
         BlockInit.setAs("COAL_BLOCK", "REDSTONE_BLOCK");
-        BlockInit.setAsIfExists("THIN_GLASS", BridgeMaterial.IRON_BARS);
 
         // (hard_clay and stained clay via generic setup.)
 

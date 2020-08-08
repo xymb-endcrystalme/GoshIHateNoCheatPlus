@@ -84,7 +84,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     private static final BukkitShapeModel MODEL_HOPPER = new BukkitStatic(
             0, 0.25, 0, 1, 1, 1);
     private static final BukkitShapeModel MODEL_CHAIN = new BukkitStatic(
-            0.4375, 1.0);
+            0.40625, 1.0);
 
     // Static blocks with full height sorted by inset.
     private static final BukkitShapeModel MODEL_INSET16_1_HEIGHT100 = new BukkitStatic(

@@ -1210,13 +1210,13 @@ public class BlockProperties {
             setFlag(mat, flags150);
         }
 
-        // F_PASSABLE_X4
+        // F_PASSABLE_X4, F_VARIABLE
         // TODO: PASSABLE_X4 is abused for other checks, need another one?
         for (final Material mat : MaterialUtil.WOODEN_FENCE_GATES) {
-            setFlag(mat, F_PASSABLE_X4);
+            setFlag(mat, F_PASSABLE_X4 | F_VARIABLE);
         }
         for (final Material mat : MaterialUtil.WOODEN_TRAP_DOORS) {
-            setFlag(mat, F_PASSABLE_X4);
+            setFlag(mat, F_PASSABLE_X4 | F_VARIABLE);
         }
 
         // F_VARIABLE_REDSTONE, F_VARIABLE_USE

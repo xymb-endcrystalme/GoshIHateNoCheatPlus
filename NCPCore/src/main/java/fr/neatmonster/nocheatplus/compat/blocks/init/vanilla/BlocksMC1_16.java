@@ -10,6 +10,7 @@ import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 import fr.neatmonster.nocheatplus.utilities.map.MaterialUtil;
+import fr.neatmonster.nocheatplus.utilities.map.BlockProperties.BlockProps;
 
 public class BlocksMC1_16 implements BlockPropertiesSetup{
     public BlocksMC1_16() {
@@ -122,6 +123,12 @@ public class BlocksMC1_16 implements BlockPropertiesSetup{
         BlockInit.setAs("STRIPPED_WARPED_STEM", BridgeMaterial.OAK_LOG);
         BlockInit.setAs("CRIMSON_NYLIUM", Material.NETHERRACK);
         BlockInit.setAs("WARPED_NYLIUM", Material.NETHERRACK);
+
+        //Piston
+        for (Material mat: new Material[]{BridgeMaterial.PISTON, 
+                BridgeMaterial.PISTON_HEAD, BridgeMaterial.STICKY_PISTON}) {
+            BlockProperties.setBlockProps(mat, new BlockProps(BlockProperties.woodPickaxe, 1.5f, BlockProperties.secToMs(2.25, 1.15, 0.6, 0.4, 0.3, 0.25, 0.15)));
+        }
 
         StaticLog.logInfo("Added block-info for Minecraft 1.16 blocks.");
     }
