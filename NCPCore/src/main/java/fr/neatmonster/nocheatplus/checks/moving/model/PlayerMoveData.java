@@ -51,6 +51,11 @@ public class PlayerMoveData extends MoveData {
      */
     public double hAllowedDistance;
 
+    /**
+     * Allowed vertical distance mostly use for elytra. Set in CreativeFly.check.
+     */
+    public double yAllowedDistance;
+
     // Properties involving the environment.
 
     /** This move was a bunny hop. */
@@ -93,6 +98,7 @@ public class PlayerMoveData extends MoveData {
         bunnyHop = false;
         // Bounds set by checks.
         hAllowedDistanceBase = 0.0;
+        yAllowedDistance = 0.0;
         hAllowedDistance = 0.0;
         // Meta stuff.
         flyCheck = null;

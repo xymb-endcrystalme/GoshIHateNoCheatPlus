@@ -179,7 +179,7 @@ public class CreativeFly extends Check {
         }
 
         // Vertical move.
-        double limitV = 0.0; // Limit. - What's the use of limitV & limitH?
+        double limitV = 0.0; // Limit. For debug only, violation handle on resultV
         double resultV = rese[0]; // Violation (normalized to 100 * 1 block, applies if > 0.0).
 
         // Distinguish checking method by y-direction of the move.
@@ -203,7 +203,7 @@ public class CreativeFly extends Check {
         }
 
         // Velocity.
-        if (resultV > 0.0 && data.getOrUseVerticalVelocity(yDistance) != null) {
+        if (resultV > 0.0 && (data.getOrUseVerticalVelocity(yDistance) != null || thisMove.verVelUsed != null)) {
             resultV = 0.0;
             tags.add("vvel");
         }
@@ -369,6 +369,11 @@ public class CreativeFly extends Check {
             }
         }
 
+        // Move on stairs in creativefly
+        if (Bridge1_9.hasElytra() && from.isAboveStairs() && to.isAboveStairs()) {
+            limitH = Math.max(limitH, 0.7 * fSpeed);
+        }
+
         if (model.getScaleSlowfallingEffect() && Bridge1_13.hasSlowfalling()) {
             Double Amplifier = PotionUtil.getPotionEffectAmplifier(from.getPlayer(), PotionEffectType.SPEED);
             limitH = Double.isInfinite(Amplifier) ? limitH : limitH + 0.1*(Amplifier +1);
@@ -518,25 +523,38 @@ public class CreativeFly extends Check {
         final PlayerMoveData lastMove, final boolean lostground, final MovingData data, final MovingConfig cc) {
         /* Known false positives:
          * Still have setback with taking off ?
-         * Fall into water
-         * Some random falses with quick rotation ?
+         * Fly out water with low envelope
+         * Head obstructed ?
          */
-        if (!cc.elytraStrict || !Bridge1_9.isGlidingWithElytra(player)) return new double[] {0.0, 0.0};
-        // Gliding in air
-        if (lastMove.toIsValid && lastMove.modelFlying == thisMove.modelFlying && !from.isInLiquid()) {
+        double resultV = 0.0;
+        double resultH = 0.0;
+        if (!cc.elytraStrict || !Bridge1_9.isGlidingWithElytra(player) || Bridge1_13.getSlowfallingAmplifier(player) >= 0.0) return new double[] {0.0, 0.0};
+        double allwHDistance = 0.0;
+        double allwyDistance = 0.0;
+        double baseV = 0.0;
+
+        if (lastMove.flyCheck != thisMove.flyCheck && !lastMove.elytrafly) {
+            data.sfJumpPhase = 0;
+        } else if (!from.isResetCond() && !isCollideWithHB(from)) {
+            thisMove.elytrafly = true;
+            final double lastHdist = lastMove.toIsValid ? lastMove.hDistance : 0.0;
             final Vector lookvec = to.getLocation().getDirection();
-            final float f = to.getPitch() * 0.017453292F;
-            final float lastf = lastMove.to.getPitch() * 0.017453292F;
-            final float diff = Math.abs(f - lastf);
-            double allwyDistance = lastMove.yDistance;
-            double allwHDistance = 0.0;
+            final float f = (float) Math.toRadians(to.getPitch());
+            allwyDistance = lastMove.elytrafly ? lastMove.yAllowedDistance : lastMove.yDistance;
+            if (Math.abs(allwyDistance) < 0.003D) allwyDistance = 0.0D;
             final double xzlength = Math.sqrt(lookvec.getX() * lookvec.getX() + lookvec.getZ() * lookvec.getZ());
             double f4 = Math.cos(f);
             f4 = f4 * f4;
+
+            baseV = getBaseV(f, f4, hDistance, yDistance);
+
             allwyDistance += -0.08D + f4 * 0.06D;
-            double x = 0.0;
-            double z = 0.0;
-            if (allwyDistance < 0.0D) {
+            double x = lastMove.to.getX() - lastMove.from.getX();
+            double z = lastMove.to.getZ() - lastMove.from.getZ();
+            if (Math.abs(x) < 0.003D) x = 0.0D;
+            if (Math.abs(z) < 0.003D) z = 0.0D;
+
+            if (allwyDistance < 0.0D && xzlength > 0.0) {
                 final double d = allwyDistance * -0.1 * f4;
                 x += lookvec.getX() * d / xzlength;
                 z += lookvec.getZ() * d / xzlength;
@@ -545,83 +563,194 @@ public class CreativeFly extends Check {
 
             // Look up
             if (f < 0.0F) {
-                final double d = lastMove.hDistance * -Math.sin(f) * 0.04;
-                x -= lookvec.getX() * d / xzlength;
-                z -= lookvec.getZ() * d / xzlength;
-                allwyDistance += d * 3.2;
+                // For compatibility
+                if (to.getPitch() == -90f
+                && isnear(yDistance, allwyDistance * 0.9800002, 0.01)) {
+                    allwHDistance += 0.01;
+                } else {
+                   final double d = lastHdist * -Math.sin(f) * 0.04;
+                   x -= lookvec.getX() * d / xzlength;
+                   z -= lookvec.getZ() * d / xzlength;
+                   allwyDistance += d * 3.2;
+                } 
             }
-            x += lookvec.getX() / (xzlength*0.995) * lastMove.hDistance;
-            z += lookvec.getZ() / (xzlength*0.995) * lastMove.hDistance;
+
+            if (xzlength > 0.0) {
+                x += (lookvec.getX() / xzlength * lastHdist - x) * 0.1D;
+                z += (lookvec.getZ() / xzlength * lastHdist - z) * 0.1D;
+            }
+            
+            // Friction
+            allwyDistance *= 0.9800002;
 
             // Fireworks
-            // Can't be more precise due to some problems, still have ~15% faster bypasses :(
+            // Can't be more precise due to some problems, still have ~10% faster bypasses :(
             if (data.fireworksBoostDuration > 0) {
+                // Handled somewhere else
+                // TODO: More strict vertical check
+                thisMove.yAllowedDistance = allwyDistance = yDistance;
+                if (Math.round(data.fireworksBoostTickNeedCheck / 4) > data.fireworksBoostDuration && hDistance < Math.sqrt(x*x + z*z)) {
+                    thisMove.hAllowedDistance = Math.sqrt(x*x + z*z);
+                    return new double[] {0.0, 0.0};
+                }
+                x *= 0.99;
+                z *= 0.99;
                 x += lookvec.getX() * 0.1D + (lookvec.getX() * 1.5D - x) * 0.5D;
                 z += lookvec.getZ() * 0.1D + (lookvec.getZ() * 1.5D - z) * 0.5D;
-                // Quick rotation problems
-                if (Math.abs(f) > Math.abs(lastf)) if (diff > 1.9) allwHDistance += (diff - 0.6)/1.4; else allwHDistance += diff/1.4;
-                // Problem with calculating fireworks duration and it end sooner. Speed after boost might be faster a little bit!
-                if (f > 0.0 && f < 1.4 && Math.round(data.fireworksBoostTickNeedCheck / 4) > data.fireworksBoostDuration) allwHDistance += 0.24;
-                allwHDistance += 0.12;
-                // Speed isn't affected by fireworks in first tick
-                if (data.fireworksBoostDuration >= data.fireworksBoostTickNeedCheck) allwHDistance += 0.65;
                 tags.add("fw_speed");
-            }
-
-            //System.out.println(allwyDistance + " " + yDistance + " diff:" + Math.abs(yDistance - allwyDistance * Magic.FRICTION_MEDIUM_AIR) + " diffl:" + diff);
-            if (f > -0.11 && Math.abs(yDistance - allwyDistance * Magic.FRICTION_MEDIUM_AIR) > 0.005
-            // Ignore fireworks, in water, lostground, slow_falling effect, velocity, honey block
-            && data.fireworksBoostDuration <= 0 && data.liqtick == 0 && !lostground && !data.isVelocityJumpPhase()
-            && Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player)) && !isCollideWithHB(from, to)
-                ) {
-                tags.add("elytra_v_keep");
-                return new double[] {yDistance == 0.0 ? 0.1 : yDistance, 0.0};
+                /* Problem with calculating fireworks duration and it end sooner,
+                 * speed after boost might be faster because fw speed lim < actual speed lim without boosting.
+                 */
+                if (hDistance < lastMove.hAllowedDistance * 0.994) {
+                    thisMove.hAllowedDistance = lastMove.hAllowedDistance * 0.994;
+                    return new double[] {0.0, 0.0};
+                } else allwHDistance += 0.2;
+                // A fact that fireworks not always fasten your speed if you are already moving too fast, it will try to reduce to below 1.70
+                if (data.fireworksBoostDuration >= data.fireworksBoostTickNeedCheck - 4 && lastMove.hAllowedDistance > 0.0) {
+                	if (hDistance < lastMove.hAllowedDistance) {
+                		thisMove.hAllowedDistance = lastMove.hAllowedDistance;
+                		return new double[] {0.0, 0.0};
+                	}
+                }
             }
 
             // Adjust false
-            allwHDistance += Math.sqrt(x*x +z*z) + (f < -1.37 ? 0.15 : 0.0);
-            allwyDistance += allwyDistance > 0.0 ? 0.002 : (f < -1.37 ? (f < -1.5 ? -0.394 : -0.18) : -0.04); 
-            allwyDistance *= Magic.FRICTION_MEDIUM_AIR;
-            
-            //System.out.println("f:" + f + " Hdist:" + hDistance + " allow:" + allwHDistance + " yDist:" + yDistance + " allowy:" + allwyDistance + " fwb:" + data.fireworksBoostDuration);
+            allwHDistance += Math.sqrt(x*x + z*z) + 0.03;
+            // Difference from vAllowedDistance to yDistance.
+            final double yDistDiffEx = yDistance - allwyDistance;
+
             if (data.fireworksBoostDuration <= 0) {
+                // Workaround
+                // Head obstructed
+                if (from.isHeadObstructed() && lastMove.yDistance > 0.0 && yDistDiffEx < 0.0
+                       && (
+                       allwyDistance > 0.0 || yDistance == 0.0
+                       )
+                   ) {
+                    allwyDistance = yDistance;
+                } else
+                if (yDistance < 0.0) {
+                    if (
+                            // Pos -> neg
+                            lastMove.yDistance > 0.0 && yDistance < 0.0 && (lastMove.yDistance < Magic.GRAVITY_MAX + Magic.GRAVITY_MIN && yDistance > - Magic.GRAVITY_MIN
+                                || lastMove.yDistance < Magic.GRAVITY_MIN && yDistance > - Magic.GRAVITY_MIN - Magic.GRAVITY_MAX)
+                            // For compatibility
+                            || data.sfJumpPhase < 6 && lastMove.yDistance > yDistance && yDistance - allwyDistance < 0.0 && yDistance - allwyDistance > -Magic.GRAVITY_MAX
+                           ) {
+                           allwyDistance = yDistance;
+                       }
+                }
+
                 if (yDistance > 0.0) {
-                    if (allwyDistance < yDistance
-                        // Inversion (neg -> pos).
-                        && !(yDistance < Magic.GRAVITY_MIN && lastMove.yDistance > -Magic.GRAVITY_MAX - Magic.GRAVITY_MIN && lastMove.yDistance < 0.5 * Magic.GRAVITY_SPAN)) {
+                    if (allwyDistance < yDistance && !isnear(allwyDistance, yDistance, 0.001)) {
                         tags.add("elytra_v_asc");
-                        return new double[] {yDistance, 0.0};
+                        resultV = yDistance;
                     }
-                } else if (allwyDistance > yDistance
-                    // Inversion (neg -> pos , pos -> neg).
-                    && !(allwyDistance > 0.0 && yDistance > -0.25)) {
-                    tags.add("elytra_v_desc");
-                    return new double[] {0.0, 0.0};
+                } else
+                if (yDistance < 0.0) {
+                    if (allwyDistance > yDistance && !isnear(allwyDistance, yDistance, Magic.GRAVITY_MIN / 1.5)) {
+                        tags.add("elytra_v_desc");
+                        resultV = Math.abs(yDistance);
+                    }
+                } else {
+                    // TODO: ....
+                    //tags.add("elytra_v_zero");
+                }
+
+                if (
+                       // Touch ground
+                       (yDistance <= 0.0 && (to.isOnGround() || to.isResetCond() || thisMove.touchedGround))
+                       // Less envelope
+                       || (yDistDiffEx > -Magic.GRAVITY_MAX && yDistDiffEx < 0.0)
+                    ) {
+                    allwyDistance = yDistance;
+                } else
+                // TODO: Better
+                if (Math.abs(yDistDiffEx) > 0.03) {
+                    tags.add("elytra_v_diff");
+                    //if (resultV <= 0.0 && yDistDiffEx > 0.0) {
+                    //    Location newto = to.getLocation().clone().subtract(0.0, Math.max(yDistDiffEx, 0.5), 0.0);
+                    //    final PlayerMoveInfo moveInfo = auxMoving.usePlayerMoveInfo();
+                    //    moveInfo.set(player, newto, null, cc.yOnGround);
+                    //    moveInfo.from.collectBlockFlags();
+                    //    if (moveInfo.from.isPassableBox()) data.setSetBack(moveInfo.from);
+                    //    auxMoving.returnPlayerMoveInfo(moveInfo);
+                    //}
+                    resultV = Math.max(Math.abs(yDistance - allwyDistance), resultV);
                 }
             }
             if (allwHDistance < hDistance) {
                 tags.add("elytra_h_asc");
-                return new double[] {0.0, hDistance - allwHDistance};
+                resultH = hDistance - allwHDistance;
             }
         // Gliding in water
-        // TODO: Will add later, look unstable
-        } //else if(from.isInLiquid() && data.liqtick > 35) {
-          //  if (data.timeRiptiding + 4000 > System.currentTimeMillis()) return new double[] {0.0, 0.0};
-          //  double allwHDistance = Magic.DEFAULT_WALKSPEED * cc.survivalFlyWalkingSpeed / 100D;
-          //  if (data.fireworksBoostDuration > 0) allwHDistance = 1.6;
-          //  final int level = BridgeEnchant.getDepthStriderLevel(player);
-          //  if (level > 0) {
-          //      allwHDistance *= Magic.modDepthStrider[level];
-          //  }
-          //  if (!Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) allwHDistance *= 4.9;
-          //  if (data.fireworksBoostDuration > 0) allwHDistance = Math.max(allwHDistance, 1.8);
-          //  System.out.println(thisMove.hDistance + " " + allwHDistance);
-          //  if (thisMove.hDistance > allwHDistance) {
-          //      tags.add("elytra_hspeed(water)");
-          //      return new double[] {0.0, hDistance - allwHDistance};
-          //  }
-       // }
-        return new double[] {0.0, 0.0};
+        // TODO: Add vertical check
+        } else if(from.isInLiquid()) {
+            if (data.timeRiptiding + 4000 > System.currentTimeMillis()) return new double[] {0.0, 0.0};
+            allwHDistance = thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+            final int level = BridgeEnchant.getDepthStriderLevel(player);
+            
+            if (!Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
+                allwHDistance *= Magic.modDolphinsGrace;
+                if (level > 0) allwHDistance *= 1.0 + 0.1 * level;
+            }
+            if (level > 0) {
+                allwHDistance *= Magic.modDepthStrider[level];
+                final double attrMod = attributeAccess.getHandle().getSpeedAttributeMultiplier(player);
+                if (attrMod == Double.MAX_VALUE) {
+                    final double speedAmplifier = mcAccess.getHandle().getFasterMovementAmplifier(player);
+                    if (!Double.isInfinite(speedAmplifier)) {
+                        allwHDistance *= 1.0D + 0.2D * (speedAmplifier + 1);
+                    }
+                } else allwHDistance *= attrMod;
+            }
+
+            if (lastMove.toIsValid && data.liqtick < 3 && hDistance < lastMove.hAllowedDistance + 0.07) {
+                allwHDistance = lastMove.hAllowedDistance + 0.07;
+            }
+            // Firework maximum speed
+            if (data.fireworksBoostDuration > 0) allwHDistance = Math.max(allwHDistance, 1.8);
+            // Friction
+            if (hDistance < lastMove.hAllowedDistance * (data.liqtick < 5 ? 1.0 : 0.98)) {
+                allwHDistance = lastMove.hAllowedDistance * (data.liqtick < 5 ? 1.0 : 0.98);
+            }
+            if (thisMove.hDistance > allwHDistance) {
+                tags.add("elytra_hspeed(water)");
+                resultH = hDistance - allwHDistance;
+            }
+        }
+        if (resultV > 0.0) {
+            if (data.getOrUseVerticalVelocity(baseV) != null) {
+                allwyDistance = yDistance;
+                resultV = 0.0;
+            }
+        }
+        thisMove.hAllowedDistance = allwHDistance;
+        thisMove.yAllowedDistance = isnear(allwyDistance, yDistance, 0.001) ? yDistance : allwyDistance;
+        return new double[] {resultV, resultH};
+    }
+
+    /**
+     * Get velocity stand behind this move 
+     * @param f pitch in Radians
+     * @param f4 squared of cos(f)
+     * @param lasthDistance
+     * @param yDistance
+     * @return baseV.
+     */
+    private double getBaseV(float f, double f4, double lasthDistance, double yDistance) {
+        double baseV = yDistance;
+        if (f < 0.0) baseV -= lasthDistance * -Math.sin(f) * 0.128;
+        if (baseV < 0.0) {
+            baseV /= (1.0 - (0.1 * f4));
+        }
+        baseV -= -0.08D + f4 * 0.06D;
+        return baseV;
+    }
+
+    private boolean isnear(double a, double b, double c) {
+        if (c < 0.0) return false;
+        return Math.abs(a-b) <= c;
     }
 
     private double hackLytra(final double yDistance, final double limitV, final PlayerMoveData thisMove, final PlayerMoveData lastMove, final MovingData data) {
@@ -630,20 +759,20 @@ public class CreativeFly extends Check {
         // TODO: Further: jumpphase vs. y-distance to set back. Problem: velocity
         // TODO: Further: record max h and descend speeds and relate to those.
         // TODO: Demand total speed to decrease.
-        if (yDistance > Magic.GLIDE_DESCEND_PHASE_MIN && yDistance < 17.0 * Magic.GRAVITY_MAX
+        if (yDistance > Magic.GLIDE_DESCEND_PHASE_MIN && yDistance < 34.0 * Magic.GRAVITY_MAX
                 && (
                         // Normal envelope.
-                        yDistance - lastMove.yDistance < Magic.GRAVITY_MAX * 1.5
+                        lastMove.hDistance < 3.3 && yDistance - lastMove.yDistance < lastMove.hDistance / 11.0
                         // Inversion (neg -> pos).
                         || lastMove.yDistance < -Magic.GRAVITY_SPAN && yDistance < Magic.GRAVITY_MAX + Magic.GRAVITY_ODD && yDistance > Magic.GRAVITY_SPAN
                         )
                 && thisMove.hDistance < lastMove.hDistance
                 && (lastMove.yDistance > 0.0 || lastMove.hDistance > 0.55) // Demand some speed on the transition.
                 // Demand total speed to decrease somehow, unless for the very transition.
-                && (thisMove.distanceSquared / lastMove.distanceSquared < 0.99
-                        || lastMove.yDistance < 0.0) // Might confine the latter something to be tested.
+                //&& (thisMove.distanceSquared / lastMove.distanceSquared < 0.99
+                //        || lastMove.yDistance < 0.0) // Might confine the latter something to be tested.
                 ) {
-            if (lastMove.hDistance > 0.52) {
+            if (lastMove.hDistance > 0.51) {
                 // (Increasing y-distance.)
                 tags.add("elytra_asc1");
                 return yDistance;
@@ -675,7 +804,7 @@ public class CreativeFly extends Check {
                         // TODO: Head blocked -> friction does it?
                         )
                 && (
-                        yDistance - lastMove.yDistance < 0.77 // TODO
+                        yDistance - lastMove.yDistance < 0.79 // TODO
                         || lastMove.yDistance < 0.0 && yDistance < 1.54
                         )
                 && yDistance < 1.67 // Last resort, check / TODO
@@ -749,7 +878,7 @@ public class CreativeFly extends Check {
             if (lastMove.modelFlying != thisMove.modelFlying && thisMove.modelFlying.getScaleLevitationEffect()) {
                 data.addVerticalVelocity(new SimpleEntry(0.0, 2));
                 final double amount = guessFlyNoFlyVelocity(player, data.playerMoves.getCurrentMove(), lastMove, data);
-                data.addHorizontalVelocity(new AccountEntry(amount, 2, MovingData.getHorVelValCount(amount)));
+                data.addHorizontalVelocity(new AccountEntry(amount, 3, MovingData.getHorVelValCount(amount)));
                 data.bunnyhopTick = 20;
                 if (thisMove.yDistance > 0.0) {
                     data.yDis = thisMove.yDistance;
@@ -773,7 +902,7 @@ public class CreativeFly extends Check {
             //Gliding -> Creative
             if (lastMove.modelFlying != null && lastMove.modelFlying.getVerticalAscendGliding() && thisMove.modelFlying.getId().equals("gamemode.creative")) {
                 final double amount = guessFlyNoFlyVelocity(player, data.playerMoves.getCurrentMove(), lastMove, data);
-                data.addHorizontalVelocity(new AccountEntry(amount, 2, MovingData.getHorVelValCount(amount)));
+                data.addHorizontalVelocity(new AccountEntry(amount, 3, MovingData.getHorVelValCount(amount)));
                 data.addVerticalVelocity(new SimpleEntry(0.0, 2));
                 return;
             }
@@ -796,10 +925,11 @@ public class CreativeFly extends Check {
         return defaultAmount;
     }
 
-    private boolean isCollideWithHB(PlayerLocation from ,PlayerLocation to) {
-        final boolean a = BlockProperties.collides(to.getBlockCache(), to.getMinX() - 0.1, to.getMinY(), to.getMinZ() - 0.1, to.getMaxX() + 0.1, to.getMaxY(), to.getMaxZ() + 0.1, BlockProperties.F_STICKY) ||
-        BlockProperties.collides(from.getBlockCache(), from.getMinX() - 0.1, from.getMinY(), from.getMinZ() - 0.1, from.getMaxX() + 0.1, from.getMaxY(), from.getMaxZ() + 0.1, BlockProperties.F_STICKY);
-        return a;
+    private boolean isCollideWithHB(PlayerLocation from) {
+        return (from.getBlockFlags() & BlockProperties.F_STICKY) != 0;
+    }
+    private boolean isBounceBelow(PlayerLocation from) {
+        return (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0;
     }
 
     private void outpuDebugMove(final Player player, final double hDistance, final double limitH, 

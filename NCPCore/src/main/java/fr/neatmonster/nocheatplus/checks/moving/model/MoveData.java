@@ -109,6 +109,10 @@ public class MoveData {
      * exclusively.
      */
     public boolean touchedGroundWorkaround;
+    /**
+     * Set if strict elytra active on a move.
+     */
+    public boolean elytrafly;
 
     private void setPositions(final IGetLocationWithLook from, final IGetLocationWithLook to) {
         this.from.setLocation(from);
@@ -117,6 +121,7 @@ public class MoveData {
         hDistance = TrigUtil.xzDistance(from, to);
         distanceSquared = yDistance * yDistance + hDistance * hDistance;
         toIsValid = true;
+        elytrafly = false;
     }
 
     /**
