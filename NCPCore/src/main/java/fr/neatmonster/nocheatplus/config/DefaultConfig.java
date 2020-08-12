@@ -204,7 +204,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_ANGLE, true, 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_SPRINT, true, 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_ACTIVE, true, 1154);
-        set(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_AVG, 6, 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_AVG, 3, 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_ACTIVE, true, 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_DIFFERENCE, 90, 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_TOOLSWITCH, true, 1154);
@@ -537,6 +537,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_SURVIVALFLY_STEPHEIGHT, "default", 785);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_VACC, true, 785);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_HACC, true, 1154);
+        set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_RESETITEM, true, 1154);
         set(ConfPaths.MOVING_SURVIVALFLY_LENIENCY_HBUFMAX, 1.0, 1154);
         // SurvivalFly - ViolationFrequencyHook
         set(ConfPaths.MOVING_SURVIVALFLY_VLFREQUENCY_ACTIVE, true, 1154);

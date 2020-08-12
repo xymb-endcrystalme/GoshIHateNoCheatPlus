@@ -123,6 +123,9 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
 
     /** No Slow */
     public boolean isusingitem = false;
+    public boolean offhanduse = false;
+    public int olditemslot = 0;
+    public boolean changeslot = false;
     public long time_rl_item = 0;
     public boolean isHackingRI = false;
     public int noslowhop = 0;

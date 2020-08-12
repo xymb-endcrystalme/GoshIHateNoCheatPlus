@@ -92,7 +92,7 @@ public class SurvivalFly extends Check {
     // TODO: handle
     private final AuxMoving aux = NCPAPIProvider.getNoCheatPlusAPI().getGenericInstance(AuxMoving.class);
     private IGenericInstanceHandle<IAttributeAccess> attributeAccess = NCPAPIProvider.getNoCheatPlusAPI().getGenericInstanceHandle(IAttributeAccess.class);
-
+    //private final Plugin plugin = Bukkit.getPluginManager().getPlugin("NoCheatPlus");
 
     /**
      * Instantiates a new survival fly check.
@@ -283,7 +283,9 @@ public class SurvivalFly extends Check {
         }
 
         // Moving half on farmland(or end_potal_frame) and half on water
-        data.newHDist = (from.getBlockFlags() & BlockProperties.F_MIN_HEIGHT16_15) != 0 && (from.isInWater() || to.isInWater());
+        data.newHDist = (from.getBlockFlags() & BlockProperties.F_MIN_HEIGHT16_15) != 0 && from.isInWater()
+                && !BlockProperties.isLiquid(from.getTypeId(from.getBlockX(), Location.locToBlock(from.getY() + 0.3), from.getBlockZ()));
+        if (data.newHDist) data.liftOffEnvelope = LiftOffEnvelope.NORMAL;
 
         snowFix = (from.getBlockFlags() & BlockProperties.F_HEIGHT_8_INC) != 0;
 
@@ -1003,7 +1005,7 @@ public class SurvivalFly extends Check {
         }
 
         // In liquid
-        else if (thisMove.from.inLiquid && thisMove.to.inLiquid) {
+        else if (thisMove.from.inLiquid && thisMove.to.inLiquid && !data.newHDist) {
             // Check all liquids (lava might demand even slower speed though).
             // TODO: Test how to go with only checking from (less dolphins).
             // TODO: Sneaking and blocking applies to when in water !
@@ -1029,11 +1031,11 @@ public class SurvivalFly extends Check {
                 if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
                    hAllowedDistance *= Magic.modRiptide[data.RiptideLevel];
                 }
-            }
-            // Allow moving half on farmland and half on water to have higher speed
-            if (data.newHDist && hAllowedDistance < 0.345D) {
-                useBaseModifiers = true;
-                hAllowedDistance = 0.345D;
+                if (data.liqtick < 5 && lastMove.toIsValid) {
+                    if (!lastMove.from.inLiquid) {
+                        if (lastMove.hDistance * 0.92 > thisMove.hDistance) hAllowedDistance = lastMove.hDistance * 0.92;
+                    } else if (lastMove.hAllowedDistance * 0.92 > thisMove.hDistance) hAllowedDistance = lastMove.hAllowedDistance * 0.92;
+                }
             }
             // (Friction is used as is.)
         }
@@ -1068,7 +1070,7 @@ public class SurvivalFly extends Check {
 
         // Speed restrict when leaving water(mostly duplicate with normal liquid modeling above)
         // TODO: Still check with velocity?
-        else if (!sfDirty && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_WATERWALK, player) 
+        else if (!data.newHDist && !sfDirty && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_WATERWALK, player) 
                 && ((thisMove.from.inLiquid && !thisMove.to.inLiquid) || data.watermovect == 1) 
                 && data.liftOffEnvelope.name().startsWith("LIMIT")
                 ) {
@@ -1092,7 +1094,7 @@ public class SurvivalFly extends Check {
             data.watermovect = 1;
             final int blockdata = from.getData(from.getBlockX(), from.getBlockY(), from.getBlockZ());
             final int blockunderdata = from.getData(from.getBlockX(), from.getBlockY() -1, from.getBlockZ());
-            if (blockdata > 3 || blockunderdata > 3 || data.isdownstream || data.newHDist) {
+            if (blockdata > 3 || blockunderdata > 3 || data.isdownstream) {
                 data.watermovect = 0;
                 hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
                 data.isdownstream = false;
@@ -1336,86 +1338,6 @@ public class SurvivalFly extends Check {
      */
     public boolean isReallySneaking(final Player player) {
         return reallySneaking.contains(player.getName());
-    }
-    
-    private boolean hackStep(final long now, final Player player, final PlayerLocation from, 
-            final boolean fromOnGround, final boolean resetFrom, final PlayerLocation to, 
-            final boolean resetTo, final double hDistance, final double yDistance, 
-            final PlayerMoveData lastMove, 
-            final MovingData data, final IPlayerData pData)  {
-        final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
-        boolean reset = false;
-        final double past = data.yDis;
-        
-        if (fromOnGround || from.isInLiquid() || from.isInWeb() || from.isOnClimbable() || (thisMove.touchedGround && resetTo)) reset = true;
-        if (yDistance != 0.0) {
-            data.yDis += yDistance;
-            if (data.yDis < 0.0 || data.yDis > 3.0) {
-                data.yDis = 0.0;
-            }
-        }
-        if (reset && fromOnGround && yDistance > 0.0) {
-            reset = false;
-            data.yDis = yDistance;
-            final double roundY = Math.floor(from.getY());
-            if (roundY > 0.0 && from.getY() < roundY + Magic.GRAVITY_ODD) data.yDis += from.getY() - roundY;
-        }
-        // "Noob" tower, jump_LostGroundEdgeAsc, velocity, recently left water, on stairs
-        if (tags.contains("lostground_nbtwr")
-            //TODO: How to merge all edgeasc cases in one?
-            || tags.contains("lostground_edgeasc1") || tags.contains("lostground_edgeasc5") || tags.contains("lostground_edgeasc7")
-            || (from.isOnGround(0.15) && data.yDis > 1.4995)
-            || data.isVelocityJumpPhase()
-            || data.liqtick != 0
-            || from.isAboveStairs()) {
-            data.yDis = 0.0;
-        }
-
-        if (data.yDis > 1.4995) {
-            final double margin = 0.2;
-            final Location loc = from.getLocation();
-            if (BlockProperties.isCarpet(loc.clone().add(margin, 0.0, 0.0).getBlock().getType())) {
-                final long flag = BlockProperties.getBlockFlags(loc.clone().add(margin, -1.0, 0.0).getBlock().getType());
-                if ((flag & BlockProperties.F_THICK_FENCE) != 0 || (flag & BlockProperties.F_THICK_FENCE2) != 0) {
-                    data.yDis = 0.0;
-                    return false;
-                }
-            } else
-            if (BlockProperties.isCarpet(loc.clone().add(-margin, 0.0, 0.0).getBlock().getType())) {
-                final long flag = BlockProperties.getBlockFlags(loc.clone().add(-margin, -1.0, 0.0).getBlock().getType());
-                if ((flag & BlockProperties.F_THICK_FENCE) != 0 || (flag & BlockProperties.F_THICK_FENCE2) != 0) {
-                    data.yDis = 0.0;
-                    return false;
-                }
-            } else
-            if (BlockProperties.isCarpet(loc.clone().add(0.0, 0.0, margin).getBlock().getType())) {
-                final long flag = BlockProperties.getBlockFlags(loc.clone().add(0.0, -1.0, margin).getBlock().getType());
-                if ((flag & BlockProperties.F_THICK_FENCE) != 0 || (flag & BlockProperties.F_THICK_FENCE2) != 0) {
-                    data.yDis = 0.0;
-                    return false;
-                }
-            } else
-            if (BlockProperties.isCarpet(loc.clone().add(0.0, 0.0, -margin).getBlock().getType())) {
-                final long flag = BlockProperties.getBlockFlags(loc.clone().add(0.0, -1.0, -margin).getBlock().getType());
-                if ((flag & BlockProperties.F_THICK_FENCE) != 0 || (flag & BlockProperties.F_THICK_FENCE2) != 0) {
-                    data.yDis = 0.0;
-                    return false;
-                }
-            }
-        }
-
-        //Will "feed" up to 1.4995 anyway
-        if (data.yDis > 1.4995
-            && data.timeRiptiding + 3500 < now
-            && Double.isInfinite(PotionUtil.getPotionEffectAmplifier(player, PotionEffectType.JUMP))
-            && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_STEP, player)) {
-            tags.add("step");
-            data.yDis -= 1.0;
-            if (reset && past != 0.0) data.yDis = 0.0;
-            return true;
-        }
-        if (reset && past != 0.0) data.yDis = 0.0;
-        return false;
     }
 
     /**
@@ -1727,11 +1649,6 @@ public class SurvivalFly extends Check {
             }
             // else Accept small aberrations !?
         }
-        
-        if (hackStep(now, player, from, fromOnGround, resetFrom, to, resetTo, hDistance, yDistance, lastMove, data, pData)) {
-            vDistRelVL = true;
-            vDistanceAboveLimit = Math.max(vDistanceAboveLimit, 1.25);
-        }
 
 
         if (vDistRelVL) {
@@ -1743,7 +1660,7 @@ public class SurvivalFly extends Check {
 
 
         // Absolute y-distance to set back.
-        if (yDistance > 0.0 && !data.isVelocityJumpPhase()) {
+        if (!pData.hasPermission(Permissions.MOVING_SURVIVALFLY_STEP, player) && yDistance > 0.0 && !data.isVelocityJumpPhase()) {
             // TODO: Only allow higher violation when only in water (1.13 Swimming)
             // TODO: Maintain a value in data, adjusting to velocity?
             // TODO: LIMIT_JUMP 
@@ -1766,13 +1683,13 @@ public class SurvivalFly extends Check {
                 else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
                     // Ignore riptiding for now
                 }
-                else if ((totalVDistViolation < 1.0 && data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID)) {
+                else if ((totalVDistViolation < 0.4 && data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID)) {
                     // Ignore water logged blocks 
                 }
                 // Attempt to use velocity.
                 else if (data.getOrUseVerticalVelocity(yDistance) == null) {
                     // Violation.
-                    vDistanceAboveLimit = Math.max(vDistanceAboveLimit, totalVDistViolation);
+                    vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.max(totalVDistViolation, 0.4));
                     tags.add("vdistsb");
                 }
             }
@@ -2221,15 +2138,59 @@ public class SurvivalFly extends Check {
         }
 
 
-        // Attempt to fix server-side blocking & bow drawn
-        if (hDistanceAboveLimit > 0.0 && tags.contains("usingitem") && (!Bridge1_9.hasGetItemInOffHand() && player.isBlocking() 
-        || Bridge1_9.getItemInMainHand(player).getType() == Material.BOW)) {
-
-            ItemStack stack = Bridge1_9.getItemInMainHand(player);
-            if (stack != null) {
-                tags.add("itemreset");
-                Bridge1_9.setItemInMainHand(player, new ItemStack(Material.AIR));
-                Bridge1_9.setItemInMainHand(player, stack);
+        // Attempt to reset item on NoSlow Violation
+        if (cc.survivalFlyResetItem && hDistanceAboveLimit > 0.0 && tags.contains("usingitem")) {
+            tags.add("itemreset");
+            // Off hand
+            //if (Bridge1_9.hasGetItemInOffHand() && data.offhanduse && data.itemresettaskid == -1) {
+            if (Bridge1_9.hasGetItemInOffHand() && data.offhanduse) {
+                ItemStack stack = Bridge1_9.getItemInOffHand(player);
+                if (stack != null) {
+                    if (Bridge1_13.hasIsSwimming()) {
+                        if (player.isHandRaised()) {
+                            // api only : problem: item lost if this task got cancelled(onstopping...) 
+                            // data.itemresettaskid = Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                            //     data.itemresettaskid = -1;
+                            //     player.getInventory().setItemInOffHand(stack);
+                            //     player.setCooldown(stack.getType(), 10);
+                            //     if (!player.isOnline()) player.saveData();
+                            //   data.isusingitem = false;
+                           //}, 2L);
+                           //if (data.itemresettaskid != -1) player.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
+                        
+                           // nms : problem: have to add compat build for 1.13+
+                           //CraftPlayer el = (CraftPlayer) player;
+                           //el.getHandle().clearActiveItem();
+                           //player.setCooldown(stack.getType(), 10);
+                           //data.isusingitem = false;
+                        }
+                        // False positive
+                        else data.isusingitem = false;
+                    } else {
+                        player.getInventory().setItemInOffHand(stack);
+                        data.isusingitem = false;
+                    }
+                }
+            }
+            // Main hand
+            else if (!data.offhanduse) {
+                ItemStack stack = Bridge1_9.getItemInMainHand(player);
+                if (Bridge1_13.hasIsSwimming()) {
+                    if (player.isHandRaised()) {
+                        data.olditemslot = player.getInventory().getHeldItemSlot();
+                        if (stack != null) player.setCooldown(stack.getType(), 10);
+                        player.getInventory().setHeldItemSlot((data.olditemslot + 1) % 9);
+                        data.changeslot = true;
+                    }
+                    // False positive
+                    else data.isusingitem = false;
+                } else {
+                    if (stack != null) {
+                        //tags.add("itemreset");
+                        Bridge1_9.setItemInMainHand(player, stack);
+                    }
+                }
+                data.isusingitem = false;
             }
         }
 
@@ -2436,7 +2397,7 @@ public class SurvivalFly extends Check {
                             // 1: Double bunny.
                             || double_bunny)
                     // 0: Don't allow bunny to run out of liquid.
-                    && !from.isResetCond() && !to.isResetCond() // TODO: !to.isResetCond() should be reviewed.
+                    && (!from.isResetCond() && !to.isResetCond() || data.newHDist) // TODO: !to.isResetCond() should be reviewed.
                     ) {
                 // TODO: Jump effect might allow more strictness. 
                 // TODO: Expected minimum gain depends on last speed (!).

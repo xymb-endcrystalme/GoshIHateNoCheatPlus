@@ -32,6 +32,7 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
@@ -144,6 +145,8 @@ public class NoSlow extends BaseAdapter {
         if (!pData.isCheckActive(CheckType.NET, e.getPlayer())) return;
 
         final MovingData data = pData.getGenericInstance(MovingData.class);
+        // Reset
+        data.offhanduse = false;
         Block b = e.getClickedBlock();
         if (p.getGameMode() == GameMode.CREATIVE) {
             data.isusingitem = false;
@@ -168,20 +171,28 @@ public class NoSlow extends BaseAdapter {
                 if (item.getDurability() > 16384) return;
                 if (m == Material.POTION || m == Material.MILK_BUCKET || m.toString().endsWith("_APPLE") || m.name().startsWith("HONEY_BOTTLE")) {
                     data.isusingitem = true;
+                    data.offhanduse = Bridge1_9.hasGetItemInOffHand() && e.getHand() == EquipmentSlot.OFF_HAND;
                     return;
                 }
                 if (item.getType().isEdible() && p.getFoodLevel() < 20) {
                     data.isusingitem = true;
+                    data.offhanduse = Bridge1_9.hasGetItemInOffHand() && e.getHand() == EquipmentSlot.OFF_HAND;
                     return;
                 }
             }
             if (m.toString().equals("BOW") && hasArrow(p.getInventory())) {
                 data.isusingitem = true;
+                data.offhanduse = Bridge1_9.hasGetItemInOffHand() && e.getHand() == EquipmentSlot.OFF_HAND;
+                return;
+            }
+            if (m.name().equals("SHIELD")) {
+                data.offhanduse = e.getHand() == EquipmentSlot.OFF_HAND;
                 return;
             }
             if (m.toString().equals("CROSSBOW")) {
                 if (item.getItemMeta().serialize().get("charged").equals(false) && hasArrow(p.getInventory())) {
                     data.isusingitem = true;
+                    data.offhanduse = e.getHand() == EquipmentSlot.OFF_HAND;
                 }
             }
         } else data.isusingitem = false;        
@@ -191,6 +202,10 @@ public class NoSlow extends BaseAdapter {
         final Player p = e.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(p);
         final MovingData data = pData.getGenericInstance(MovingData.class);
+        if (data.changeslot) {
+            p.getInventory().setHeldItemSlot(data.olditemslot);
+            data.changeslot = false;
+        }
         data.isusingitem = false;
     }
 

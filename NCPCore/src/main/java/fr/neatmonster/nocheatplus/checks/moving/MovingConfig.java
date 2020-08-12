@@ -125,6 +125,7 @@ public class MovingConfig extends ACheckConfig {
     public final double     sfStepHeight;
     public final boolean    survivalFlyAccountingH;
     public final boolean    survivalFlyAccountingV;
+    public final boolean    survivalFlyResetItem;
     // Leniency settings.
     /** Horizontal buffer (rather sf), after failure leniency. */
     public final double hBufMax;
@@ -265,6 +266,7 @@ public class MovingConfig extends ACheckConfig {
         sfGroundHop = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_GROUNDHOP, ServerVersion.compareMinecraftVersion("1.7") == -1);
         survivalFlyAccountingH = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_HACC, false);
         survivalFlyAccountingV = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_VACC);
+        survivalFlyResetItem = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_RESETITEM);
         sfSetBackPolicyFallDamage = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_SETBACKPOLICY_FALLDAMAGE);
         sfSetBackPolicyVoid = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_SETBACKPOLICY_VOIDTOVOID);
         final double sfStepHeight = config.getDouble(ConfPaths.MOVING_SURVIVALFLY_STEPHEIGHT, Double.MAX_VALUE);

@@ -447,8 +447,7 @@ public class CreativeFly extends Check {
             // TODO: Better detection of an elytra model (extra flags?).
             limitV = Math.max(limitV, limitV = hackLytra(yDistance, limitV, thisMove, lastMove, data));
         }
-        if (Bridge1_9.isGlidingWithElytra(from.getPlayer()) &&
-        (from.isInLiquid() || to.isInLiquid() || data.liqtick > 10)) // recently left water
+        if (Bridge1_9.isGlidingWithElytra(from.getPlayer()) && data.liqtick > 1)
             limitV = Math.max(limitV, 0.35);
 
         if (model.getGravity()) {
@@ -528,13 +527,13 @@ public class CreativeFly extends Check {
          */
         double resultV = 0.0;
         double resultH = 0.0;
-        if (!cc.elytraStrict || !Bridge1_9.isGlidingWithElytra(player) || Bridge1_13.getSlowfallingAmplifier(player) >= 0.0) return new double[] {0.0, 0.0};
+        if (!cc.elytraStrict || !Bridge1_9.isGlidingWithElytra(player) || Bridge1_13.getSlowfallingAmplifier(player) >= 0.0 || player.isFlying()) return new double[] {0.0, 0.0};
         double allwHDistance = 0.0;
         double allwyDistance = 0.0;
         double baseV = 0.0;
 
         if (lastMove.flyCheck != thisMove.flyCheck && !lastMove.elytrafly) {
-            data.sfJumpPhase = 0;
+            //data.sfJumpPhase = 0;
         } else if (!from.isResetCond() && !isCollideWithHB(from)) {
             thisMove.elytrafly = true;
             final double lastHdist = lastMove.toIsValid ? lastMove.hDistance : 0.0;
@@ -635,7 +634,7 @@ public class CreativeFly extends Check {
                             lastMove.yDistance > 0.0 && yDistance < 0.0 && (lastMove.yDistance < Magic.GRAVITY_MAX + Magic.GRAVITY_MIN && yDistance > - Magic.GRAVITY_MIN
                                 || lastMove.yDistance < Magic.GRAVITY_MIN && yDistance > - Magic.GRAVITY_MIN - Magic.GRAVITY_MAX)
                             // For compatibility
-                            || data.sfJumpPhase < 6 && lastMove.yDistance > yDistance && yDistance - allwyDistance < 0.0 && yDistance - allwyDistance > -Magic.GRAVITY_MAX
+                            //|| data.sfJumpPhase < 6 && lastMove.yDistance > yDistance && yDistance - allwyDistance < 0.0 && yDistance - allwyDistance > -Magic.GRAVITY_MAX
                            ) {
                            allwyDistance = yDistance;
                        }
@@ -648,7 +647,7 @@ public class CreativeFly extends Check {
                     }
                 } else
                 if (yDistance < 0.0) {
-                    if (allwyDistance > yDistance && !isnear(allwyDistance, yDistance, Magic.GRAVITY_MIN / 1.5)) {
+                    if (allwyDistance > yDistance && !isnear(allwyDistance, yDistance, Magic.GRAVITY_MAX)) {
                         tags.add("elytra_v_desc");
                         resultV = Math.abs(yDistance);
                     }
@@ -715,7 +714,7 @@ public class CreativeFly extends Check {
                 allwHDistance = lastMove.hAllowedDistance * (data.liqtick < 5 ? 1.0 : 0.98);
             }
             if (thisMove.hDistance > allwHDistance) {
-                tags.add("elytra_hspeed(water)");
+                tags.add("elytra_hspeed(liquid)");
                 resultH = hDistance - allwHDistance;
             }
         }

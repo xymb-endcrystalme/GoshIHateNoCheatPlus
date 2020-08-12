@@ -808,7 +808,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
 		
         if (pFrom.isInLiquid()) {
-            data.liqtick = data.liqtick < 50 ? data.liqtick + 1 : data.liqtick > 0 ? data.liqtick - 1 : 0; 
+            data.liqtick = data.liqtick < 10 ? data.liqtick + 1 : data.liqtick > 0 ? data.liqtick - 1 : 0; 
         } else data.liqtick = data.liqtick > 0 ? data.liqtick - 2 : 0;
 		
         if (data.waspreInVehicle) {
