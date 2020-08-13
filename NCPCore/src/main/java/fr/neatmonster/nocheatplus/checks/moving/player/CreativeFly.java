@@ -534,6 +534,7 @@ public class CreativeFly extends Check {
 
         if (lastMove.flyCheck != thisMove.flyCheck && !lastMove.elytrafly) {
             //data.sfJumpPhase = 0;
+            tags.add("elytra_pre");
         } else if (!from.isResetCond() && !isCollideWithHB(from)) {
             thisMove.elytrafly = true;
             final double lastHdist = lastMove.toIsValid ? lastMove.hDistance : 0.0;
@@ -614,12 +615,16 @@ public class CreativeFly extends Check {
             }
 
             // Adjust false
-            allwHDistance += Math.sqrt(x*x + z*z) + 0.03;
+            allwHDistance += Math.sqrt(x*x + z*z) + 0.04;
             // Difference from vAllowedDistance to yDistance.
             final double yDistDiffEx = yDistance - allwyDistance;
 
             if (data.fireworksBoostDuration <= 0) {
                 // Workaround
+                // Jump
+                if (from.isOnGround() && yDistance < 0.42) {
+                    allwyDistance = yDistance;
+                } else
                 // Head obstructed
                 if (from.isHeadObstructed() && lastMove.yDistance > 0.0 && yDistDiffEx < 0.0
                        && (

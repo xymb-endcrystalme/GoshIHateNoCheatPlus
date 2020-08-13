@@ -1479,7 +1479,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             // (Doesn't seem to be overly effective.)
             final PlayerMoveData secondPastMove = data.playerMoves.getSecondPastMove();
             if (lastMove.modelFlying != null && secondPastMove.modelFlying != null && Magic.glideEnvelopeWithHorizontalGain(thisMove, lastMove, secondPastMove)) {
-                return thisMove.hDistance + Magic.GLIDE_HORIZONTAL_GAIN_MAX;
+                return thisMove.hDistance + 0.1468;
             }
         }
         return defaultAmount;
