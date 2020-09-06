@@ -48,7 +48,8 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
     // Blocks that have a different shape, based on how they have been placed.
     private static final BukkitShapeModel MODEL_SLAB = new BukkitSlab();
-    private static final BukkitShapeModel MODEL_STAIRS= new BukkitStairs();
+    private static final BukkitShapeModel MODEL_STAIRS = new BukkitStairs();
+    private static final BukkitShapeModel MODEL_PISTON = new BukkitPiston();
     private static final BukkitShapeModel MODEL_END_ROD = new BukkitDirectionalCentered(
             0.375, 1.0, false);
 
@@ -80,7 +81,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     private static final BukkitShapeModel MODEL_SINGLE_CHEST = new BukkitStatic(
             0.0625, 0.875);
     private static final BukkitShapeModel MODEL_HONEY_BLOCK = new BukkitStatic(
-            0.0625, 0.9375);
+            0.0626, 0.9375); // TODO: ????
     private static final BukkitShapeModel MODEL_HOPPER = new BukkitStatic(
             0, 0.25, 0, 1, 1, 1);
     private static final BukkitShapeModel MODEL_CHAIN = new BukkitChain();
@@ -340,6 +341,14 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             )) {
             addModel(mat, MODEL_LANTERN);
         }
+
+        // Piston
+        for (Material mat : BridgeMaterial.getAllBlocks(
+                "piston", "sticky_piston", "piston_base", "piston_sticky_base"
+                )) {
+            addModel(mat, MODEL_PISTON);
+        }
+
         // Lectern
         Material mt = BridgeMaterial.getBlock("lectern");
         if (mt != null) addModel(mt, MODEL_LECTERN);

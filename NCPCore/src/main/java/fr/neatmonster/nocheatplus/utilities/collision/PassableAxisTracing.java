@@ -78,7 +78,8 @@ public class PassableAxisTracing extends AxisTracing implements ICollidePassable
         if (blockChangeTracker != null) {
             // Opportunistic (FCFS, no consistency).
             // TODO: Replace by BlockChangeTracker.isPassableBox(...) - iteration is necessary / better.
-            final BlockChangeEntry entry = blockChangeTracker.getBlockChangeEntry(blockChangeRef, tick, worldId, blockX, blockY, blockZ, null);
+            BlockChangeEntry entry = blockChangeTracker.getBlockChangeEntry(blockChangeRef, tick, worldId, blockX, blockY + 1, blockZ, null);
+            if (entry == null) entry = blockChangeTracker.getBlockChangeEntry(blockChangeRef, tick, worldId, blockX, blockY, blockZ, null);
             if (entry != null) {
                 blockChangeRef.updateSpan(entry);
                 return true;

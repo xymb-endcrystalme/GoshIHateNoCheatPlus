@@ -1146,6 +1146,7 @@ public class BlockProperties {
         setBlockProps(BridgeMaterial.MOVING_PISTON, indestructibleType); // TODO: really?
         setFlag(BridgeMaterial.MOVING_PISTON, F_IGN_PASSABLE | F_GROUND | F_GROUND_HEIGHT 
                 | BlockFlags.FULL_BOUNDS);
+        setFlag(BridgeMaterial.PISTON_HEAD, F_IGN_PASSABLE);
 
         // Full block height.
         for (final Material mat : new Material[]{
@@ -3398,9 +3399,9 @@ public class BlockProperties {
         else if (id == Material.CACTUS) {
             return 0.9375;
         }
-        else if (id == BridgeMaterial.PISTON_HEAD) {
-            return 0.625;
-        }
+        //else if (id == BridgeMaterial.PISTON_HEAD) {
+        //    return 0.625;
+        //}
         else if (bounds == null) {
             return 0.0;
         }

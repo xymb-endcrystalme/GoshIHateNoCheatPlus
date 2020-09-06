@@ -343,7 +343,7 @@ public class MaterialUtil {
                             ), AlmostBoolean.YES, "legacy"),
             "barrier", "structure_block",
             "note_block", "tnt", "jukebox", "jack_o_lantern",
-            "piston", "sticky_piston", "piston_base", "piston_sticky_base",
+            //"piston", "sticky_piston", "piston_base", "piston_sticky_base",
             "dispenser", "dropper", "furnace", "observer", "beacon",
             "pumpkin", "melon_block", "hay_block", "bone_block", "dried_kelp_block",
             "nether_wart_block", "netherrack", "warped_wart_block",

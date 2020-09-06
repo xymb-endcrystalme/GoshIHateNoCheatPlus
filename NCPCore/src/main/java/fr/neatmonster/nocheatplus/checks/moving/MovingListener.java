@@ -786,7 +786,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
         final boolean checkPassable = pData.isCheckActive(CheckType.MOVING_PASSABLE, player);
 
-	// Hot fix: Entering end portal from bottom.
+        // Hot fix: Entering end portal from bottom.
         if (lastMove.to.getWorldName() != null && !lastMove.to.getWorldName().equals(thisMove.from.getWorldName())) {
         	if (TrigUtil.distance(pFrom, pTo) > 5.5) {
         		newTo = data.getSetBack(from);
@@ -899,6 +899,12 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                         }
                     }
                 }
+                // Might a bit tricky when it use to ensure no bounce check is active, not noFall checking here
+                if (useBlockChangeTracker && checkNf
+                    && !checkPastStateVerticalPush(player, pFrom, pTo, thisMove, lastMove, tick, debug, data, cc)
+                ) {
+                    checkPastStateHorizontalPush(player, pFrom, pTo, thisMove, lastMove, tick, debug, data, cc);
+                }
             }
         }
         else {
@@ -920,9 +926,10 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             }
         }
 
-	//Force to check survivalfly not creativefly anymore
+        // Force to check survivalfly not creativefly anymore
+        // TODO: Move to Creativefly
         if (Bridge1_13.isRiptiding(player)) {checkSf = true; checkCf = false;}
-	    
+
         // Flying checks.
         if (checkSf) {
             // SurvivalFly
@@ -1206,7 +1213,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             }
             amount = Math.min(
                     Math.max(0.505, 1.0 + (double) from.getBlockY() - from.getY() + 1.515),
-                    2.525);
+                    1.525); // Old: 2.525
             /*
              * TODO: EXACT MAGIC.
              */
@@ -1220,7 +1227,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 // TODO: Not sure about y-Distance.
                 // TODO: MAGIC EVERYWHERE
                 && lastMove.toIsValid && lastMove.yDistance >= 0.0 && lastMove.yDistance <= 0.505
-                && from.getY() - (double) from.getBlockY() == lastMove.yDistance // TODO: Margin?
+                && Math.abs(from.getY() - (double) from.getBlockY() - lastMove.yDistance) < 0.205 // from.getY() - (double) from.getBlockY() == lastMove.yDistance
                 ) {
             final BlockChangeEntry entry2BelowY_POS = blockChangeTracker.getBlockChangeEntryMatchFlags(
                     data.blockChangeRef, tick, worldId, from.getBlockX(), from.getBlockY() - 2, from.getBlockZ(), 
@@ -1232,7 +1239,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                     debug(player, "Foot position block push with bounce (" + (entry2BelowY_POS == null ? "off_center)." : "center)."));
                 }
                 amount = Math.min(Math.max(0.505, 1.0 + (double) from.getBlockY() - from.getY() + 1.515), 
-                        2.015 - lastMove.yDistance); // TODO: EXACT MAGIC.
+                        1.525 - lastMove.yDistance); // TODO: EXACT MAGIC.
                 if (entryBelowY_POS != null) {
                     data.blockChangeRef.updateSpan(entry2BelowY_POS);
                 }
@@ -1276,6 +1283,131 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         return BounceType.NO_BOUNCE;
     }
 
+    private boolean checkPastStateVerticalPush(
+            final Player player, final PlayerLocation from, final PlayerLocation to,
+            final PlayerMoveData thisMove, final PlayerMoveData lastMove, final int tick, 
+            final boolean debug, final MovingData data, final MovingConfig cc) {
+        final UUID worldId = from.getWorld().getUID();
+        double amount = -1.0;
+        boolean addvel = false;
+        final BlockChangeEntry entryBelowY_POS = BlockChangeSearch(from, tick, Direction.Y_POS, debug, data, cc, worldId, true);
+        if (
+                // Center push..
+                entryBelowY_POS != null
+                // Off center push.
+                //|| thisMove.yDistance < 0.6 && from.matchBlockChange(blockChangeTracker, 
+                //        data.blockChangeRef, Direction.Y_POS, Math.min(.415, thisMove.yDistance))
+                ) {
+            if (debug) {
+                final StringBuilder builder = new StringBuilder(150);
+                builder.append("Direct block push at (");
+                builder.append("x:" + entryBelowY_POS.x);
+                builder.append(" y:" + entryBelowY_POS.y);
+                builder.append(" z:" + entryBelowY_POS.z);
+                builder.append(" direction:" + entryBelowY_POS.direction.name());
+                builder.append(")");
+                debug(player, builder.toString());
+            }
+            if (lastMove.valid && thisMove.yDistance >= 0.0) {
+                if ((from.isOnGroundOrResetCond() || thisMove.touchedGroundWorkaround) && from.isOnGround(1.0))
+                amount = Math.min(thisMove.yDistance, 0.5625);
+                else if (lastMove.yDistance < -Magic.GRAVITY_MAX) amount = Math.min(thisMove.yDistance, 0.34);
+                if (thisMove.yDistance == 0.0) amount = 0.0;
+            }
+            if (lastMove.toIsValid && amount < 0.0 && thisMove.yDistance < 0.0 && thisMove.yDistance > -1.515 && lastMove.yDistance >= 0.0) {
+                amount = thisMove.yDistance;
+                addvel = true;
+            }
+            if (entryBelowY_POS != null) {
+                data.blockChangeRef.updateSpan(entryBelowY_POS);
+            }
+        }
+        // Finally add velocity if set.
+        if (amount >= 0.0 || addvel) {
+            data.removeLeadingQueuedVerticalVelocityByFlag(VelocityFlags.ORIGIN_BLOCK_MOVE);
+            /*
+             * TODO: Concepts for limiting... max amount based on side
+             * conditions such as block height+1.5, max coordinate, max
+             * amount per use, ALLOW_ZERO flag/boolean and set in
+             * constructor, demand max. 1 zero dist during validity. Bind
+             * use to initial xz coordinates... Too precise = better with
+             * past move tracking, or a sub-class of SimpleEntry with better
+             * access signatures including thisMove.
+             */
+            final SimpleEntry vel = new SimpleEntry(tick, amount, 
+                VelocityFlags.ORIGIN_BLOCK_MOVE, 1);
+            data.verticalBounce = vel;
+            data.useVerticalBounce(player);
+            data.useVerticalVelocity(thisMove.yDistance);
+            if (debug) {
+                debug(player, "checkPastStateVerticalPush: set velocity: " + vel);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private BlockChangeEntry BlockChangeSearch(final PlayerLocation from, final int tick, Direction direction,
+            final boolean debug, final MovingData data, final MovingConfig cc, final UUID worldId, final boolean searchBelow) {
+        final int iMinX = Location.locToBlock(from.getMinX());
+        final int iMaxX = Location.locToBlock(from.getMaxX());
+        final int iMinZ = Location.locToBlock(from.getMinZ());
+        final int iMaxZ = Location.locToBlock(from.getMaxZ());
+        final int belowY = from.getBlockY() - (searchBelow ? 1 : 0);
+        for (int x = iMinX; x <= iMaxX; x++) {
+            for (int z = iMinZ; z <= iMaxZ; z++) {
+                for (int y = belowY; y <= belowY + 1; y++) {
+                    BlockChangeEntry entryBelowY_POS = blockChangeTracker.getBlockChangeEntry(
+                    data.blockChangeRef, tick, worldId, x, y, z, 
+                    direction);
+                    if (entryBelowY_POS != null) return entryBelowY_POS;
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean checkPastStateHorizontalPush(
+            final Player player, final PlayerLocation from, final PlayerLocation to,
+            final PlayerMoveData thisMove, final PlayerMoveData lastMove, final int tick, 
+            final boolean debug, final MovingData data, final MovingConfig cc) {
+        final UUID worldId = from.getWorld().getUID();
+        final double xDistance = to.getX() - from.getX();
+        final double zDistance = to.getZ() - from.getZ();
+        final Direction dir;
+        if (Math.abs(xDistance) > Math.abs(zDistance)) {
+            dir = xDistance > 0.0 ? Direction.X_POS : Direction.X_NEG;
+        } else {
+            dir = zDistance > 0.0 ? Direction.Z_POS : Direction.Z_NEG;
+        }
+        final BlockChangeEntry entry = BlockChangeSearch(from, tick, dir, debug, data, cc, worldId, false);
+        if (entry != null) {
+            final int count = MovingData.getHorVelValCount(0.6);
+            // TODO: Clear active horizontal velocity?
+            data.clearActiveHorVel();
+            data.addHorizontalVelocity(new AccountEntry(tick, 0.6, count, count));
+
+            // Stuck in block, Hack
+            data.addVerticalVelocity(new SimpleEntry(-0.35, 6));
+
+            data.blockChangeRef.updateSpan(entry);
+            if (debug) {
+                final StringBuilder builder = new StringBuilder(150);
+                builder.append("Direct block push at (");
+                builder.append("x:" + entry.x);
+                builder.append(" y:" + entry.y);
+                builder.append(" z:" + entry.z);
+                builder.append(" direction:" + entry.direction.name());
+                builder.append(")");
+                debug(player, builder.toString());
+                debug(player, "checkPastStateHorizontalPush: set velocity: " + 0.6);
+            }
+            return true;
+        }
+        return false;
+    }
+
+
     /**
      * Pre conditions: A slime block is underneath and the player isn't really
      * sneaking. This does not account for pistons pushing (slime) blocks.<br>
@@ -1295,18 +1427,17 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 		// Collect block flags at the current location as they may not already be there, and cause NullPointer errors.
     	to.collectBlockFlags();
         double blockY = ((to.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0) && ((to.getY() + 0.4375) % 1 == 0) ? to.getY() : to.getBlockY();
-    	
         return 
                 // 0: Normal envelope (forestall NoFall).
                 (
                         // 1: Ordinary.
-                        to.getY() - blockY <= Math.max(cc.yOnGround, cc.noFallyOnGround) 
+                        to.getY() - blockY <= Math.max(cc.yOnGround, cc.noFallyOnGround)
                         // 1: With carpet.
                         || BlockProperties.isCarpet(to.getTypeId()) && to.getY() - to.getBlockY() <= 0.9
                         )
                 && MovingUtil.getRealisticFallDistance(player, from.getY(), to.getY(), data, pData) > 1.0
                 // 0: Within wobble-distance.
-                || to.getY() - blockY < 0.286 && to.getY() - from.getY() > -0.5
+                || to.getY() - blockY < 0.286 && to.getY() - from.getY() > -0.9
                 && to.getY() - from.getY() < -Magic.GRAVITY_MIN
                 && !to.isOnGround()
                 ;
@@ -1528,7 +1659,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             debug(player, "Set bounce effect (dY=" + fallDistance + " / " + bounceType + "): " + effect); 
         }
         data.noFallSkipAirCheck = true;
-        data.verticalBounce =  new SimpleEntry(tick, effect, FLAGS_VELOCITY_BOUNCE_BLOCK, 1); // Just bounce for now.
+        data.verticalBounce = new SimpleEntry(tick, effect, FLAGS_VELOCITY_BOUNCE_BLOCK, 1); // Just bounce for now.
     }
 
     /**
