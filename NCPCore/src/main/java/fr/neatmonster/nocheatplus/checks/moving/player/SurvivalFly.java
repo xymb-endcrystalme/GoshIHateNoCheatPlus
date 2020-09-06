@@ -1060,13 +1060,13 @@ public class SurvivalFly extends Check {
 
 
         // Allows faster speed for player when swimming above water since from -> to does not seem to detect correctly
-        else if (BlockProperties.isLiquid(from.getTypeIdBelow()) && !Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
-            hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed * Magic.modDolphinsGrace / 100D;
-            final int level = BridgeEnchant.getDepthStriderLevel(player);
-            if (level > 0) {
-                hAllowedDistance = Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed * Magic.modDolphinsGrace * Magic.modDepthStrider[level] / 100D;
-            }
-        }
+        //else if (BlockProperties.isLiquid(from.getTypeIdBelow()) && !Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
+        //    hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed * Magic.modDolphinsGrace / 100D;
+        //    final int level = BridgeEnchant.getDepthStriderLevel(player);
+        //    if (level > 0) {
+        //        hAllowedDistance = Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed * Magic.modDolphinsGrace * Magic.modDepthStrider[level] / 100D;
+        //    }
+        //}
 
         // Speed restrict when leaving water(mostly duplicate with normal liquid modeling above)
         // TODO: Still check with velocity?
@@ -1712,25 +1712,25 @@ public class SurvivalFly extends Check {
         // Block 'step' with yDistance between step height and minJumpGain (vdistrel and vdistsb should catch the rest).
         // TODO: Model other cases of unexpectedly low 'jumping', such as using too few velocity?
         // (Actual step cheats are probably better detected by generalized patterns.)
-        if (vDistanceAboveLimit <= 0D 
-            && yDistance > cc.sfStepHeight && yDistance < data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier) 
-            && !thisMove.headObstructed && !thisMove.from.resetCond && !thisMove.to.resetCond
-            && (thisMove.from.onGround || thisMove.touchedGroundWorkaround) && thisMove.to.onGround 
-            ) {
-            // Exclude a lost-ground case.
-            if (thisMove.touchedGroundWorkaround && lastMove.toIsValid && lastMove.yDistance <= 0.0
-                && yDistance + Math.abs(lastMove.yDistance) <= 2.0 * (maxJumpGain + 0.1)) {
-                // TODO: Review: still needed?
-            }
-            else {
-                // Potential violation.
-                if (!pData.hasPermission(Permissions.MOVING_SURVIVALFLY_STEP, player) 
-                        && data.getOrUseVerticalVelocity(yDistance) == null) {
-                    vDistanceAboveLimit = yDistance - cc.sfStepHeight;
-                    tags.add("step");
-                }
-            }
-        }
+        //if (vDistanceAboveLimit <= 0D 
+        //    && yDistance > cc.sfStepHeight && yDistance < data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier) 
+        //    && !thisMove.headObstructed && !thisMove.from.resetCond && !thisMove.to.resetCond
+        //    && (thisMove.from.onGround || thisMove.touchedGroundWorkaround) && thisMove.to.onGround 
+        //    ) {
+        //    // Exclude a lost-ground case.
+        //    if (thisMove.touchedGroundWorkaround && lastMove.toIsValid && lastMove.yDistance <= 0.0
+        //        && yDistance + Math.abs(lastMove.yDistance) <= 2.0 * (maxJumpGain + 0.1)) {
+        //        // TODO: Review: still needed?
+        //    }
+        //    else {
+        //        // Potential violation.
+        //        if (!pData.hasPermission(Permissions.MOVING_SURVIVALFLY_STEP, player) 
+        //                && data.getOrUseVerticalVelocity(yDistance) == null) {
+        //            vDistanceAboveLimit = yDistance - cc.sfStepHeight;
+        //            tags.add("step");
+        //        }
+        //    }
+        //}
 
 
         // Air-stay-time.

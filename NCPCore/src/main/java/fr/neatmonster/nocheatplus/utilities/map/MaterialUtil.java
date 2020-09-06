@@ -225,7 +225,7 @@ public class MaterialUtil {
 
     /** Stained and other. */
     public static final Set<Material> GLASS_BLOCKS = Collections.unmodifiableSet(addBlocks(
-            BridgeMaterial.getBySuffix("_glass", AlmostBoolean.YES, "legacy"),
+            BridgeMaterial.getBySuffix("_glass", AlmostBoolean.YES, "legacy", "thin"),
             "glass"));
 
     public static final Set<Material> GLASS_PANES = Collections.unmodifiableSet(addBlocks(

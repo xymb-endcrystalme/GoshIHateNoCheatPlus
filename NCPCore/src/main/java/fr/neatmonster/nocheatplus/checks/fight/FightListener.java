@@ -739,7 +739,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
             final Player damagedPlayer = (Player) damaged;
             final IPlayerData damagedPData = DataManager.getPlayerData(damagedPlayer);
 
-            if (!damagedPData.isCheckActive(CheckType.FIGHT, damagedPlayer)) return;
+            //if (!damagedPData.isCheckActive(CheckType.FIGHT, damagedPlayer)) return;
 
             final FightData damagedData = damagedPData.getGenericInstance(FightData.class);
             final int ndt = damagedPlayer.getNoDamageTicks();

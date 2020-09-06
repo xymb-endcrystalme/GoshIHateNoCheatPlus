@@ -273,15 +273,23 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         // Fast inventory manipulation check.
         if (fastClick.isEnabled(player, pData)) {
             final InventoryConfig cc = pData.getGenericInstance(InventoryConfig.class);
-            if (!((event.getView().getType().equals(InventoryType.CREATIVE) || player.getGameMode() == GameMode.CREATIVE) && cc.fastClickSpareCreative) && !cc.inventoryExemptions.contains(ChatColor.stripColor(event.getView().getTitle()))) {
-                if (fastClick.check(player, now, 
+            if (!((event.getView().getType().equals(InventoryType.CREATIVE) || player.getGameMode() == GameMode.CREATIVE) && cc.fastClickSpareCreative)) {
+                boolean check = true;
+                try {
+                    check = !cc.inventoryExemptions.contains(ChatColor.stripColor(event.getView().getTitle()));
+                }
+                catch (final IllegalStateException e) {
+                    check = true; //...
+                }
+                if (check && fastClick.check(player, now, 
                         event.getView(), slot, cursor, clicked, event.isShiftClick(), 
                         inventoryAction, data, cc, pData)) {  
-                  // The check requested the event to be cancelled.
+                    // The check requested the event to be cancelled.
                     cancel = true;
                 }
-                  // Listen for more than just a chest?
-                 if (event.getInventory().getType().equals(InventoryType.CHEST) || event.getInventory().getType().equals(InventoryType.ENDER_CHEST) || event.getInventory().getType().toString().equals("BARREL") || event.getInventory().getType().toString().equals("SHULKER_BOX")) {
+                // Listen for more than just a chest?
+                if (check)
+                if (event.getInventory().getType().equals(InventoryType.CHEST) || event.getInventory().getType().equals(InventoryType.ENDER_CHEST) || event.getInventory().getType().toString().equals("BARREL") || event.getInventory().getType().toString().equals("SHULKER_BOX")) {
         			if (fastClick.fastClickChest(player, data, cc)) {
         				cancel = true;
         				keepCancel = true;

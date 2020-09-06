@@ -192,10 +192,6 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         BlockProperties.setBlockFlags(Material.HOPPER,
                 BlockProperties.F_GROUND | BlockProperties.F_SOLID | BlockProperties.F_XZ100 | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_IGN_PASSABLE);
 
-        // Grass path. (Just in case not having multiversion plugin installed)
-        BlockFlags.removeFlags(Material.GRASS_PATH, BlockProperties.F_HEIGHT100);
-        BlockFlags.addFlags(Material.GRASS_PATH,
-                BlockProperties.F_XZ100 | BlockProperties.F_MIN_HEIGHT16_15);
         // Farm land. (Just in case not having multiversion plugin installed)
         BlockFlags.removeFlags(BridgeMaterial.FARMLAND, BlockProperties.F_HEIGHT100);
         BlockFlags.addFlags(BridgeMaterial.FARMLAND,
