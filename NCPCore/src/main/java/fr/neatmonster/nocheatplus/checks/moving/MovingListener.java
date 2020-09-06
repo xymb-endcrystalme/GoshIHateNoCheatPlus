@@ -1213,7 +1213,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             }
             amount = Math.min(
                     Math.max(0.505, 1.0 + (double) from.getBlockY() - from.getY() + 1.515),
-                    1.525); // Old: 2.525
+                    1.915); // Old: 2.525
             /*
              * TODO: EXACT MAGIC.
              */
@@ -1239,7 +1239,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                     debug(player, "Foot position block push with bounce (" + (entry2BelowY_POS == null ? "off_center)." : "center)."));
                 }
                 amount = Math.min(Math.max(0.505, 1.0 + (double) from.getBlockY() - from.getY() + 1.515), 
-                        1.525 - lastMove.yDistance); // TODO: EXACT MAGIC.
+                        1.915 - lastMove.yDistance); // TODO: EXACT MAGIC.
                 if (entryBelowY_POS != null) {
                     data.blockChangeRef.updateSpan(entry2BelowY_POS);
                 }
@@ -1308,6 +1308,10 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 builder.append(")");
                 debug(player, builder.toString());
             }
+            /*
+             * TODO: One case left still not covered, double ascend motions (0.25, 0.649)
+             * Mostly happen while jumping into block and piston push!
+             */
             if (lastMove.valid && thisMove.yDistance >= 0.0) {
                 if ((from.isOnGroundOrResetCond() || thisMove.touchedGroundWorkaround) && from.isOnGround(1.0))
                 amount = Math.min(thisMove.yDistance, 0.5625);
@@ -1588,11 +1592,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final PlayerMoveData lastMove = data.playerMoves.getFirstPastMove();
         final double amount = guessFlyNoFlyVelocity(player, data.playerMoves.getCurrentMove(), lastMove, data);
         data.clearActiveHorVel(); // Clear active velocity due to adding actual speed here.
-        data.addHorizontalVelocity(new AccountEntry(tick, amount, 1, MovingData.getHorVelValCount(amount)));
+        data.bunnyhopDelay = 0; // Remove bunny hop due to add velocity 
+        if (amount > 0.0) data.addHorizontalVelocity(new AccountEntry(tick, amount, 2, MovingData.getHorVelValCount(amount)));
         data.addVerticalVelocity(new SimpleEntry(lastMove.yDistance, 2));
-		// 1.15 elytra fly-nofly workaround, need to use velocity above twice
-        data.addVerticalVelocity(new SimpleEntry(lastMove.yDistance, 2));
-        data.addVerticalVelocity(new SimpleEntry(0.34, 3));
         data.addVerticalVelocity(new SimpleEntry(0.0, 2));
         data.setFrictionJumpPhase();
         if (debug) {
@@ -1605,12 +1607,20 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         // Default margin: Allow slightly less than the previous speed.
         final double defaultAmount = lastMove.hDistance * (1.0 + Magic.FRICTION_MEDIUM_AIR) / 2.0;
         // Test for exceptions.
-        if (thisMove.hDistance > defaultAmount && Bridge1_9.isWearingElytra(player) && lastMove.modelFlying.getId().equals(MovingConfig.ID_JETPACK_ELYTRA)) {
-            // Allowing the same speed won't always work on elytra (still increasing, differing modeling on client side with motXYZ).
-            // (Doesn't seem to be overly effective.)
-            final PlayerMoveData secondPastMove = data.playerMoves.getSecondPastMove();
-            if (lastMove.modelFlying != null && secondPastMove.modelFlying != null && Magic.glideEnvelopeWithHorizontalGain(thisMove, lastMove, secondPastMove)) {
-                return thisMove.hDistance + 0.1468;
+        if (Bridge1_9.isWearingElytra(player) && lastMove.modelFlying != null && lastMove.modelFlying.getId().equals(MovingConfig.ID_JETPACK_ELYTRA)) {
+            data.addVerticalVelocity(new SimpleEntry(lastMove.yDistance < -0.1034 ? (lastMove.yDistance * Magic.FRICTION_MEDIUM_AIR + 0.1034) : lastMove.yDistance, 3));
+            data.addVerticalVelocity(new SimpleEntry(0.34, 3));
+            if (thisMove.hDistance > defaultAmount) {
+                // Allowing the same speed won't always work on elytra (still increasing, differing modeling on client side with motXYZ).
+                // (Doesn't seem to be overly effective.)
+                final PlayerMoveData secondPastMove = data.playerMoves.getSecondPastMove();
+                if (data.fireworksBoostDuration > 0 && Math.round(data.fireworksBoostTickNeedCheck / 4.5) <= data.fireworksBoostDuration) {
+                    data.addHorizontalVelocity(new AccountEntry(1.9, 2, 15));
+                    return 0.0;
+                } else if (lastMove.toIsValid && lastMove.hAllowedDistance > 0.0) return lastMove.hAllowedDistance; // This one might replace below?
+                if (secondPastMove.modelFlying != null && Magic.glideEnvelopeWithHorizontalGain(thisMove, lastMove, secondPastMove)) {
+                    return lastMove.hDistance + 0.1468;
+                }
             }
         }
         return defaultAmount;

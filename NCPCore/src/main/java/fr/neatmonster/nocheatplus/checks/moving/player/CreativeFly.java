@@ -532,7 +532,7 @@ public class CreativeFly extends Check {
         double allwyDistance = 0.0;
         double baseV = 0.0;
 
-        if (lastMove.flyCheck != thisMove.flyCheck && !lastMove.elytrafly) {
+        if ((lastMove.flyCheck != thisMove.flyCheck || lastMove.modelFlying != thisMove.modelFlying) && !lastMove.elytrafly) {
             //data.sfJumpPhase = 0;
             tags.add("elytra_pre");
         } else if (!from.isResetCond() && !isCollideWithHB(from)) {
@@ -615,15 +615,16 @@ public class CreativeFly extends Check {
             }
 
             // Adjust false
-            allwHDistance += Math.sqrt(x*x + z*z) + 0.04;
+            allwHDistance += Math.sqrt(x*x + z*z) + 0.05;
             // Difference from vAllowedDistance to yDistance.
             final double yDistDiffEx = yDistance - allwyDistance;
 
             if (data.fireworksBoostDuration <= 0) {
                 // Workaround
                 // Jump
-                if (from.isOnGround() && yDistance < 0.42) {
+                if (yDistance > 0.0 && yDistance < 0.42 && thisMove.touchedGround) {
                     allwyDistance = yDistance;
+                    allwHDistance = Math.max(0.35, allwHDistance * 1.35);
                 } else
                 // Head obstructed
                 if (from.isHeadObstructed() && lastMove.yDistance > 0.0 && yDistDiffEx < 0.0
@@ -763,6 +764,11 @@ public class CreativeFly extends Check {
         // TODO: Further: jumpphase vs. y-distance to set back. Problem: velocity
         // TODO: Further: record max h and descend speeds and relate to those.
         // TODO: Demand total speed to decrease.
+        if (yDistance > 0.0 && yDistance < 0.42 && thisMove.touchedGround) {
+            // (Jump.)
+            tags.add("elytra_asc3");
+            return yDistance;
+        }
         if (yDistance > Magic.GLIDE_DESCEND_PHASE_MIN && yDistance < 34.0 * Magic.GRAVITY_MAX
                 && (
                         // Normal envelope.
