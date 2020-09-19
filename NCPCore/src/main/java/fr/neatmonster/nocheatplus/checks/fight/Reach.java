@@ -85,6 +85,10 @@ public class Reach extends Check {
         final double distanceMin = (distanceLimit - DYNAMIC_RANGE) / distanceLimit;
 
         final double height = damagedIsFake ? (damaged instanceof LivingEntity ? ((LivingEntity) damaged).getEyeHeight() : 1.75) : mcAccess.getHandle().getHeight(damaged);
+        final double width = damagedIsFake ? 0.6 : mcAccess.getHandle().getWidth(damaged);
+
+        double centertoedge = 0.0;
+        if (cc.reachPrecision) centertoedge = getinset(pLoc, dRef, width / 2, 0.0);
 
         // Refine y position.
         // TODO: Make a little more accurate by counting in the actual bounding box.
@@ -98,7 +102,7 @@ public class Reach extends Check {
 
         // Distance is calculated from eye location to center of targeted. If the player is further away from their target
         // than allowed, the difference will be assigned to "distance".
-        final double lenpRel = pRel.length();
+        final double lenpRel = pRel.length() - centertoedge;
 
         double violation = lenpRel - distanceLimit;
 
@@ -205,10 +209,13 @@ public class Reach extends Check {
             y = context.pY; // Level with damaged.
         }
 
+        double centertoedge = 0.0;
+        if (cc.reachPrecision) centertoedge = getinset(pLoc, new Location(null, dRef.getX(), dRef.getY(), dRef.getZ()), dRef.getBoxMarginHorizontal(), y - context.pY);
+        
         // Distance is calculated from eye location to center of targeted. If the player is further away from their target
         // than allowed, the difference will be assigned to "distance".
         // TODO: Run check on squared distances (quite easy to change to stored boundary-sq values).
-        final double lenpRel = TrigUtil.distance(dRef.getX(), y, dRef.getZ(), pLoc.getX(), context.pY, pLoc.getZ());
+        final double lenpRel = TrigUtil.distance(dRef.getX(), y, dRef.getZ(), pLoc.getX(), context.pY, pLoc.getZ()) - centertoedge;
 
         double violation = lenpRel - context.distanceLimit;
 
@@ -303,5 +310,43 @@ public class Reach extends Check {
         }
 
         return cancel;
+    }
+
+    private boolean isSameXZ(final Location loc1, final Location loc2) {
+        return loc1.getX() == loc2.getX() && loc1.getZ() == loc2.getZ();
+    }
+
+    /**
+     *
+     * @param pLoc
+     *            the player location
+     * @param dRef
+     *            the target location
+     * @param damagedBoxMarginHorizontal
+     *            the target Width / 2
+     * @param diffY the Y different
+     * @return the double represent for the distance from target location to the edge of target hitbox
+     */
+    private double getinset(final Location pLoc, final Location dRef, final double damagedBoxMarginHorizontal, final double diffY) {
+        if (!isSameXZ(pLoc, dRef)) {
+            final Location dRefc = dRef.clone();
+            final Vector vec1 = new Vector(pLoc.getX() - dRef.getX(), diffY , pLoc.getZ() - dRef.getZ());
+            if (vec1.length() < damagedBoxMarginHorizontal * Math.sqrt(2)) return 0.0;
+            if (vec1.getZ() > 0.0) {
+                dRefc.setZ(dRefc.getZ() + damagedBoxMarginHorizontal);
+            } else if (vec1.getZ() < 0.0) {
+                dRefc.setZ(dRefc.getZ() - damagedBoxMarginHorizontal);
+            } else if (vec1.getX() > 0.0) {
+                dRefc.setX(dRefc.getX() + damagedBoxMarginHorizontal);
+            } else dRefc.setX(dRefc.getX() - damagedBoxMarginHorizontal);
+            final Vector vec2 = new Vector(dRefc.getX() - dRef.getX(), 0.0 , dRefc.getZ() - dRef.getZ());
+            double angle = TrigUtil.angle(vec1, vec2);
+            // Require < 45deg, if not 90deg-angel
+            if (angle > Math.PI / 4) angle = Math.PI / 2 - angle;
+            if (angle >= 0.0 && angle <= Math.PI / 4) { // TODO: Dose this one necessary?
+                return damagedBoxMarginHorizontal / Math.cos(angle);
+            }
+        }
+        return 0.0;
     }
 }

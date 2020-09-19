@@ -310,7 +310,7 @@ public class TrigUtil {
      * @return Positive angle between vector from source to target and the
      *         vector for the given direction [0...PI].
      */
-    public static float angle(final double sourceX, final double sourceY, final double sourceZ, final double dirX, final double dirY, final double dirZ, final double targetX, final double targetY, final double targetZ) {
+    public static double angle(final double sourceX, final double sourceY, final double sourceZ, final double dirX, final double dirY, final double dirZ, final double targetX, final double targetY, final double targetZ) {
         double dirLength = Math.sqrt(dirX * dirX + dirY * dirY + dirZ * dirZ);
         if (dirLength == 0.0) {
             dirLength = 1.0; // ...
@@ -326,7 +326,7 @@ public class TrigUtil {
         vec2.setX(dirX);
         vec2.setY(dirY);
         vec2.setZ(dirZ);
-        return vec2.angle(vec1);
+        return angle(vec2, vec1);
     }
 
     /**
@@ -363,6 +363,20 @@ public class TrigUtil {
         else {
             return a;
         }
+    }
+
+    /**
+     * Angle between 2 non-zero vectors.
+     *
+     * @param a
+     *            First vector
+     * @param b
+     *            Second vector
+     * @return Angle (radians).
+     */
+    public static final double angle(Vector a, Vector b) {
+        final double theta = Math.min(1, Math.max(a.dot(b) / (a.length() * b.length()), -1));
+        return Math.acos(theta);
     }
 
     /**

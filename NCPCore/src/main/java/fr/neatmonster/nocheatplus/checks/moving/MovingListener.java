@@ -2722,6 +2722,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         data.vDistAcc.clear();
         aux.resetPositionsAndMediumProperties(player, loc, data, cc);
 
+        // Reset buffer.
+        data.sfHorizontalBuffer = cc.hBufMax;
+
         // Enforcing the location.
         if (cc.enforceLocation) {
             playersEnforce.add(player.getName());
