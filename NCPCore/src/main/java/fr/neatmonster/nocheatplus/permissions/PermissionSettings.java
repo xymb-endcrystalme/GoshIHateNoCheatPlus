@@ -188,7 +188,7 @@ public class PermissionSettings {
         // TODO: Change to List ! +- separators.
         final List<String> defs = config.getStringList(pathRules);
         for (String def : defs) {
-            String[] split = def.split(": ", 2);
+            String[] split = def.split("::", 2);
             if (split.length != 2) {
                 throw new IllegalArgumentException("Must the separate matching rule from the policy definition by ' :: '.");
             }

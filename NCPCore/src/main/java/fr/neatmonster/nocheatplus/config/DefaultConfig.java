@@ -94,8 +94,9 @@ public class DefaultConfig extends ConfigFile {
                 "nocheatplus.checks.chat.relog :: INTERVAL:10",
                 "nocheatplus.checks.chat.logins :: INTERVAL:10",
                 "nocheatplus.checks.chat.* :: INTERVAL:4",
-                "nocheatplus.checks.net.* :: INTERVAL:4",
-                "nocheatplus.checks.moving.survivalfly.* :: INTERVAL:10" // (Excludes the sf base permission.)
+                "nocheatplus.checks.net.* :: INTERVAL:5",
+                "nocheatplus.checks.moving* :: INTERVAL:5", // (Excludes the sf base permission.)
+                "nocheatplus.checks.inventory.moreinventory :: INTERVAL:5"
                 ), 1154);
 
 
