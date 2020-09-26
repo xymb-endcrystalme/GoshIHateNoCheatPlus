@@ -142,7 +142,12 @@ public class SoundDistance extends BaseAdapter {
 
     @Override
     public void onPacketSending(final PacketEvent event) {
-        if (event.isPlayerTemporary()) return;
+        try {
+            if (event.isPlayerTemporary()) return;
+        } catch(NoSuchMethodError e) {
+            if (event.getPlayer() == null) return;
+            if (DataManager.getPlayerDataSafe(event.getPlayer()) == null) return;
+        }
         final PacketContainer packetContainer = event.getPacket();
 
         // Compare sound effect name.

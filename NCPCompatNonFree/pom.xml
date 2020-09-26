@@ -47,13 +47,13 @@
                 <module>NCPCompatCB2794</module>
                 <module>NCPCompatCB2808</module>
                 <module>NCPCompatCB2882</module>
+                -->
                 <module>NCPCompatCB2922</module>
                 <module>NCPCompatCB3026</module>
                 <module>NCPCompatCB3043</module>
                 <module>NCPCompatCB3100</module>
                 <module>NCPCompatSpigotCB1_8_R1</module>
                 <module>NCPCompatSpigotCB1_8_R2</module>
-                -->
                 <module>NCPCompatSpigotCB1_8_R3</module>
                 <module>NCPCompatSpigotCB1_9_R1</module>
                 <module>NCPCompatSpigotCB1_9_R2</module>
@@ -113,7 +113,6 @@
             </modules>
         </profile>
 
-        <!-- Legacy, unsupported
         <profile>
             <id>spigot1_7_r4</id>
             <modules>
@@ -121,6 +120,7 @@
             </modules>
         </profile>
 
+        <!-- Legacy, unsupported
         <profile>
             <id>cblegacy</id>
             <modules>

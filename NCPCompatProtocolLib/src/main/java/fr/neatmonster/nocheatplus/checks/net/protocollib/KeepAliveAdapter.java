@@ -57,7 +57,9 @@ public class KeepAliveAdapter extends BaseAdapter {
 
     @Override
     public void onPacketReceiving(final PacketEvent event) {
-        if (event.isPlayerTemporary()) return;
+        try {
+            if (event.isPlayerTemporary()) return;
+        } catch(NoSuchMethodError e) {}
         final long time = System.currentTimeMillis();
         final Player player = event.getPlayer();
         if (player == null) {
@@ -67,6 +69,7 @@ public class KeepAliveAdapter extends BaseAdapter {
         }
         // Always update last received time.
         final IPlayerData pData = DataManager.getPlayerDataSafe(player);
+        if (pData == null) return;
         final NetData data = pData.getGenericInstance(NetData.class);
         data.lastKeepAliveTime = time;
         final NetConfig cc = pData.getGenericInstance(NetConfig.class);

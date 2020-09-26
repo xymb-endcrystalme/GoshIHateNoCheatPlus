@@ -123,7 +123,9 @@ public class UseEntityAdapter extends BaseAdapter {
 
     @Override
     public void onPacketReceiving(final PacketEvent event) {
-        if (event.isPlayerTemporary()) return;
+        try {
+            if (event.isPlayerTemporary()) return;
+        } catch(NoSuchMethodError e) {}
         final long time = System.currentTimeMillis();
         final Player player = event.getPlayer();
         if (player == null) {
@@ -131,6 +133,7 @@ public class UseEntityAdapter extends BaseAdapter {
             return;
         }
         final IPlayerData pData = DataManager.getPlayerDataSafe(player);
+        if (pData == null) return;
 
         if (!pData.isCheckActive(CheckType.NET, player)) return;
 

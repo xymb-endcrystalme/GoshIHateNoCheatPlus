@@ -68,7 +68,9 @@ public class CatchAllAdapter extends BaseAdapter {
 
     @Override
     public void onPacketReceiving(PacketEvent event) {
-        if (event.isPlayerTemporary()) return;
+        try {
+            if (event.isPlayerTemporary()) return;
+        } catch(NoSuchMethodError e) {}
         final Player player = event.getPlayer();
         if (player == null) {
             counters.add(ProtocolLibComponent.idNullPlayer, 1);
