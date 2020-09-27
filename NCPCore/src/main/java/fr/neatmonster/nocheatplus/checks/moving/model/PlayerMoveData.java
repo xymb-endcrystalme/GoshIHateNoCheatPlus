@@ -14,7 +14,6 @@
  */
 package fr.neatmonster.nocheatplus.checks.moving.model;
 
-import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.SimpleEntry;
 
 /**
@@ -66,18 +65,6 @@ public class PlayerMoveData extends MoveData {
     // Meta stuff.
 
     /**
-     * The fly check that was using the current data. One of MOVING_SURVIVALFLY,
-     * MOVING_CREATIVEFLY, UNKNOWN.
-     */
-    public CheckType flyCheck;
-
-    /**
-     * The ModelFlying instance used with this move, will be null if it doesn't
-     * apply.
-     */
-    public ModelFlying modelFlying;
-
-    /**
      * Due to the thresholds for moving events, there could have been other
      * (micro-) moves by the player which could not be checked. One moving event
      * is split into two moves 1: from -> loc, 2: loc -> to.
@@ -101,8 +88,8 @@ public class PlayerMoveData extends MoveData {
         yAllowedDistance = 0.0;
         hAllowedDistance = 0.0;
         // Meta stuff.
-        flyCheck = null;
-        modelFlying = null;
+        //flyCheck = null;
+        //modelFlying = null;
         multiMoveCount = 0;
         verVelUsed = null;
         // Super class last, because it'll set valid to true in the end.

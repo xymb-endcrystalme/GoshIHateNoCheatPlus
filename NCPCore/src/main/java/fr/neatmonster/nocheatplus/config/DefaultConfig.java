@@ -466,7 +466,20 @@ public class DefaultConfig extends ConfigFile {
         // CreativeFly
         set(ConfPaths.MOVING_CREATIVEFLY_CHECK, "default", 785);
         set(ConfPaths.MOVING_CREATIVEFLY_IGNOREALLOWFLIGHT, true, 785);
-        set(ConfPaths.MOVING_CREATIVEFLY_IGNORECREATIVE, false, 785); 
+        set(ConfPaths.MOVING_CREATIVEFLY_IGNORECREATIVE, false, 785);
+        /* 
+         * Instruction configuring models:
+         * HORIZONTAL_SPEED : Maximum horizontal distance allowed in move with formula:
+         *    number_in_config / 100 * 0.6
+         * SUB_VERTICAL_ASCEND_SPEED : Maximum vertical distance allowed ascending in move with formula:
+         *    number_in_config / 100
+         *    if the number is 0 then this model has it own ascending rules, set to other will lead to bypass.
+         * SUB_VERTICAL_MAXHEIGHT : Maximum standing height allow , move higher, setback:
+         *    number_in_config + 255(max world height)
+         * SUB_GROUND : Ground checking, should collect block flags.   
+         * SUB_MODIFIERS : Should increase max speed by potions or attribute.
+         * SUB_VERTICAL_GRAVITY : Should apply normal falling friction(more likely for compatibility).
+         * */
         set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "creative." + ConfPaths.SUB_HORIZONTAL_SPEED, 100, 785);
         set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "creative." + ConfPaths.SUB_VERTICAL_ASCEND_SPEED, 100, 785);
         set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "creative." + ConfPaths.SUB_VERTICAL_MAXHEIGHT, 128, 785);
@@ -482,14 +495,14 @@ public class DefaultConfig extends ConfigFile {
             set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "levitation." + ConfPaths.SUB_VERTICAL_MAXHEIGHT, 128, 1104);
             set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "levitation." + ConfPaths.SUB_VERTICAL_GRAVITY, false, 785);
             set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "levitation." + ConfPaths.SUB_MODIFIERS, false, 785);
-            set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "levitation." + ConfPaths.SUB_GROUND, false, 785);
+            set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "levitation." + ConfPaths.SUB_GROUND, true, 1154);
         }
         if (Bridge1_13.hasSlowfalling()) {
-            set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "slowfalling." + ConfPaths.SUB_HORIZONTAL_SPEED, 110, 785);
-            set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "slowfalling." + ConfPaths.SUB_VERTICAL_ASCEND_SPEED, 10, 785);
+            set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "slowfalling." + ConfPaths.SUB_HORIZONTAL_SPEED, 65, 1154);
+            set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "slowfalling." + ConfPaths.SUB_VERTICAL_ASCEND_SPEED, 0, 1154);
             set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "slowfalling." + ConfPaths.SUB_VERTICAL_MAXHEIGHT, 128, 1104);
             set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "slowfalling." + ConfPaths.SUB_VERTICAL_GRAVITY, false, 785);
-            set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "slowfalling." + ConfPaths.SUB_MODIFIERS, false, 785);
+            set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "slowfalling." + ConfPaths.SUB_MODIFIERS, true, 1154);
             set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "slowfalling." + ConfPaths.SUB_GROUND, true, 785);
         }
         if (Bridge1_9.hasElytra()) {

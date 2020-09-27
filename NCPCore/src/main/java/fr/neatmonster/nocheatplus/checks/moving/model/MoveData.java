@@ -14,6 +14,7 @@
  */
 package fr.neatmonster.nocheatplus.checks.moving.model;
 
+import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.components.location.IGetLocationWithLook;
 import fr.neatmonster.nocheatplus.utilities.location.RichBoundsLocation;
 import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
@@ -114,6 +115,18 @@ public class MoveData {
      */
     public boolean elytrafly;
 
+    /**
+     * The fly check that was using the current data. One of MOVING_SURVIVALFLY,
+     * MOVING_CREATIVEFLY, UNKNOWN.
+     */
+    public CheckType flyCheck;
+
+    /**
+     * The ModelFlying instance used with this move, will be null if it doesn't
+     * apply.
+     */
+    public ModelFlying modelFlying;
+
     private void setPositions(final IGetLocationWithLook from, final IGetLocationWithLook to) {
         this.from.setLocation(from);
         this.to.setLocation(to);
@@ -122,6 +135,8 @@ public class MoveData {
         distanceSquared = yDistance * yDistance + hDistance * hDistance;
         toIsValid = true;
         elytrafly = false;
+        flyCheck = null;
+        modelFlying = null;
     }
 
     /**

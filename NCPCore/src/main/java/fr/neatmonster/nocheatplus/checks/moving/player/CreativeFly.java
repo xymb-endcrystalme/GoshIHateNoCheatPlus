@@ -22,7 +22,6 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
@@ -48,7 +47,6 @@ import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker
 import fr.neatmonster.nocheatplus.components.modifier.IAttributeAccess;
 import fr.neatmonster.nocheatplus.components.registry.event.IGenericInstanceHandle;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
-import fr.neatmonster.nocheatplus.utilities.PotionUtil;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
@@ -140,7 +138,7 @@ public class CreativeFly extends Check {
         workaroundSwitchingModel(player, thisMove, lastMove, model, data, cc);
 
         // Horizontal distance check.
-        double[] resH = hDist(player, from, to, hDistance, yDistance, sprinting, flying, lastMove, time, model, data, cc);
+        double[] resH = hDist(player, from, to, hDistance, yDistance, sprinting, flying, thisMove, lastMove, time, model, data, cc);
         double limitH = resH[0];
         double resultH = resH[1];
 
@@ -191,21 +189,45 @@ public class CreativeFly extends Check {
         }
         else if (yDistance < 0.0) {
             // Descend.
-            double[] res = vDistDescend(from, to, yDistance, flying, lastMove, model, data, cc);
+            double[] res = vDistDescend(from, to, yDistance, flying, thisMove, lastMove, model, data, cc);
             resultV = Math.max(resultV, res[1]);
             limitV = res[0];
         }
         else {
             // Keep altitude.
-            double[] res = vDistZero(from, to, yDistance, flying, lastMove, model, data, cc);
+            double[] res = vDistZero(from, to, yDistance, flying, thisMove, lastMove, model, data, cc);
             resultV = Math.max(resultV, res[1]);
             limitV = res[0];
         }
 
         // Velocity.
-        if (resultV > 0.0 && (data.getOrUseVerticalVelocity(yDistance) != null || thisMove.verVelUsed != null)) {
+        if (resultV > 0.0 && (thisMove.verVelUsed != null || data.getOrUseVerticalVelocity(yDistance) != null)) {
             resultV = 0.0;
             tags.add("vvel");
+        }
+
+        if (lastMove.toIsValid && !player.isFlying() && model.getScaleLevitationEffect()
+                && thisMove.modelFlying == lastMove.modelFlying && !from.isInLiquid()) {
+            final double level = Bridge1_9.getLevitationAmplifier(player) + 1;
+            final double allowY = (lastMove.yDistance + (0.05D * level - lastMove.yDistance) * 0.2D) * 0.98;
+            // TODO: Wrong friction
+            if (allowY * 1.001 >= yDistance) resultV = 0.0;
+
+            if (!from.isHeadObstructed() && !to.isHeadObstructed()
+            //Exempt check for 20 seconds after joined
+            && !(now > pData.getLastJoinTime() && pData.getLastJoinTime() + 20000 > now)
+            && !(thisMove.yDistance < 0.0 && lastMove.yDistance - thisMove.yDistance < 0.0001)) {
+                if (lastMove.yDistance < 0.0 && thisMove.yDistance < allowY
+                    || from.getY() >= to.getY() && !(thisMove.yDistance == 0.0 && allowY < 0.0)
+                   ) {
+                        resultV = Math.max(resultV, 0.1);
+                        tags.add("antilevitate");
+                        if (data.getOrUseVerticalVelocity(getBaseV(0.0, yDistance, 0f, 0.0, level, 0.0, false)) != null) {
+                            data.addVerticalVelocity(new SimpleEntry(yDistance, 2));
+                            resultV = 0.0;
+                        }
+                    }
+                }
         }
 
         // Add tag for maximum height check (silent set back).
@@ -222,21 +244,6 @@ public class CreativeFly extends Check {
         }
         if (resultV > 0.0) {
             tags.add("vdist");
-        }
-        if (lastMove.toIsValid && !player.isFlying() && !Double.isInfinite(Bridge1_9.getLevitationAmplifier(player)) && !Bridge1_9.isGlidingWithElytra(player)
-            && thisMove.modelFlying == lastMove.modelFlying
-            && !from.isHeadObstructed() && !to.isHeadObstructed()
-            //Exempt check for 20 seconds after joined
-            && !(now > pData.getLastJoinTime() && pData.getLastJoinTime() + 20000 > now)
-            && !from.isInLiquid() && !(thisMove.yDistance < 0.0 && lastMove.yDistance - thisMove.yDistance < 0.0001)) {
-                double allowY = (lastMove.yDistance + (0.05D * (Bridge1_9.getLevitationAmplifier(player) + 1) - lastMove.yDistance) * 0.2D) * 0.98;
-                if (lastMove.yDistance < 0.0 && thisMove.yDistance < allowY) {
-                    resultV = Math.max(resultV,1.0);
-                    tags.add("antilevitate");
-                } else if (from.getY() >= to.getY() && !(thisMove.yDistance == 0.0 && allowY < 0.0)) {
-                    resultV = Math.max(resultV,1.0);
-                    tags.add("antilevitate");
-                }
         }
 
         final double result = Math.max(0.0, resultH) + Math.max(0.0, resultV);
@@ -327,7 +334,7 @@ public class CreativeFly extends Check {
      * @param cc
      * @return limitH, resultH (not normalized).
      */
-    private double[] hDist(final Player player, final PlayerLocation from, final PlayerLocation to, final double hDistance, final double yDistance, final boolean sprinting, final boolean flying, final PlayerMoveData lastMove, final long time, final ModelFlying model, final MovingData data, final MovingConfig cc) {
+    private double[] hDist(final Player player, final PlayerLocation from, final PlayerLocation to, final double hDistance, final double yDistance, final boolean sprinting, final boolean flying, final PlayerMoveData thisMove, final PlayerMoveData lastMove, final long time, final ModelFlying model, final MovingData data, final MovingConfig cc) {
         // Modifiers.
         double fSpeed;
 
@@ -374,9 +381,9 @@ public class CreativeFly extends Check {
             limitH = Math.max(limitH, 0.7 * fSpeed);
         }
 
-        if (model.getScaleSlowfallingEffect() && Bridge1_13.hasSlowfalling()) {
-            Double Amplifier = PotionUtil.getPotionEffectAmplifier(from.getPlayer(), PotionEffectType.SPEED);
-            limitH = Double.isInfinite(Amplifier) ? limitH : limitH + 0.1*(Amplifier +1);
+        // Special friction for levitation
+        if (lastMove.toIsValid && model.getScaleLevitationEffect() && (lastMove.hDistance + 0.005) * Magic.FRICTION_MEDIUM_AIR < lastMove.hDistance) {
+            limitH = Math.max((lastMove.hDistance + 0.005) * Magic.FRICTION_MEDIUM_AIR, limitH);
         }
 
         if (lastMove.toIsValid) {
@@ -393,13 +400,38 @@ public class CreativeFly extends Check {
 
         if (model.getApplyModifiers()) {
             data.bunnyhopDelay--;
-            if (!flying && resultH > 0 && sprinting) {
+            if (!flying && resultH > 0 && resultH < 0.3) {
+                if (yDistance >= 0.0
+                    && (
+                            // 1: Normal jumping.
+                            yDistance > 0.0 
+                            && yDistance > LiftOffEnvelope.NORMAL.getMinJumpGain(data.jumpAmplifier) - Magic.GRAVITY_SPAN
+                            // 1: Too short with head obstructed.
+                            || thisMove.headObstructed || lastMove.toIsValid && lastMove.headObstructed && lastMove.yDistance <= 0.0
+                            // 1: Hop without y distance increase at moderate h-speed.
+                            // TODO: 2nd below: demand next move to jump. Relate to stored past moves. 
+                            // TODO: Ensure the gain can only be used once per so and so.
+                            //|| (cc.sfGroundHop || yDistance == 0.0 && !lastMove.touchedGroundWorkaround && !lastMove.from.onGround)
+                            //&& limitH > 0.0 && hDistance / limitH < 1.5
+                            //&& (hDistance / lastMove.hDistance < 1.35 
+                            //        || hDistance / limitH < 1.35)
+                            )
+                    // 0: Ground + jump phase conditions.
+                    && (data.sfJumpPhase <= 1 && (thisMove.touchedGroundWorkaround || 
+                        lastMove.touchedGround && !lastMove.bunnyHop))
+                    // 0: Don't allow bunny to run out of liquid.
+                    && (!from.isResetCond() && !to.isResetCond()) // TODO: !to.isResetCond() should be reviewed.
+                    ) {
+                    tags.add("bunnyhop");
+                    data.bunnyhopDelay = 9;
+                    thisMove.bunnyHop = true;
+                    resultH = 0.0;
+                }
                 // TODO: Flying and bunnyhop ? <- 8 blocks per second - could be a case.
                 // Try to treat it as a the "bunnyhop" problem. The bunnyhop problem is that landing and immediately jumping
                 // again leads to a player moving almost twice as far in that step.
                 // TODO: Real modeling for that kind of moving pattern (same with sf?).
-                if (data.bunnyhopDelay <= 0 && resultH < 0.4) {
-                    data.bunnyhopDelay = 9;
+                else if (data.bunnyhopDelay <= 0) {
                     resultH = 0.0;
                     tags.add("bunnyhop");
                 }
@@ -431,21 +463,53 @@ public class CreativeFly extends Check {
         else if (model.getScaleLevitationEffect() && Bridge1_9.hasLevitation()) {
             // Exclude modifiers for now.
             final double levitation = Bridge1_9.getLevitationAmplifier(from.getPlayer());
-            if (levitation > 0.0) {
+            if (levitation >= 0.0) {
                 // (Double checked.)
                 // TODO: Perhaps do with a modifier instead, to avoid confusion.
                 limitV += 0.046 * levitation; // (It ends up like 0.5 added extra for some levels of levitation, roughly.)
+                final double jumpAmplifier = LiftOffEnvelope.NORMAL.getMinJumpGain(data.jumpAmplifier) + 0.01;
+                // Bug, duplicate motion
+                if (yDistance > 0.0 && yDistance < jumpAmplifier && thisMove.touchedGround) {
+                    limitV = jumpAmplifier;
+                    data.addVerticalVelocity(new SimpleEntry(yDistance, 2));
+                }
                 tags.add("levitation:" + levitation);
             }
-        } else if (model.getScaleSlowfallingEffect() && Bridge1_13.hasSlowfalling()) {
-            Double Amplifier = PotionUtil.getPotionEffectAmplifier(from.getPlayer(), PotionEffectType.JUMP);
-            limitV += Double.isInfinite(Amplifier) ? 0.5 : 0.5 + 0.1*(Amplifier +1);
         }
 
+        if (model.getScaleSlowfallingEffect()) {
+            limitV = Math.max((lastMove.toIsValid ? lastMove.yDistance : 0.0) * Magic.FRICTION_MEDIUM_AIR - Magic.GRAVITY_ODD, 0.0);
+            // Jump lift off gain.
+            if (yDistance > limitV && (
+                // Touched ground
+                thisMove.touchedGround ||
+                // On climbable blocks
+                thisMove.from.onClimbable ||
+                // In liquid
+                data.liqtick > 0
+                )) {
+                    final PlayerMoveData pastmove2 = data.playerMoves.getSecondPastMove();    
+                    // Allow normal jumping.
+                    final double maxGain = LiftOffEnvelope.NORMAL.getMaxJumpGain(data.jumpAmplifier);
+                    if (maxGain > limitV) {
+                        limitV = maxGain;
+                    }
+                    // Bug, duplicate motion
+                    if (lastMove.modelFlying != null && lastMove.modelFlying.getVerticalAscendGliding() && yDistance <= limitV) {
+                        data.addVerticalVelocity(new SimpleEntry(yDistance, 2));
+                    }
+
+                    if (pastmove2.toIsValid && (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0 
+                       ) {
+                        limitV = Math.max(limitV, -(pastmove2.yDistance * 0.9604 - 0.0095));
+                    }
+                }
+        }
+        
         // Related to elytra.
         if (model.getVerticalAscendGliding()) {
             // TODO: Better detection of an elytra model (extra flags?).
-            limitV = Math.max(limitV, limitV = hackLytra(yDistance, limitV, thisMove, lastMove, data));
+            limitV = Math.max(limitV, limitV = hackLytra(yDistance, limitV, thisMove, lastMove, from, data));
         }
         if (Bridge1_9.isGlidingWithElytra(from.getPlayer()) && data.liqtick > 1)
             limitV = Math.max(limitV, 0.35);
@@ -527,10 +591,11 @@ public class CreativeFly extends Check {
          */
         double resultV = 0.0;
         double resultH = 0.0;
-        if (!cc.elytraStrict || !Bridge1_9.isGlidingWithElytra(player) || Bridge1_13.getSlowfallingAmplifier(player) >= 0.0 || player.isFlying()) return new double[] {0.0, 0.0};
+        if (!cc.elytraStrict || !Bridge1_9.isGlidingWithElytra(player) || player.isFlying()) return new double[] {0.0, 0.0};
         double allwHDistance = 0.0;
         double allwyDistance = 0.0;
         double baseV = 0.0;
+        final double speed = Bridge1_13.getSlowfallingAmplifier(player) >= 0.0 ? 0.01 : 0.08;
 
         if ((lastMove.flyCheck != thisMove.flyCheck || lastMove.modelFlying != thisMove.modelFlying) && !lastMove.elytrafly) {
             //data.sfJumpPhase = 0;
@@ -540,15 +605,15 @@ public class CreativeFly extends Check {
             final double lastHdist = lastMove.toIsValid ? lastMove.hDistance : 0.0;
             final Vector lookvec = to.getLocation().getDirection();
             final float f = (float) Math.toRadians(to.getPitch());
-            allwyDistance = lastMove.elytrafly ? lastMove.yAllowedDistance : lastMove.yDistance;
+            allwyDistance = lastMove.elytrafly ? lastMove.yAllowedDistance : lastMove.toIsValid ? lastMove.yDistance : 0.0;
             if (Math.abs(allwyDistance) < 0.003D) allwyDistance = 0.0D;
             final double xzlength = Math.sqrt(lookvec.getX() * lookvec.getX() + lookvec.getZ() * lookvec.getZ());
             double f4 = Math.cos(f);
             f4 = f4 * f4;
 
-            baseV = getBaseV(f, f4, hDistance, yDistance);
+            baseV = getBaseV(hDistance, yDistance, f, f4, -1.0, speed, to.getPitch() == -90f);
 
-            allwyDistance += -0.08D + f4 * 0.06D;
+            allwyDistance += speed * (-1.0D + f4 * 0.75D);
             double x = lastMove.to.getX() - lastMove.from.getX();
             double z = lastMove.to.getZ() - lastMove.from.getZ();
             if (Math.abs(x) < 0.003D) x = 0.0D;
@@ -607,10 +672,10 @@ public class CreativeFly extends Check {
                 } else allwHDistance += 0.2;
                 // A fact that fireworks not always fasten your speed if you are already moving too fast, it will try to reduce to below 1.70
                 if (data.fireworksBoostDuration >= data.fireworksBoostTickNeedCheck - 4 && lastMove.hAllowedDistance > 0.0) {
-                	if (hDistance < lastMove.hAllowedDistance) {
-                		thisMove.hAllowedDistance = lastMove.hAllowedDistance;
-                		return new double[] {0.0, 0.0};
-                	}
+                    if (hDistance < lastMove.hAllowedDistance) {
+                        thisMove.hAllowedDistance = lastMove.hAllowedDistance;
+                        return new double[] {0.0, 0.0};
+                    }
                 }
             }
 
@@ -664,14 +729,16 @@ public class CreativeFly extends Check {
 
                 if (
                        // Touch ground
-                       (yDistance <= 0.0 && (to.isOnGround() || to.isResetCond() || thisMove.touchedGround))
+                       yDistance <= 0.0 && (to.isOnGround() || to.isResetCond() || thisMove.touchedGround)
                        // Less envelope
-                       || (yDistDiffEx > -Magic.GRAVITY_MAX && yDistDiffEx < 0.0)
+                       || yDistDiffEx > -Magic.GRAVITY_MAX && yDistDiffEx < 0.0
+                       // Slow Falling no move
+                       || speed < 0.05 && (hDistance == 0.0 && yDistance == 0.0 || yDistance < -Magic.GRAVITY_SPAN)
                     ) {
                     allwyDistance = yDistance;
                 } else
                 // TODO: Better
-                if (Math.abs(yDistDiffEx) > 0.03) {
+                if (Math.abs(yDistDiffEx) > (speed < 0.05 ? 0.00001 : 0.03)) {
                     tags.add("elytra_v_diff");
                     //if (resultV <= 0.0 && yDistDiffEx > 0.0) {
                     //    Location newto = to.getLocation().clone().subtract(0.0, Math.max(yDistDiffEx, 0.5), 0.0);
@@ -736,20 +803,27 @@ public class CreativeFly extends Check {
     }
 
     /**
-     * Get velocity stand behind this move 
-     * @param f pitch in Radians
-     * @param f4 squared of cos(f)
+     * Get vertical velocity stand behind this move 
      * @param lasthDistance
      * @param yDistance
+     * @param f pitch in Radians (elytra)
+     * @param f4 squared of cos(f) (elytra)
+     * @param levitation (levitation level)
+     * @param speed (elytra)
+     * @param up (elytra)
      * @return baseV.
      */
-    private double getBaseV(float f, double f4, double lasthDistance, double yDistance) {
+    private double getBaseV(double lasthDistance, double yDistance, float f, double f4, double levitation, double speed, boolean up) { 
         double baseV = yDistance;
-        if (f < 0.0) baseV -= lasthDistance * -Math.sin(f) * 0.128;
+        if (levitation >= 0.0) {
+            baseV /= Magic.FRICTION_MEDIUM_AIR;
+            return (baseV - 0.01 * levitation) / 0.8 + 0.221;
+        } 
+        if (f < 0.0 && !up) baseV -= lasthDistance * -Math.sin(f) * 0.128;
         if (baseV < 0.0) {
             baseV /= (1.0 - (0.1 * f4));
         }
-        baseV -= -0.08D + f4 * 0.06D;
+        baseV -= speed * (-1.0 + f4 * 0.75);
         return baseV;
     }
 
@@ -758,7 +832,7 @@ public class CreativeFly extends Check {
         return Math.abs(a-b) <= c;
     }
 
-    private double hackLytra(final double yDistance, final double limitV, final PlayerMoveData thisMove, final PlayerMoveData lastMove, final MovingData data) {
+    private double hackLytra(final double yDistance, final double limitV, final PlayerMoveData thisMove, final PlayerMoveData lastMove, final PlayerLocation from, final MovingData data) {
         // TODO: Hack, move / config / something.
         // TODO: Confine more. hdist change relates to ydist change
         // TODO: Further: jumpphase vs. y-distance to set back. Problem: velocity
@@ -767,6 +841,12 @@ public class CreativeFly extends Check {
         if (yDistance > 0.0 && yDistance < 0.42 && thisMove.touchedGround) {
             // (Jump.)
             tags.add("elytra_asc3");
+            return yDistance;
+        } else
+        if (
+            Bridge1_13.getSlowfallingAmplifier(from.getPlayer()) >= 0.0) {
+            // No check here!
+            tags.add("elytra_asc4");
             return yDistance;
         }
         if (yDistance > Magic.GLIDE_DESCEND_PHASE_MIN && yDistance < 34.0 * Magic.GRAVITY_MAX
@@ -840,15 +920,26 @@ public class CreativeFly extends Check {
      * @param to
      * @param yDistance
      * @param flying
+     * @param thisMove
      * @param lastMove
      * @param model
      * @param data
      * @param cc
      * @return limitV, resultV
      */
-    private double[] vDistDescend(final PlayerLocation from, final PlayerLocation to, final double yDistance, final boolean flying, final PlayerMoveData lastMove, final ModelFlying model, final MovingData data, final MovingConfig cc) {
+    private double[] vDistDescend(final PlayerLocation from, final PlayerLocation to, final double yDistance, final boolean flying, final PlayerMoveData thisMove, final PlayerMoveData lastMove, final ModelFlying model, final MovingData data, final MovingConfig cc) {
         double limitV = 0.0;
         double resultV = 0.0;
+        if (model.getScaleSlowfallingEffect() && lastMove.modelFlying == thisMove.modelFlying && data.liqtick <= 0 && !from.isOnClimbable() && !to.isOnClimbable()) {
+            if (!thisMove.touchedGround && !to.isResetCond()) {
+                final PlayerMoveData pastmove2 = data.playerMoves.getSecondPastMove();
+                final double allowY = lastMove.toIsValid ? lastMove.yDistance : 0.0;
+                if (isCollideWithHB(from)) limitV = -0.05; 
+                else limitV = allowY * Magic.FRICTION_MEDIUM_AIR - 0.0097;// -0.0098
+                if (!pastmove2.toIsValid && allowY < -0.035) limitV = -0.035;
+                if (limitV != 0.0 && yDistance > limitV) resultV = Math.abs(limitV);
+            }
+        }
         // Note that 'extreme moves' are covered by the extreme move check.
         // TODO: if gravity: friction + gravity.
         // TODO: deny falling, possibly special case head-step-down - to be tested (levitation).
@@ -863,15 +954,34 @@ public class CreativeFly extends Check {
      * @param to
      * @param yDistance
      * @param flying
+     * @param thisMove
      * @param lastMove
      * @param model
      * @param data
      * @param cc
      * @return limitV, resultV
      */
-    private double[] vDistZero(final PlayerLocation from, final PlayerLocation to, final double yDistance, final boolean flying, final PlayerMoveData lastMove, final ModelFlying model, final MovingData data, final MovingConfig cc) {
+    private double[] vDistZero(final PlayerLocation from, final PlayerLocation to, final double yDistance, final boolean flying, final PlayerMoveData thisMove, final PlayerMoveData lastMove, final ModelFlying model, final MovingData data, final MovingConfig cc) {
         double limitV = 0.0;
         double resultV = 0.0;
+        if (model.getScaleSlowfallingEffect() && lastMove.modelFlying == thisMove.modelFlying && !to.isInWeb()) {
+            // Jump lift off gain.
+            if (
+                // Touched ground
+                thisMove.touchedGround ||
+                // On climbable blocks
+                thisMove.from.onClimbable ||
+                // In liquid
+                data.liqtick > 0
+               ) {
+                    // Allow normal jumping.
+                    final double maxGain = LiftOffEnvelope.NORMAL.getMinJumpGain(data.jumpAmplifier) + 0.01;
+                    if (maxGain > limitV) {
+                        limitV = maxGain;
+                    }
+                 }
+            if (limitV <= 0.0 && lastMove.yDistance == 0.0) resultV = 0.1;
+        }
         // TODO: Deny on enforcing mingain.
         return new double[] {limitV, resultV};
     }
@@ -881,42 +991,30 @@ public class CreativeFly extends Check {
     }
 
     private void workaroundSwitchingModel(final Player player, final PlayerMoveData thisMove, final PlayerMoveData lastMove, final ModelFlying model, final MovingData data, final MovingConfig cc) {
-        if (lastMove.toIsValid) {
+        if (lastMove.toIsValid && lastMove.modelFlying != thisMove.modelFlying) {
             // Other modelflying -> levitation
-            // TODO: Better horizontal workaround
-            if (data.bunnyhopTick > 0) data.bunnyhopTick--;
-            if (lastMove.modelFlying != thisMove.modelFlying && thisMove.modelFlying.getScaleLevitationEffect()) {
-                data.addVerticalVelocity(new SimpleEntry(0.0, 2));
-                final double amount = guessFlyNoFlyVelocity(player, data.playerMoves.getCurrentMove(), lastMove, data);
-                data.addHorizontalVelocity(new AccountEntry(amount, 3, MovingData.getHorVelValCount(amount)));
-                data.bunnyhopTick = 20;
-                if (thisMove.yDistance > 0.0) {
-                    data.yDis = thisMove.yDistance;
-                    data.addVerticalVelocity(new SimpleEntry(data.yDis, 1));
-                } else {
-                    data.bunnyhopTick = 21;
-                    final double jumpamplifier = PotionUtil.getPotionEffectAmplifier(player, PotionEffectType.JUMP);
-                    data.yDis = 0.42 * (1 + 0.24*(Double.isInfinite(jumpamplifier) ? 0.0 : jumpamplifier + 1));
-                    data.addVerticalVelocity(new SimpleEntry(data.yDis, 2));
-                }
+            if (model.getScaleLevitationEffect()) {
+                final double amount = lastMove.hAllowedDistance > 0.0 ? lastMove.hAllowedDistance : lastMove.hDistance;
+                if (thisMove.touchedGround) data.addHorizontalVelocity(new AccountEntry(amount, 2, MovingData.getHorVelValCount(amount)));
+                //data.addVerticalVelocity(new SimpleEntry(0.0, 2));
                 return;
-            } else if (thisMove.modelFlying.getScaleLevitationEffect() && data.bunnyhopTick > 0 && thisMove.yDistance > 0.0 && thisMove.yDistance < data.yDis * 0.95) {
-                if (data.bunnyhopTick == 20) return;
-                data.yDis = (data.yDis + (0.05D * (Bridge1_9.getLevitationAmplifier(player) + 1) - data.yDis) * 0.2D) * Magic.FRICTION_MEDIUM_AIR;
-                data.addVerticalVelocity(new SimpleEntry(thisMove.yDistance, 1));
-                final double levitation = Bridge1_9.getLevitationAmplifier(player);
-                if (thisMove.yDistance < 0.1 + 0.046 * (levitation > 0.0 ? levitation : 0.0)) data.bunnyhopTick = 0;
-                return;
-            } else if (thisMove.yDistance < 0.0) data.bunnyhopTick = 0;
+            }
 
-            //Gliding -> Creative
-            if (lastMove.modelFlying != null && lastMove.modelFlying.getVerticalAscendGliding() && thisMove.modelFlying.getId().equals("gamemode.creative")) {
+            // Gliding -> Other modelflying
+            if (lastMove.modelFlying != null && lastMove.modelFlying.getVerticalAscendGliding()) {
                 final double amount = guessFlyNoFlyVelocity(player, data.playerMoves.getCurrentMove(), lastMove, data);
-                data.addHorizontalVelocity(new AccountEntry(amount, 3, MovingData.getHorVelValCount(amount)));
-                data.addVerticalVelocity(new SimpleEntry(0.0, 2));
+                if (thisMove.touchedGround || model.getId().equals("gamemode.creative")) data.addHorizontalVelocity(new AccountEntry(amount, 3, MovingData.getHorVelValCount(amount)));
+                if (model.getId().equals("gamemode.creative")) data.addVerticalVelocity(new SimpleEntry(0.0, 2));
                 return;
             }
             // TODO: Levitation -> Slow_falling
+        }
+        final PlayerMoveData secondPastMove = data.playerMoves.getSecondPastMove();
+        // Quick change between models, reset friction, invalid
+        if (secondPastMove.modelFlying != null && lastMove.modelFlying != null
+            && secondPastMove.modelFlying == model && model != lastMove.modelFlying
+           ) {
+            thisMove.toIsValid = false;
         }
     }
     private static double guessFlyNoFlyVelocity(final Player player, 
@@ -929,7 +1027,7 @@ public class CreativeFly extends Check {
             // (Doesn't seem to be overly effective.)
             final PlayerMoveData secondPastMove = data.playerMoves.getSecondPastMove();
             if (secondPastMove.modelFlying != null && Magic.glideEnvelopeWithHorizontalGain(thisMove, lastMove, secondPastMove)) {
-                return thisMove.hDistance + Magic.GLIDE_HORIZONTAL_GAIN_MAX;
+                return lastMove.hDistance + 0.1468;
             }
         }
         return defaultAmount;
@@ -937,9 +1035,6 @@ public class CreativeFly extends Check {
 
     private boolean isCollideWithHB(PlayerLocation from) {
         return (from.getBlockFlags() & BlockProperties.F_STICKY) != 0;
-    }
-    private boolean isBounceBelow(PlayerLocation from) {
-        return (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0;
     }
 
     private void outpuDebugMove(final Player player, final double hDistance, final double limitH, 
