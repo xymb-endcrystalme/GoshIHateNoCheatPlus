@@ -21,6 +21,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Bisected.Half;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -36,6 +38,7 @@ import org.bukkit.material.Door;
 import org.bukkit.material.MaterialData;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
+import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 import fr.neatmonster.nocheatplus.components.NoCheatPlusAPI;
 import fr.neatmonster.nocheatplus.components.registry.order.RegistrationOrder.RegisterMethodWithOrder;
@@ -176,6 +179,14 @@ public class BlockChangeListener implements Listener {
 
     private BlockFace getDirection(final Block pistonBlock) {
         // TODO: Register/store a fetcher thing (DirectionalFromBlock)
+        if (Bridge1_13.hasIsSwimming()) {
+            final BlockData data = pistonBlock.getState().getBlockData();
+            if (data instanceof org.bukkit.block.data.Directional) {
+                org.bukkit.block.data.Directional directional = (org.bukkit.block.data.Directional) data;
+                return directional.getFacing();
+            }
+            return null;
+        }
         final MaterialData data = pistonBlock.getState().getData();
         if (data instanceof Directional) {
             Directional directional = (Directional) data;
@@ -320,6 +331,24 @@ public class BlockChangeListener implements Listener {
      * @param relevantFlags
      */
     private void addBlockWithAttachedPotential(final Block block, final long relevantFlags) {
+        if (Bridge1_13.hasIsSwimming()) {
+            final BlockData data = block.getState().getBlockData();
+            if (data instanceof org.bukkit.block.data.type.Door) {
+                org.bukkit.block.data.type.Door door = (org.bukkit.block.data.type.Door) data;
+                final Block otherBlock = block.getRelative(door.getHalf() == Half.TOP ? BlockFace.DOWN : BlockFace.UP);
+                /*
+                 * TODO: In case of redstone: Double doors... detect those too? Is it still more
+                 * efficient than using BlockPhysics with lazy delayed updating
+                 * (TickListener...). Hinge corner... possibilities?
+                 */
+                if (otherBlock != null // Top of the map / special case.
+                        && (BlockProperties.getBlockFlags(otherBlock.getType()) 
+                                | relevantFlags) == 0) {
+                    tracker.addBlocks(block, otherBlock);
+                    return;
+                }
+            }
+        } else {
         final MaterialData materialData = block.getState().getData();
         if (materialData instanceof Door) {
             final Door door = (Door) materialData;
@@ -335,6 +364,7 @@ public class BlockChangeListener implements Listener {
                 tracker.addBlocks(block, otherBlock);
                 return;
             }
+        }
         }
         // Only add the block in question itself.
         tracker.addBlocks(block);

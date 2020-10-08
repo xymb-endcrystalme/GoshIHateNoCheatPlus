@@ -20,6 +20,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
+import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 
 public class BlockCacheBukkit extends BlockCache {
@@ -52,7 +53,7 @@ public class BlockCacheBukkit extends BlockCache {
     @Override
     public int fetchData(final int x, final int y, final int z) {
         // TODO: consider setting type id and data at once.
-        return world.getBlockAt(x, y, z).getData();
+        return Bridge1_13.hasIsSwimming() ? 0 : world.getBlockAt(x, y, z).getData();
     }
 
     @Override

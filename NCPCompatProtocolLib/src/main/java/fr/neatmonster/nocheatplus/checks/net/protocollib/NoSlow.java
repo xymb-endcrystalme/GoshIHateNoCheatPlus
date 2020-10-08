@@ -168,7 +168,7 @@ public class NoSlow extends BaseAdapter {
             if (Bridge1_9.hasElytra() && p.hasCooldown(m)) return;
             if (InventoryUtil.isConsumable(item)) {
                 // pre1.9 splash potion
-                if (item.getDurability() > 16384) return;
+                if (!Bridge1_9.hasElytra() && item.getDurability() > 16384) return;
                 if (m == Material.POTION || m == Material.MILK_BUCKET || m.toString().endsWith("_APPLE") || m.name().startsWith("HONEY_BOTTLE")) {
                     data.isusingitem = true;
                     data.offhanduse = Bridge1_9.hasGetItemInOffHand() && e.getHand() == EquipmentSlot.OFF_HAND;
@@ -241,15 +241,16 @@ public class NoSlow extends BaseAdapter {
         }
         final MovingData data = pData.getGenericInstance(MovingData.class);
         PlayerDigType digtype = event.getPacket().getPlayerDigTypes().read(0);
-        data.isusingitem = false;
+        // DROP_ALL_ITEMS when dead?
+        if (digtype == PlayerDigType.DROP_ALL_ITEMS || digtype == PlayerDigType.DROP_ITEM) data.isusingitem = false;
         
         //Advanced check
         if(digtype == PlayerDigType.RELEASE_USE_ITEM) {
+            data.isusingitem = false;
             long now = System.currentTimeMillis();
             if (data.time_rl_item != 0) {
                 if (now < data.time_rl_item) {
                     data.time_rl_item = now;
-                    data.isusingitem = false;
                     return;
                 }
                 if (data.time_rl_item + timeBetweenRL > now) {

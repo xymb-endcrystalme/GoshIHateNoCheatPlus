@@ -50,6 +50,8 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     private static final BukkitShapeModel MODEL_SLAB = new BukkitSlab();
     private static final BukkitShapeModel MODEL_STAIRS = new BukkitStairs();
     private static final BukkitShapeModel MODEL_PISTON = new BukkitPiston();
+    private static final BukkitShapeModel MODEL_LEVELLED = new BukkitLevelled();
+    private static final BukkitShapeModel MODEL_LADDER = new BukkitLadder();
     private static final BukkitShapeModel MODEL_END_ROD = new BukkitDirectionalCentered(
             0.375, 1.0, false);
 
@@ -170,7 +172,6 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
                 Material.SNOW,
                 Material.CAKE,
                 Material.BEACON,
-                Material.LADDER,
                 Material.VINE,
                 Material.CHORUS_FLOWER
         }) {
@@ -197,6 +198,9 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
         // Hoppers - min height changed in 1.13+
         addModel(Material.HOPPER, MODEL_HOPPER);
+
+        // Ladder
+        addModel(Material.LADDER, MODEL_LADDER);
 
         // 1/16 inset at full height.
         for (Material mat : new Material[] {
@@ -347,6 +351,13 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
                 "piston", "sticky_piston", "piston_base", "piston_sticky_base"
                 )) {
             addModel(mat, MODEL_PISTON);
+        }
+ 
+        // Levelled blocks
+        for (Material mat : BridgeMaterial.getAllBlocks(
+                "snow", "water", "lava"
+                )) {
+            addModel(mat, MODEL_LEVELLED);
         }
 
         // Lectern

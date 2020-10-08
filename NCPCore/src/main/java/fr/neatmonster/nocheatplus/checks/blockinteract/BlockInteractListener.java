@@ -34,6 +34,7 @@ import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.moving.util.MovingUtil;
 import fr.neatmonster.nocheatplus.checks.net.FlyingQueueHandle;
 import fr.neatmonster.nocheatplus.checks.net.model.DataPacketFlying;
+import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeHealth;
 import fr.neatmonster.nocheatplus.compat.BridgeMisc;
@@ -386,7 +387,7 @@ public class BlockInteractListener extends CheckListener {
                 final MovingData mData = pData.getGenericInstance(MovingData.class);
                 final int ticks = Math.max((1 + power) * (power < 2 ? 20 : 15), 30);
                 mData.fireworksBoostDuration = ticks;
-				mData.fireworksBoostTickNeedCheck = ticks - 1;
+                mData.fireworksBoostTickNeedCheck = ticks - 1;
                 // Expiration tick: not general latency, rather a minimum margin for sudden congestion.
                 mData.fireworksBoostTickExpire = TickTask.getTick() + ticks;
                 // TODO: Invalidation mechanics: by tick/time well ?
@@ -434,7 +435,7 @@ public class BlockInteractListener extends CheckListener {
             builder.append(") block: ");
             builder.append(block.getWorld().getName() + "/" + LocUtil.simpleFormat(block));
             builder.append(" type: " + block.getType());
-            builder.append(" data: " + BlockProperties.getData(block));
+            if (!Bridge1_13.hasIsSwimming()) builder.append(" data: " + BlockProperties.getData(block));
             builder.append(" face: " + face);
         }
 
