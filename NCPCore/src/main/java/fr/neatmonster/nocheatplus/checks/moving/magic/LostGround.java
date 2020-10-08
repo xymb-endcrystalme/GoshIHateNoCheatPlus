@@ -61,6 +61,8 @@ public class LostGround {
         // TODO: Regroup with appropriate conditions (toOnGround first?).
         // TODO: Some workarounds allow step height (0.6 on MC 1.8).
         // TODO: yDistance limit does not seem to be appropriate.
+        // Temporary let it here
+        data.snowFix = (from.getBlockFlags() & BlockProperties.F_HEIGHT_8_INC) != 0;
         if (yDistance >= -0.7 && yDistance <= Math.max(cc.sfStepHeight, LiftOffEnvelope.NORMAL.getMaxJumpGain(data.jumpAmplifier) + 0.174)) { // MovingUtil.estimateJumpLiftOff(player, data, 0.174))) {
             // "Mild" Ascending / descending.
             // Ascending
@@ -337,7 +339,7 @@ public class LostGround {
         z2 = fMin * z2 + z1;
         // Finally test for ground.
         // (We don't add another xz-margin here, as the move should cover ground.)
-        if (BlockProperties.isOnGroundShuffled(blockCache, x1, y1, z1, x2, y1, z2, boxMarginHorizontal, yOnGround, 0.0)) {
+        if (BlockProperties.isOnGroundShuffled(blockCache, x1, y1, z1, x2, y1 + (data.snowFix ? 0.125 : 0.0), z2, boxMarginHorizontal + (data.snowFix ? 0.1 : 0.0), yOnGround, 0.0)) {
             //data.sfLastAllowBunny = true; // TODO: Maybe a less powerful flag (just skipping what is necessary).
             // TODO: data.fromY for set back is not correct, but currently it is more safe (needs instead: maintain a "distance to ground").
             return applyLostGround(player, new Location(world, x2, y2, z2), true, data.playerMoves.getCurrentMove(), data, "edge" + tag, tags, mcAccess); // Maybe true ?

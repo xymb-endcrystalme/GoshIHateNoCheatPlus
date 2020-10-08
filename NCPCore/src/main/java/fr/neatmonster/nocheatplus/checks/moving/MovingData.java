@@ -93,9 +93,9 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
 
     // Data shared between the fly checks -----
     public long           selfhittime = 0;
-    public double         yDis = 0.0;
     public int            liqtick = 0;
     public int            watermovect = 0;
+    public boolean        snowFix = false;
     public boolean        isdownstream = false;
     public int            bunnyhopDelay;
     public int            lastbunnyhopDelay = 0;
@@ -844,7 +844,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      */
     public static int getHorVelValCount(double velocity) {
         // TODO: Configable max cap
-        return Math.max(30,  1 + (int) Math.round(velocity * 10.0));
+        return Math.max(30, 1 + (int) Math.round(velocity * 10.0));
     }
 
     public void prependVerticalVelocity(final SimpleEntry entry) {

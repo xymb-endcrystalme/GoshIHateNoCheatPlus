@@ -450,12 +450,12 @@ public class VehicleEnvelope extends Check {
             checkDetails.canJump = checkDetails.canStepUpBlock = true;
         }
         else if (strider != null && strider.isAssignableFrom(vehicle.getClass())) {
-            checkDetails.simplifiedType = EntityType.PIG;
+            //checkDetails.simplifiedType = EntityType.PIG;
             checkDetails.canJump = false;
             checkDetails.canStepUpBlock = true;
             checkDetails.canClimb = true;
             // Step problem
-            checkDetails.maxAscend = 1.0;
+            checkDetails.maxAscend = 1.1;
             // Fall in lava
             if (thisMove.from.inLava || thisMove.to.inLava) checkDetails.inAir = false;
             // ....

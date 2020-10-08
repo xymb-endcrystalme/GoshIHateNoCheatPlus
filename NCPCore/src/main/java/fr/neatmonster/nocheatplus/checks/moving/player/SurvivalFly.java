@@ -600,7 +600,7 @@ public class SurvivalFly extends Check {
         final boolean inAir = Magic.inAir(thisMove);
         final double result = (Math.max(hDistanceAboveLimit, 0D) + Math.max(vDistanceAboveLimit, 0D)) * 100D;
         if (result > 0D) {
-            final Location vLoc = handleViolation(now, result, player, from, to, data, cc);
+            final Location vLoc = handleViolation(now, Double.isInfinite(result) ? 30.0 : result, player, from, to, data, cc);
             if (inAir) {
                 data.sfVLInAir = true;
             }
@@ -2712,6 +2712,7 @@ public class SurvivalFly extends Check {
             final MovingData data, final MovingConfig cc)
     {
         // Increment violation level.
+        if (Double.isInfinite(data.survivalFlyVL)) data.survivalFlyVL = 0;
         data.survivalFlyVL += result;
         //data.sfVLTime = data.getPlayerMoveCount();
         final ViolationData vd = new ViolationData(this, player, data.survivalFlyVL, result, cc.survivalFlyActions);
@@ -2749,6 +2750,7 @@ public class SurvivalFly extends Check {
      */
     public final void handleHoverViolation(final Player player, 
             final PlayerLocation loc, final MovingConfig cc, final MovingData data) {
+        if (Double.isInfinite(data.survivalFlyVL)) data.survivalFlyVL = 0;
         data.survivalFlyVL += cc.sfHoverViolation;
 
         // TODO: Extra options for set back / kick, like vl?

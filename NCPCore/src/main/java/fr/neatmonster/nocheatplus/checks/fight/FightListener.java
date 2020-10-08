@@ -178,6 +178,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         if (!pData.isCheckActive(CheckType.FIGHT, player)) return false;
 
         final FightConfig cc = pData.getGenericInstance(FightConfig.class);
+        final MovingData mData = pData.getGenericInstance(MovingData.class);
 
         // Hotfix attempt for enchanted books.
         // TODO: maybe a generalized version for the future...
@@ -352,7 +353,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
             cancelled = true;
         }
 
-        if (!cancelled && noSwing.isEnabled(player, pData) && noSwing.check(player, data, cc)) {
+        if (!cancelled && mData.timeRiptiding + 3000 < now && noSwing.isEnabled(player, pData) && noSwing.check(player, data, cc)) {
             cancelled = true;
         }
 
@@ -364,7 +365,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
 
         if (!cancelled) {
             final boolean reachEnabled = reach.isEnabled(player, pData);
-            final boolean directionEnabled = direction.isEnabled(player, pData);
+            final boolean directionEnabled = direction.isEnabled(player, pData) && mData.timeRiptiding + 3000 < now;
             if (reachEnabled || directionEnabled) {
                 if (damagedTrace != null) {
                     // Checks that use the LocationTrace instance of the attacked entity/player.
@@ -422,7 +423,6 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         // TODO: Confine further with simple pre-conditions.
         // TODO: Evaluate if moving traces can help here.
         if (!cancelled && TrigUtil.distance(loc.getX(), loc.getZ(), damagedLoc.getX(), damagedLoc.getZ()) < 4.5) {
-            final MovingData mData = pData.getGenericInstance(MovingData.class);
             // Check if fly checks is an issue at all, re-check "real sprinting".
             final PlayerMoveData lastMove = mData.playerMoves.getFirstPastMove();
             if (lastMove.valid && mData.liftOffEnvelope == LiftOffEnvelope.NORMAL) {
