@@ -930,6 +930,38 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         // TODO: Move to Creativefly
         if (Bridge1_13.isRiptiding(player)) {checkSf = true; checkCf = false;}
 
+        /*
+         * Recalculate explosion velocity as PlayerVelocityEvent can't handle well on 1.13+
+         * TODO: Merge with velocity entries that were added at the same time with this one!
+         */
+        if (data.applyexplosionvel) {
+            data.applyexplosionvel = false;
+            double xDistance = 0.0; double zDistance = 0.0; double yDistance = 0.0;
+            if (lastMove.toIsValid) {
+                xDistance = lastMove.to.getX() - lastMove.from.getX();
+                zDistance = lastMove.to.getZ() - lastMove.from.getZ();
+                yDistance = lastMove.to.onGround ? 0 : lastMove.yDistance; 
+            }
+            boolean addHorizontalVelocity = true;
+            final double xDistance2 = data.explosionvelX + xDistance;
+            final double zDistance2 = data.explosionvelZ + zDistance;
+            final double hDistance = Math.sqrt(xDistance2*xDistance2 + zDistance2*zDistance2);
+
+            // Prevent duplicate entry come from PlayerVelocityEvent
+            if (data.hasActiveHorVel() && data.getHorizontalFreedom() < hDistance
+                || data.hasQueuedHorVel() && data.useHorizontalVelocity(hDistance) < hDistance
+                || !data.hasAnyHorVel()
+                    ) {
+                data.getHorizontalVelocityTracker().clear();
+            } else addHorizontalVelocity = false;
+            if (addHorizontalVelocity) data.addVelocity(player, cc, xDistance2, data.explosionvelY + yDistance - Magic.GRAVITY_ODD, zDistance2);
+            else data.addVerticalVelocity(new SimpleEntry(data.explosionvelY + yDistance - Magic.GRAVITY_ODD, cc.velocityActivationCounter));
+
+            data.explosionvelX = 0.0;
+            data.explosionvelY = 0.0;
+            data.explosionvelZ = 0.0;
+        }
+
         // Flying checks.
         if (checkSf) {
             // SurvivalFly
@@ -945,11 +977,6 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                     workaroundFlyNoFlyTransition(player, tick, debug, data);
                     data.delayWorkaround = time;
                 }
-            }
-            if (thisMove.toIsValid && data.applyexplosionvel && thisMove.yDistance < 3.0 && thisMove.yDistance > -3.0) {
-                data.applyexplosionvel = false;
-                data.prependVerticalVelocity(new SimpleEntry(thisMove.yDistance, 1));
-                data.setFrictionJumpPhase();
             }
 
             // Actual check.

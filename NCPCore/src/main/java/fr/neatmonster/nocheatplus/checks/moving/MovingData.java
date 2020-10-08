@@ -103,6 +103,9 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public double         jumpAmplifier = 0;
     public long           delayWorkaround = 0;
     public boolean        applyexplosionvel = false;
+    public double         explosionvelX = 0.0;
+    public double         explosionvelY = 0.0;
+    public double         explosionvelZ = 0.0;
     /** Last time the player was actually sprinting. */
     public long           timeSprinting = 0;
     public long           bedLeaveTime = 0;
@@ -1268,6 +1271,15 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      */
     public SimpleAxisVelocity getVerticalVelocityTracker() {
         return verVel;
+    }
+
+    /**
+     * Get the xz-axis velocity tracker. Rather for testing purposes.
+     * 
+     * @return
+     */
+    public FrictionAxisVelocity getHorizontalVelocityTracker() {
+        return horVel;
     }
 
     /**

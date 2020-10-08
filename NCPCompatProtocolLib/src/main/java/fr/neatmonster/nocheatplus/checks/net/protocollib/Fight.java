@@ -18,26 +18,32 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.reflect.StructureModifier;
 
+import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.fight.FightData;
-import fr.neatmonster.nocheatplus.players.IPlayerData;
+import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.players.DataManager;
+import fr.neatmonster.nocheatplus.players.IPlayerData;
 
 public class Fight extends BaseAdapter{
     private static PacketType[] initPacketTypes() {
         final List<PacketType> types = new LinkedList<PacketType>(Arrays.asList(
-                PacketType.Play.Client.ARM_ANIMATION
+                PacketType.Play.Client.ARM_ANIMATION,
+                PacketType.Play.Server.EXPLOSION
         ));
         return types.toArray(new PacketType[types.size()]);
     }
 
     public Fight(Plugin plugin) {
-        super(plugin, ListenerPriority.LOW, initPacketTypes());
+        super(plugin, ListenerPriority.MONITOR, initPacketTypes());
     }
 
     @Override
@@ -45,10 +51,57 @@ public class Fight extends BaseAdapter{
         handleAnmationPacket(event);
     }
 
+    @Override
+    public void onPacketSending(final PacketEvent event) {
+        handleVelocityPacket(event);
+    }
+    
+    private void handleVelocityPacket(PacketEvent event) {
+        if (event.isPlayerTemporary()) return;
+        if (event.getPacketType() != PacketType.Play.Server.EXPLOSION) return;
+
+        final Player player = event.getPlayer();
+        if (player == null) {
+            counters.add(ProtocolLibComponent.idNullPlayer, 1);
+            return;
+        }
+
+        final PacketContainer packet = event.getPacket();
+        final StructureModifier<Float> floats = packet.getFloat();
+
+        if (floats.size() != 4) {
+            // TODO : Warning
+            return;
+        }
+
+        //final Float strength = floats.read(0);
+
+        final Float velX = floats.read(1);
+        final Float velY = floats.read(2);
+        final Float velZ = floats.read(3);
+        if (Math.abs(velX) == 0.0 && Math.abs(velZ) == 0.0 && Math.abs(velY) == 0.0) return;
+
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        if (!pData.isCheckActive(CheckType.MOVING, player)) return;
+        final MovingData data = pData.getGenericInstance(MovingData.class);
+        // Process velocity.
+        data.applyexplosionvel = true;
+        data.explosionvelX += velX;
+        data.explosionvelY += velY;
+        data.explosionvelZ += velZ;
+    }
+
     public void handleAnmationPacket(final PacketEvent event) {
-        if (event.isPlayerTemporary() || event.getPlayer() == null) return;
-        final IPlayerData pData = DataManager.getPlayerDataSafe(event.getPlayer());
-        final FightData data = pData.getGenericInstance(FightData.class);
+        // TODO: Count temporary player as well?
+        if (event.isPlayerTemporary()) return;
+        if (event.getPacketType() != PacketType.Play.Client.ARM_ANIMATION) return;
+        final Player player = event.getPlayer();
+
+        if (player == null) {
+            counters.add(ProtocolLibComponent.idNullPlayer, 1);
+            return;
+        }
+        final FightData data = DataManager.getGenericInstance(player, FightData.class);
         data.noSwingPacket = true;
         data.noSwingArmSwung = true;
     }

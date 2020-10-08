@@ -80,7 +80,8 @@ public class SurvivalFly extends Check {
     private static final int   bunnyHopMax = 10;
     /** Divisor vs. last hDist for minimum slow down. */
     private static final double bunnyDivFriction = 160.0; // Rather in-air, blocks would differ by friction.
-    public boolean snowFix;
+    private boolean snowFix;
+    private boolean bufferuse;
     // TODO: Friction by block to walk on (horizontal only, possibly to be in BlockProperties rather).
     /** To join some tags with moving check violations. */
     private final ArrayList<String> tags = new ArrayList<String>(15);
@@ -288,6 +289,7 @@ public class SurvivalFly extends Check {
         if (data.newHDist) data.liftOffEnvelope = LiftOffEnvelope.NORMAL;
 
         snowFix = (from.getBlockFlags() & BlockProperties.F_HEIGHT_8_INC) != 0;
+        bufferuse = true;
 
         //////////////////////
         // Horizontal move.
@@ -2096,6 +2098,7 @@ public class SurvivalFly extends Check {
             }
             if (hFreedom > 0.0) {
                 tags.add("hvel");
+                bufferuse = false;
                 hDistanceAboveLimit = Math.max(0.0, hDistanceAboveLimit - hFreedom);
                 if (hDistanceAboveLimit <= 0.0) {
                     data.combinedMediumHCount = 0;
@@ -2115,10 +2118,7 @@ public class SurvivalFly extends Check {
 
         // Horizontal buffer.
         // TODO: Consider to confine use to "not in air" and similar.
-        if (hDistanceAboveLimit > 0.0 && data.sfHorizontalBuffer > 0.0) {
-            //if (snowFix && data.sfHorizontalBuffer == 1) {
-            // Ignore
-            //} else {
+        if (hDistanceAboveLimit > 0.0 && data.sfHorizontalBuffer > 0.0 && bufferuse) {
             // Handle buffer only if moving too far.
             // Consume buffer.
             tags.add("hbufuse");
