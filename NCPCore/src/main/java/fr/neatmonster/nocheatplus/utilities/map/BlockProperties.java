@@ -1256,7 +1256,7 @@ public class BlockProperties {
             setFlag(mat, paneFlags);
         }
         for (final Material mat : MaterialUtil.GLASS_PANES) {
-            setFlag(mat, paneFlags);
+            setFlag(mat, paneFlags | F_FAKEBOUNDS);
         }
 
         // Flexible ground (height):
@@ -4118,10 +4118,10 @@ public class BlockProperties {
         // Fake the bound of thin glass or anvil
         if ((flags & F_FAKEBOUNDS) != 0) {
             if ((flags & F_THIN_FENCE) != 0) {
-                if (Math.abs(bmaxZ - bminZ) == 0.125) {
+                if (bmaxZ - bminZ == 0.125 && bmaxX - bminX != 1.0) {
                     if (bminX == 0.0) bmaxX = 0.5;
                     if (bmaxX == 1.0) bminX = 0.5;
-                } else if (Math.abs(bmaxX - bminX) == 0.125) {
+                } else if (bmaxX - bminX == 0.125 && bmaxZ - bminZ != 1.0) {
                     if (bminZ == 0.0) bmaxZ = 0.5;
                     if (bmaxZ == 1.0) bminZ = 0.5;
                 }

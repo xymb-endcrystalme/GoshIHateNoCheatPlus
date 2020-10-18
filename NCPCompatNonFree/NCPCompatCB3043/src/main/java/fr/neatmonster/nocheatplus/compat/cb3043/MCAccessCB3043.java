@@ -208,4 +208,9 @@ public class MCAccessCB3043 implements MCAccess {
     //		// Consider setting the lastYaw here too.
     //	}
 
+    @Override
+    public boolean resetActiveItem(Player player) {
+        return false;
+    }
+
 }

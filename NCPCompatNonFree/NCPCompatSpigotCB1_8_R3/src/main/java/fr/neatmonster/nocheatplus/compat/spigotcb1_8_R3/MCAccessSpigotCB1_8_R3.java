@@ -234,4 +234,10 @@ public class MCAccessSpigotCB1_8_R3 implements MCAccess {
     //		// Consider setting the lastYaw here too.
     //	}
 
+    @Override
+    public boolean resetActiveItem(Player player) {
+        ((CraftPlayer) player).getHandle().bU();
+        return true;
+    }
+
 }

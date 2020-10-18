@@ -1141,7 +1141,7 @@ public class SurvivalFly extends Check {
                 // Jump/left ground
                 if (!thisMove.to.onGround) {
                     final double speedAmplifier = mcAccess.getHandle().getFasterMovementAmplifier(player);
-                    hAllowedDistance = (lastMove.hDistance > 0.23 ? 0.4 : 0.23 + (Bridge1_13.hasIsSwimming() ? 0.15 : 0.0)) +
+                    hAllowedDistance = (lastMove.hDistance > 0.23 ? 0.4 : 0.23 + (Bridge1_13.hasIsSwimming() ? 0.155 : 0.0)) +
                     0.02 * (Double.isInfinite(speedAmplifier) ? 0 : speedAmplifier + 1.0);
                     hAllowedDistance *= cc.survivalFlyBlockingSpeed / 100D;
                     data.noslowhop = 1;
@@ -1152,7 +1152,7 @@ public class SurvivalFly extends Check {
                     if (lastMove.toIsValid && lastMove.hDistance > 0.0)
                        hAllowedDistance = data.noslowhop < 7 ?
                        // 0.6 for old vers, 0.621 for 1.13+
-                       (lastMove.hAllowedDistance * (0.621 + 0.055 * ++data.noslowhop)) : lastMove.hAllowedDistance;
+                       (lastMove.hAllowedDistance * (0.63 + 0.052 * ++data.noslowhop)) : lastMove.hAllowedDistance;
                        // Failed or no hDistance in last move, return to default speed
                     else hAllowedDistance = Magic.modBlock * thisMove.walkSpeed * cc.survivalFlyBlockingSpeed / 100D;
                 }
@@ -1175,7 +1175,7 @@ public class SurvivalFly extends Check {
             }
             // Check if too small horizontal last move allowed
             // 0.063 for old vers, 0.08 for 1.13+
-            if (lastMove.hAllowedDistance < 0.03) hAllowedDistance = 0.08; 
+            hAllowedDistance = Math.max(hAllowedDistance, 0.08);
             friction = 0.0; // Ensure friction can't be used to speed.
             useBaseModifiers = true;
             useBaseModifiersSprint = false;
@@ -2040,6 +2040,58 @@ public class SurvivalFly extends Check {
         if (!(from.isAboveStairs() && to.isAboveStairs() && to.isOnGround())){
             hDistanceAboveLimit = bunnyHop(from, to, hAllowedDistance, hDistanceAboveLimit, sprinting, thisMove, lastMove, data, cc);
         }
+
+
+		// Attempt to reset item on NoSlow Violation
+        if (cc.survivalFlyResetItem && hDistanceAboveLimit > 0.0 && data.sfHorizontalBuffer <= 0.5 && tags.contains("usingitem")) {
+            tags.add("itemreset");
+            // Handle through nms
+            if (mcAccess.getHandle().resetActiveItem(player)) {
+                data.isusingitem = false;
+                pData.requestUpdateInventory();
+            }
+            // Off hand (non nms)
+            else if (Bridge1_9.hasGetItemInOffHand() && data.offhanduse) {
+                ItemStack stack = Bridge1_9.getItemInOffHand(player);
+                if (stack != null) {
+                    if (Bridge1_13.hasIsSwimming()) {
+                        if (player.isHandRaised()) {
+                            // Does nothing
+                        }
+                        // False positive
+                        else data.isusingitem = false;
+                    } else {
+                        player.getInventory().setItemInOffHand(stack);
+                        data.isusingitem = false;
+                    }
+                }
+            }
+            // Main hand (non nms)
+            else if (!data.offhanduse) {
+                ItemStack stack = Bridge1_9.getItemInMainHand(player);
+                if (Bridge1_13.hasIsSwimming()) {
+                    if (player.isHandRaised()) {
+                        data.olditemslot = player.getInventory().getHeldItemSlot();
+                        if (stack != null) player.setCooldown(stack.getType(), 10);
+                        player.getInventory().setHeldItemSlot((data.olditemslot + 1) % 9);
+                        data.changeslot = true;
+                    }
+                    // False positive
+                    else data.isusingitem = false;
+                } else {
+                    if (stack != null) {
+                        Bridge1_9.setItemInMainHand(player, stack);
+                    }
+                }
+                data.isusingitem = false;
+            }
+            if (!data.isusingitem) {
+                hAllowedDistance = setAllowedhDist(player, sprinting, thisMove, data, cc, pData, from, true);
+                hDistanceAboveLimit = thisMove.hDistance - hAllowedDistance;
+            }
+        }
+
+
         // After failure permission checks ( + speed modifier + sneaking + blocking + speeding) and velocity (!).
         // Noslow require no permission rechecks
         if (hDistanceAboveLimit > 0.12 
@@ -2137,62 +2189,6 @@ public class SurvivalFly extends Check {
             tags.add("hriptide");
         }
 
-
-        // Attempt to reset item on NoSlow Violation
-        if (cc.survivalFlyResetItem && hDistanceAboveLimit > 0.0 && tags.contains("usingitem")) {
-            tags.add("itemreset");
-            // Off hand
-            //if (Bridge1_9.hasGetItemInOffHand() && data.offhanduse && data.itemresettaskid == -1) {
-            if (Bridge1_9.hasGetItemInOffHand() && data.offhanduse) {
-                ItemStack stack = Bridge1_9.getItemInOffHand(player);
-                if (stack != null) {
-                    if (Bridge1_13.hasIsSwimming()) {
-                        if (player.isHandRaised()) {
-                            // api only : problem: item lost if this task got cancelled(onstopping...) 
-                            // data.itemresettaskid = Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                            //     data.itemresettaskid = -1;
-                            //     player.getInventory().setItemInOffHand(stack);
-                            //     player.setCooldown(stack.getType(), 10);
-                            //     if (!player.isOnline()) player.saveData();
-                            //   data.isusingitem = false;
-                           //}, 2L);
-                           //if (data.itemresettaskid != -1) player.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
-                        
-                           // nms : problem: have to add compat build for 1.13+
-                           //CraftPlayer el = (CraftPlayer) player;
-                           //el.getHandle().clearActiveItem();
-                           //player.setCooldown(stack.getType(), 10);
-                           //data.isusingitem = false;
-                        }
-                        // False positive
-                        else data.isusingitem = false;
-                    } else {
-                        player.getInventory().setItemInOffHand(stack);
-                        data.isusingitem = false;
-                    }
-                }
-            }
-            // Main hand
-            else if (!data.offhanduse) {
-                ItemStack stack = Bridge1_9.getItemInMainHand(player);
-                if (Bridge1_13.hasIsSwimming()) {
-                    if (player.isHandRaised()) {
-                        data.olditemslot = player.getInventory().getHeldItemSlot();
-                        if (stack != null) player.setCooldown(stack.getType(), 10);
-                        player.getInventory().setHeldItemSlot((data.olditemslot + 1) % 9);
-                        data.changeslot = true;
-                    }
-                    // False positive
-                    else data.isusingitem = false;
-                } else {
-                    if (stack != null) {
-                        //tags.add("itemreset");
-                        Bridge1_9.setItemInMainHand(player, stack);
-                    }
-                }
-                data.isusingitem = false;
-            }
-        }
 
         // Add the hspeed tag on violation.
         if (hDistanceAboveLimit > 0.0) {

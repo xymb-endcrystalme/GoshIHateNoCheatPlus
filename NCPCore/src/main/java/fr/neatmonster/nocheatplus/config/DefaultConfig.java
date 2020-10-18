@@ -666,7 +666,7 @@ public class DefaultConfig extends ConfigFile {
         final String start = "&c[player]&7 failed &c[check]&7: ";
         final String end = " &7(&cVL[violations]&7)";
         final String tell = "ncp tell [player] &c&l(!)&7 ";
-        final String clear = "ncp delay delay=2 ncp removeplayer [player] ";
+        final String clear = "ncp removeplayer [player] ";
         final String kick = "ncp kick [player] &c&l(!)&7 ";
         set(ConfPaths.STRINGS + ".against", start + "tried to place a block against liquid blocks or air as if they were solid" + end, 1154);
         set(ConfPaths.STRINGS + ".angle", start + "potentially tried to hit multiple entities at the same time (Tags: &6[tags]&7)" + end, 1154);

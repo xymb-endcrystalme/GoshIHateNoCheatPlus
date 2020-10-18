@@ -178,6 +178,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         if (!pData.isCheckActive(CheckType.FIGHT, player)) return false;
 
         final FightConfig cc = pData.getGenericInstance(FightConfig.class);
+        final MovingConfig mCc = pData.getGenericInstance(MovingConfig.class);
         final MovingData mData = pData.getGenericInstance(MovingData.class);
 
         // Hotfix attempt for enchanted books.
@@ -360,7 +361,9 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         if (!cancelled && player.isBlocking() 
                 && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_BLOCKING, player)) {
             // TODO: Permission ?
-            cancelled = true;
+            if (mCc.survivalFlyResetItem && mcAccess.getHandle().resetActiveItem(damagedPlayer)) {
+
+            } else cancelled = true;
         }
 
         if (!cancelled) {
@@ -429,7 +432,6 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
                 final double hDist = TrigUtil.xzDistance(loc, lastMove.from);
                 if (hDist >= 0.23) {
                     // TODO: Might need to check hDist relative to speed / modifiers.
-                    final MovingConfig mCc = pData.getGenericInstance(MovingConfig.class);
                     final PlayerMoveInfo moveInfo = auxMoving.usePlayerMoveInfo();
                     moveInfo.set(player, loc, null, mCc.yOnGround);
                     if (now <= mData.timeSprinting + mCc.sprintingGrace 
@@ -673,14 +675,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
                 attacker = (Player) source;
             }
         }
-        if (damagedPlayer != null && !damagedIsDead && (damageCause == DamageCause.BLOCK_EXPLOSION 
-                || damageCause == DamageCause.ENTITY_EXPLOSION)) {
-            final IPlayerData dpdata = DataManager.getPlayerData(damagedPlayer);
-            if (dpdata != null) {
-                MovingData data = dpdata.getGenericInstance(MovingData.class);
-                data.applyexplosionvel = true;
-            }
-        }
+
         final FightData attackerData;
         final IPlayerData attackerPData = attacker == null ? null : DataManager.getPlayerData(attacker);
         if (attacker != null) {

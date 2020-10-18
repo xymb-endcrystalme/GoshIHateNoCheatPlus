@@ -40,6 +40,9 @@ public class ReflectEntity extends ReflectGetHandleBase<Entity> {
 
     public final Method nmsDamageEntity;
 
+    @MostlyHarmless()
+    public final Method nmsclearActiveItem;
+
     public final boolean nmsDamageEntityInt;
 
     public ReflectEntity(ReflectBase base, ReflectAxisAlignedBB reflectAxisAlignedBB, ReflectDamageSource damageSource) throws ClassNotFoundException {
@@ -66,6 +69,7 @@ public class ReflectEntity extends ReflectGetHandleBase<Entity> {
         } else {
             nmsDamageEntityInt = true; // Uncertain.
         }
+        nmsclearActiveItem = ReflectionUtil.getMethodNoArgs(nmsClass, "clearActiveItem");
 
         // getBoundingBox
         if (reflectAxisAlignedBB == null) {

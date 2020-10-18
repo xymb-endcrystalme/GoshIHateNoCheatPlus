@@ -2594,7 +2594,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 : NoFall.getDamage(Math.max(yDiff, Math.max(data.noFallFallDistance, fallDistance))) + (allowReset ? 0.0 : Magic.FALL_DAMAGE_DIST);
         if (maxD > damage) {
             // TODO: respect dealDamage ?
-            double damageafter = NoFall.calcDamagewithfeatherfalling(player, NoFall.calcReducedDamageByHB(player, maxD));
+            double damageafter = NoFall.calcDamagewithfeatherfalling(player, 
+                    NoFall.calcReducedDamageByHB(player, data, maxD), 
+                    mcAccess.getHandle().dealFallDamageFiresAnEvent().decide());
             BridgeHealth.setRawDamage(event, damageafter);
             if (debug) {
                 debug(player, "Adjust fall damage to: " + (damageafter != maxD ? damageafter : maxD));
@@ -2670,6 +2672,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
      */
     private void redoShield(final Player player) {
         // Does not work: DataManager.getPlayerData(player).requestUpdateInventory();
+        if (mcAccess.getHandle().resetActiveItem(player)) return;
         final PlayerInventory inv = player.getInventory();
         ItemStack stack = inv.getItemInOffHand();
         if (stack != null && stack.getType() == Material.SHIELD) {

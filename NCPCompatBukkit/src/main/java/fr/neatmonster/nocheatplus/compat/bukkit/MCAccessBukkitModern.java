@@ -18,17 +18,28 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
+import fr.neatmonster.nocheatplus.compat.AlmostBoolean;
+import fr.neatmonster.nocheatplus.compat.BridgeHealth;
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 import fr.neatmonster.nocheatplus.compat.blocks.init.BlockInit;
 import fr.neatmonster.nocheatplus.compat.bukkit.model.*;
+import fr.neatmonster.nocheatplus.compat.cbreflect.reflect.ReflectBase;
+import fr.neatmonster.nocheatplus.compat.cbreflect.reflect.ReflectDamageSource;
+import fr.neatmonster.nocheatplus.compat.cbreflect.reflect.ReflectPlayer;
 import fr.neatmonster.nocheatplus.config.WorldConfigProvider;
+import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 import fr.neatmonster.nocheatplus.utilities.map.MaterialUtil;
 
 public class MCAccessBukkitModern extends MCAccessBukkit {
+
+    protected ReflectBase reflectBase = null;
+    protected ReflectDamageSource reflectDamageSource = null;
+    protected ReflectPlayer reflectPlayer = null;
 
     protected final Map<Material, BukkitShapeModel> shapeModels = new HashMap<Material, BukkitShapeModel>();
 
@@ -52,6 +63,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     private static final BukkitShapeModel MODEL_PISTON = new BukkitPiston();
     private static final BukkitShapeModel MODEL_LEVELLED = new BukkitLevelled();
     private static final BukkitShapeModel MODEL_LADDER = new BukkitLadder();
+    private static final BukkitShapeModel MODEL_RAIL = new BukkitRail();
     private static final BukkitShapeModel MODEL_END_ROD = new BukkitDirectionalCentered(
             0.375, 1.0, false);
 
@@ -83,7 +95,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     private static final BukkitShapeModel MODEL_SINGLE_CHEST = new BukkitStatic(
             0.0625, 0.875);
     private static final BukkitShapeModel MODEL_HONEY_BLOCK = new BukkitStatic(
-            0.0626, 0.9375); // TODO: ????
+            0.0625, 0.9375);
     private static final BukkitShapeModel MODEL_HOPPER = new BukkitStatic(
             0, 0.25, 0, 1, 1, 1);
     private static final BukkitShapeModel MODEL_CHAIN = new BukkitChain();
@@ -126,6 +138,13 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         // TODO: Generic setup via Bukkit interface existence/relations, +- fetching methods.
         BlockInit.assertMaterialExists("OAK_LOG");
         BlockInit.assertMaterialExists("CAVE_AIR");
+        try {
+            this.reflectBase = new ReflectBase();
+            this.reflectDamageSource = new ReflectDamageSource(this.reflectBase);
+            this.reflectPlayer = new ReflectPlayer(this.reflectBase, null, this.reflectDamageSource);
+        } catch(ClassNotFoundException ex) {
+            
+        }
     }
 
     @Override
@@ -360,6 +379,11 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             addModel(mat, MODEL_LEVELLED);
         }
 
+        // Rails
+        for (final Material mat : MaterialUtil.RAILS) {
+            addModel(mat, MODEL_RAIL);
+        }
+
         // Lectern
         Material mt = BridgeMaterial.getBlock("lectern");
         if (mt != null) addModel(mt, MODEL_LECTERN);
@@ -402,6 +426,46 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         }
 
         super.setupBlockProperties(worldConfigProvider);
+    }
+
+    private Object getHandle(Player player) {
+        // TODO: CraftPlayer check (isAssignableFrom)?
+        if (this.reflectPlayer.obcGetHandle == null) {
+            return null;
+        }
+        Object handle = ReflectionUtil.invokeMethodNoArgs(this.reflectPlayer.obcGetHandle, player);
+        return handle;
+    }
+
+    private boolean canDealFallDamage() {
+        return this.reflectPlayer.nmsDamageEntity != null && this.reflectDamageSource.nmsFALL != null;
+    }
+
+    @Override
+    public AlmostBoolean dealFallDamageFiresAnEvent() {
+        return canDealFallDamage() ? AlmostBoolean.YES : AlmostBoolean.NO;
+    }
+
+    @Override
+    public void dealFallDamage(Player player, double damage) {
+        if (canDealFallDamage()) {
+            Object handle = getHandle(player);
+
+            if (handle != null)
+            ReflectionUtil.invokeMethod(this.reflectPlayer.nmsDamageEntity, handle, this.reflectDamageSource.nmsFALL, (float) damage);
+        } else BridgeHealth.damage(player, damage);
+    }
+
+    @Override
+    public boolean resetActiveItem(Player player) {
+        if (this.reflectPlayer.nmsclearActiveItem != null) {
+             Object handle = getHandle(player);
+             if (handle != null) {
+                 ReflectionUtil.invokeMethodNoArgs(this.reflectPlayer.nmsclearActiveItem, handle);
+                 return true;
+             }
+        }
+        return false;
     }
 
 }

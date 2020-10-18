@@ -214,4 +214,10 @@ public class MCAccessCB3100 implements MCAccess {
     //		// Consider setting the lastYaw here too.
     //	}
 
+    @Override
+    public boolean resetActiveItem(Player player) {
+        ((CraftPlayer) player).getHandle().bA();
+        return true;
+    }
+
 }

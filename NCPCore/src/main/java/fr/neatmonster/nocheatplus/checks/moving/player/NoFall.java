@@ -106,7 +106,9 @@ public class NoFall extends Check {
         // Damage to be dealt.
         final float fallDist = (float) getApplicableFallHeight(player, y, previousSetBackY, data);
         double maxD = getDamage(fallDist);
-        maxD = calcDamagewithfeatherfalling(player, calcReducedDamageByHB(player, maxD));
+        maxD = calcDamagewithfeatherfalling(player, 
+                calcReducedDamageByHB(player, data, maxD), 
+                mcAccess.getHandle().dealFallDamageFiresAnEvent().decide());
         fallOn(player, fallDist);
 
         if (maxD >= Magic.FALL_DAMAGE_MINIMUM) {
@@ -190,9 +192,9 @@ public class NoFall extends Check {
         }
     	return true;
     }
-    
-    public static double calcDamagewithfeatherfalling(Player player, double damage) {
-        if (!Bridge1_13.hasIsSwimming()) return damage;
+
+    public static double calcDamagewithfeatherfalling(Player player, double damage, boolean active) {
+        if (active) return damage;
         if (BridgeEnchant.hasFeatherFalling() && damage > 0.0) {
             int levelench = BridgeEnchant.getFeatherFallingLevel(player);
             if (levelench > 0) {
@@ -205,10 +207,15 @@ public class NoFall extends Check {
     }
     
     /** Calculate the damage was reduced by HoneyBlock */
-    public static double calcReducedDamageByHB(final Player player ,final double damage) {
-    	final Material blockmat = player.getLocation().subtract(0, 0.5, 0).getBlock().getType();
-    	if ((BlockProperties.getBlockFlags(blockmat) & BlockProperties.F_STICKY) != 0) return Math.round(damage / 5);
-    	return damage;
+    public static double calcReducedDamageByHB(final Player player, final MovingData data,final double damage) {
+        final PlayerMoveData validmove = data.playerMoves.getLatestValidMove();
+        if (validmove != null && validmove.toIsValid) {
+    	    final Material blockmat = player.getWorld().getBlockAt(
+    	            Location.locToBlock(validmove.to.getX()), Location.locToBlock(validmove.to.getY()), Location.locToBlock(validmove.to.getZ())
+    	            ).getType();
+    	    if ((BlockProperties.getBlockFlags(blockmat) & BlockProperties.F_STICKY) != 0) return Math.round(damage / 5);
+        }
+        return damage;
     }
 
     /**

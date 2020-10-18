@@ -69,8 +69,9 @@ public class MultiClientProtocolBlockShapePatch extends AbstractBlockPropertiesP
         done.add("soil");
 
         try {
-            BlockInit.setAs("HONEY_BLOCK", BridgeMaterial.FARMLAND);
-            BlockFlags.addFlags("HONEY_BLOCK", BlockProperties.F_STICKY);
+            BlockFlags.addFlags("HONEY_BLOCK", BlockProperties.F_MIN_HEIGHT16_15 
+                | BlockProperties.F_HEIGHT100 
+                | BlockProperties.F_GROUND_HEIGHT);
             done.add("honey_block");
         }
 

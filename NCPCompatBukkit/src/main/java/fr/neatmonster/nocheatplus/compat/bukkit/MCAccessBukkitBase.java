@@ -116,7 +116,7 @@ public class MCAccessBukkitBase implements MCAccess {
     public String getMCVersion() {
         // Bukkit API.
         // TODO: maybe output something else.
-        return "1.6.1-1.14.4|?"; // uh oh
+        return "1.4.6-1.15.2|?"; // uh oh
     }
 
     @Override
@@ -375,6 +375,11 @@ public class MCAccessBukkitBase implements MCAccess {
     @Override
     public AlmostBoolean dealFallDamageFiresAnEvent() {
         return AlmostBoolean.NO; // Assumption.
+    }
+
+    @Override
+    public boolean resetActiveItem(Player player) {
+        return false; // Assumption.
     }
 
     //  @Override

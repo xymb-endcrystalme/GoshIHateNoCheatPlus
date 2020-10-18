@@ -188,5 +188,10 @@ public interface MCAccess extends IGetBlockCache, IEntityAccessDimensions {
     //	 */
     //	public void correctDirection(Player player);
 
-
+    /**
+     * Reset active item
+     * @param player
+     * @return true if can reset and vice versa
+     */
+    public boolean resetActiveItem(Player player);
 }
