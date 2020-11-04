@@ -169,8 +169,6 @@ public class ChatListener extends CheckListener implements INotifyReload, JoinLe
     public void onPlayerCommandPreprocess(final PlayerCommandPreprocessEvent event) {
         final Player player = event.getPlayer();
 
-        if (!DataManager.getPlayerData(player).isCheckActive(CheckType.CHAT, player)) return;
-
         // Tell TickTask to update cached permissions.
         final IPlayerData pData = DataManager.getPlayerData(player);
         final ChatConfig cc = pData.getGenericInstance(ChatConfig.class);
