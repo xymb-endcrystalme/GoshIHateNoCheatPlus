@@ -361,7 +361,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         if (!cancelled && player.isBlocking() 
                 && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_BLOCKING, player)) {
             // TODO: Permission ?
-            if (mCc.survivalFlyResetItem && mcAccess.getHandle().resetActiveItem(damagedPlayer)) {
+            if (mCc.survivalFlyResetItem && mcAccess.getHandle().resetActiveItem(player)) {
 
             } else cancelled = true;
         }

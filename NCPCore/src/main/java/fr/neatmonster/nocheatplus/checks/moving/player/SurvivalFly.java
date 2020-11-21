@@ -472,17 +472,18 @@ public class SurvivalFly extends Check {
             //    }
             //}
 
-           // Simple way to prevent players from sprinting if they have the blindness effect. 
-           // Possibly just merge this with sprintback?
-           if (player.isSprinting() && player.hasPotionEffect(PotionEffectType.BLINDNESS)
+            // Simple way to prevent players from sprinting if they have the blindness effect. 
+            // Possibly just merge this with sprintback?
+            if (player.isSprinting() && player.hasPotionEffect(PotionEffectType.BLINDNESS)
                && data.lostSprintCount == 0
                && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_SPRINTING, player)) {
                hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
                tags.add("badsprint");
-           }
+            }
 
-           // Decrease tick after checking
-           if (data.bunnyhopTick > 0) data.bunnyhopTick--;
+            // Decrease tick after checking
+            if (data.bunnyhopTick > 0) data.bunnyhopTick--;
+            if (data.keepfrictiontick > 0) data.keepfrictiontick--;
 
         }
         else {
@@ -987,23 +988,23 @@ public class SurvivalFly extends Check {
         }
 
         else if (thisMove.from.onSoulSand) {
-             tags.add("hsoulsand");
+            tags.add("hsoulsand");
             //friction = 0.0;
-            hAllowedDistance = Magic.modSoulSand * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
-            if (BridgeEnchant.hasSoulSpeed(player)) hAllowedDistance *= 1.4;
+            final boolean hasenchant = BridgeEnchant.hasSoulSpeed(player);
+            final boolean insoulblock = (BlockProperties.getBlockFlags(from.getTypeId()) & BlockProperties.F_SOULSAND) != 0;
+            if (insoulblock) {
+                hAllowedDistance = Magic.modSoulSand * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+                if (hasenchant) hAllowedDistance *= 1.4;
+            } else hAllowedDistance = (sprinting ? Magic.modSprint : 1.0) * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+            if (hasenchant) data.keepfrictiontick = 60;
             useBaseModifiers = true;
         }
 
         // Honeyblock
         else if (ShouldApplyHBSpeed(from)) {
             tags.add("hhoneyblock");
-            if (!thisMove.to.onGround) {
-               hAllowedDistance = Magic.modSoulSand * 1.75 * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D; 
-            }
-            else {
-               hAllowedDistance = Magic.modSoulSand * 0.8 * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
-            }
-               useBaseModifiers = true;
+            hAllowedDistance = Magic.modSoulSand * (thisMove.to.onGround ? 0.8 : 1.75) * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+            useBaseModifiers = true;
         }
 
         // In liquid
@@ -1200,8 +1201,7 @@ public class SurvivalFly extends Check {
                     hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D * 1.14;
                 }
                 else if (data.bunnyhopTick > 0) {
-                    if (data.bunnyhopTick < 3) hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D * 1.15; 
-                    else hAllowedDistance = Magic.modSprint * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
+                    hAllowedDistance = (data.bunnyhopTick < 3 ? 1.15 : Magic.modSprint) * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
                     if (snowFix && data.bunnyhopTick > 5) hAllowedDistance *= 1.6;
                 }
                 else hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;               
@@ -1273,6 +1273,13 @@ public class SurvivalFly extends Check {
         else if (data.sfOnIce > 0) {
             tags.add("hice");
             hAllowedDistance *= 1.0 + 0.025 * data.sfOnIce;
+        }
+
+        if (data.keepfrictiontick > 0) {
+            if (!BridgeEnchant.hasSoulSpeed(player)) {
+                data.keepfrictiontick = 0;
+            } else
+            if (lastMove.toIsValid) hAllowedDistance = Math.max(hAllowedDistance, lastMove.hAllowedDistance * 0.96);
         }
 
         // Speeding bypass permission (can be combined with other bypasses).
@@ -1662,7 +1669,7 @@ public class SurvivalFly extends Check {
 
 
         // Absolute y-distance to set back.
-        if (!pData.hasPermission(Permissions.MOVING_SURVIVALFLY_STEP, player) && yDistance > 0.0 && !data.isVelocityJumpPhase()) {
+        if (!pData.hasPermission(Permissions.MOVING_SURVIVALFLY_STEP, player) && yDistance > 0.0 && !data.isVelocityJumpPhase() && data.hasSetBack()) {
             // TODO: Only allow higher violation when only in water (1.13 Swimming)
             // TODO: Maintain a value in data, adjusting to velocity?
             // TODO: LIMIT_JUMP 
@@ -1685,7 +1692,7 @@ public class SurvivalFly extends Check {
                 else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
                     // Ignore riptiding for now
                 }
-                else if ((totalVDistViolation < 0.4 && data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID)) {
+                else if ((totalVDistViolation < 0.8 && data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID)) {
                     // Ignore water logged blocks 
                 }
                 // Attempt to use velocity.
@@ -2261,7 +2268,7 @@ public class SurvivalFly extends Check {
                     // Normal speed
                     if (hDistance <= allowedspeed
                         // Exemption
-                        || data.bunnyhopTick > 6 || data.isVelocityJumpPhase() || (thisMove.headObstructed && hDistance < 0.39)) hDistanceAboveLimit = 0.0;
+                        || data.bunnyhopTick > 6 || data.isVelocityJumpPhase() || thisMove.headObstructed && hDistance < 0.39 || data.keepfrictiontick > 0) hDistanceAboveLimit = 0.0;
                     if (data.bunnyhopDelay == 1 && !thisMove.to.onGround && !to.isResetCond()) {
                         // ... one move between toonground and liftoff remains for hbuf ...
                         data.bunnyhopDelay++;
@@ -2357,7 +2364,10 @@ public class SurvivalFly extends Check {
         // Check hop (singular peak up to roughly two times the allowed distance).
         // TODO: Needs better modeling.
         if (allowHop && hDistance >= hDistanceBaseRef
-                && (hDistance > (((!lastMove.toIsValid || lastMove.hDistance == 0.0 && lastMove.yDistance == 0.0) ? 1.11 : 1.314)) * hDistanceBaseRef) 
+                && (hDistance > ((!lastMove.toIsValid || lastMove.hDistance == 0.0 && lastMove.yDistance == 0.0) ? 1.11 : 1.314) * hDistanceBaseRef
+                    // 
+                    || data.keepfrictiontick > 0
+                        )
                 && hDistance < (data.bunnyhopTick > 0 ? (data.bunnyhopTick > 2 ? 1.76 : 1.96) : 2.15) * hDistanceBaseRef
                 // TODO: Walk speed (static or not) is not a good reference, switch to need normal/base speed instead.
                 || (yDistance > from.getyOnGround() || hDistance < (data.bunnyhopTick > 0 ? (data.bunnyhopTick > 2 ? 1.9 : 2.1) : 2.3) * hDistanceBaseRef) && lastMove.toIsValid && hDistance > 1.314 * lastMove.hDistance && hDistance < 2.15 * lastMove.hDistance

@@ -47,6 +47,7 @@ public class BlocksMC1_16 implements BlockPropertiesSetup{
         BlockInit.setPropsAs("QUARTZ_BRICKS", "QUARTZ_BLOCK");
         // Soul Soil
         BlockInit.setAs("SOUL_SOIL", Material.SAND);
+        BlockFlags.addFlags("SOUL_SOIL", BlockProperties.F_SOULSAND);
         // More Obsidian block
         BlockInit.setAs("CRYING_OBSIDIAN", Material.OBSIDIAN);
         BlockInit.setAs("RESPAWN_ANCHOR", Material.OBSIDIAN);

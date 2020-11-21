@@ -366,8 +366,12 @@ public class NoFall extends Check {
          * F_FALLDIST_HALF). Resetcond as trigger: if (resetFrom) { ...
          */
         // TODO: Also handle from and to independently (rather fire twice than wait for next time).
-        final boolean fromReset = from.resetCond;
-        final boolean toReset = to.resetCond;
+        boolean onClimbableFrom = false;
+        boolean onClimbableTo = false;
+        if (pFrom.getBlockFlags() != null) onClimbableFrom = (pFrom.getBlockFlags() & BlockProperties.F_CLIMBABLE) != 0;
+        if (pTo.getBlockFlags() != null) onClimbableTo = (pTo.getBlockFlags() & BlockProperties.F_CLIMBABLE) != 0;
+        final boolean fromReset = from.resetCond || onClimbableFrom && !BlockProperties.isGround(pFrom.getTypeIdBelow());
+        final boolean toReset = to.resetCond || onClimbableTo && !BlockProperties.isGround(pTo.getTypeIdBelow());
 
         final boolean fromOnGround, toOnGround;
         // Adapt yOnGround if necessary (sf uses another setting).

@@ -97,6 +97,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int            watermovect = 0;
     public boolean        snowFix = false;
     public boolean        isdownstream = false;
+    public int            keepfrictiontick = 0;
     public int            bunnyhopDelay;
     public int            lastbunnyhopDelay = 0;
     public int            bunnyhopTick = 0;
@@ -656,7 +657,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     }
 
     public double getSetBackY() {
-        return setBack.getY();
+        return hasSetBack() ? setBack.getY() : 0.0;
     }
 
     public double getSetBackZ() {
