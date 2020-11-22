@@ -1636,17 +1636,18 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         // Test for exceptions.
         if (Bridge1_9.isWearingElytra(player) && lastMove.modelFlying != null && lastMove.modelFlying.getId().equals(MovingConfig.ID_JETPACK_ELYTRA)) {
             data.addVerticalVelocity(new SimpleEntry(lastMove.yDistance < -0.1034 ? (lastMove.yDistance * Magic.FRICTION_MEDIUM_AIR + 0.1034) : lastMove.yDistance, 3));
-            data.addVerticalVelocity(new SimpleEntry(0.34, 3));
+            //data.addVerticalVelocity(new SimpleEntry(0.34, 3));
+            data.keepfrictiontick = -10;
             if (thisMove.hDistance > defaultAmount) {
                 // Allowing the same speed won't always work on elytra (still increasing, differing modeling on client side with motXYZ).
                 // (Doesn't seem to be overly effective.)
                 final PlayerMoveData secondPastMove = data.playerMoves.getSecondPastMove();
                 if (data.fireworksBoostDuration > 0 && Math.round(data.fireworksBoostTickNeedCheck / 4.5) <= data.fireworksBoostDuration) {
-                    data.addHorizontalVelocity(new AccountEntry(1.9, 2, 15));
+                    data.addHorizontalVelocity(new AccountEntry(2.0, 2, 15));
                     return 0.0;
                 } else if (lastMove.toIsValid && lastMove.hAllowedDistance > 0.0) return lastMove.hAllowedDistance; // This one might replace below?
                 if (secondPastMove.modelFlying != null && Magic.glideEnvelopeWithHorizontalGain(thisMove, lastMove, secondPastMove)) {
-                    return lastMove.hDistance + 0.1468;
+                    return lastMove.hDistance + 0.5;
                 }
             }
         }

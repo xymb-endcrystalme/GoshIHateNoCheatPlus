@@ -680,7 +680,7 @@ public class CreativeFly extends Check {
             }
 
             // Adjust false
-            allwHDistance += Math.sqrt(x*x + z*z) + 0.05;
+            allwHDistance += Math.sqrt(x*x + z*z) + 0.1;
             // Difference from vAllowedDistance to yDistance.
             final double yDistDiffEx = yDistance - allwyDistance;
 

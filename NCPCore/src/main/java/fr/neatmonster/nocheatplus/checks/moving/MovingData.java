@@ -97,6 +97,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int            watermovect = 0;
     public boolean        snowFix = false;
     public boolean        isdownstream = false;
+	/** tick for repeated motion or remain high motion */
     public int            keepfrictiontick = 0;
     public int            bunnyhopDelay;
     public int            lastbunnyhopDelay = 0;

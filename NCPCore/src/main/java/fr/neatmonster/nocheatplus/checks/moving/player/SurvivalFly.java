@@ -483,7 +483,10 @@ public class SurvivalFly extends Check {
 
             // Decrease tick after checking
             if (data.bunnyhopTick > 0) data.bunnyhopTick--;
+            // Count down for soul speed affection
             if (data.keepfrictiontick > 0) data.keepfrictiontick--;
+            // Count up for ending special move from creativefly, waiting incoming repeated y motion
+            if (data.keepfrictiontick < 0) data.keepfrictiontick++;
 
         }
         else {
@@ -1555,9 +1558,15 @@ public class SurvivalFly extends Check {
                     )) {
                     // False positives when break block below too fast. Seem newly appeared in recent versions 
                 }
-                //else if (Bridge1_13.hasIsSwimming() && from.isOnGround(0.125) && (from.getBlockFlags() & BlockProperties.F_HEIGHT_8_INC) != 0 && yDistance > 0.0 && yDistance < 0.43) {
-                //  thisMove.touchedGround = true;
-                //}
+                else if (data.keepfrictiontick < 0) {
+                    if (lastMove.toIsValid) {
+                        if (yDistance < 0.4 && lastMove.yDistance == yDistance) {
+                            data.keepfrictiontick = 0;
+                            data.setFrictionJumpPhase();
+                        }
+                    } else data.keepfrictiontick = 0;
+                    // False positives when turn special move to normal (mostly elytra case)
+                }
                 else {
                     // Violation.
                     vDistRelVL = true;
@@ -1594,9 +1603,13 @@ public class SurvivalFly extends Check {
                 // Allow too strong decrease.
                 // TODO: Another magic check here? Route most checks through methods anyway?
             }
-        else if (isLanternUpper(to)) {
+            else if (isLanternUpper(to)) {
                 // Ignore
-        }
+            }
+            else if (data.fireworksBoostDuration > 0 && data.keepfrictiontick < 0 && lastMove.toIsValid) {
+                // Elytra
+                data.keepfrictiontick = 0;
+            }
             else {
                 vDistRelVL = true;
             }
@@ -1648,6 +1661,10 @@ public class SurvivalFly extends Check {
                     || yDistance < -0.288 && yDistance > -0.32 && lastMove.yDistance > -0.1 && lastMove.yDistance < 0.005
                     )) {
                 // False positives when break block below too fast. Seem newly appeared in recent versions
+            }
+            else if (data.fireworksBoostDuration > 0 && data.keepfrictiontick < 0 && lastMove.toIsValid && yDistance - lastMove.yDistance > -0.7) {
+                // Elytra
+                data.keepfrictiontick = 0;
             }
             else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
                 vDistRelVL = false;
