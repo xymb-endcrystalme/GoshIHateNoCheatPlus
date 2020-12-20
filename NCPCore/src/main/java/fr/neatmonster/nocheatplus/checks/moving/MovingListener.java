@@ -3112,8 +3112,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
     @Override
     public IData removeData(String playerName) {
-        hoverTicks.remove(playerName);
-        playersEnforce.remove(playerName);
+        // Let TickListener handle automatically
+        //hoverTicks.remove(playerName);
+        //playersEnforce.remove(playerName);
         return null;
     }
 

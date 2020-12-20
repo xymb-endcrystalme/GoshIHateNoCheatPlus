@@ -28,6 +28,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.command.BaseCommand;
+import fr.neatmonster.nocheatplus.command.CommandUtil;
 import fr.neatmonster.nocheatplus.compat.AlmostBoolean;
 import fr.neatmonster.nocheatplus.components.config.value.OverrideType;
 import fr.neatmonster.nocheatplus.players.DataManager;
@@ -58,12 +59,12 @@ public class DebugPlayerCommand extends BaseCommand {
                     CheckType checkType = CheckType.valueOf(split[i].toUpperCase().replace('.', '_'));
                     if (checkType == null) {
                         // TODO: Possible !?
-                        return null;
+                        return entry;
                     }
                     entry.checkTypes.add(checkType);
                 }
                 catch (Exception e){
-                    return null;
+                    return entry;
                 }
             }
             return entry;
@@ -73,11 +74,24 @@ public class DebugPlayerCommand extends BaseCommand {
 
     public DebugPlayerCommand(JavaPlugin plugin) {
         super(plugin, "player", null);
-        usage = "/ncp debug player ... online player name or UUID, ?(yes|no|default)[:CheckType1[:CheckType2...]] to set the default behavior - mix with player names/ids.";
+        usage = "/ncp debug player ... online player name or UUID, (yes|no|default)[:CheckType1[:CheckType2...]] to set the default behavior - mix with player names/ids.";
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (args.length == 4) {
+            String[] parts = args[3].split(":");
+            if (parts.length == 1) {
+                return Arrays.asList("no", "yes", "default");
+            } else {
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < parts.length - 1; i++) {
+                    builder.append(parts[i]);
+                    builder.append(":");
+                }
+                return CommandUtil.getCheckTypeTabMatches2(parts[parts.length-1], builder.toString());
+            }
+        }
         return null; // Tab-complete player names. 
     }
 
@@ -88,62 +102,61 @@ public class DebugPlayerCommand extends BaseCommand {
 
         // Note that MAYBE means to reset here, it's not the same as direct PlayerData API access.
         DebugEntry entry = new DebugEntry();
-        for (int i = 2; i < args.length; i++) {
-            String input = args[i];
-            if (input.startsWith("?")) {
-                entry = DebugEntry.parseEntry(input.substring(1));
-                if (entry == null) {
-                    sender.sendMessage("Bad setup: " + input);
-                    // Can't continue.
-                    return true;
-                }
-                else {
-                    // Only update the entry.
-                    continue;
-                }
-            }
-
-            final String name = input;
-            final Player player;
-            if (IdUtil.isValidMinecraftUserName(name)) {
-                player = DataManager.getPlayer(name);
+        Player player = null;
+        if (args.length > 2) {
+            final String input = args[2];
+            if (IdUtil.isValidMinecraftUserName(input)) {
+                player = DataManager.getPlayer(input);
             }
             else {
                 UUID id = IdUtil.UUIDFromStringSafe(input);
                 if (id == null) {
                     sender.sendMessage("Bad name or UUID: " + input);
-                    continue;
+                    return true;
                 }
                 else {
                     player = DataManager.getPlayer(id);
                 }
             }
             if (player == null) {
-                sender.sendMessage("Not online: " + name);
-                continue;
+                sender.sendMessage("Not online: " + input);
+                return true;
             }
+        } else if (args.length <= 2) {
+            sender.sendMessage("Bad setup!");
+            return true;
+        }
 
-            // Execute for online player.
-            final Collection<CheckType> checkTypes;
-            if (entry.checkTypes.isEmpty()) {
-                // CheckType.ALL
-                checkTypes = Arrays.asList(CheckType.ALL);
+        if (args.length > 3) {
+            String input = args[3];
+            entry = DebugEntry.parseEntry(input);
+            if (entry == null) {
+                sender.sendMessage("Bad setup: " + input);
+                // Can't continue.
+                return true;
+            }
+        }
+
+        // Execute for online player.
+        final Collection<CheckType> checkTypes;
+        if (entry.checkTypes.isEmpty()) {
+            // CheckType.ALL
+            checkTypes = Arrays.asList(CheckType.ALL);
+        }
+        else {
+            checkTypes = entry.checkTypes;
+        }
+        final IPlayerData data = DataManager.getPlayerData(player);
+        for (final CheckType checkType : checkTypes) {
+            if (entry.active == AlmostBoolean.MAYBE) {
+                data.resetDebug(checkType);
             }
             else {
-                checkTypes = entry.checkTypes;
+                data.overrideDebug(checkType, entry.active, 
+                        OverrideType.CUSTOM, true);
             }
-            final IPlayerData data = DataManager.getPlayerData(player);
-            for (final CheckType checkType : checkTypes) {
-                if (entry.active == AlmostBoolean.MAYBE) {
-                    data.resetDebug(checkType);
-                }
-                else {
-                    data.overrideDebug(checkType, entry.active, 
-                            OverrideType.CUSTOM, true);
-                }
-            }
-            sender.sendMessage("Set debug = " + entry.active + " for player " + player.getName() + " for checks: " + StringUtil.join(checkTypes, ","));
         }
+        sender.sendMessage("Set debug = " + entry.active + " for player " + player.getName() + " for checks: " + StringUtil.join(checkTypes, ","));
         return true;
     }
 

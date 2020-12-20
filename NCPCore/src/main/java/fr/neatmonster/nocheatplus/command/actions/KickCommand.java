@@ -16,6 +16,7 @@ package fr.neatmonster.nocheatplus.command.actions;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -29,8 +30,10 @@ import fr.neatmonster.nocheatplus.players.DataManager;
 
 public class KickCommand extends BaseCommand {
 
+    private final JavaPlugin plugin;
     public KickCommand(JavaPlugin plugin) {
         super(plugin, "kick", Permissions.COMMAND_KICK);
+        this.plugin = plugin;
     }
 
     @Override
@@ -51,8 +54,13 @@ public class KickCommand extends BaseCommand {
     void kick(CommandSender sender, String name, String reason) {
         Player player = DataManager.getPlayer(name);
         if (player == null) return;
-        player.kickPlayer(reason);
-        StaticLog.logInfo("(" + sender.getName() + ") Kicked " + player.getName() + " : " + reason);
+        Bukkit.getScheduler().runTask(plugin, new Runnable() {
+            @Override
+            public void run() {
+                player.kickPlayer(reason);
+                StaticLog.logInfo("(" + sender.getName() + ") Kicked " + player.getName() + " : " + reason);
+            }
+        });
     }
 
     /* (non-Javadoc)
