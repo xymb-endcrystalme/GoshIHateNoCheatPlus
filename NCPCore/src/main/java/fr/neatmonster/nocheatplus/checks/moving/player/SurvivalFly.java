@@ -750,7 +750,7 @@ public class SurvivalFly extends Check {
     }
     
   /**
-    * Directly checks for certain cheat implementation types that aim at walking on water
+    * Directly checks for certain cheat implementation types that aim at walking on liquids
     * 
     * @param hDistance
     * @param yDistance
@@ -783,11 +783,11 @@ public class SurvivalFly extends Check {
             
             // hDist and vDist checks, simply checks for horizontal movement with little y distance
             if (!data.newHDist && hDistanceAboveLimit <= 0D && hDistance > 0.11D && yDistance <= 0.1D 
-		  && !toOnGround && !fromOnGround
+		&& !toOnGround && !fromOnGround
                 && lastMove.toIsValid && lastMove.yDistance == yDistance 
                 || lastMove.yDistance == yDistance * -1 && lastMove.yDistance != 0D
                 && !from.isHeadObstructed() && !to.isHeadObstructed() 
-		  && !Bridge1_13.isSwimming(player)
+		&& !Bridge1_13.isSwimming(player)
             ) {
                 // Prevent being flagged if a player transitions from a block to water and the player falls into the water.
                 if (!(yDistance < 0.0 && yDistance != 0.0 && lastMove.yDistance < 0.0 && lastMove.yDistance != 0.0)) {
