@@ -780,7 +780,7 @@ public class SurvivalFly extends Check {
         if (blockUnder != null && blockAbove != null && blockUnder.getType().toString().endsWith("WATER") && blockAbove.name().endsWith("AIR")) {
             if (hDistanceAboveLimit <= 0D && hDistance > 0.1D && lastMove.toIsValid 
                 && yDistance <= 0.1D && lastMove.yDistance == yDistance || lastMove.yDistance == yDistance * -1 && lastMove.yDistance != 0.0
-		  && !data.newHDist
+		&& !data.newHDist
                 && !from.isHeadObstructed() && !to.isHeadObstructed() 
                 && !Bridge1_13.isSwimming(player)
                 && !toOnGround && !fromOnGround) {
@@ -1031,13 +1031,14 @@ public class SurvivalFly extends Check {
 
         // Reset noslow check if has velocity
         if (data.noslowhop != 0 && (sfDirty || (!data.isusingitem && !player.isBlocking()))) data.noslowhop = 0;
+        // (0 = no checking, 1 = check when leaving a liquid block until touching the ground).
         if (!data.liftOffEnvelope.name().startsWith("LIMIT") || sfDirty) data.watermovect = 0;
 
         // Webs
         // TODO: if (from.isOnIce()) <- makes it even slower !
         if (thisMove.from.inWeb && (from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) == 0) {
             data.sfOnIce = 0;
-            tags.add((from.getBlockFlags() & BlockProperties.F_COBWEB2) !=0 ? "bush" : "hweb");
+            tags.add((from.getBlockFlags() & BlockProperties.F_COBWEB2) != 0 ? "bush" : "hweb");
             hAllowedDistance = Magic.modWeb * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             useBaseModifiersSprint = false; // Cobweb doesn't apply speed effect but BerryBush does
             from.collectBlockFlags(); // Just ensure.
@@ -1116,7 +1117,7 @@ public class SurvivalFly extends Check {
         // TODO: Move to Creativefly
         else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
             tags.add("hriptide");
-            hAllowedDistance = Magic.modRiptide[data.RiptideLevel] * thisMove.walkSpeed * cc.survivalFlySpeedingSpeed / 100D;
+            hAllowedDistance = Magic.modRiptide[data.RiptideLevel] * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
         }
 
         // Stairs
@@ -1126,7 +1127,7 @@ public class SurvivalFly extends Check {
             useBaseModifiers = true;
             hAllowedDistance = (thisMove.yDistance == 0.5 ? 1.85 : 1.325) * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             if (TrigUtil.isMovingBackwards(thisMove.to.getX() - thisMove.from.getX(), thisMove.to.getZ() - thisMove.from.getZ(), LocUtil.correctYaw(from.getYaw()))){
-                hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
+                hAllowedDistance = thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             }
 
             if (!Double.isInfinite(mcAccess.getHandle().getFasterMovementAmplifier(player))) hAllowedDistance *= 0.88;
@@ -1173,7 +1174,7 @@ public class SurvivalFly extends Check {
             final int blockunderdata = from.getData(from.getBlockX(), from.getBlockY() -1, from.getBlockZ());
             if (blockdata > 3 || blockunderdata > 3 || data.isdownstream) {
                 data.watermovect = 0;
-                hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
+                hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySwimmingSpeed / 100D;
                 data.isdownstream = false;
             }
         }
@@ -1261,7 +1262,7 @@ public class SurvivalFly extends Check {
         // Collision with entities (1.9+)
         else if (Bridge1_9.hasLevitation() && CollisionUtil.isCollidingWithEntities(player, true) && hAllowedDistance < 0.35) {
             tags.add("hcollision");
-            hAllowedDistance = 1.36 * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
+            hAllowedDistance = 1.36 * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             useBaseModifiers = true;
             data.bunnyhopTick = 20;
             friction = 0.0;
