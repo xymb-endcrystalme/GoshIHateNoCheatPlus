@@ -763,31 +763,36 @@ public class SurvivalFly extends Check {
                                    final boolean fromOnGround, double hDistanceAboveLimit,
                                    final boolean toOnGround, final PlayerLocation from, final PlayerLocation to){
 
-        if (hDistanceAboveLimit <= 0D && hDistance > 0.1D && yDistance == 0D && lastMove.toIsValid && lastMove.yDistance == 0D
-            && !toOnGround && !fromOnGround  
+        if (hDistanceAboveLimit <= 0D && hDistance > 0.1D && yDistance == 0D && lastMove.toIsValid && lastMove.yDistance == 0D 
             && BlockProperties.isLiquid(to.getTypeId()) 
-            && BlockProperties.isLiquid(from.getTypeId())
+	    && BlockProperties.isLiquid(from.getTypeId())
+            && !toOnGround && !fromOnGround
             && !from.isHeadObstructed() && !to.isHeadObstructed() 
-            && !Bridge1_13.isSwimming(player) 
+	    && !Bridge1_13.isSwimming(player)
             ) {
             hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
-            tags.add("waterwalk");
+            tags.add("liquidwalk");
         }
             
-        final Block blockUnder = player.getLocation().subtract(0, 0.3, 0).getBlock();
-        final Material blockAbove = player.getLocation().add(0, 0.10, 0).getBlock().getType();
-	    
-        if (blockUnder != null && blockAbove != null && blockUnder.getType().toString().endsWith("WATER") && blockAbove.name().endsWith("AIR")) {
-            if (hDistanceAboveLimit <= 0D && hDistance > 0.1D && lastMove.toIsValid 
-                && yDistance <= 0.1D && lastMove.yDistance == yDistance || lastMove.yDistance == yDistance * -1 && lastMove.yDistance != 0.0
-		&& !data.newHDist
+        // Detects walking directly above water
+        Block blockUnder = player.getLocation().subtract(0, 0.3, 0).getBlock();
+        Material blockAbove = player.getLocation().add(0, 0.10, 0).getBlock().getType();
+        if (blockUnder != null && blockAbove != null && blockAbove.name().endsWith("AIR")
+            && (blockUnder.getType().toString().endsWith("WATER") || blockUnder.getType().toString().endsWith("LAVA"))
+            ) {
+            
+            // hDist and vDist checks, simply checks for horizontal movement with little y distance
+            if (!data.newHDist && hDistanceAboveLimit <= 0D && hDistance > 0.11D && yDistance <= 0.1D 
+		  && !toOnGround && !fromOnGround
+                && lastMove.toIsValid && lastMove.yDistance == yDistance 
+                || lastMove.yDistance == yDistance * -1 && lastMove.yDistance != 0D
                 && !from.isHeadObstructed() && !to.isHeadObstructed() 
-                && !Bridge1_13.isSwimming(player)
-                && !toOnGround && !fromOnGround) {
+		  && !Bridge1_13.isSwimming(player)
+            ) {
                 // Prevent being flagged if a player transitions from a block to water and the player falls into the water.
                 if (!(yDistance < 0.0 && yDistance != 0.0 && lastMove.yDistance < 0.0 && lastMove.yDistance != 0.0)) {
                     hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
-                    tags.add("watermove");
+                    tags.add("liquidmove");
                 }
             }
         }
