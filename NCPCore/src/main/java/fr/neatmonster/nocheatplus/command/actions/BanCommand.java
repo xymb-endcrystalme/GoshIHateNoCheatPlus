@@ -33,8 +33,10 @@ import fr.neatmonster.nocheatplus.utilities.IdUtil;
 
 public class BanCommand extends BaseCommand {
 
+    private final JavaPlugin plugin;
     public BanCommand(JavaPlugin plugin) {
         super(plugin, "ban", Permissions.COMMAND_BAN);
+        this.plugin = plugin;
     }
 
     @Override
@@ -79,7 +81,7 @@ public class BanCommand extends BaseCommand {
             }
         }
         if (player != null){
-            player.kickPlayer(reason);
+            Bukkit.getScheduler().runTask(plugin, ()-> player.kickPlayer(reason));
         }
         // Relay to the server command for compatibility reasons.
         server.dispatchCommand(server.getConsoleSender(), "ban " + name);

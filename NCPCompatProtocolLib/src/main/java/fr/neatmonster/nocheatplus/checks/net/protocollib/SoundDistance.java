@@ -140,8 +140,7 @@ public class SoundDistance extends BaseAdapter {
         }
     }
 
-    @Override
-    public void onPacketSending(final PacketEvent event) {
+    private void handleSoundPacket(final PacketEvent event) {
         try {
             if (event.isPlayerTemporary()) return;
         } catch(NoSuchMethodError e) {
@@ -174,6 +173,16 @@ public class SoundDistance extends BaseAdapter {
             counters.add(idSoundEffectCancel, 1);
         }
         useLoc.setWorld(null);
+    }
+    
+    @Override
+    public void onPacketSending(final PacketEvent event) {
+        try {
+            handleSoundPacket(event);
+        } catch(Throwable t) {
+            t.printStackTrace();
+            ProtocolLibComponent.unregister(this);
+        }
     }
 
 }

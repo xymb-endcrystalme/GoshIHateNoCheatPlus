@@ -353,10 +353,10 @@ public class BlockInteractListener extends CheckListener {
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
         final BlockInteractData data = pData.getGenericInstance(BlockInteractData.class);
-
-        if (!pData.isCheckActive(CheckType.BLOCKINTERACT, player)) return;
-
         data.setPlayerInteractEventResolution(event);
+
+        if (!pData.isCheckActive(CheckType.MOVING, player)) return;
+
         /*
          * TODO: BlockDamageEvent fires before BlockInteract/MONITOR level,
          * BlockBreak after (!). Thus resolution is set on LOWEST already,

@@ -87,7 +87,7 @@ public class ProtocolLibComponent implements IDisableListener, INotifyReload, Jo
 
     // INSTANCE ----
 
-    private final List<PacketAdapter> registeredPacketAdapters = new LinkedList<PacketAdapter>();
+    private static final List<PacketAdapter> registeredPacketAdapters = new LinkedList<PacketAdapter>();
 
     public ProtocolLibComponent(Plugin plugin) {
         register(plugin);
@@ -127,8 +127,8 @@ public class ProtocolLibComponent implements IDisableListener, INotifyReload, Jo
         if (worldMan.isActiveAnywhere(CheckType.NET_SOUNDDISTANCE)) {
             register("fr.neatmonster.nocheatplus.checks.net.protocollib.SoundDistance", plugin);
         }
-		if (worldMan.isActiveAnywhere(CheckType.NET_WRONGTURN)) {
-        	register("fr.neatmonster.nocheatplus.checks.net.protocollib.WrongTurnAdapter", plugin);
+        if (worldMan.isActiveAnywhere(CheckType.NET_WRONGTURN)) {
+            register("fr.neatmonster.nocheatplus.checks.net.protocollib.WrongTurnAdapter", plugin);
         }
         if (ServerVersion.compareMinecraftVersion("1.9") < 0) {
             if (worldMan.isActiveAnywhere(CheckType.NET_PACKETFREQUENCY)) {
@@ -137,7 +137,7 @@ public class ProtocolLibComponent implements IDisableListener, INotifyReload, Jo
         }
         if (ServerVersion.compareMinecraftVersion("1.8") >= 0) {
         	register("fr.neatmonster.nocheatplus.checks.net.protocollib.NoSlow", plugin);
-			register("fr.neatmonster.nocheatplus.checks.net.protocollib.Fight", plugin);
+            register("fr.neatmonster.nocheatplus.checks.net.protocollib.Fight", plugin);
         }
         if (!registeredPacketAdapters.isEmpty()) {
             List<String> names = new ArrayList<String>(registeredPacketAdapters.size());
@@ -207,6 +207,24 @@ public class ProtocolLibComponent implements IDisableListener, INotifyReload, Jo
 
         }
         registeredPacketAdapters.clear();
+    }
+
+    protected static void unregister(PacketAdapter adapter) {
+        final ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
+        final NoCheatPlusAPI api = NCPAPIProvider.getNoCheatPlusAPI();
+        try {
+            protocolManager.removePacketListener(adapter);
+            api.removeComponent(adapter); // Bit heavy, but consistent.
+            registeredPacketAdapters.remove(adapter);
+            List<String> names = new ArrayList<String>(registeredPacketAdapters.size());
+            for (PacketAdapter adaptern : registeredPacketAdapters) {
+                names.add(adaptern.getClass().getSimpleName());
+            }
+            api.setFeatureTags("packet-listeners", names);
+            StaticLog.logInfo("Unregistered packet level hook:" + adapter.getClass().getName());
+        } catch (Throwable t) {
+            StaticLog.logWarning("Failed to unregister packet level hook: " + adapter.getClass().getName());
+        }
     }
 
     @Override

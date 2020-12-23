@@ -772,7 +772,7 @@ public class PlayerData implements IPlayerData {
     @Override
     public void overrideDebug(final CheckType checkType, final AlmostBoolean active, 
             final OverrideType overrideType, final boolean overrideChildren) {
-        this.checkTypeTree.getNode(CheckType.ALL).overrideDebug(
+        this.checkTypeTree.getNode(checkType).overrideDebug(
                 checkType, active, overrideType, overrideChildren);
     }
 

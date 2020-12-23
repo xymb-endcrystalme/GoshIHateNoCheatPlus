@@ -148,6 +148,31 @@ public class CommandUtil {
         return null;
     }
 
+    public static List<String> getCheckTypeTabMatches2(final String input, final String prefix) {
+        final String ref = input.toUpperCase().replace('-', '_').replace('.', '_');
+        final List<String> res = new ArrayList<String>();
+        for (final CheckType checkType : CheckType.values()) {
+            final String name = checkType.name();
+            if (name.startsWith(ref)) {
+                res.add(prefix.concat(name));
+            }
+        }
+        if (ref.indexOf('_') == -1) {
+            for (final CheckType checkType : CheckType.values()) {
+                final String name = checkType.name();
+                final String[] split = name.split("_", 2);
+                if (split.length > 1 && split[1].startsWith(ref)) {
+                    res.add(prefix.concat(name));
+                }
+            }
+        }
+        if (!res.isEmpty()) {
+            Collections.sort(res);
+            return res;
+        }
+        return null;
+    }
+
     /**
      * Convenience method to map all matches within one of the String[] arrays
      * to its first element.<br>
