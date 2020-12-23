@@ -28,6 +28,8 @@ import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 import fr.neatmonster.nocheatplus.permissions.Permissions;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+
+
 /**
  * Check if the placing is legitimate in terms of surrounding materials.
  * @author mc_dev
@@ -35,13 +37,16 @@ import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
  */
 public class Against extends Check {
 
+    
     public Against() {
         super(CheckType.BLOCKPLACE_AGAINST);
     }
 
+    
     public boolean check(final Player player, final Block block, final Material placedMat, 
-            final Block blockAgainst, final boolean isInteractBlock, 
-            final BlockPlaceData data, final BlockPlaceConfig cc, final IPlayerData pData) {
+                         final Block blockAgainst, final boolean isInteractBlock, 
+                         final BlockPlaceData data, final BlockPlaceConfig cc, final IPlayerData pData) {
+        
         boolean violation = false;
         /*
          * TODO: Make more precise (workarounds like BridgeMisc.LILY_PAD,
@@ -70,17 +75,20 @@ public class Against extends Check {
         else if (BlockProperties.isLiquid(againstType)) {
             // TODO: F_PLACE_AGAINST_WATER|LIQUID...
             if ((placedMat != BridgeMaterial.LILY_PAD
-                    || !BlockProperties.isLiquid(block.getRelative(BlockFace.DOWN).getType()))
-                    && !BlockProperties.isNewLiq(bdata.getLastType())
-                    && !pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_LIQUIDS, player)) {
+                 || !BlockProperties.isLiquid(block.getRelative(BlockFace.DOWN).getType()))
+                 && !BlockProperties.isNewLiq(bdata.getLastType())
+                 && !pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_LIQUIDS, player)) {
                 violation = true;
             }
-        } else
+        }
         // Replace block placed by block placed and interact with air or water 
-        if (block.equals(blockAgainst) && (bdata.getLastType() == null || (BlockProperties.isLiquid(bdata.getLastType()) && !BlockProperties.isNewLiq(bdata.getLastType())))
-        	&& !pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_SELF, player)) {
+        else if (block.equals(blockAgainst) && (bdata.getLastType() == null || (BlockProperties.isLiquid(bdata.getLastType())
+                && !BlockProperties.isNewLiq(bdata.getLastType())))
+        	    && !pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_SELF, player) 
+                && placedMat != BridgeMaterial.LILY_PAD) {
         	violation = true;
-        }        
+        }  
+        
         // Handle violation and return.
         bdata.addConsumedCheck(this.type);
         if (violation) {
