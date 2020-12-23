@@ -73,18 +73,14 @@ public class VehicleEnvelope extends Check {
         public boolean canJump, canStepUpBlock; // TODO: Model as heights?
         public double maxAscend;
         public double gravityTargetSpeed;
-
         /** Simplified type, like BOAT, MINECART. */
         public EntityType simplifiedType; // Not sure can be kept up.
-
         public boolean checkAscendMuch;
         public boolean checkDescendMuch;
-
         /** From could be a new set back location. */
         public boolean fromIsSafeMedium;
         /** To could be a new set back location. */
         public boolean toIsSafeMedium;
-
         /** Interpreted differently depending on check. */
         public boolean inAir;
 
@@ -111,7 +107,12 @@ public class VehicleEnvelope extends Check {
     private final Class<?> bestHorse;
     
     private final Class<?> strider;
-
+    
+   /*
+    *
+    * Instanties a new VehicleEnvelope check
+    *
+    */
     public VehicleEnvelope() {
         super(CheckType.MOVING_VEHICLE_ENVELOPE);
         Class<?> clazz = ReflectionUtil.getClass("org.bukkit.entity.AbstractHorse");
@@ -119,27 +120,44 @@ public class VehicleEnvelope extends Check {
         strider = ReflectionUtil.getClass("org.bukkit.entity.Strider");
     }
 
+
+  /**
+    *
+    * @param player
+    * @param vehicle
+    * @param thisMove
+    * @param isFake
+    * @param data
+    * @param cc
+    * @param pData
+    * @param moveInfo
+    *
+    */
     public SetBackEntry check(final Player player, final Entity vehicle, 
-            final VehicleMoveData thisMove, final boolean isFake, 
-            final MovingData data, final MovingConfig cc, 
-            final IPlayerData pData, final VehicleMoveInfo moveInfo) {
+                              final VehicleMoveData thisMove, final boolean isFake, 
+                              final MovingData data, final MovingConfig cc, 
+                              final IPlayerData pData, final VehicleMoveInfo moveInfo) {
+
         final boolean debug = pData.isDebugActive(type);
+
         // Delegate to a sub-check.
         tags.clear();
         tags.add("entity." + vehicle.getType());
+
         if (debug) {
             debugDetails.clear();
             data.ws.setJustUsedIds(debugDetails); // Add just used workaround ids to this list directly, for now.
         }
-        final boolean violation = checkEntity(player, vehicle, thisMove, isFake, 
-                data, cc, debug, moveInfo);
+
+        final boolean violation = checkEntity(player, vehicle, thisMove, isFake, data, cc, debug, moveInfo);
+
         if (debug && !debugDetails.isEmpty()) {
             debugDetails(player);
             debugDetails.clear();
         }
+
         if (violation) {
-            // Add up one for now.
-            data.vehicleEnvelopeVL += 1.0;
+            data.vehicleEnvelopeVL += 1.0; // Add up one for now.
             final ViolationData vd = new ViolationData(this, player, data.vehicleEnvelopeVL, 1, cc.vehicleEnvelopeActions);
             vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
             if (executeActions(vd).willCancel()) {
@@ -153,65 +171,105 @@ public class VehicleEnvelope extends Check {
         return null;
     }
 
+
+  /**
+    *
+    * @param player
+    */
     private void debugDetails(final Player player) {
+
         if (!tags.isEmpty()) {
             debugDetails.add("tags:");
             debugDetails.add(StringUtil.join(tags, "+"));
         }
+
         final StringBuilder builder = new StringBuilder(500);
         builder.append("Details:\n");
+
         for (final String detail : debugDetails) {
             builder.append(" , ");
             builder.append(detail);
         }
+
         debug(player, builder.toString());
         debugDetails.clear();
     }
 
+
+  /**
+    * Return the horizontal distance cap for the vehicle
+    * @param type
+    * @param cc
+    * @param thisMove
+    *
+    *
+    */
     private double getHDistCap(final EntityType type, final MovingConfig cc, final VehicleMoveData thisMove) {
-        final Double v = cc.vehicleEnvelopeHorizontalSpeedCap.get(type);
-        if (v == null) {
+
+        final Double cap = cc.vehicleEnvelopeHorizontalSpeedCap.get(type);
+
+        if (cap == null) {
             if (type == EntityType.BOAT && (thisMove.from.onIce || thisMove.to.onIce)) return 4.1;
             return cc.vehicleEnvelopeHorizontalSpeedCap.get(null);
         }
         else {
-            if (type == EntityType.BOAT && (thisMove.from.onIce || thisMove.to.onIce)) return v * 2.5;
-            return v;
+            if (type == EntityType.BOAT && (thisMove.from.onIce || thisMove.to.onIce)) return cap * 2.5;
+            return cap;
         }
     }
 
+
+  /**
+    * Actual check
+    * @param player
+    * @param vehicle
+    * @param thisMove
+    * @param thisMove
+    * @param isFake
+    * @param data
+    * @param cc
+    * @param debug
+    * @param moveInfo
+    *
+    * @return
+    */
     private boolean checkEntity(final Player player, final Entity vehicle, 
-            final VehicleMoveData thisMove, final boolean isFake, 
-            final MovingData data, final MovingConfig cc,
-            final boolean debug, final VehicleMoveInfo moveInfo) {
+                                final VehicleMoveData thisMove, final boolean isFake, 
+                                final MovingData data, final MovingConfig cc,
+                                final boolean debug, final VehicleMoveInfo moveInfo) {
+
         boolean violation = false;
         long now = System.currentTimeMillis();
+
         if (debug) {
             debugDetails.add("inair: " + data.sfJumpPhase);
         }
+
         if (isBubbleColumn(moveInfo.from) 
             || (isBouncingBlock(moveInfo.from) && thisMove.yDistance >= 0.0 && thisMove.yDistance <= 1.0)) {
             data.timeVehicletoss = System.currentTimeMillis();
         }
 
         // Medium dependent checking.
-
         // TODO: Try pigs on layered snow. Consider actual bounding box / lost-ground / ...
-
         // Maximum thinkable horizontal speed.
         // TODO: Further distinguish, best set in CheckDetails.
         if (vehicle instanceof LivingEntity) {
         	Double speed = PotionUtil.getPotionEffectAmplifier((LivingEntity)vehicle, PotionEffectType.SPEED);
         	if (!Double.isInfinite(speed)) {
-        		if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc, thisMove) * (1 + 0.2 * (speed+1)))) return true;
-        	} else if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc, thisMove) + (checkDetails.canJump ? 0.18 : 0.0))) return true;
-        } else
-        if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc, thisMove))) { // Override type for now.
+        		if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc, thisMove) * (1 + 0.2 * (speed + 1)))) {
+        			return true;
+        		}
+        	} 
+        	else if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc, thisMove) + (checkDetails.canJump ? 0.18 : 0.0))) {
+        		return true;
+        	}
+        } 
+        else if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc, thisMove))) { // Override type for now.
             return true;
         }
 
-        // TODO: Could limit descend by 2*maxDescend, ascend by much less.
-
+        // TODO: Could limit descend by 2*maxDescend, ascend by much less
         // TODO: Split code to methods.
         // TODO: Get extended liquid specs (allow confine to certain flags, here: water). Contains info if water is only flowing down, surface properties (non liquid blocks?), still water.
         if (thisMove.from.inWeb) {
@@ -248,7 +306,6 @@ public class VehicleEnvelope extends Check {
             // TODO: Should still cover extreme moves here.
 
             // Special case moving up after falling.
-            // TODO: Move to MagicVehicle.oddInWater
             // TODO: Check past moves for falling (not yet available).
             // TODO: Check if the target location somehow is the surface.
             if (MagicVehicle.oddInWater(thisMove, checkDetails, data)) {
@@ -296,6 +353,7 @@ public class VehicleEnvelope extends Check {
                 // TODO: At least do something here?
             }
         }
+
         if (vehicle instanceof LivingEntity) {
         	Double levitation = Bridge1_9.getLevitationAmplifier((LivingEntity)vehicle);
         	if (!Double.isInfinite(levitation)) {
@@ -303,12 +361,14 @@ public class VehicleEnvelope extends Check {
         		violation = false;
         	}
         }
+
         // Maximum ascend speed.
         if (checkDetails.checkAscendMuch && thisMove.yDistance > checkDetails.maxAscend) {
             tags.add("ascend_much");
             violation = true;
         }
         
+        // Workaround
         if (data.timeVehicletoss + 2000 > now && thisMove.yDistance < 4.0) {
         	violation = false;
         }
@@ -323,30 +383,38 @@ public class VehicleEnvelope extends Check {
         
         if (vehicle instanceof LivingEntity) {
             final VehicleMoveData firstPastMove = data.vehicleMoves.getFirstPastMove();
+            
             if (thisMove.hDistance > 0.1D && thisMove.yDistance == 0D && !thisMove.to.onGround && !thisMove.from.onGround
                 && firstPastMove.valid && firstPastMove.yDistance == 0D 
-                && thisMove.to.inWater && thisMove.from.inWater
-                && !thisMove.headObstructed // TODO: Might decrease margin here.
+                && thisMove.to.inLiquid && thisMove.from.inLiquid
+                && !thisMove.headObstructed 
+                && !((strider != null && strider.isAssignableFrom(vehicle.getClass())) && thisMove.to.inLava && thisMove.from.inLava) // The strider can walk on lava
                 ) {
-                   // TODO: Relative hdistance.
-                   // TODO: Might check actual bounds (collidesBlock). Might implement + use BlockProperties.getCorrectedBounds or getSomeHeight.
-                   violation = true;
-                   tags.add("waterwalk");
-            	}
+                violation = true;
+                tags.add("liquidwalk");
+            	
+            }
             Block blockUnder = vehicle.getLocation().subtract(0, 0.3, 0).getBlock();
             Material blockAbove = vehicle.getLocation().add(0, 0.10, 0).getBlock().getType();
-            if (blockUnder != null && blockAbove != null && blockUnder.getType().toString().endsWith("WATER")) {
-                if (blockAbove == Material.AIR) {
-                    // hDist and vDist checks, simply checks for horizontal movement with little y distance
+            
+            if (blockUnder != null && blockAbove != null 
+            	&& (blockUnder.getType().toString().endsWith("WATER") 
+            		|| (blockUnder.getType().toString().endsWith("LAVA") && !(strider != null && strider.isAssignableFrom(vehicle.getClass())))) 
+            	) {
+
+                if (blockAbove.name().endsWith("AIR")) { // Account for all air types 
                     if (thisMove.hDistance > 0.11D && thisMove.yDistance <= 0.1D && !thisMove.to.onGround && !thisMove.from.onGround
-                    && firstPastMove.valid && firstPastMove.yDistance == thisMove.yDistance || firstPastMove.yDistance == thisMove.yDistance * -1 && firstPastMove.yDistance != 0D
-                    && !thisMove.headObstructed) {
-                       // Prevent being flagged if a vehicle transitions from a block to water and the player falls into the water.
-                       if (!(thisMove.yDistance < 0 && thisMove.yDistance != 0 && firstPastMove.yDistance < 0 && firstPastMove.yDistance != 0)) {
+                        && firstPastMove.valid && firstPastMove.yDistance == thisMove.yDistance || firstPastMove.yDistance == thisMove.yDistance * -1 
+                        && firstPastMove.yDistance != 0D
+                        && !thisMove.headObstructed) {
+
+                        // Prevent being flagged if a vehicle transitions from a block to water and the player falls into the water.
+                        if (!(thisMove.yDistance < 0 && thisMove.yDistance != 0 && firstPastMove.yDistance < 0 && firstPastMove.yDistance != 0)) {
                     	   violation = true;
-                           tags.add("watermove");
-                       }
+                           tags.add("liquidmove");
+                        }
                     }
+                    
                     //Bouncing on water
                     //if (!violation && firstPastMove.valid && !thisMove.to.onGround && !thisMove.from.onGround 
                     //&& (thisMove.from.getY() < thisMove.to.getY()) && !(firstPastMove.from.inLiquid && !thisMove.to.inLiquid)
@@ -401,16 +469,27 @@ public class VehicleEnvelope extends Check {
         return violation;
     }
     
+
+  /**
+    * @param from
+    *
+    */
     private boolean isBouncingBlock(RichEntityLocation from) {
         return BlockProperties.collides(from.getBlockCache(), from.getMinX(), from.getMinY() - 1.0, from.getMinZ(), from.getMaxX(), from.getMaxY(), from.getMaxZ(), BlockProperties.F_BOUNCE25);
     }
     
+
+  /**
+    * @param from
+    *
+    */
     private boolean isBubbleColumn(RichEntityLocation from) {
         if (!Bridge1_13.hasIsSwimming()) return false;
         return BlockProperties.collidesId(from.getBlockCache(), from.getMinX(), from.getMinY(), from.getMinZ(), from.getMaxX(), from.getMaxY(), from.getMaxZ(), Material.BUBBLE_COLUMN);
     }
 
-    /**
+
+   /**
      * Prepare checkDetails according to vehicle-specific interpretation of side
      * conditions.
      * 
@@ -419,6 +498,7 @@ public class VehicleEnvelope extends Check {
      * @param thisMove
      */
     protected void prepareCheckDetails(final Entity vehicle, final VehicleMoveInfo moveInfo, final VehicleMoveData thisMove) {
+
         checkDetails.reset();
         // TODO: These properties are for boats, might need to distinguish further.
         checkDetails.fromIsSafeMedium = thisMove.from.inWater || thisMove.from.onGround || thisMove.from.inWeb;
@@ -438,6 +518,7 @@ public class VehicleEnvelope extends Check {
                 checkDetails.fromIsSafeMedium = true;
                 checkDetails.inAir = false;
             }
+
             if (thisMove.toOnRails) {
                 checkDetails.toIsSafeMedium = true;
                 checkDetails.inAir = false;
@@ -478,18 +559,21 @@ public class VehicleEnvelope extends Check {
         if (checkDetails.canJump) {
             checkDetails.maxAscend = 1.2; // Coarse envelope. Actual lift off gain should be checked on demand.
         }
+
         // Climbable
         if (checkDetails.canClimb) {
             if (thisMove.from.onClimbable) {
                 checkDetails.fromIsSafeMedium = true;
                 checkDetails.inAir = false;
             }
+
             if (thisMove.to.onClimbable) {
                 checkDetails.toIsSafeMedium = true;
                 checkDetails.inAir = false;
             }
         }
     }
+
 
     /**
      * Generic in-air check.
@@ -498,7 +582,8 @@ public class VehicleEnvelope extends Check {
      * @return
      */
     private boolean checkInAir(final VehicleMoveData thisMove, final MovingData data,
-            final boolean debug, final Entity vehicle, final VehicleMoveInfo moveInfo) {
+                               final boolean debug, final Entity vehicle, final VehicleMoveInfo moveInfo) {
+
         final RichEntityLocation from = moveInfo.from;
         final RichEntityLocation to = moveInfo.to;
 
@@ -534,10 +619,14 @@ public class VehicleEnvelope extends Check {
         // Slow falling (vdist), do not bind to descending in general.
         final double minDescend = -(thisMove.yDistance < -MagicVehicle.boatLowGravitySpeed ? MagicVehicle.boatGravityMinAtSpeed : MagicVehicle.boatGravityMin) * (checkDetails.canJump ? Math.max(data.sfJumpPhase - MagicVehicle.maxJumpPhaseAscend, 0) : data.sfJumpPhase);
         final double maxDescend = getInAirMaxDescend(thisMove, data);
+
         if (data.sfJumpPhase > (checkDetails.canJump ? MagicVehicle.maxJumpPhaseAscend : 1)
-                && thisMove.yDistance > Math.max(minDescend, -checkDetails.gravityTargetSpeed)) {
-        	if (ColliesHoneyBlock(from)) data.sfJumpPhase = 5; else
-            if (!(vehicle instanceof LivingEntity && !Double.isInfinite(Bridge1_13.getSlowfallingAmplifier((LivingEntity)vehicle)))) {
+            && thisMove.yDistance > Math.max(minDescend, -checkDetails.gravityTargetSpeed)) {
+
+        	if (ColliesHoneyBlock(from)) {
+        		data.sfJumpPhase = 5; 
+        	}
+            else if (!(vehicle instanceof LivingEntity && !Double.isInfinite(Bridge1_13.getSlowfallingAmplifier((LivingEntity)vehicle)))) {
                 tags.add("slow_fall_vdist");
                 violation = true;
         	}
@@ -554,6 +643,7 @@ public class VehicleEnvelope extends Check {
                 violation = false;
                 checkDetails.checkDescendMuch = checkDetails.checkAscendMuch = false; // (Full envelope has been checked.)
             }
+
             if (debug) {
                 debugDetails.add("maxDescend: " + maxDescend);
             }
@@ -561,9 +651,17 @@ public class VehicleEnvelope extends Check {
         return violation;
     }
 
+
+  /**
+    * @param thisMove
+    * @param data
+    *
+    */
     private double getInAirMaxDescend(final PlayerMoveData thisMove, final MovingData data) {
+
         double maxDescend = -MagicVehicle.boatGravityMax * data.sfJumpPhase - 0.5;
         final VehicleMoveData firstPastMove = data.vehicleMoves.getFirstPastMove();
+
         if (thisMove.yDistance < maxDescend && firstPastMove.toIsValid) {
             if (firstPastMove.yDistance < maxDescend && firstPastMove.yDistance > maxDescend * 2.5) {
                 // Simply continue with friction.
@@ -578,7 +676,13 @@ public class VehicleEnvelope extends Check {
         }
         return maxDescend;
     }
+    
 
+  /**
+    * @param thisMove
+    * @param maxDistanceHorizontal
+    *
+    */
     private boolean maxDistHorizontal(final VehicleMoveData thisMove, final double maxDistanceHorizontal) {
         if (thisMove.hDistance > maxDistanceHorizontal) {
             tags.add("hdist");
@@ -589,6 +693,11 @@ public class VehicleEnvelope extends Check {
         }
     }
 
+
+  /**
+    * @param from
+    *
+    */
     private boolean ColliesHoneyBlock(RichEntityLocation from) {
         return BlockProperties.collides(from.getBlockCache(), from.getMinX() - 0.1, from.getMinY(), from.getMinZ() - 0.1, from.getMaxX() + 0.1, from.getMaxY() + 0.3, from.getMaxZ() + 0.1, BlockProperties.F_STICKY);
     }
