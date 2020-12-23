@@ -373,9 +373,6 @@ public class SurvivalFly extends Check {
             // Count up for ending special move from creativefly, waiting incoming repeated y motion
             if (data.keepfrictiontick < 0) data.keepfrictiontick++;
 
-            // Count up for ending special move from creativefly, waiting incoming repeated y motion
-            if (data.keepfrictiontick < 0) data.keepfrictiontick++;
-
         }
         else {
             /*
@@ -1620,7 +1617,6 @@ public class SurvivalFly extends Check {
                             data.keepfrictiontick = 0;
                             data.setFrictionJumpPhase();
                         }
-
                     } 
                     else data.keepfrictiontick = 0;
                     // False positives when turn special move to normal (mostly elytra case)
