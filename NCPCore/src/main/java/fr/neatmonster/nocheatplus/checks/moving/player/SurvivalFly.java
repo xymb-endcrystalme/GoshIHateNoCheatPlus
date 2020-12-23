@@ -1757,9 +1757,6 @@ public class SurvivalFly extends Check {
                 else if ((totalVDistViolation < 0.8 && data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID)) {
                     // Ignore water logged blocks 
                 }
-                else if (Bridge1_9.isGlidingWithElytra(player)){
-                    // Don't care about players gliding
-                }
                 // Attempt to use velocity.
                 else if (data.getOrUseVerticalVelocity(yDistance) == null) {
                     // Violation.
