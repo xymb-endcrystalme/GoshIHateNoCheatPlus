@@ -255,15 +255,15 @@ public class VehicleEnvelope extends Check {
         // Maximum thinkable horizontal speed.
         // TODO: Further distinguish, best set in CheckDetails.
         if (vehicle instanceof LivingEntity) {
-        	Double speed = PotionUtil.getPotionEffectAmplifier((LivingEntity)vehicle, PotionEffectType.SPEED);
-        	if (!Double.isInfinite(speed)) {
-        		if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc, thisMove) * (1 + 0.2 * (speed + 1)))) {
-        			return true;
-        		}
-        	} 
-        	else if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc, thisMove) + (checkDetails.canJump ? 0.18 : 0.0))) {
-        		return true;
-        	}
+            Double speed = PotionUtil.getPotionEffectAmplifier((LivingEntity)vehicle, PotionEffectType.SPEED);
+            if (!Double.isInfinite(speed)) {
+                if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc, thisMove) * (1 + 0.2 * (speed + 1)))) {
+                    return true;
+                }
+            } 
+            else if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc, thisMove) + (checkDetails.canJump ? 0.18 : 0.0))) {
+                return true;
+            }
         } 
         else if (maxDistHorizontal(thisMove, getHDistCap(checkDetails.simplifiedType, cc, thisMove))) { // Override type for now.
             return true;
@@ -355,11 +355,11 @@ public class VehicleEnvelope extends Check {
         }
 
         if (vehicle instanceof LivingEntity) {
-        	Double levitation = Bridge1_9.getLevitationAmplifier((LivingEntity)vehicle);
-        	if (!Double.isInfinite(levitation)) {
-        		checkDetails.maxAscend += 0.046 * (levitation + 1);
-        		violation = false;
-        	}
+            Double levitation = Bridge1_9.getLevitationAmplifier((LivingEntity)vehicle);
+            if (!Double.isInfinite(levitation)) {
+                checkDetails.maxAscend += 0.046 * (levitation + 1);
+                violation = false;
+            }
         }
 
         // Maximum ascend speed.
@@ -370,7 +370,7 @@ public class VehicleEnvelope extends Check {
         
         // Workaround
         if (data.timeVehicletoss + 2000 > now && thisMove.yDistance < 4.0) {
-        	violation = false;
+            violation = false;
         }
         
         // Maximum descend speed.
@@ -392,15 +392,15 @@ public class VehicleEnvelope extends Check {
                 ) {
                 violation = true;
                 tags.add("liquidwalk");
-            	
+                
             }
+            
             Block blockUnder = vehicle.getLocation().subtract(0, 0.3, 0).getBlock();
             Material blockAbove = vehicle.getLocation().add(0, 0.10, 0).getBlock().getType();
-            
             if (blockUnder != null && blockAbove != null 
-            	&& (blockUnder.getType().toString().endsWith("WATER") 
-            		|| (blockUnder.getType().toString().endsWith("LAVA") && !(strider != null && strider.isAssignableFrom(vehicle.getClass())))) 
-            	) {
+                && (blockUnder.getType().toString().endsWith("WATER") 
+                    || (blockUnder.getType().toString().endsWith("LAVA") && !(strider != null && strider.isAssignableFrom(vehicle.getClass())))) 
+                ) {
 
                 if (blockAbove.name().endsWith("AIR")) { // Account for all air types 
                     if (thisMove.hDistance > 0.11D && thisMove.yDistance <= 0.1D && !thisMove.to.onGround && !thisMove.from.onGround
@@ -410,7 +410,7 @@ public class VehicleEnvelope extends Check {
 
                         // Prevent being flagged if a vehicle transitions from a block to water and the player falls into the water.
                         if (!(thisMove.yDistance < 0 && thisMove.yDistance != 0 && firstPastMove.yDistance < 0 && firstPastMove.yDistance != 0)) {
-                    	   violation = true;
+                           violation = true;
                            tags.add("liquidmove");
                         }
                     }
@@ -426,17 +426,17 @@ public class VehicleEnvelope extends Check {
                     //    Block blockUnder2 = blockUnder.getRelative(BlockFace.DOWN);
                     //    if (checkDetails.canJump) {
                     //        if (BlockProperties.isGround(blockUnder2.getType())) 
-                    //    	      tag = false;
+                    //            tag = false;
                     //        else {
-                    //    	  if (BlockProperties.isGround(blockUnder2.getRelative(BlockFace.EAST).getType())
-                    //    		  || BlockProperties.isGround(blockUnder2.getRelative(BlockFace.WEST).getType())
-                    //    		  || BlockProperties.isGround(blockUnder2.getRelative(BlockFace.NORTH).getType())
-                    //    		  || BlockProperties.isGround(blockUnder2.getRelative(BlockFace.SOUTH).getType())
+                    //        if (BlockProperties.isGround(blockUnder2.getRelative(BlockFace.EAST).getType())
+                    //            || BlockProperties.isGround(blockUnder2.getRelative(BlockFace.WEST).getType())
+                    //            || BlockProperties.isGround(blockUnder2.getRelative(BlockFace.NORTH).getType())
+                    //            || BlockProperties.isGround(blockUnder2.getRelative(BlockFace.SOUTH).getType())
                     //            ) tag = false; 
                     //        }
                     //    }
                     //    if (tag) {
-                    //    	violation = true;
+                    //      violation = true;
                     //        tags.add("waterjump");
                     //    }
                     //}
@@ -617,19 +617,21 @@ public class VehicleEnvelope extends Check {
         //            }
         // Enforce falling speed (vdist) envelope by in-air phase count.
         // Slow falling (vdist), do not bind to descending in general.
-        final double minDescend = -(thisMove.yDistance < -MagicVehicle.boatLowGravitySpeed ? MagicVehicle.boatGravityMinAtSpeed : MagicVehicle.boatGravityMin) * (checkDetails.canJump ? Math.max(data.sfJumpPhase - MagicVehicle.maxJumpPhaseAscend, 0) : data.sfJumpPhase);
+        final double minDescend = -(thisMove.yDistance < -MagicVehicle.boatLowGravitySpeed ? 
+                                    MagicVehicle.boatGravityMinAtSpeed : MagicVehicle.boatGravityMin) * 
+                                    (checkDetails.canJump ? Math.max(data.sfJumpPhase - MagicVehicle.maxJumpPhaseAscend, 0) : data.sfJumpPhase);                     
         final double maxDescend = getInAirMaxDescend(thisMove, data);
 
         if (data.sfJumpPhase > (checkDetails.canJump ? MagicVehicle.maxJumpPhaseAscend : 1)
             && thisMove.yDistance > Math.max(minDescend, -checkDetails.gravityTargetSpeed)) {
 
-        	if (ColliesHoneyBlock(from)) {
-        		data.sfJumpPhase = 5; 
-        	}
+            if (ColliesHoneyBlock(from)) {
+                data.sfJumpPhase = 5; 
+            }
             else if (!(vehicle instanceof LivingEntity && !Double.isInfinite(Bridge1_13.getSlowfallingAmplifier((LivingEntity)vehicle)))) {
                 tags.add("slow_fall_vdist");
                 violation = true;
-        	}
+            }
         }
         // Fast falling (vdist).
         else if (data.sfJumpPhase > 1 && thisMove.yDistance < maxDescend) {

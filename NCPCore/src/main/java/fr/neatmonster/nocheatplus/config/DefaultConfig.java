@@ -338,7 +338,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_ACTIVE, "default", 1144);
         // General
         set(ConfPaths.FIGHT_CANCELDEAD, true, 785);
-	set(ConfPaths.FIGHT_MAXLOOPLETENCYTICKS, 8, 1154);
+	    set(ConfPaths.FIGHT_MAXLOOPLETENCYTICKS, 8, 1154);
         set(ConfPaths.FIGHT_TOOLCHANGEPENALTY, 0L, 1154); // Disabled for now, it interferes too much with pvp. 500L
         set(ConfPaths.FIGHT_PVP_KNOCKBACKVELOCITY, "default", 785);
         // YawRate activation flag
@@ -353,11 +353,11 @@ public class DefaultConfig extends ConfigFile {
         // Critical
         set(ConfPaths.FIGHT_CRITICAL_CHECK, "default", 785);
         set(ConfPaths.FIGHT_CRITICAL_FALLDISTANCE, 0.075, 1154); 
-        set(ConfPaths.FIGHT_CRITICAL_ACTIONS, "vl>1 cancel vl>5 cancel log:critical:6:10:i vl>60 cancel log:critical:0:5:icf cmdc:kickcritical:0:2", 1154);
+        set(ConfPaths.FIGHT_CRITICAL_ACTIONS, "vl>1 cancel vl>5 cancel log:critical:6:10:i vl>60 cancel log:critical:0:5:icf cmd:clearcritical:0:5 cmdc:kickcritical:0:2", 1154);
         // Direction
         set(ConfPaths.FIGHT_DIRECTION_CHECK, "default", 785);
         set(ConfPaths.FIGHT_DIRECTION_STRICT, true, 1154);
-	set(ConfPaths.FIGHT_DIRECTION_FAILALL, true, 1154);
+	    set(ConfPaths.FIGHT_DIRECTION_FAILALL, true, 1154);
         set(ConfPaths.FIGHT_DIRECTION_PENALTY, 75L, 1154);
         set(ConfPaths.FIGHT_DIRECTION_ACTIONS, "vl>2 log:fdirectionlowvl:5:6:i vl>10 cancel log:fdirection:2:4:if vl>50 cancel log:fdirection:0:7:icf cmdc:kicksuspiciouscombat:1:5", 1154);
         // FastHeal, legacy
@@ -384,15 +384,15 @@ public class DefaultConfig extends ConfigFile {
         //set(ConfPaths.FIGHT_PITCHPATTERN_ACTIONS, "vl>2 cancel vl>10 cancel log:pitchpattern:5:6:i vl>100 cancel log:pitchpattern:0:10:icf cmdc:kickillegalrotations:3:10", 1154);
         // Reach
         set(ConfPaths.FIGHT_REACH_CHECK, "default", 785);
-        set(ConfPaths.FIGHT_REACH_SURVIVALDISTANCE, 4.22, 1154); // 4.4 
+        set(ConfPaths.FIGHT_REACH_SURVIVALDISTANCE, 4.02, 1154); 
         set(ConfPaths.FIGHT_REACH_PENALTY, 250, 1154);
         set(ConfPaths.FIGHT_REACH_REDUCE, true, 785);
         set(ConfPaths.FIGHT_REACH_PRECISION, true, 1154);
-        set(ConfPaths.FIGHT_REACH_REDUCEDISTANCE, 0.9, 785);
-        set(ConfPaths.FIGHT_REACH_REDUCESTEP, 0.15, 785);
+        set(ConfPaths.FIGHT_REACH_REDUCEDISTANCE, 0.8, 785);
+        set(ConfPaths.FIGHT_REACH_REDUCESTEP, 0.14, 785);
         set(ConfPaths.FIGHT_REACH_IMPROBABLE_FEEDONLY, false, 1154);
         set(ConfPaths.FIGHT_REACH_IMPROBABLE_WEIGHT, 2.0, 1154);
-        set(ConfPaths.FIGHT_REACH_ACTIONS, "vl>1 log:freach:8:9:i vl>5 cancel log:freach:2:6:if vl>12 cancel log:freachhighvl:1:5:i vl>35 cancel log:freachhighvl:0:5:if cmdc:kicksuspiciouscombat:2:1", 1154);
+        set(ConfPaths.FIGHT_REACH_ACTIONS, "cancel vl>1 cancel log:freach:8:9:i vl>5 cancel log:freach:2:6:i vl>12 cancel log:freachhighvl:1:5:if vl>35 cancel log:freachhighvl:0:5:if cmdc:kicksuspiciouscombat:2:1", 1154);
         // SelfHit, legacy
         set(ConfPaths.FIGHT_SELFHIT_CHECK, "default", 785);
 	    set(ConfPaths.FIGHT_SELFHIT_EXCLUDEPROJECTILE, false, 1154);
@@ -697,9 +697,9 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".fdirectionlowvl", start + "could be using an aimbot (hit not canceled)" + end, 1154);
         set(ConfPaths.STRINGS + ".flyfile", start + "tried to perform an illegal move from ([locationfrom]) to ([locationto]) over a distance of ([distance]) blocks, subchecks triggered> ([tags])" + end, 1154);
         set(ConfPaths.STRINGS + ".flyingfrequency", start + "is manipulating packets sent to the server to gain an unfair advantage" + end, 1154);
-        set(ConfPaths.STRINGS + ".freach", start + "tried to hit an entity from a suspicious distance" + end, 1154);
+        set(ConfPaths.STRINGS + ".freach", start + "tried to hit an entity from a suspicious distance (Reach: &6[reachdistance]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".fselfhit", start + "tried to hit themselves" + end, 1154);
-        set(ConfPaths.STRINGS + ".fspeed", start + "clicked [violations] times over the established CPS limit" + end, 1154);
+        set(ConfPaths.STRINGS + ".fspeed", start + "clicked [violations] times over the established [limit] CPS limit" + end, 1154);
         set(ConfPaths.STRINGS + ".godmode", start + "tried to ignore inflicted damage (Health: &7[health]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".gutenberg", start + "created a book with too many pages" + end, 785);
         set(ConfPaths.STRINGS + ".improbable", start + "is exhibiting an erratic behaviour (Check: &6[tags]&7)" + end, 1154);
@@ -740,7 +740,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".kicksuspiciouscombat", kick + "Illegal combat modifications.", 1154); 
         set(ConfPaths.STRINGS + ".kickvehiclefly", kick + "Unexpected vehicle movement.", 1154);
         set(ConfPaths.STRINGS + ".kickwb", kick + "Block breaking out of sync.", 1154);
-        set(ConfPaths.STRINGS + ".freachhighvl", start + "is most likely using a killaura cheat" + end, 1154);
+        set(ConfPaths.STRINGS + ".freachhighvl", start + "is most likely using a killaura cheat (Reach: &6[reachdistance]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".morepackets", start + "sent too many moves (&cPackets&7/&cVL [packets]&7)", 1154);
         set(ConfPaths.STRINGS + ".msgtempdenylogin", "You are temporarily denied to join this server.", 785);
         set(ConfPaths.STRINGS + ".munchhausen", start + "tried to hit themeselves with a fishing rod too many times (the knockback can be potentially abused for bypasses)" + end, 1154);
@@ -759,6 +759,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".wrongturn", start + "sent an impossible pitch rotation (&6>90 &7or&6 <-90&7)" + end, 1154);
         // Clear a check data  
         set(ConfPaths.STRINGS + ".clearimprobable", clear + "COMBINED_IMPROBABLE", 1154);
+        set(ConfPaths.STRINGS + ".clearcritical", clear + "FIGHT_CRITICAL", 1154);
         set(ConfPaths.STRINGS + ".clearsf", clear + "MOVING_SURVIVALFLY", 1154);
         set(ConfPaths.STRINGS + ".clearcf", clear + "MOVING_CREATIVEFLY", 1154);
         set(ConfPaths.STRINGS + ".clearpassable", clear + "MOVING_PASSABLE", 1154);
