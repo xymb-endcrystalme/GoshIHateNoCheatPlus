@@ -353,7 +353,8 @@ public class DefaultConfig extends ConfigFile {
         // Critical
         set(ConfPaths.FIGHT_CRITICAL_CHECK, "default", 785);
         set(ConfPaths.FIGHT_CRITICAL_FALLDISTANCE, 0.075, 1154); 
-        set(ConfPaths.FIGHT_CRITICAL_ACTIONS, "vl>1 cancel vl>5 cancel log:critical:6:10:i vl>60 cancel log:critical:0:5:icf cmd:clearcritical:0:5 cmdc:kickcritical:0:2", 1154);
+        set(ConfPaths.FIGHT_CRITICAL_FALLDISTLENIENCY, 0.0009, 1154);
+        set(ConfPaths.FIGHT_CRITICAL_ACTIONS, "vl>2 cancel vl>5 cancel log:critical:6:10:i vl>60 cancel log:critical:0:5:icf cmd:clearcritical:0:5 cmdc:kickcritical:0:2", 1154);
         // Direction
         set(ConfPaths.FIGHT_DIRECTION_CHECK, "default", 785);
         set(ConfPaths.FIGHT_DIRECTION_STRICT, true, 1154);

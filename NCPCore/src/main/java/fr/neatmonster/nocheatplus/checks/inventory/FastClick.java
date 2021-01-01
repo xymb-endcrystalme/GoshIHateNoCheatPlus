@@ -29,10 +29,12 @@ import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.InventoryUtil;
 import fr.neatmonster.nocheatplus.utilities.TickTask;
 
+
 /**
  * The FastClick check will prevents players from taking automatically all items from any inventory (chests, etc.).
  */
 public class FastClick extends Check {
+
 
     /**
      * Instantiates a new fast click check.
@@ -41,6 +43,7 @@ public class FastClick extends Check {
         super(CheckType.INVENTORY_FASTCLICK);
     }
 
+    // Is this stuff still needed ? ...
     //    /**
     //     * Checks a player.
     //     * 
@@ -91,17 +94,32 @@ public class FastClick extends Check {
     //        return cancel;
     //    }
 
+  /**
+    * Checks a player.
+    * @param player
+    * @param now Millisec
+    * @param view
+    * @param slot
+    * @param cursor
+    * @param clicked
+    * @param isShiftClick
+    * @param inventoryAction
+    * @param data
+    * @param cc 
+    * @param pData
+    * @return true, if successful
+    */
     public boolean check(final Player player, final long now, 
-            final InventoryView view, final int slot, final ItemStack cursor, 
-            final ItemStack clicked, final boolean isShiftClick, 
-            final String inventoryAction, final InventoryData data, final InventoryConfig cc, 
-            final IPlayerData pData) {
-        // Take time once.
+                         final InventoryView view, final int slot, final ItemStack cursor, 
+                         final ItemStack clicked, final boolean isShiftClick, 
+                         final String inventoryAction, final InventoryData data, final InventoryConfig cc, 
+                         final IPlayerData pData) {
 
         final float amount;
         final Material clickedMat = clicked == null ? Material.AIR : clicked.getType();
         final Material cursorMat;
         final int cursorAmount;
+
         if (cursor != null) {
             cursorMat = cursor.getType();
             cursorAmount = Math.max(1, cursor.getAmount());
@@ -112,20 +130,19 @@ public class FastClick extends Check {
         }
 
         if (inventoryAction != null) {
-            amount = getAmountWithAction(view, slot, clicked, clickedMat, 
-                    cursorMat, cursorAmount, isShiftClick, inventoryAction, 
-                    data, cc);
+            amount = getAmountWithAction(view, slot, clicked, clickedMat, cursorMat, cursorAmount, 
+                                        isShiftClick, inventoryAction, data, cc);
         }
         else if (cursor != null && cc.fastClickTweaks1_5) {
             // Detect shift-click features indirectly.
-            amount = detectTweaks1_5(view, slot, clicked, clickedMat,
-                    cursorMat, cursorAmount, isShiftClick, data, cc);
+            amount = detectTweaks1_5(view, slot, clicked, clickedMat, cursorMat, cursorAmount, isShiftClick, data, cc);
         }
         else {
             amount = 1f;
         }
 
-        if (isShiftClick && inventoryAction.equals("MOVE_TO_OTHER_INVENTORY") && (cursorMat != null && cursorMat != Material.AIR) && clickedMat != Material.AIR) {
+        if (isShiftClick && inventoryAction.equals("MOVE_TO_OTHER_INVENTORY") && (cursorMat != null && cursorMat != Material.AIR) 
+            && clickedMat != Material.AIR) {
         	return false;
         }
         
@@ -146,7 +163,6 @@ public class FastClick extends Check {
         normal -= cc.fastClickNormalLimit;
 
         final double violation = Math.max(shortTerm, normal);
-
         boolean cancel = false;
 
         if (violation > 0) {
@@ -154,9 +170,11 @@ public class FastClick extends Check {
             final ViolationData vd = new ViolationData(this, player, data.fastClickVL, violation, cc.fastClickActions);
             cancel = executeActions(vd).willCancel();
         }
+        // TODO: Cooldown?
 
         if (pData.isDebugActive(type) && pData.hasPermission(Permissions.ADMINISTRATION_DEBUG, player)) {
-            player.sendMessage("FastClick: " + data.fastClickFreq.bucketScore(0) + " | " + data.fastClickFreq.score(1f) + " | cursor=" + cursor + " | clicked=" + clicked + " | action=" + inventoryAction);
+            player.sendMessage("FastClick: " + data.fastClickFreq.bucketScore(0) + " | " + data.fastClickFreq.score(1f) + " | cursor=" + cursor 
+                                + " | clicked=" + clicked + " | action=" + inventoryAction);
         }
 
         data.fastClickLastClicked = clickedMat;
@@ -173,26 +191,46 @@ public class FastClick extends Check {
         return cancel;
     }
     
-    // Checks if a player interacts with a chest too quickly after opening it
+
+    /**
+    * Checks for too fast clicks/interactions after opening a container
+    * @param player
+    * @param data
+    * @param cc
+    */
     public boolean fastClickChest(final Player player, final InventoryData data, final InventoryConfig cc) {
+
     	boolean cancel = false;
     	if (Math.abs(data.lastClickTime - data.chestOpenTime) < cc.chestOpenLimit) {
     		if (!(data.lastClickTime == 0) || !(data.chestOpenTime == 0)) {
-                double violation = cc.chestOpenLimit + 1 / (Math.abs(data.lastClickTime - data.chestOpenTime) + 1);
+                double violation = cc.chestOpenLimit + 1 / (Math.abs(data.lastClickTime - data.chestOpenTime) + 1) * 100D;
                 data.fastClickVL += violation;
                 final ViolationData vd = new ViolationData(this, player, data.fastClickVL, violation, cc.fastClickActions);
                 cancel = executeActions(vd).willCancel();
         	    cancel = true;	
     		}
-    	}
-    	return cancel;
+       }
+       return cancel;
+       // TODO: cooldown?
     }
+    
 
-    private float detectTweaks1_5(final InventoryView view, 
-            final int slot, final ItemStack clicked, 
-            final Material clickedMat, final Material cursorMat, 
-            final int cursorAmount, final boolean isShiftClick, 
-            final InventoryData data, final InventoryConfig cc) {
+    /**
+    * Detect the inventory tweaks that were introduced in MC 1.5
+    * @param view
+    * @param slot
+    * @param clicked
+    * @param clickedMat
+    * @param cursorAmount
+    * @param isShiftClick
+    * @param data
+    * @param cc
+    */
+    private float detectTweaks1_5(final InventoryView view, final int slot, final ItemStack clicked, 
+                                  final Material clickedMat, final Material cursorMat, 
+                                  final int cursorAmount, final boolean isShiftClick, 
+                                  final InventoryData data, final InventoryConfig cc) {
+
         if (cursorMat != data.fastClickLastCursor 
                 && (!isShiftClick || clickedMat == Material.AIR || clickedMat != data.fastClickLastClicked) 
                 || cursorMat == Material.AIR || cursorAmount != data.fastClickLastCursorAmount) {
@@ -208,12 +246,13 @@ public class FastClick extends Check {
         }
     }
 
-    private float getAmountWithAction(final InventoryView view, 
-            final int slot, final ItemStack clicked, 
-            final Material clickedMat, final Material cursorMat, 
-            final int cursorAmount, final boolean isShiftClick, 
-            final String inventoryAction,
-            final InventoryData data, final InventoryConfig cc) {
+
+    private float getAmountWithAction(final InventoryView view, final int slot, final ItemStack clicked, 
+                                      final Material clickedMat, final Material cursorMat, 
+                                      final int cursorAmount, final boolean isShiftClick, 
+                                      final String inventoryAction,
+                                      final InventoryData data, final InventoryConfig cc) {
+
         // Continuous drop feature with open inventories.
         if (inventoryAction.equals("DROP_ONE_SLOT")
                 && slot == data.fastClickLastSlot 
