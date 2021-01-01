@@ -132,7 +132,6 @@ public class InventoryMove extends Check {
             tags.add("isSneaking");
             // Ordinary grounded move
             if (hDistDiff < cc.invMoveHdistLeniency && thisMove.hDistance > cc.invMoveHdistMin
-                && thisMove.hDistance > cc.invMoveHdistMin 
                 && isOnGroundForAllStates){
                 violation = true;
             }
@@ -181,9 +180,9 @@ public class InventoryMove extends Check {
                     violation = true;
                 }
                 // Moving inside liquid: players are forced to slow down if they open an inventory (Moving downstream is disregarded)
-                else if (thisMove.from.inLiquid && thisMove.to.inLiquid 
+                else if (thisMove.from.inLiquid && thisMove.to.inLiquid && mData.liqtick > 2
                         && (hDiffFrict > mData.invSlowDownMarginH || thisMove.yDistance == 0.0 || thisMove.yDistance > 0.0) 
-                        && mData.liqtick > 2){
+                        ){
                     violation = true;
                 } 
                 // Above surface
