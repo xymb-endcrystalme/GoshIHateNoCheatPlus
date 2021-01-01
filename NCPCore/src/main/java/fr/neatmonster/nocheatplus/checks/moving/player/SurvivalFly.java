@@ -760,6 +760,7 @@ public class SurvivalFly extends Check {
                                    final boolean toOnGround, final PlayerLocation from, final PlayerLocation to,
                                    boolean bufferUse){
 
+
         if (hDistanceAboveLimit <= 0D && hDistance > 0.1D && yDistance == 0D && lastMove.toIsValid && lastMove.yDistance == 0D 
             && BlockProperties.isLiquid(to.getTypeId()) 
             && BlockProperties.isLiquid(from.getTypeId())
@@ -810,7 +811,6 @@ public class SurvivalFly extends Check {
     private double sprintingChecks(final boolean sprinting, final MovingData data, final Player player,
                                    double hDistance, double hDistanceAboveLimit, final PlayerMoveData thisMove,
                                    boolean bufferUse){
-        
         // TODO: Recode the backwards sprinting model
         // TODO: Add sideways sprinting module (rather important for PVP)
         // TODO: Move the lowfoodsprint check here?
@@ -1053,8 +1053,7 @@ public class SurvivalFly extends Check {
             from.collectBlockFlags(); // Just ensure.
             tags.add((from.getBlockFlags() & BlockProperties.F_COBWEB2) != 0 ? "bush" : "hweb");
             // Berry bush
-            if ((from.getBlockFlags() & BlockProperties.F_COBWEB2) !=0) {
-                tags.add("hbush");
+            if ((from.getBlockFlags() & BlockProperties.F_COBWEB2) != 0) {
                 hAllowedDistance = (thisMove.yDistance > 0.0 ? 1.1 : 0.362) * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
                 if (sprinting) hAllowedDistance *= 0.0255;
             }

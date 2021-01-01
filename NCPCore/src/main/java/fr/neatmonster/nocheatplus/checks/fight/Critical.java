@@ -71,7 +71,6 @@ public class Critical extends Check {
         final MovingData mData = pData.getGenericInstance(MovingData.class);
         final MovingConfig mcc = pData.getGenericInstance(MovingConfig.class);
         final PlayerMoveData thisMove = mData.playerMoves.getCurrentMove();
-        final double fallDistLeniency = 0.0009; // TODO: Configurable.
         final double fallDistDiff = Math.abs(mData.noFallFallDistance - mcFallDistance);
 
 
@@ -88,7 +87,7 @@ public class Critical extends Check {
         
 
             // Detect silent jumping (might be redundant with the mismatch check below)
-            if (fallDistDiff > fallDistLeniency 
+            if (fallDistDiff > cc.criticalFallDistLeniency 
                 && mcFallDistance <= cc.criticalFallDistance 
                 && mData.sfJumpPhase <= 1
                 && !BlockProperties.isResetCond(player, loc, mcc.yOnGround)
@@ -100,7 +99,7 @@ public class Critical extends Check {
             else if (mData.sfLowJump) {
                 tags.add("low_jump");
                 // False positives with lowJump when the player jumps on/off a block while attacking an entity
-                if (fallDistDiff < fallDistLeniency) {
+                if (fallDistDiff < cc.criticalFallDistLeniency) {
                     if (mcFallDistance > cc.criticalFallDistance) {
                         if (!thisMove.to.onGround || !thisMove.from.onGround) {
                             violation = false;
@@ -108,7 +107,7 @@ public class Critical extends Check {
                     }
                 }
                 else if (!thisMove.to.onGround || !thisMove.from.onGround) {
-                    if (fallDistDiff > fallDistLeniency) {
+                    if (fallDistDiff > cc.criticalFallDistLeniency) {
                         violation = false;
                     }
                 }
