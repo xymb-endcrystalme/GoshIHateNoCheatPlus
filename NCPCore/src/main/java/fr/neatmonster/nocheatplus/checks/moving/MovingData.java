@@ -100,6 +100,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
 	/** tick for repeated motion or remain high motion */
     public int            keepfrictiontick = 0;
     public int            bunnyhopDelay;
+    /* Store the horizontal friction slow down for the invMove check, set in Sf */
+    public double         invSlowDownMarginH = 0.0;
     public int            lastbunnyhopDelay = 0;
     public int            bunnyhopTick = 0;
     public double         jumpAmplifier = 0;
