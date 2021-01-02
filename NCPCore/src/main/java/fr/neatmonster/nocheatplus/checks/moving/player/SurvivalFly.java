@@ -1040,10 +1040,12 @@ public class SurvivalFly extends Check {
         boolean useBaseModifiers = false;
         boolean useBaseModifiersSprint = true;
 
+
         // Reset noslow check if has velocity
         if (data.noslowhop != 0 && (sfDirty || (!data.isusingitem && !player.isBlocking()))) data.noslowhop = 0;
         // (0 = no checking, 1 = check when leaving a liquid block until touching the ground).
         if (!data.liftOffEnvelope.name().startsWith("LIMIT") || sfDirty) data.watermovect = 0;
+
 
         // Webs
         if (thisMove.from.inWeb && (from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) == 0) {
@@ -1088,7 +1090,8 @@ public class SurvivalFly extends Check {
         // TODO: Test how to go with only checking from (less dolphins).
         else if (thisMove.from.inLiquid && thisMove.to.inLiquid && !data.newHDist) {
             tags.add("hliquid");
-            data.invSlowDownMarginH = Bridge1_13.isSwimming(player) ? 0.080 : 0.060; // Empirical/magic constants.
+            // Set the allowed horizontal margin for which we'll consider the player to be slowing down (use in invMove)
+            data.invSlowDownMarginH = Bridge1_13.isSwimming(player) ? ((thisMove.to.onGround || thisMove.from.onGround || thisMove.touchedGround) ? 0.100 : 0.090) : 0.070; // Empirical/magic constants.
             hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed / 100D;
             useBaseModifiers = false;
             if (sfDirty) friction = 0.0;
@@ -1164,7 +1167,8 @@ public class SurvivalFly extends Check {
                 && data.liftOffEnvelope.name().startsWith("LIMIT")
                 ) {
             tags.add("hsurface");
-            data.invSlowDownMarginH = Bridge1_13.isSwimming(player) ? 0.080 : 0.060; // Empirical/Magic constants
+            // Set the allowed horizontal margin for which we'll consider the player to be slowing down (use in invMove)
+            data.invSlowDownMarginH = Bridge1_13.isSwimming(player) ? 0.090 : 0.070; // Empirical/Magic constants
             hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * 1.06 * cc.survivalFlySwimmingSpeed / 100D;
             useBaseModifiersSprint = false;
             friction = 0.0;

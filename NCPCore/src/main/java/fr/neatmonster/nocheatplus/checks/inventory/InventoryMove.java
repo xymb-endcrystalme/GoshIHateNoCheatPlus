@@ -39,7 +39,6 @@ import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.collision.CollisionUtil;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
-import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 
 
 /**
@@ -78,12 +77,13 @@ public class InventoryMove extends Check {
         // follow the liquid's flowing direction). For now, downstream movements are ignored. 
 
         // TODO: Ice -> Make use of friction to check if the player is intentionally moving or is carried forward by momentum due to the slipperiness (In which case, skip).
+        // TODO: Model fly+inv click?
+        // Issue: if SurvivalFly is disabled, the friction variable won't be updated... 
+        // TODO: Further confine and sharpen conditions... 
 
-        // TODO: Model fly+inv click
 
-        // TODO: Issue: if SurvivalFly is disabled, the friction variable won't be updated... 
-
-        // TODO: Further confine and sharpen conditions... (Lava in particular should get its own model)
+        // Important: MC allows players to "swim" on the ground bu the status is not reflected back to the server while still allowing them to move at swimming speed
+        // (sprinting and sneaking are reflected)
         
         // Shortcuts
         final MovingData mData = pData.getGenericInstance(MovingData.class);
@@ -94,7 +94,9 @@ public class InventoryMove extends Check {
         final PlayerLocation from = moveInfo.from;
         final PlayerLocation to = moveInfo.to;
         final boolean isSamePos = from.isSamePos(to); // The player is standing still, no XYZ distances.
-        final boolean isOnGroundForAllStates = thisMove.touchedGround || thisMove.from.onGround || thisMove.to.onGround;
+        final boolean thisMoveOnGround = thisMove.touchedGround || thisMove.from.onGround || thisMove.to.onGround;
+        final boolean fromLiquid = thisMove.from.inLiquid;
+        final boolean toLiquid = thisMove.to.inLiquid;
 
         final boolean creative = player.getGameMode() == GameMode.CREATIVE && ((type == SlotType.QUICKBAR) || cc.invMoveDisableCreative);
         final boolean isInvMerchant = (player.getOpenInventory().getTopInventory().getType() == InventoryType.MERCHANT); 
@@ -116,83 +118,103 @@ public class InventoryMove extends Check {
             tags.add("usingitem");
             violation = true;
         }
+
         // ... while attacking
         // TODO: Doesn't seem to work...
         //else if (fData.noSwingPacket){
         //    tags.add("armswing");
         //    violation = true;
         //}
+
         // ... while sneaking
         else if (player.isSneaking() && ((currentEvent - data.lastMoveEvent) < 65)
                 &&  noIceTick
                 && !isSamePos // Need to ensure that players can toggle sneak with their inv open. (around mc 1.13)
-                && !thisMove.downStream
+                && !(thisMove.downStream & mData.isdownstream) // Fix thisMove#downStream, rather. Both have to be true
                 && !isCollidingWithEntities
                 ){
             tags.add("isSneaking");
-            // Ordinary grounded move
-            if (hDistDiff < cc.invMoveHdistLeniency && thisMove.hDistance > cc.invMoveHdistMin
-                && isOnGroundForAllStates){
-                violation = true;
-            }
-            // Sneaking in liquid: players are forced to descend if they are sneaking (Moving downstream is disregarded)
-            // TODO: Actually, players can sneak above lava surface with toggle sneak+space bar...
-            else if (thisMove.from.inLiquid && thisMove.to.inLiquid && mData.liqtick > 2 // Grace period, prevents false positives when the player first enters a liquid
-                    && (hDiffFrict > mData.invSlowDownMarginH || thisMove.yDistance == 0.0 || thisMove.yDistance > 0.0) // Moving on ground (y0.0)/up/not enough slow down
-                    && thisMove.hDistance > 0.009){  // Enough hDistance. Sneaking in liquid demands even less speed. TODO: Configurable?
-                violation = true;
 
+            if (hDistDiff < cc.invMoveHdistLeniency 
+                && thisMove.hDistance > (fromLiquid ? 0.009 : cc.invMoveHdistMin) // Sneaking in water demands less speed.
+                && thisMoveOnGround){
+                
+                // Issue when swimming on the ground. The swimming state of the client is not reported. Use the margin as a workaround.
+                if (toLiquid && fromLiquid && hDiffFrict > mData.invSlowDownMarginH){
+                    violation = true;
+                }
+                // on ground movement
+                else if (!toLiquid || !fromLiquid) violation = true;
             }
         }
+
         // ... while swimming
-        else if (Bridge1_13.isSwimming(player) && hDiffFrict > mData.invSlowDownMarginH // Not enough slow down to assume a stop. 
+        else if (Bridge1_13.isSwimming(player) 
+                // If hDiff > margin we assume the player to be intentionally moving and not being moved by the liquid friction after a stop
+                && hDiffFrict > mData.invSlowDownMarginH 
                 && !isSamePos){ 
             tags.add("isSwimming");
             violation = true;   
         }
+
         // ...  while sprinting
-        else if (player.isSprinting() && !tags.contains("isSwimming") 
-                && thisMove.hDistance > thisMove.walkSpeed && !isSprintLost
-                && isOnGroundForAllStates // Fix a false positive with players in survival flying (friction after stop fly)
-                ){
+        else if (player.isSprinting() && thisMove.hDistance > thisMove.walkSpeed
+                && thisMoveOnGround // Fix a false positive with players in survival flying (friction after stop fly)
+                && !isSprintLost){
             tags.add("isSprinting");
-            violation = true;
+
+            if (toLiquid && fromLiquid && hDiffFrict > mData.invSlowDownMarginH){
+                violation = true;
+            }
+            else if (!toLiquid || !fromLiquid) violation = true;
         }
+
         // ... while being dead or sleeping (-> Is it even possible?)
         else if (player.isDead() || player.isSleeping()) {
             tags.add(player.isDead() ? "isDead" : "isSleeping");
             violation = true;
         }
+        
         // Last resort, check if the player is actively moving while clicking in their inventory
         else {
             
-            if (thisMove.hDistance > cc.invMoveHdistMin && ((currentEvent - data.lastMoveEvent) < 65)
+            if (((currentEvent - data.lastMoveEvent) < 65)
                 &&  noIceTick 
                 && !isSamePos 
                 && !isCollidingWithEntities
-                && !thisMove.downStream 
+                && !(thisMove.downStream & mData.isdownstream) 
                 && !inVehicle 
+                && !mData.isVelocityJumpPhase()
                 ){ 
                 
                 tags.add("moving");
-                // Ordinary grounded move
-                if (hDistDiff < cc.invMoveHdistLeniency && isOnGroundForAllStates) {
-                    violation = true;
+                // On ground 
+                if (hDistDiff < cc.invMoveHdistLeniency && thisMove.hDistance > cc.invMoveHdistMin
+                    && thisMoveOnGround) {
+
+                    if (toLiquid && fromLiquid && hDiffFrict > mData.invSlowDownMarginH){
+                        violation = true;
+                    }
+                    else if (!toLiquid || !fromLiquid) violation = true;
                 }
-                // Moving inside liquid: players are forced to slow down if they open an inventory (Moving downstream is disregarded)
-                else if (thisMove.from.inLiquid && thisMove.to.inLiquid && mData.liqtick > 2
-                        && (hDiffFrict > mData.invSlowDownMarginH || thisMove.yDistance == 0.0 || thisMove.yDistance > 0.0) 
+                // In liquid (Only checks for actively moving inside a liquid (not on the ground)
+                else if (fromLiquid && toLiquid 
+                        && mData.liqtick > 2 // Grace period, let at least 2 ticks pass by before checking after having entered a liquid
+                        // Having a positive y delta means that the player is swimming upwards (not possible, as that would mean a click+jump bar pressed...)
+                        && (hDiffFrict > mData.invSlowDownMarginH || thisMove.yDistance > 0.0) 
                         ){
                     violation = true;
                 } 
                 // Above surface
-                else if (((thisMove.from.inLiquid && !thisMove.to.inLiquid) || mData.watermovect == 1) && mData.liftOffEnvelope.name().startsWith("LIMIT")
+                else if (((fromLiquid && !toLiquid) || mData.watermovect == 1) 
+                        && mData.liftOffEnvelope.name().startsWith("LIMIT")
                         && hDiffFrict > mData.invSlowDownMarginH){ 
                     violation = true;
                 }
             }
         }
     
+
         // Handle violations 
         if (violation && !creative) {
             data.invMoveVL += 1D;

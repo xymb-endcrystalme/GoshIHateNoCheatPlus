@@ -445,8 +445,8 @@ public class DefaultConfig extends ConfigFile {
         // InvMove
         set(ConfPaths.INVENTORY_INVENTORYMOVE_CHECK, "default", 1153);
         set(ConfPaths.INVENTORY_INVENTORYMOVE_DISABLECREATIVE, true, 1153);
-        set(ConfPaths.INVENTORY_INVENTORYMOVE_HDISTLENIENCY, 0.1, 1153);
-        set(ConfPaths.INVENTORY_INVENTORYMOVE_HDISTMIN, 0.010, 1153);
+        set(ConfPaths.INVENTORY_INVENTORYMOVE_HDISTLENIENCY, 0.09, 1153);
+        set(ConfPaths.INVENTORY_INVENTORYMOVE_HDISTMIN, 0.019, 1153);
         set(ConfPaths.INVENTORY_INVENTORYMOVE_ACTIONS, "log:inventorymove:2:5:i cancel", 1154);
         // Gutenberg
         set(ConfPaths.INVENTORY_GUTENBERG_CHECK, "default", 785);
