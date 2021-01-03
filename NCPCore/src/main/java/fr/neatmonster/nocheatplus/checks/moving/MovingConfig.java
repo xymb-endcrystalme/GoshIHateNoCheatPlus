@@ -115,7 +115,6 @@ public class MovingConfig extends ACheckConfig {
     public final int        survivalFlySprintingSpeed;
     public final int        survivalFlySwimmingSpeed;
     public final int        survivalFlyWalkingSpeed;
-    public final boolean    survivalFlyCobwebHack;
     public final boolean    sfSlownessSprintHack;
     /**
      * If true, will allow moderate bunny hop without lift off. Applies for
