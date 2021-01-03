@@ -417,19 +417,6 @@ public class SurvivalFly extends Check {
             final double[] res = vDistWeb(player, thisMove, toOnGround, hDistanceAboveLimit, now,data,cc,from);
             vAllowedDistance = res[0];
             vDistanceAboveLimit = res[1];
-
-            // TODO: Don't think this is useful nor necessary anymore
-            if (res[0] == Double.MIN_VALUE && res[1] == Double.MIN_VALUE) {
-                // Silent set back.
-                if (debug) {
-                    tags.add("silentsbcobweb");
-                    outputDebug(player, to, data, cc, hDistance, hAllowedDistance, hFreedom, 
-                            yDistance, vAllowedDistance, fromOnGround, resetFrom, toOnGround, resetTo, thisMove);
-                    data.ws.setJustUsedIds(null);
-                }
-                // (No need for MovingUtil.getApplicableSetBackLocation.)
-                return data.getSetBack(to); // (OK)
-            }
         }
 
         // Climbable blocks
@@ -2051,9 +2038,7 @@ public class SurvivalFly extends Check {
                         tags.add("ychincfly");
                     }
                 }
-                else {
-                    tags.add("ychincair");
-                }
+                else tags.add("ychincair");
             }
         }
         else {
@@ -2062,7 +2047,9 @@ public class SurvivalFly extends Check {
             // Detect low jumping.
             // TODO: sfDirty: Account for actual velocity (demands consuming queued for dir-change(!))!
             if (!data.sfLowJump && !data.sfNoLowJump && data.liftOffEnvelope == LiftOffEnvelope.NORMAL &&
-                    lastMove.toIsValid && lastMove.yDistance > 0.0 && !data.isVelocityJumpPhase()) {
+                lastMove.toIsValid && lastMove.yDistance > 0.0 && !data.isVelocityJumpPhase()
+                ) {
+
                 final double setBackYDistance = from.getY() - data.getSetBackY();
                 if (setBackYDistance > 0.0) {
                     // Only count it if the player has actually been jumping (higher than setback).
@@ -2199,13 +2186,13 @@ public class SurvivalFly extends Check {
             final double zDistance = to.getZ() - from.getZ();
             if (Math.abs(xDistance) > 0.485 && Math.abs(xDistance) < 1.025
                 && from.matchBlockChange(blockChangeTracker, data.blockChangeRef, xDistance < 0 ? Direction.X_NEG : Direction.X_POS, 0.05)
-            ) {
+                ) {
                 hAllowedDistance = thisMove.hDistance; // MAGIC
                 hDistanceAboveLimit = 0.0;
             }
             else if (Math.abs(zDistance) > 0.485 && Math.abs(zDistance) < 1.025
                     && from.matchBlockChange(blockChangeTracker, data.blockChangeRef, zDistance < 0 ? Direction.Z_NEG : Direction.Z_POS, 0.05)
-            ) {
+                    ) {
                 hAllowedDistance = thisMove.hDistance; // MAGIC
                 hDistanceAboveLimit = 0.0;
             }
@@ -2747,14 +2734,6 @@ public class SurvivalFly extends Check {
             }
         }
 
-        // Should flag as normal rather than doing silent setbacks. Also causes issues with descend check, meaning the player is never flagged.
-        // if (cc.survivalFlyCobwebHack && vDistanceAboveLimit > 0.0 && hDistanceAboveLimit <= 0.0) {
-        //    // TODO: Seemed fixed at first by CB/MC, but still does occur due to jumping. 
-        //    if (hackCobweb(player, data, thisMove, now, vDistanceAboveLimit)) {
-        //        return new double[]{Double.MIN_VALUE, Double.MIN_VALUE};
-        //    }
-        // } 
-
         if (vDistanceAboveLimit > 0.0) {
             if ((from.getBlockFlags() & BlockProperties.F_COBWEB2) != 0) {
                 tags.add(yDistance > 0.0 ? "vbush" : "vbushdesc");
@@ -2855,42 +2834,6 @@ public class SurvivalFly extends Check {
 
 
     /**
-     * Allow accumulating some vls and silently set the player back.
-     * 
-     * @param player
-     * @param data
-     * @param cc
-     * @param to
-     * @param now
-     * @param vDistanceAboveLimit
-     * @return If to silently set back.
-     */
-    private boolean hackCobweb(final Player player, final MovingData data, final PlayerMoveData thisMove, final long now, 
-                               final double vDistanceAboveLimit) {
-
-        if (now - data.sfCobwebTime > 3000) {
-            data.sfCobwebTime = now;
-            data.sfCobwebVL = vDistanceAboveLimit * 100D;
-        }
-        else {
-            data.sfCobwebVL += vDistanceAboveLimit * 100D;
-        }
-        if (data.sfCobwebVL < 550) { // Totally random !
-            // Silently set back.
-            if (!data.hasSetBack()) { // TODO: Assume redundant.
-                data.setSetBack(player.getLocation(useLoc)); // ? check moment of call.
-                useLoc.setWorld(null);
-            }
-            data.sfJumpPhase = 0;
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-
-    /**
      * This is set with PlayerToggleSneak, to be able to distinguish players that are really sneaking from players that are set sneaking by a plugin. 
      * @param player + ")"
      * @param sneaking
@@ -2934,8 +2877,9 @@ public class SurvivalFly extends Check {
         builder.append("\nonground: " + (thisMove.headObstructed ? "(head obstr.) " : "") + (thisMove.touchedGroundWorkaround ? "(touched ground) " : "") + (fromOnGround ? "onground -> " : (resetFrom ? "resetcond -> " : "--- -> ")) + (toOnGround ? "onground" : (resetTo ? "resetcond" : "---")) + ", jumpphase: " + data.sfJumpPhase + ", liftoff: " + data.liftOffEnvelope.name() + "(" + data.insideMediumCount + ")");
         final String dHDist = lastMove.toIsValid ? " (" + StringUtil.formatDiff(hDistance, lastMove.hDistance) + ")" : "";
         final String dYDist = lastMove.toIsValid ? " (" + StringUtil.formatDiff(yDistance, lastMove.yDistance)+ ")" : "";
-        final String hopDelay = "\n" + (data.bunnyhopDelay > 0 ? (" bHopDelay= " + data.bunnyhopDelay) : "");
-        final String hopTick = "\n" + (data.bunnyhopTick > 0 ? (" bHopTick= " + data.bunnyhopTick) : "");
+        final String hopDelay = (data.bunnyhopDelay > 0 ? (" bHopDelay= " + data.bunnyhopDelay) : "");
+        final String hopTick = (data.bunnyhopTick > 0 ? (" bHopTick= " + data.bunnyhopTick) : "");
+        builder.append(hopDelay + " / " + hopTick);
         builder.append("\n" + " hDist: " + StringUtil.fdec3.format(hDistance) + dHDist + " / " +  StringUtil.fdec3.format(hAllowedDistance) + hBuf + lostSprint + hVelUsed + " , vDist: " + StringUtil.fdec3.format(yDistance) + dYDist + " / " + StringUtil.fdec3.format(vAllowedDistance) + " , sby=" + (data.hasSetBack() ? (data.getSetBackY() + " (" + StringUtil.fdec3.format(to.getY() - data.getSetBackY()) + " / " + data.liftOffEnvelope.getMaxJumpHeight(data.jumpAmplifier) + ")") : "?"));
         if (lastMove.toIsValid) {
             builder.append(" , fdsq: " + StringUtil.fdec3.format(thisMove.distanceSquared / lastMove.distanceSquared));

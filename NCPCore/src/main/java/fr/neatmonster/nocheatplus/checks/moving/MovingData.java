@@ -257,8 +257,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      */
     public int          sfHoverLoginTicks = 0;
     public int          sfOnIce = 0; // TODO: Replace by allowed speed + friction.
-    public long         sfCobwebTime = 0;
-    public double       sfCobwebVL = 0;
     /** Fake in air flag: set with any violation, reset once on ground. */
     public boolean       sfVLInAir = false;
 
@@ -1262,7 +1260,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         final long time = System.currentTimeMillis();
         timeSprinting = Math.min(timeSprinting, time);
         vehicleMorePacketsLastTime = Math.min(vehicleMorePacketsLastTime, time);
-        sfCobwebTime = Math.min(sfCobwebTime, time);
         clearAccounting(); // Not sure: adding up might not be nice.
         removeAllPlayerSpeedModifiers(); // TODO: This likely leads to problems.
         // (ActionFrequency can handle this.)

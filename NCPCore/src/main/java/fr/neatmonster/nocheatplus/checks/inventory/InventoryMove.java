@@ -110,7 +110,7 @@ public class InventoryMove extends Check {
         boolean violation = false;
         double hLiqFrict = lastMove.hDistance * mData.lastFrictionHorizontal;
         double hDistDiff = Math.abs(thisMove.hDistance - lastMove.hDistance);
-        double hDiffFrict = Math.abs(hLiqFrict - hDistDiff);
+        double deltaFrict = Math.abs(hLiqFrict - hDistDiff);
     
 
         // Clicking while using/consuming an item
@@ -126,6 +126,41 @@ public class InventoryMove extends Check {
         //    violation = true;
         //}
 
+        // ... while swimming
+        else if (Bridge1_13.isSwimming(player) 
+                // If hDiff > margin we assume the player to be intentionally moving and not being moved by the liquid friction after a stop
+                && deltaFrict > mData.invSlowDownMarginH 
+                && !isSamePos){ 
+            tags.add("isSwimming");
+            violation = true;   
+        }
+        
+        // ... while bunnyhopping
+        // ground -> (begin delay countdown 10-5=ascend) bunnyhop (5-0= descend) -> hit ground.
+        else if ((thisMove.bunnyHop || mData.bunnyhopDelay > 5) // player can interact with their inventory during a descend phase.
+                && !mData.isVelocityJumpPhase()){
+            violation = true;
+            tags.add("hopClick");
+        }
+
+        // ...  while sprinting
+        else if (player.isSprinting() && thisMove.hDistance > thisMove.walkSpeed
+                && thisMoveOnGround // Fix a false positive with players in survival flying (friction after stop fly)
+                && !isSprintLost){
+            tags.add("isSprinting");
+
+            if (toLiquid && fromLiquid && deltaFrict > mData.invSlowDownMarginH){
+                violation = true;
+            }
+            else if (!toLiquid || !fromLiquid) violation = true;
+        }
+
+        // ... while being dead or sleeping (-> Is it even possible?)
+        else if (player.isDead() || player.isSleeping()) {
+            tags.add(player.isDead() ? "isDead" : "isSleeping");
+            violation = true;
+        }
+
         // ... while sneaking
         else if (player.isSneaking() && ((currentEvent - data.lastMoveEvent) < 65)
                 &&  noIceTick
@@ -140,39 +175,12 @@ public class InventoryMove extends Check {
                 && thisMoveOnGround){
                 
                 // Issue when swimming on the ground. The swimming state of the client is not reported. Use the margin as a workaround.
-                if (toLiquid && fromLiquid && hDiffFrict > mData.invSlowDownMarginH){
+                if (toLiquid && fromLiquid && deltaFrict > mData.invSlowDownMarginH){
                     violation = true;
                 }
                 // on ground movement
                 else if (!toLiquid || !fromLiquid) violation = true;
             }
-        }
-
-        // ... while swimming
-        else if (Bridge1_13.isSwimming(player) 
-                // If hDiff > margin we assume the player to be intentionally moving and not being moved by the liquid friction after a stop
-                && hDiffFrict > mData.invSlowDownMarginH 
-                && !isSamePos){ 
-            tags.add("isSwimming");
-            violation = true;   
-        }
-
-        // ...  while sprinting
-        else if (player.isSprinting() && thisMove.hDistance > thisMove.walkSpeed
-                && thisMoveOnGround // Fix a false positive with players in survival flying (friction after stop fly)
-                && !isSprintLost){
-            tags.add("isSprinting");
-
-            if (toLiquid && fromLiquid && hDiffFrict > mData.invSlowDownMarginH){
-                violation = true;
-            }
-            else if (!toLiquid || !fromLiquid) violation = true;
-        }
-
-        // ... while being dead or sleeping (-> Is it even possible?)
-        else if (player.isDead() || player.isSleeping()) {
-            tags.add(player.isDead() ? "isDead" : "isSleeping");
-            violation = true;
         }
         
         // Last resort, check if the player is actively moving while clicking in their inventory
@@ -192,7 +200,7 @@ public class InventoryMove extends Check {
                 if (hDistDiff < cc.invMoveHdistLeniency && thisMove.hDistance > cc.invMoveHdistMin
                     && thisMoveOnGround) {
 
-                    if (toLiquid && fromLiquid && hDiffFrict > mData.invSlowDownMarginH){
+                    if (toLiquid && fromLiquid && deltaFrict > mData.invSlowDownMarginH){
                         violation = true;
                     }
                     else if (!toLiquid || !fromLiquid) violation = true;
@@ -201,14 +209,14 @@ public class InventoryMove extends Check {
                 else if (fromLiquid && toLiquid 
                         && mData.liqtick > 2 // Grace period, let at least 2 ticks pass by before checking after having entered a liquid
                         // Having a positive y delta means that the player is swimming upwards (not possible, as that would mean a click+jump bar pressed...)
-                        && (hDiffFrict > mData.invSlowDownMarginH || thisMove.yDistance > 0.0) 
+                        && (deltaFrict > mData.invSlowDownMarginH || thisMove.yDistance > 0.0) 
                         ){
                     violation = true;
                 } 
                 // Above surface
                 else if (((fromLiquid && !toLiquid) || mData.watermovect == 1) 
                         && mData.liftOffEnvelope.name().startsWith("LIMIT")
-                        && hDiffFrict > mData.invSlowDownMarginH){ 
+                        && deltaFrict > mData.invSlowDownMarginH){ 
                     violation = true;
                 }
             }

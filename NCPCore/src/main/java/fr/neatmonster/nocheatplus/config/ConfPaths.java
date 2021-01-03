@@ -692,7 +692,6 @@ public abstract class ConfPaths {
     public static final String MOVING_SURVIVALFLY_SPRINTINGSPEED            = MOVING_SURVIVALFLY + "sprintingspeed";
     public static final String MOVING_SURVIVALFLY_SWIMMINGSPEED             = MOVING_SURVIVALFLY + "swimmingspeed";
     public static final String MOVING_SURVIVALFLY_WALKINGSPEED              = MOVING_SURVIVALFLY + "walkingspeed";
-    public static final String MOVING_SURVIVALFLY_COBWEBHACK                = MOVING_SURVIVALFLY + "cobwebhack";
     public static final String MOVING_SURVIVALFLY_SLOWNESSSPRINTHACK        = MOVING_SURVIVALFLY + "slownesssprinthack";
     public static final String MOVING_SURVIVALFLY_GROUNDHOP                 = MOVING_SURVIVALFLY + "groundhop";
     public static final String MOVING_SURVIVALFLY_STEPHEIGHT                = MOVING_SURVIVALFLY + "stepheight";
@@ -971,6 +970,8 @@ public abstract class ConfPaths {
     private static final String FIGHT_CLICKPATTERN                       = "checks.fight.clickpattern";
     @Deprecated
     private static final String NET_FIGHTSYNC                            = "checks.net.fightsync";
+    @Deprecated
+    public static final String MOVING_SURVIVALFLY_COBWEBHACK             = "checks.moving.survivalfly.cobwebhack";
 
     /**
      * Get moved paths for which an annotation doesn't work.
