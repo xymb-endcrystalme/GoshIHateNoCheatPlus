@@ -1077,8 +1077,6 @@ public class SurvivalFly extends Check {
         // TODO: Test how to go with only checking from (less dolphins).
         else if (thisMove.from.inLiquid && thisMove.to.inLiquid && !data.newHDist) {
             tags.add("hliquid");
-            // Set the allowed horizontal margin for which we'll consider the player to be slowing down (use in invMove)
-            data.invSlowDownMarginH = Bridge1_13.isSwimming(player) ? ((thisMove.to.onGround || thisMove.from.onGround || thisMove.touchedGround) ? 0.100 : 0.090) : 0.070; // Empirical/magic constants.
             hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed / 100D;
             useBaseModifiers = false;
             if (sfDirty) friction = 0.0;
@@ -1089,17 +1087,14 @@ public class SurvivalFly extends Check {
                     useBaseModifiers = true;
                     useBaseModifiersSprint = true;
                     hAllowedDistance *= Magic.modDepthStrider[level];
-                    data.invSlowDownMarginH *= Magic.modDepthStrider[level];
                     // Modifiers: Most speed seems to be reached on ground, but couldn't nail down.
                 }
 
                 if (!Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
                     // TODO: Allow for faster swimming above water with Dolhphins Grace
                     hAllowedDistance *= Magic.modDolphinsGrace;
-                    data.invSlowDownMarginH *= Magic.modDolphinsGrace;
                     if (level > 1) {
                         hAllowedDistance *= 1.0 + 0.07 * level;
-                        data.invSlowDownMarginH *= 1.0 + 0.07 * level;
                     }
                 }
 
@@ -1154,15 +1149,12 @@ public class SurvivalFly extends Check {
                 && data.liftOffEnvelope.name().startsWith("LIMIT")
                 ) {
             tags.add("hsurface");
-            // Set the allowed horizontal margin for which we'll consider the player to be slowing down (use in invMove)
-            data.invSlowDownMarginH = Bridge1_13.isSwimming(player) ? 0.090 : 0.070; // Empirical/Magic constants
             hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * 1.06 * cc.survivalFlySwimmingSpeed / 100D;
             useBaseModifiersSprint = false;
             friction = 0.0;
             final int level = BridgeEnchant.getDepthStriderLevel(player);
 
             if (level > 0 && data.watermovect < 1) {
-               data.invSlowDownMarginH *= Magic.modDepthStrider[level];
                // Speed effect, attribute will affect to water movement whenever you has DepthStrider enchant.
                useBaseModifiers = true;
                useBaseModifiersSprint = true;
@@ -1172,10 +1164,8 @@ public class SurvivalFly extends Check {
 
             if (!Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
                 hAllowedDistance *= Magic.modDolphinsGrace;
-                data.invSlowDownMarginH *= Magic.modDolphinsGrace;
                 if (level > 1) {
                     hAllowedDistance *= 1.0 + 0.07 * level;
-                    data.invSlowDownMarginH *= 1.0 + 0.07 * level;
                 }
             }
 

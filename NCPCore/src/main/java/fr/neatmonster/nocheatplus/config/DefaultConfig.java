@@ -445,9 +445,9 @@ public class DefaultConfig extends ConfigFile {
         // InvMove
         set(ConfPaths.INVENTORY_INVENTORYMOVE_CHECK, "default", 1153);
         set(ConfPaths.INVENTORY_INVENTORYMOVE_DISABLECREATIVE, true, 1153);
-        set(ConfPaths.INVENTORY_INVENTORYMOVE_HDISTLENIENCY, 0.09, 1153);
-        set(ConfPaths.INVENTORY_INVENTORYMOVE_HDISTMIN, 0.019, 1153);
-        set(ConfPaths.INVENTORY_INVENTORYMOVE_ACTIONS, "log:inventorymove:2:5:i cancel", 1154);
+        set(ConfPaths.INVENTORY_INVENTORYMOVE_HDISTLENIENCY, 0.09, 1154); 
+        set(ConfPaths.INVENTORY_INVENTORYMOVE_HDISTMIN, 0.18, 1154); // Below 0.13, false positives will show up. Should cap max/min.
+        set(ConfPaths.INVENTORY_INVENTORYMOVE_ACTIONS, " cancel vl> 5 log:inventorymove:4:5:i cancel", 1154);
         // Gutenberg
         set(ConfPaths.INVENTORY_GUTENBERG_CHECK, "default", 785);
         set(ConfPaths.INVENTORY_GUTENBERG_PAGELIMIT, 50, 1154);
