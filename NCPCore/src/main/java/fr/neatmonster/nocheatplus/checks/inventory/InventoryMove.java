@@ -153,7 +153,7 @@ public class InventoryMove extends Check {
         // ... while swimming
         // Having a positive y delta means that the player is swimming upwards (not possible, as that would mean a click+jump bar pressed...).
         // if delta>margin, we assume the player to be intentionally moving and not being moved by friction.
-        else if (Bridge1_13.isSwimming(player) && (deltaFrict >= margin || thisMove.yDistance > 0.0)
+        else if (Bridge1_13.isSwimming(player) && (deltaFrict >= margin || thisMove.yDistance > 0.7)
                 && !isSamePos){ 
             tags.add("isSwimming");
             violation = true;   
@@ -233,13 +233,13 @@ public class InventoryMove extends Check {
                 }
                 // Moving inside liquid (but not on the ground)
                 else if (fromLiquid && toLiquid && mData.liqtick > 2 // Grace period, let at least 2 ticks pass by before checking after having entered a liquid
-                        && (deltaFrict > margin || thisMove.yDistance > 0.0)){
+                        && (deltaFrict > margin && thisMove.hDistance > cc.invMoveHdistMin || thisMove.yDistance > 0.7)){
                     violation = true;
                 } 
                 // Moving above liquid surface
                 else if (((fromLiquid && !toLiquid) || mData.watermovect == 1) 
                         && mData.liftOffEnvelope.name().startsWith("LIMIT")
-                        && deltaFrict > margin){ 
+                        && deltaFrict > margin && thisMove.hDistance > cc.invMoveHdistMin){ 
                     violation = true;
                 }
             }
@@ -298,7 +298,7 @@ public class InventoryMove extends Check {
                 if (!Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
                     invSlowDownMarginH *= Magic.modDolphinsGrace;
                     if (depthStriderLevel > 0) {
-                        invSlowDownMarginH *= 1.7 + 0.07 * depthStriderLevel; // 1.0 -> 1.7. Should fix modDolphinsGrace...
+                        invSlowDownMarginH *= 1.65 + 0.07 * depthStriderLevel; // 1.0 -> 1.7. Should fix modDolphinsGrace...
                     }
                 }
             }
