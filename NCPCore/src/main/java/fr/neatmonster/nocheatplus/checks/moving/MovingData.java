@@ -112,6 +112,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public long           timeSprinting = 0;
     public long           bedLeaveTime = 0;
     public long           timeRiptiding = 0;
+    public long           timeSwimming = 0;
     public int            RiptideLevel = 0;
     public long           timeVehicletoss = 0;
     public double         multSprinting = 1.30000002; // Multiplier at the last time sprinting.

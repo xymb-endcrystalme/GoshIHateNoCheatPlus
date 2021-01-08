@@ -318,8 +318,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
         if (!pData.isCheckActive(CheckType.MOVING, player)) return;
 
-	final MovingData data = pData.getGenericInstance(MovingData.class);
-	data.bedLeaveTime = System.currentTimeMillis();
+	    final MovingData data = pData.getGenericInstance(MovingData.class);
+	    data.bedLeaveTime = System.currentTimeMillis();
         if (pData.isCheckActive(bedLeave.getType(), player) 
                 && bedLeave.checkBed(player, pData)) {
             final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
@@ -527,6 +527,10 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 		if (Bridge1_13.isRiptiding(player)) {
         	data.timeRiptiding = System.currentTimeMillis();
         	data.RiptideLevel = BridgeEnchant.getRiptideLevel(player);
+        }
+
+        if (Bridge1_13.isSwimming(player)){
+           data.timeSwimming = System.currentTimeMillis();
         }
 
         final boolean debug = pData.isDebugActive(checkType);
