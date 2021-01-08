@@ -308,7 +308,7 @@ public class InventoryMove extends Check {
 
 
         // If in water, we need to account for all related enchants.
-        if (thisMove.from.inWater || thisMove.to.inWater){ // From testing (lava): in-air -> splash move (lava) with delta 0.04834
+        if (thisMove.from.inWater || thisMove.to.inWater || movingOnSurface){ // From testing (lava): in-air -> splash move (lava) with delta 0.04834
   
             final int depthStriderLevel = BridgeEnchant.getDepthStriderLevel(player);
             if (depthStriderLevel > 0) {
@@ -327,7 +327,7 @@ public class InventoryMove extends Check {
             }
         }
         // Lava
-        else {
+        else if (thisMove.from.inLava){
             // Walking on ground in lava
             if (thisMoveOnGround) marginH = 0.038; // From testings: 0.0399...
         }
