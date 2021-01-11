@@ -99,9 +99,9 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
     /** The instant eat check. */
     private final InstantEat instantEat = addCheck(new InstantEat());
 
-    protected final Items items 		= addCheck(new Items());
+    protected final Items items         = addCheck(new Items());
 
-    private final Open open 			= addCheck(new Open());
+    private final Open open             = addCheck(new Open());
     
     private boolean keepCancel = false;
 
@@ -155,9 +155,9 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
      * @param event
      *            the event
      */
-    @EventHandler(
-            ignoreCancelled = true, priority = EventPriority.LOWEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onEntityShootBow(final EntityShootBowEvent event) {
+        
         // Only if a player shot the arrow.
         if (event.getEntity() instanceof Player) {
             final Player player = (Player) event.getEntity();
@@ -198,9 +198,9 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
      * @param event
      *            the event
      */
-    @EventHandler(
-            ignoreCancelled = true, priority = EventPriority.LOWEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onFoodLevelChange(final FoodLevelChangeEvent event) {
+
         // Only if a player ate food.
         if (event.getEntity() instanceof Player) {
             final Player player = (Player) event.getEntity();
@@ -224,9 +224,9 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
      *            the event
      */
     @SuppressWarnings("deprecation")
-	@EventHandler(
-            ignoreCancelled = true, priority = EventPriority.LOWEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onInventoryClick(final InventoryClickEvent event) {
+
         if (!(event.getWhoClicked() instanceof Player)) {
             return;
         }
@@ -288,23 +288,26 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                     cancel = true;
                 }
                 // Listen for more than just a chest?
-                if (check)
-                if (event.getInventory().getType().equals(InventoryType.CHEST) || event.getInventory().getType().equals(InventoryType.ENDER_CHEST) || event.getInventory().getType().toString().equals("BARREL") || event.getInventory().getType().toString().equals("SHULKER_BOX")) {
-        			if (fastClick.fastClickChest(player, data, cc)) {
-        				cancel = true;
-        				keepCancel = true;
-        			}
-        		}
+                if (check){
+                    if (event.getInventory().getType().equals(InventoryType.CHEST) || event.getInventory().getType().equals(InventoryType.ENDER_CHEST) 
+                        || event.getInventory().getType().toString().equals("BARREL") 
+                        || event.getInventory().getType().toString().equals("SHULKER_BOX")) {
+                        if (fastClick.fastClickChest(player, data, cc)) {
+                            cancel = true;
+                            keepCancel = true;
+                        }
+                    }
+                }
             }
         }
         
         // Inventory Move check
         final SlotType type = event.getSlotType();
         if (invMove.isEnabled(player, pData)) {
-        	final InventoryConfig cc = pData.getGenericInstance(InventoryConfig.class);
-        		if (invMove.check(player, data, pData, cc, type)) {
-            		cancel = true;	
-        	}
+            final InventoryConfig cc = pData.getGenericInstance(InventoryConfig.class);
+                if (invMove.check(player, data, pData, cc, type)) {
+                    cancel = true;  
+            }
         }
         
         
@@ -321,7 +324,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
     */
     @EventHandler(priority = EventPriority.MONITOR)
     public void closeChest(InventoryCloseEvent event) {
-    	keepCancel = false;
+        keepCancel = false;
     }
     
     /** 
@@ -331,18 +334,23 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
     */
     @EventHandler(priority = EventPriority.MONITOR)
     public void chestOpen(PlayerInteractEvent event) {
-    	final Player player = event.getPlayer();
-    	final IPlayerData pData = DataManager.getPlayerData(player);
-    	final InventoryData data = pData.getGenericInstance(InventoryData.class);
+
+        final Player player = event.getPlayer();
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        final InventoryData data = pData.getGenericInstance(InventoryData.class);
 
         if (!pData.isCheckActive(CheckType.INVENTORY, player)) return;
-    	
-	// Check left click too to prevent any bypasses
-    	if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null || event.getAction() == Action.LEFT_CLICK_BLOCK && event.getClickedBlock() != null) {
-    	if (event.getClickedBlock().getType().toString().endsWith("CHEST") || event.getClickedBlock().getType().toString().equals("BARREL") || event.getClickedBlock().getType().toString().endsWith("SHULKER_BOX")) {
-		data.chestOpenTime = System.currentTimeMillis();
-    	    }
-    	} 
+        
+        // Check left click too to prevent any bypasses
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null 
+            || event.getAction() == Action.LEFT_CLICK_BLOCK && event.getClickedBlock() != null){
+
+            if (event.getClickedBlock().getType().toString().endsWith("CHEST") 
+                || event.getClickedBlock().getType().toString().equals("BARREL") 
+                || event.getClickedBlock().getType().toString().endsWith("SHULKER_BOX")) {
+               data.chestOpenTime = System.currentTimeMillis();
+            }
+        } 
     }
 
     /**
@@ -353,9 +361,9 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
      * @param slot
      * @param event
      */
-    private void outputDebugInventoryClick(final Player player, 
-            final int slot, final InventoryClickEvent event, 
-            final String action) {
+    private void outputDebugInventoryClick(final Player player, final int slot, final InventoryClickEvent event, 
+                                           final String action) {
+
         // TODO: Check if this breaks legacy compat (disable there perhaps).
         // TODO: Consider only logging where different from expected (CraftXY, more/other viewer than player). 
 
@@ -415,8 +423,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
      * @param event
      *            the event
      */
-    @EventHandler(
-            ignoreCancelled = true, priority = EventPriority.LOWEST)
+    @EventHandler( ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onPlayerDropItem(final PlayerDropItemEvent event) {
 
         final Player player = event.getPlayer();
@@ -458,6 +465,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
      */
     @EventHandler(ignoreCancelled = false, priority = EventPriority.LOWEST)
     public final void onPlayerInteract(final PlayerInteractEvent event) {
+
         // Only interested in right-clicks while holding an item.
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK)
             return;
@@ -514,6 +522,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
 
     @EventHandler(ignoreCancelled = false, priority = EventPriority.LOWEST)
     public final void onPlayerInteractEntity(final PlayerInteractEntityEvent event) {
+
         final Player player = event.getPlayer();
         if (player.getGameMode() == GameMode.CREATIVE || !DataManager.getPlayerData(player).isCheckActive(CheckType.INVENTORY, player)) {
             return;
@@ -542,6 +551,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
 
     @EventHandler(ignoreCancelled = false, priority = EventPriority.LOWEST)
     public final void onPlayerInventoryOpen(final InventoryOpenEvent event) {
+
         // Possibly already prevented by block + entity interaction.
         final HumanEntity entity = event.getPlayer();
         if (entity instanceof Player) {
@@ -553,6 +563,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onItemHeldChange(final PlayerItemHeldEvent event) {
+
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
         final InventoryData data = pData.getGenericInstance(InventoryData.class);
@@ -574,17 +585,20 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerChangedWorld(final PlayerChangedWorldEvent event) {
+
         open.check(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerPortal(final PlayerPortalEvent event) {
+
         // Note: ignore cancelother setting.
         open.check(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onEntityPortal(final EntityPortalEnterEvent event) {
+
         // Check passengers flat for now.
         final Entity entity = event.getEntity();
         if (entity instanceof Player) {
@@ -602,6 +616,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
     
     @EventHandler(priority = EventPriority.LOWEST)
     public void onMove(final PlayerMoveEvent event) {
+
         final Player player = event.getPlayer();
         final Location from = event.getFrom();
         final Location to = event.getTo();
@@ -651,24 +666,24 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
 
     //    @EventHandler(priority = EventPriority.MONITOR)
     //    public void onVehicleDestroy(final VehicleDestroyEvent event) {
-    //    	final Entity entity = event.getVehicle();
-    //    	if (entity instanceof InventoryHolder) { // Fail on 1.4 ?
-    //    		checkInventoryHolder((InventoryHolder) entity);
-    //    	}
+    //      final Entity entity = event.getVehicle();
+    //      if (entity instanceof InventoryHolder) { // Fail on 1.4 ?
+    //          checkInventoryHolder((InventoryHolder) entity);
+    //      }
     //    }
     //    
     //    @EventHandler(priority = EventPriority.MONITOR)
     //    public void onBlockBreak(final BlockBreakEvent event) {
-    //    	final Block block = event.getBlock();
-    //    	if (block == null) {
-    //    		return;
-    //    	}
-    //    	// TODO: + explosions !? + entity change block + ...
+    //      final Block block = event.getBlock();
+    //      if (block == null) {
+    //          return;
+    //      }
+    //      // TODO: + explosions !? + entity change block + ...
     //    }
     //
-    //	private void checkInventoryHolder(InventoryHolder entity) {
-    //		// TODO Auto-generated method stub
-    //		
-    //	}
+    //  private void checkInventoryHolder(InventoryHolder entity) {
+    //      // TODO Auto-generated method stub
+    //      
+    //  }
 
 }

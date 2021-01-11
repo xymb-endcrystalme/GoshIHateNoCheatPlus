@@ -77,13 +77,17 @@ public class InventoryMove extends Check {
     */
     public boolean check(final Player player, final InventoryData data, final IPlayerData pData, final InventoryConfig cc, final SlotType type){
         
+        boolean cancel = false;
+        boolean violation = false;
+        List<String> tags = new LinkedList<String>();
+
         // TODO: Inventory click + swing packet/attack ? Would be a way to detect hitting+attack (which would catch careless players
         // who do not set their killaura to stop attacking if the inv is opened, although it should probably be done in the fight section (Fight.ImpossibleHit?))
 
         // Consider skipping the check altogether if the player is exposed to dolphin's grace and has boots with DepthStrider III. Players go uncomfortably fast with this combo.
 
        /* 
-        * Important: MC allows players to swim on the ground but the status is not *consistently* reflected back to the server 
+        * Important: MC allows players to swim (and keep the status) when on ground, but this is not *consistently* reflected back to the server 
         * (while still allowing them to move at swimming speed) instead, isSprinting() will return. Observed in both Spigot and PaperMC.
         *
         */
@@ -102,24 +106,19 @@ public class InventoryMove extends Check {
         final boolean toLiquid = thisMove.to.inLiquid;
         
         // Others
-        final FightData fData = pData.getGenericInstance(FightData.class);
         final boolean creative = player.getGameMode() == GameMode.CREATIVE && ((type == SlotType.QUICKBAR) || cc.invMoveDisableCreative);
         final boolean isMerchant = (player.getOpenInventory().getTopInventory().getType() == InventoryType.MERCHANT); 
         final long currentEvent = System.currentTimeMillis();
         final boolean noIceTick = (mData.sfOnIce == 0); 
         final boolean isSprintLost = (mData.lostSprintCount > 0);
         final boolean isCollidingWithEntities = CollisionUtil.isCollidingWithEntities(player, true) && Bridge1_9.hasElytra(); // Dirty way to check if the server is 1.9+
-        final Block blockUnder = player.getLocation().subtract(0, 0.6, 0).getBlock();
-        final Material blockAbove = player.getLocation().add(0, 0.10, 0).getBlock().getType();
+        Block blockUnder = player.getLocation().subtract(0, 0.68, 0).getBlock();
+        Material blockAbove = player.getLocation().add(0, 0.10, 0).getBlock().getType();
         // Used to workaround issues with splash moves: water-water-air-air-air-water-air
-        final boolean movingOnSurface = blockAbove != null && blockUnder != null && blockAbove.name().endsWith("AIR") 
-                                        && (blockUnder.getType().toString().endsWith("WATER") || blockUnder.getType().toString().endsWith("LAVA"));
+        final boolean movingOnSurface = blockAbove != null && blockUnder != null && blockAbove.name().endsWith("AIR") && blockUnder.getType().toString().endsWith("WATER");
         // Used to fix up issues with players immediately clicking in inventories after having stopped to swim.
-        final boolean swimming = (Bridge1_13.isSwimming(player) || mData.timeSwimming + 1000 > currentEvent);
-        List<String> tags = new LinkedList<String>();
-        
-        boolean cancel = false;
-        boolean violation = false;
+        final boolean swimming = (Bridge1_13.isSwimming(player) || mData.timeSwimming + 500 > currentEvent);
+
         double friction = lastMove.hDistance * mData.lastFrictionHorizontal;
         double hDistDiff = Math.abs(thisMove.hDistance - lastMove.hDistance);
         double deltaFrict = Math.abs(friction - hDistDiff);
@@ -129,52 +128,41 @@ public class InventoryMove extends Check {
         marginH = result[0];
         hDistMin = result[1];
 
+
+
         // Debug first.
         if (pData.isDebugActive(CheckType.INVENTORY_INVENTORYMOVE)) {
-            player.sendMessage("hDistance= " + StringUtil.fdec3.format(thisMove.hDistance) 
-                + " hDistanceMin= " + StringUtil.fdec3.format(hDistMin)
-                + " deltaFrict= " + StringUtil.fdec3.format(deltaFrict)
-                + " marginH= " + StringUtil.fdec3.format(marginH)
-                + " yDistance= " + StringUtil.fdec3.format(thisMove.yDistance)
+            debug(player, " hDist/minHdist= " + StringUtil.fdec3.format(thisMove.hDistance) + "/ " + StringUtil.fdec3.format(hDistMin) 
+                + " \n " + " delta/margin= " + StringUtil.fdec3.format(deltaFrict) + " / " + StringUtil.fdec3.format(marginH)
+                + " \n " + " hDiff/Leniency= " + StringUtil.fdec3.format(hDistDiff) + " / " + cc.invMoveHdistLeniency
+                + " \n " + " yDistance= " + StringUtil.fdec3.format(thisMove.yDistance)
                 + " liqTick= " + mData.liqtick);
         }
         
-
-
-
-
         // Clicking while using/consuming an item
         if (mData.isusingitem && !isMerchant) { 
             tags.add("usingitem");
             violation = true;
         }
 
-        // ... while attacking
-        // TODO: Doesn't seem to work...
-        // else if (fData.noSwingPacket){
-        //     tags.add("armswing");
-        //     violation = true;
-        // }
+        // ... while swimming (in water, not on ground. Players are forced to stop swimming if they open an inventory)
+        else if (Bridge1_13.isSwimming(player) && !thisMoveOnGround && !isSamePos){
+            violation = true;
+            tags.add("isSwimming(no ground)");
+        }
 
-        // ...while flying
-        // (not consistent with the delta outputs, especially if flying backwards)
-        // else if (player.isFlying() && (thisMove.yDistance > 0.1 || deltaFrict >= marginH)){ 
-        //     violation = true;
-        //     tags.add("isFlying");
-        // }
-
-        // ... while swimming
-        // Having a positive y delta means that the player is swimming upwards (not possible, as that would mean a click+jump bar pressed...).
-        // if delta>marginH, we assume the player to be intentionally moving and not being moved by friction.
-        else if (swimming && thisMove.hDistance > hDistMin && (deltaFrict > marginH || thisMove.yDistance > 0.1) && !isSamePos){ 
-            tags.add("isSwimming");
-            violation = true;   
+        // ... while swimming on the ground (players are allowed to stay into isSwimming state if on ground).
+        // if delta>marginH, we assume the player to be intentionally moving and not being moved by friction (dolphin's grace especially gives a lot of momentum upon stopping).
+        // Swimming is used here to better harmonize swimming/non-swimming transition phases.
+        else if (swimming && thisMove.hDistance > hDistMin && deltaFrict > marginH && thisMoveOnGround && !isSamePos ){
+            violation = true;
+            tags.add("isSwimming(ground)");
         }
         
         // ... while bunnyhopping
         else if (thisMove.bunnyHop && !mData.isVelocityJumpPhase()){
             violation = true;
-            tags.add("hopClick");
+            tags.add("hopclick");
         }
 
         // ... while being dead or sleeping (-> Is it even possible?)
@@ -188,7 +176,7 @@ public class InventoryMove extends Check {
             tags.add("isSprinting");
             
             // Use the marginH as a workaround to the MC bug described above (The player is swimming on the ground but isSprinting() is returned instead).
-            // On ground in liquid
+            // On ground in a liquid
             if (toLiquid && fromLiquid && deltaFrict > marginH && thisMove.hDistance > hDistMin) violation = true;
             // (no else as the delta could be < invSlowDown (stop). Explicitly require the player to not be in a liquid.
             // On ground
@@ -196,7 +184,7 @@ public class InventoryMove extends Check {
         }
 
         // ... while sneaking
-        else if (player.isSneaking() && ((currentEvent - data.lastMoveEvent) < 65) && thisMoveOnGround
+        else if (player.isSneaking() && ((currentEvent - data.lastMoveEvent) < 65) 
                 && !(thisMove.downStream & mData.isdownstream) // Fix thisMove#downStream, rather. Both have to be true
                 && !isCollidingWithEntities
                 &&  noIceTick
@@ -204,10 +192,9 @@ public class InventoryMove extends Check {
                 ){
             tags.add("isSneaking");
 
-            if (hDistDiff < cc.invMoveHdistLeniency && thisMove.hDistance > hDistMin){
+            if (hDistDiff < cc.invMoveHdistLeniency && thisMove.hDistance > hDistMin && thisMoveOnGround){
                 
-                // Use the marginH as a workaround to the MC bug described above (The player is swimming and sneaking on the ground but only isSneaking() is returned)
-                // On ground in liquid
+                // Sneaking on ground in a liquid
                 if (toLiquid && fromLiquid && deltaFrict > marginH) violation = true;
                 // On ground
                 else if (!toLiquid && !fromLiquid) violation = true;
@@ -229,13 +216,13 @@ public class InventoryMove extends Check {
 
                 if (hDistDiff < cc.invMoveHdistLeniency && thisMove.hDistance > hDistMin && thisMoveOnGround) {
                     
-                    // Walking on the ground in a liquid
+                    // Walking on ground in a liquid
                     if (toLiquid && fromLiquid && deltaFrict > marginH) violation = true;
                     // On ground 
                     else if (!toLiquid && !fromLiquid) violation = true; 
                 }
                 // Moving inside liquid (but not on the ground)
-                else if (fromLiquid && toLiquid && mData.liqtick > 3 && (deltaFrict > marginH || thisMove.yDistance > 0.1) 
+                else if (fromLiquid && toLiquid && mData.liqtick > 4 && (deltaFrict > marginH || thisMove.yDistance > 0.185)
                         && thisMove.hDistance > hDistMin){
                     violation = true;
                 } 
@@ -254,9 +241,10 @@ public class InventoryMove extends Check {
             if (vd.needsParameters()) vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
             cancel = executeActions(vd).willCancel();
         }
-        
         // Cooldown
-        else data.invMoveVL *= 0.96D;
+        else {
+            data.invMoveVL *= 0.96D;
+        }
     
         return cancel;
     }
@@ -281,55 +269,49 @@ public class InventoryMove extends Check {
 
         // TODO: Clean this magic fumbling and make things configurable(!)
         
-        // In liquid
-        if ((thisMove.from.inLiquid && thisMove.to.inLiquid) && mData.liqtick > 2 && !player.isFlying()) {
-            // isSprinting is used just in case the swimming status is bugged and not reflected back to the server
-            marginH = (swimming || player.isSprinting()) ? 0.099 : (player.isSneaking() ? 0.030 : 0.089); 
-            hDistMin = (swimming || player.isSprinting()) ? 0.189 : (player.isSneaking() ? 0.031 : 0.075);
-        }
         // Surface level
-        else if (movingOnSurface && !player.isFlying()){
-            marginH = (swimming || player.isSprinting()) ? 0.099 : 0.084;
+        if (movingOnSurface && !player.isFlying()){
+            marginH = (swimming || player.isSprinting()) ? 0.099 : 0.02;
             hDistMin = (swimming || player.isSprinting()) ? 0.170 : 0.108;
         }
-        // Sneaking on the ground. Multiply the minimum hDist by the current walk speed.
-        else if (player.isSneaking()){
-            hDistMin = 0.050 * thisMove.walkSpeed / 100D;
+        // In liquid
+        else if ((thisMove.from.inLiquid && thisMove.to.inLiquid) && mData.liqtick > 4 && !player.isFlying()) {
+            // isSprinting is used just in case the swimming status is bugged and not reflected back to the server
+            marginH = (swimming || player.isSprinting()) ? 0.099 : (player.isSneaking() ? 0.030 : 0.089); 
+            hDistMin = (swimming || player.isSprinting()) ? 0.194 : (player.isSneaking() ? 0.031 : 0.075);
+            
+            // Account for lava
+            if ((thisMove.from.inLava || thisMove.to.inLava)){
+                marginH = hDistMin = 0.038; // From testings: 0.0399...
+            }
         }
-        // todo... 
-        else if (player.isFlying()){
-            final ModelFlying model = thisMove.modelFlying;
-            marginH = (player.isSprinting() ? Magic.FRICTION_MEDIUM_AIR * model.getHorizontalModSprint() : Magic.FRICTION_MEDIUM_AIR) * mData.flySpeed / 100D;
-            hDistMin = (player.isSprinting() ? 0.40 * model.getHorizontalModSprint() : 0.40) * mData.flySpeed / 100D;
+        // Sneaking on the ground. 
+        else if (player.isSneaking()){
+            hDistMin = cc.invMoveHdistMin * thisMove.walkSpeed; // old: 0.050
         }
         // TODO: Ice friction
         // Fallback to default min hDist.
         else hDistMin = cc.invMoveHdistMin;
 
 
-        // If in water, we need to account for all related enchants.
+         // If in water, we need to account for all related enchants.
         if (thisMove.from.inWater || thisMove.to.inWater || movingOnSurface){ // From testing (lava): in-air -> splash move (lava) with delta 0.04834
   
             final int depthStriderLevel = BridgeEnchant.getDepthStriderLevel(player);
             if (depthStriderLevel > 0) {
-                marginH *= Magic.modDepthStrider[depthStriderLevel] + 0.8;
-                hDistMin *= Magic.modDepthStrider[depthStriderLevel] + 0.8;
+                marginH *= Magic.modDepthStrider[depthStriderLevel];
+                hDistMin *= Magic.modDepthStrider[depthStriderLevel];
             }
 
             if (!Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
-                marginH *= Magic.modDolphinsGrace;
-                hDistMin *= Magic.modDolphinsGrace;
+                marginH *= Magic.modDolphinsGrace / Magic.WALK_SPEED; 
+                hDistMin *= Magic.modDolphinsGrace / Magic.WALK_SPEED;
 
                 if (depthStriderLevel > 1) {
-                    marginH *= 1.6 + 0.20 * depthStriderLevel; 
-                    hDistMin *= 1.6 + 0.20 * depthStriderLevel;
+                    marginH *= 1.0 + 0.007 * depthStriderLevel; 
+                    hDistMin *= 1.0 + 0.007 * depthStriderLevel;
                 }
             }
-        }
-        // Lava
-        else if (thisMove.from.inLava){
-            // Walking on ground in lava
-            if (thisMoveOnGround) marginH = 0.038; // From testings: 0.0399...
         }
 
         return new double[] {marginH, hDistMin};

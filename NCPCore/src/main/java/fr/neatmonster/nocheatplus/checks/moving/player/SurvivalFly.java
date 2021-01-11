@@ -370,6 +370,7 @@ public class SurvivalFly extends Check {
 
             // Count down for soul speed affection
             if (data.keepfrictiontick > 0) data.keepfrictiontick--;
+
             // Count up for ending special move from creativefly, waiting incoming repeated y motion
             if (data.keepfrictiontick < 0) data.keepfrictiontick++;
 
@@ -406,7 +407,7 @@ public class SurvivalFly extends Check {
         // HoneyBlock
         else if (ShouldApplyHBSpeed(from)) {
             final Double Amplifier = PotionUtil.getPotionEffectAmplifier(from.getPlayer(), PotionEffectType.JUMP);
-            vAllowedDistance = 0.21 * (Double.isInfinite(Amplifier) ? 1.0 : 1.0 + 0.48  *(Amplifier + 1));
+            vAllowedDistance = 0.21 * (Double.isInfinite(Amplifier) ? 1.0 : 1.0 + 0.48  * (Amplifier + 1));
             if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) vAllowedDistance = 1.5;
             vDistanceAboveLimit = thisMove.yDistance - vAllowedDistance;
         }
@@ -1080,6 +1081,8 @@ public class SurvivalFly extends Check {
             hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed / 100D;
             useBaseModifiers = false;
             if (sfDirty) friction = 0.0;
+            
+            // Account for all water-related enchants
             if (thisMove.from.inWater || !thisMove.from.inLava) { 
                 final int level = BridgeEnchant.getDepthStriderLevel(player);
                 if (level > 0) {
@@ -1436,8 +1439,6 @@ public class SurvivalFly extends Check {
                              final int multiMoveCount, final PlayerMoveData lastMove, 
                              final MovingData data, final MovingConfig cc, final IPlayerData pData) {
         
-        // Relative distance (friction, lift-off).
-        // Estimate expected yDistance.
         // TODO: Friction might need same treatment as with horizontal (medium transitions: data.lastFrictionVertical).
         // TODO: lostground_pyramid(yDist < 0.0) -> step up (yDist 0.5). Needs better last-move modeling.
         // TODO: lostground_edgedesc(yDist <0.0) -> Bunny (yDist > .72, e_jump). Needs better last-move modeling.
