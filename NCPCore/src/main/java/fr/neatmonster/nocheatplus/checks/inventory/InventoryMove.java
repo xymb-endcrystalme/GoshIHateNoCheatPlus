@@ -29,22 +29,19 @@ import fr.neatmonster.nocheatplus.actions.ParameterName;
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
-import fr.neatmonster.nocheatplus.checks.moving.MovingData;
-import fr.neatmonster.nocheatplus.checks.fight.FightData;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
+import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveInfo;
+import fr.neatmonster.nocheatplus.checks.moving.util.AuxMoving;
+import fr.neatmonster.nocheatplus.checks.moving.magic.Magic;
+import fr.neatmonster.nocheatplus.checks.moving.MovingData;
+import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
+import fr.neatmonster.nocheatplus.utilities.StringUtil;
+import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
+import fr.neatmonster.nocheatplus.utilities.collision.CollisionUtil;
 import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeEnchant;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
-import fr.neatmonster.nocheatplus.utilities.StringUtil;
-import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveInfo;
-import fr.neatmonster.nocheatplus.checks.moving.util.AuxMoving;
-import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
-import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
-import fr.neatmonster.nocheatplus.utilities.collision.CollisionUtil;
-import fr.neatmonster.nocheatplus.checks.moving.magic.Magic;
-import fr.neatmonster.nocheatplus.checks.moving.model.ModelFlying;
-import fr.neatmonster.nocheatplus.utilities.StringUtil;
 
 
 /**
@@ -256,10 +253,14 @@ public class InventoryMove extends Check {
     * Set the minimum horizontal distance/friction required for the checks to activate
     * @param player
     * @param pData
-    * @param mData
-    * @param thisMoveOnGround from/to/or touched the ground due to a lostGround workaround being applied.
+    * @param cc
+    * @param thisMoveOnGround  from/to/or touched the ground due to a lostGround workaround being applied.
     * @param thisMove
     * @param lastMove
+    * @param marginH  Minimum friction required
+    * @param hDistMin  Minimum horizontal distance required
+    * @param movingOnSurface
+    * @param swimming
     *
     * @return marginH,hDistMin
     */
@@ -268,6 +269,7 @@ public class InventoryMove extends Check {
                                            double marginH, double hDistMin, final boolean movingOnSurface, final boolean swimming){
 
         // TODO: Clean this magic fumbling and make things configurable(!)
+        // TODO: Custom(+Scale) leniency too?
         
         // Surface level
         if (movingOnSurface && !player.isFlying()){
