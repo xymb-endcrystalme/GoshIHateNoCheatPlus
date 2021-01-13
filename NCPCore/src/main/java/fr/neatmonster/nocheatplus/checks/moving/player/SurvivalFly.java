@@ -362,7 +362,8 @@ public class SurvivalFly extends Check {
             
             // Prevent players from illegally sprinting.
             if (!pData.hasPermission(Permissions.MOVING_SURVIVALFLY_SPRINTING, player)){
-                hDistanceAboveLimit = sprintingChecks(sprinting, data, player, hDistance, hDistanceAboveLimit, thisMove, bufferUse);
+                hDistanceAboveLimit = sprintingChecks(sprinting, data, player, hDistance, hDistanceAboveLimit, thisMove, bufferUse,
+                                                      xDistance, zDistance, from);
             }
 
             // Decrease tick after checking
@@ -748,7 +749,10 @@ public class SurvivalFly extends Check {
                                    final boolean toOnGround, final PlayerLocation from, final PlayerLocation to,
                                    boolean bufferUse){
 
-
+        Block blockUnder = player.getLocation().subtract(0, 0.3, 0).getBlock();
+        Material blockAbove = player.getLocation().add(0, 0.10, 0).getBlock().getType();
+        
+        // Checks for 0 y deltas when on/in water
         if (hDistanceAboveLimit <= 0D && hDistance > 0.1D && yDistance == 0D && lastMove.toIsValid && lastMove.yDistance == 0D 
             && BlockProperties.isLiquid(to.getTypeId()) 
             && BlockProperties.isLiquid(from.getTypeId())
@@ -760,15 +764,12 @@ public class SurvivalFly extends Check {
             hDistanceAboveLimit = Math.max(hDistanceAboveLimit, hDistance);
             tags.add("liquidwalk");
         }
-            
-        // Detects walking directly above water
-        Block blockUnder = player.getLocation().subtract(0, 0.3, 0).getBlock();
-        Material blockAbove = player.getLocation().add(0, 0.10, 0).getBlock().getType();
+
+        // hDist and vDist checks, simply checks for horizontal movement with little y distance
         if (blockUnder != null && blockAbove != null && blockAbove.name().endsWith("AIR")
             && (blockUnder.getType().toString().endsWith("WATER") || blockUnder.getType().toString().endsWith("LAVA"))
             ) {
             
-            // hDist and vDist checks, simply checks for horizontal movement with little y distance
             if (!data.newHDist && hDistanceAboveLimit <= 0D && hDistance > 0.11D && yDistance <= 0.1D 
                 && !toOnGround && !fromOnGround
                 && lastMove.toIsValid && lastMove.yDistance == yDistance 
@@ -798,7 +799,8 @@ public class SurvivalFly extends Check {
     */
     private double sprintingChecks(final boolean sprinting, final MovingData data, final Player player,
                                    double hDistance, double hDistanceAboveLimit, final PlayerMoveData thisMove,
-                                   boolean bufferUse){
+                                   boolean bufferUse, double xDistance, double zDistance, final PlayerLocation from){
+
         // TODO: Recode the backwards sprinting model
         // TODO: Add sideways sprinting module (rather important for PVP)
         // TODO: Move the lowfoodsprint check here?
@@ -809,40 +811,16 @@ public class SurvivalFly extends Check {
             tags.add("badsprint");
             bufferUse = false;
         }
-
         
-        // Prevent players from sprinting if they're moving backwards (allow buffers to cover up !?).
-        //if (sprinting && data.lostSprintCount == 0 && hDistance > thisMove.walkSpeed * 1.2
-        //   && !data.isVelocityJumpPhase() && !thisMove.touchedGroundWorkaround
-        //   && !player.hasPotionEffect(PotionEffectType.SPEED) && (attrMod == Double.MAX_VALUE || attrMod <= 1.0)
-        //   && !(Bridge1_13.isRiptiding(player) || data.timeRiptiding + 4000 > now) // Quick direction rotate
-        //   && !(data.liftOffEnvelope.name().startsWith("LIMIT") || BlockProperties.isLiquid(to.getOrCreateBlockCacheNodeBelow().getType()) || isWaterlogged(from) || isWaterlogged(to))) {
-        //    // (Ignore some cases, in order to prevent false positives.)
-        //    if (TrigUtil.isMovingBackwards(xDistance, zDistance, LocUtil.correctYaw(from.getYaw())) 
-        //        boolean flag = false;                 
-        //        if (data.bunnyhopTick > 0) {
-        //            double newwalkSpeed = 0.0;
-        //            if (data.bunnyhopTick > 3) newwalkSpeed = thisMove.walkSpeed * 1.4; 
-        //            else newwalkSpeed = thisMove.walkSpeed * 1.27;
-        //            if (hDistance > newwalkSpeed) flag = true;
-        //        } else flag = true;
-
-        //        // TODO: Better modeling when on ice
-        //        // TODO: Add Piston+Slime
-        //        // Quick rotate back in-air
-        //        if ((!thisMove.from.onGround && !thisMove.to.onGround && Math.abs(lastMove.from.getYaw() - thisMove.to.getYaw()) > 10.0) 
-        //           || data.sfOnIce > 5 
-        //           || (Bridge1_9.hasLevitation() && CollisionUtil.isCollidingWithEntities(player, true))
-        //           || from.isAboveStairs()
-        //        ) flag = false;
-
-        //        if (flag) {
-        //            // (Might have to account for speeding permissions.)
-        //            hDistanceAboveLimit = Math.max(hDistanceAboveLimit, (hDistance - thisMove.walkSpeed));
-        //            tags.add("sprintback"); 
-        //        }
-        //    }
-        //}
+        // Prevent players from sprinting bacwards
+        if (sprinting && hDistance > thisMove.walkSpeed && data.lostSprintCount == 0 ){
+            if (TrigUtil.isMovingBackwards(xDistance, zDistance, LocUtil.correctYaw(from.getYaw())) ){
+                hDistanceAboveLimit = Math.max(hDistanceAboveLimit, (hDistance - thisMove.walkSpeed)); // Allow players to walk at walking pace, rather than invalidating all hDist
+                tags.add("backsprint");
+                bufferUse = false; // Mnh, too harsh?
+            }
+        }
+        
 
         return hDistanceAboveLimit;
     }

@@ -28,6 +28,7 @@ import fr.neatmonster.nocheatplus.hooks.ExemptionSettings;
 import fr.neatmonster.nocheatplus.players.DataManager;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.InventoryUtil;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 
 /**
  * Watch over open inventories - check with "combined" static access, put here because it has too much to do with inventories.
@@ -71,7 +72,8 @@ public class Open extends Check implements IDisableListener{
      */
     public boolean check(final Player player) {
 
-        final boolean isShulkerBox = (player.getOpenInventory().getTopInventory().getType() == InventoryType.SHULKER_BOX); 
+        final boolean isShulkerBox = ServerVersion.compareMinecraftVersion("1.11") >= 0 
+                                     && (player.getOpenInventory().getTopInventory().getType() == InventoryType.SHULKER_BOX); 
         
         if (
                 // TODO: POC: Item duplication with teleporting NPCS, having their inventory open.
