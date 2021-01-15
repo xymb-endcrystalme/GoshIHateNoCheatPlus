@@ -801,19 +801,18 @@ public class SurvivalFly extends Check {
                                    double hDistance, double hDistanceAboveLimit, final PlayerMoveData thisMove,
                                    boolean bufferUse, double xDistance, double zDistance, final PlayerLocation from){
 
-        // TODO: Recode the backwards sprinting model
         // TODO: Add sideways sprinting module (rather important for PVP)
         // TODO: Move the lowfoodsprint check here?
         
-        if (sprinting && hDistance > thisMove.walkSpeed && player.hasPotionEffect(PotionEffectType.BLINDNESS)
-            && data.lostSprintCount == 0 ) {
+        if (player.isSprinting() && hDistance > thisMove.walkSpeed && player.hasPotionEffect(PotionEffectType.BLINDNESS)
+            && data.lostSprintCount == 0) {
             hDistanceAboveLimit = Math.max(hDistanceAboveLimit, (hDistance - thisMove.walkSpeed)); // Allow players to walk at walking pace, rather than invalidating all hDist
             tags.add("badsprint");
             bufferUse = false;
         }
         
-        // Prevent players from sprinting bacwards
-        if (sprinting && hDistance > thisMove.walkSpeed && data.lostSprintCount == 0 ){
+        // Prevent players from sprinting backwards
+        if (sprinting && hDistance > thisMove.walkSpeed && data.lostSprintCount == 0){
             if (TrigUtil.isMovingBackwards(xDistance, zDistance, LocUtil.correctYaw(from.getYaw())) ){
                 hDistanceAboveLimit = Math.max(hDistanceAboveLimit, (hDistance - thisMove.walkSpeed)); // Allow players to walk at walking pace, rather than invalidating all hDist
                 tags.add("backsprint");

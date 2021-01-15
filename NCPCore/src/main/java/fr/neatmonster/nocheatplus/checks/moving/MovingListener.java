@@ -711,8 +711,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final long time = System.currentTimeMillis();
         // Confine assumeSprint: if one of these conditions is met, the workaround won't be applied.
         boolean assumeSprintResetCond = player.hasPotionEffect(PotionEffectType.BLINDNESS) // Can't sprint if blind
-                                        || TrigUtil.isMovingBackwards(xDistance, zDistance, LocUtil.correctYaw(from.getYaw())) // Can't sprint if moving bacwards
-                                        || thisMove.hDistance < thisMove.walkSpeed; // Clearly not sprinting...
+                                        || TrigUtil.isMovingBackwards(xDistance, zDistance, LocUtil.correctYaw(from.getYaw())); // Can't sprint if moving backwards
         boolean assumeSprint = cc.assumeSprint && !assumeSprintResetCond;
 
         if (player.isSprinting() || assumeSprint) {
