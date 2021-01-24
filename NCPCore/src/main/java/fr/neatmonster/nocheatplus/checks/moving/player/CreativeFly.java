@@ -217,7 +217,8 @@ public class CreativeFly extends Check {
             resultV = 0.0;
             tags.add("vvel");
         }
-
+        
+        // The antilevitation subcheck
         if (lastMove.toIsValid && !player.isFlying() && model.getScaleLevitationEffect()
             && thisMove.modelFlying == lastMove.modelFlying && !from.isInLiquid()
             ) {
@@ -233,10 +234,9 @@ public class CreativeFly extends Check {
                 && !(thisMove.yDistance < 0.0 && lastMove.yDistance - thisMove.yDistance < 0.0001)
                 ) {
  
-                if (
-                    lastMove.yDistance < 0.0 && thisMove.yDistance < allowY ||
-                    from.getY() >= to.getY() && !(thisMove.yDistance == 0.0 && allowY < 0.0)
-                   ) {
+                if (lastMove.yDistance < 0.0 && thisMove.yDistance < allowY
+                    || from.getY() >= to.getY() && !(thisMove.yDistance == 0.0 && allowY < 0.0)
+                    ) {
                     resultV = Math.max(resultV, 0.1);
                     tags.add("antilevitate");
 
@@ -262,6 +262,7 @@ public class CreativeFly extends Check {
         if (Bridge1_9.isGliding(player) && (Bridge1_13.isRiptiding(player) || data.timeRiptiding + 4000 > now) && resultV < 60.0) {
             resultV = 0.0;
         }
+
         if (resultV > 0.0) {
             tags.add("vdist");
         }
@@ -574,7 +575,7 @@ public class CreativeFly extends Check {
                 (lastMove.yDistance <= 0.0 || lastMove.to.extraPropertiesValid && lastMove.to.onGround)
                 // This move touched ground by a workaround.
                 || thisMove.touchedGroundWorkaround
-            )) {
+                )) {
                 // Allow normal jumping.
                 final double maxGain = LiftOffEnvelope.NORMAL.getMaxJumpGain(data.jumpAmplifier);
                 if (maxGain > limitV) {
@@ -672,9 +673,10 @@ public class CreativeFly extends Check {
             if (f < 0.0F) {
                 // For compatibility
                 if (to.getPitch() == -90f
-                && isnear(yDistance, allwyDistance * 0.9800002, 0.01)) {
+                && isNear(yDistance, allwyDistance * 0.9800002, 0.01)) {
                     allwHDistance += 0.01;
-                } else {
+                }
+                else {
                    final double d = lastHdist * -Math.sin(f) * 0.04;
                    x -= lookvec.getX() * d / xzlength;
                    z -= lookvec.getZ() * d / xzlength;
@@ -711,7 +713,9 @@ public class CreativeFly extends Check {
                 if (hDistance < lastMove.hAllowedDistance * 0.994) {
                     thisMove.hAllowedDistance = lastMove.hAllowedDistance * 0.994;
                     return new double[] {0.0, 0.0};
-                } else allwHDistance += 0.2;
+                } 
+                else allwHDistance += 0.2;
+
                 // A fact that fireworks not always fasten your speed if you are already moving too fast, it will try to reduce to below 1.70
                 if (data.fireworksBoostDuration >= data.fireworksBoostTickNeedCheck - 4 && lastMove.hAllowedDistance > 0.0) {
                     if (hDistance < lastMove.hAllowedDistance) {
@@ -735,14 +739,15 @@ public class CreativeFly extends Check {
                 } 
                 else if (from.isHeadObstructed() && lastMove.yDistance > 0.0 && yDistDiffEx < 0.0
                         && (allwyDistance > 0.0 || yDistance == 0.0)
-                    ) {
+                        ) {
                     allwyDistance = yDistance;
                 } 
                 else if (yDistance < 0.0) {
                     if (
                         // Pos -> neg
-                        lastMove.yDistance > 0.0 && yDistance < 0.0 && (lastMove.yDistance < Magic.GRAVITY_MAX + Magic.GRAVITY_MIN && yDistance > - Magic.GRAVITY_MIN
-                            || lastMove.yDistance < Magic.GRAVITY_MIN && yDistance > - Magic.GRAVITY_MIN - Magic.GRAVITY_MAX)
+                        lastMove.yDistance > 0.0 && yDistance < 0.0 
+                        && (lastMove.yDistance < Magic.GRAVITY_MAX + Magic.GRAVITY_MIN && yDistance > - Magic.GRAVITY_MIN
+                           || lastMove.yDistance < Magic.GRAVITY_MIN && yDistance > - Magic.GRAVITY_MIN - Magic.GRAVITY_MAX)
                         // For compatibility
                         //|| data.sfJumpPhase < 6 && lastMove.yDistance > yDistance && yDistance - allwyDistance < 0.0 && yDistance - allwyDistance > -Magic.GRAVITY_MAX
                         ) {
@@ -751,13 +756,13 @@ public class CreativeFly extends Check {
                 }
 
                 if (yDistance > 0.0) {
-                    if (allwyDistance < yDistance && !isnear(allwyDistance, yDistance, 0.001)) {
+                    if (allwyDistance < yDistance && !isNear(allwyDistance, yDistance, 0.001)) {
                         tags.add("e_vasc");
                         resultV = yDistance;
                     }
                 } 
                 else if (yDistance < 0.0) {
-                    if (allwyDistance > yDistance && !isnear(allwyDistance, yDistance, Magic.GRAVITY_MAX)) {
+                    if (allwyDistance > yDistance && !isNear(allwyDistance, yDistance, Magic.GRAVITY_MAX)) {
                         tags.add("e_vdesc");
                         resultV = Math.abs(yDistance);
                     }
@@ -796,9 +801,9 @@ public class CreativeFly extends Check {
                 tags.add("e_hspeed");
                 resultH = hDistance - allwHDistance;
             }
+        } 
         // Gliding in water
         // TODO: Add vertical check
-        } 
         else if(from.isInLiquid()) {
             if (data.timeRiptiding + 4000 > System.currentTimeMillis()) return new double[] {0.0, 0.0};
             allwHDistance = thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
@@ -847,7 +852,7 @@ public class CreativeFly extends Check {
         }
 
         thisMove.hAllowedDistance = allwHDistance;
-        thisMove.yAllowedDistance = isnear(allwyDistance, yDistance, 0.001) ? yDistance : allwyDistance;
+        thisMove.yAllowedDistance = isNear(allwyDistance, yDistance, 0.001) ? yDistance : allwyDistance;
         return new double[] {resultV, resultH};
     }
 
@@ -881,7 +886,7 @@ public class CreativeFly extends Check {
         return baseV;
     }
     
-    private boolean isnear(double a, double b, double c) {
+    private boolean isNear(double a, double b, double c) {
         if (c < 0.0) return false;
         return Math.abs(a-b) <= c;
     }
@@ -908,13 +913,12 @@ public class CreativeFly extends Check {
 
         // (Jump.)
         if (yDistance > 0.0 && yDistance < 0.42 && thisMove.touchedGround) {
-            tags.add("elytra_asc3");
+            tags.add("e_lostground");
             return yDistance;
         } 
-        else if (
-            Bridge1_13.getSlowfallingAmplifier(from.getPlayer()) >= 0.0) {
+        else if (Bridge1_13.getSlowfallingAmplifier(from.getPlayer()) >= 0.0) {
             // No check here!
-            tags.add("elytra_asc4");
+            tags.add("e_slowfall");
             return yDistance;
         }
 
@@ -930,10 +934,10 @@ public class CreativeFly extends Check {
             // Demand total speed to decrease somehow, unless for the very transition.
             //&& (thisMove.distanceSquared / lastMove.distanceSquared < 0.99
             //        || lastMove.yDistance < 0.0) // Might confine the latter something to be tested.
-        ){
+            ){
             if (lastMove.hDistance > 0.51) {
                 // (Increasing y-distance.)
-                tags.add("elytra_asc1");
+                tags.add("e_asc1");
                 return yDistance;
             }
 
@@ -947,9 +951,8 @@ public class CreativeFly extends Check {
                         pastMove1.yDistance < lastMove.yDistance 
                         // Decreasing by a reasonable (?) amount.
                         || yDistance - pastMove1.yDistance < -0.001
-                        // && yDistance - lastMove.yDistance < lastMove.yDistance - pastMove1.yDistance - 0.0005 // Probably need remove.
                         ) {
-                        tags.add("elytra_asc2");
+                        tags.add("e_asc2");
                         return yDistance;
                     }
                 }
@@ -963,7 +966,8 @@ public class CreativeFly extends Check {
                 || yDistance - lastMove.yDistance < Magic.GRAVITY_MAX
                 // TODO: Head blocked -> friction does it?
             )
-            && (
+            && 
+            (
                 yDistance - lastMove.yDistance < 0.79 // TODO
                 || lastMove.yDistance < 0.0 && yDistance < 1.54
             )

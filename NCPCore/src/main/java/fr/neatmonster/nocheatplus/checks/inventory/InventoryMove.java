@@ -137,7 +137,7 @@ public class InventoryMove extends Check {
         }
         
         // Clicking while using/consuming an item
-        if (mData.isusingitem && !isMerchant) { 
+        if (mData.isusingitem && !isMerchant){ 
             tags.add("usingitem");
             violation = true;
         }
@@ -151,7 +151,7 @@ public class InventoryMove extends Check {
         // ... while swimming on the ground (players are allowed to stay into isSwimming state if on ground).
         // if delta>marginH, we assume the player to be intentionally moving and not being moved by friction (dolphin's grace especially gives a lot of momentum upon stopping).
         // Swimming is used here to better harmonize swimming/non-swimming transition phases.
-        else if (swimming && thisMove.hDistance > hDistMin && deltaFrict > marginH && thisMoveOnGround && !isSamePos ){
+        else if (swimming && thisMove.hDistance > hDistMin && deltaFrict > marginH && thisMoveOnGround && !isSamePos){
             violation = true;
             tags.add("isSwimming(ground)");
         }
@@ -211,7 +211,7 @@ public class InventoryMove extends Check {
                 ){ 
                 tags.add("moving");
 
-                if (hDistDiff < cc.invMoveHdistLeniency && thisMove.hDistance > hDistMin && thisMoveOnGround) {
+                if (hDistDiff < cc.invMoveHdistLeniency && thisMove.hDistance > hDistMin && thisMoveOnGround){
                     
                     // Walking on ground in a liquid
                     if (toLiquid && fromLiquid && deltaFrict > marginH) violation = true;
@@ -315,7 +315,6 @@ public class InventoryMove extends Check {
                 }
             }
         }
-
         return new double[] {marginH, hDistMin};
     }
 }

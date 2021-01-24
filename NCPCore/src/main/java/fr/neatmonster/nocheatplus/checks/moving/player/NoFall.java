@@ -72,12 +72,14 @@ public class NoFall extends Check {
     private final Location useLoc = new Location(null, 0, 0, 0);
     private final Random random = new Random();
 
+
     /**
      * Instantiates a new no fall check.
      */
     public NoFall() {
         super(CheckType.MOVING_NOFALL);
     }
+
 
     /**
      * Calculate the damage in hearts from the given fall distance.
@@ -87,6 +89,7 @@ public class NoFall extends Check {
     public static final double getDamage(final float fallDistance) {
         return fallDistance - Magic.FALL_DAMAGE_DIST;
     }
+
 
     /**
      * Deal damage if appropriate. To be used for if the player is on ground
@@ -101,14 +104,14 @@ public class NoFall extends Check {
      *            Double.NEGATIVE_INFINITY.
      */
     private void handleOnGround(final Player player, final double y, final double previousSetBackY,
-            final boolean reallyOnGround, final MovingData data, final MovingConfig cc,
-            final IPlayerData pData) {
+                                final boolean reallyOnGround, final MovingData data, final MovingConfig cc,
+                                final IPlayerData pData) {
+
         // Damage to be dealt.
         final float fallDist = (float) getApplicableFallHeight(player, y, previousSetBackY, data);
         double maxD = getDamage(fallDist);
-        maxD = calcDamagewithfeatherfalling(player, 
-                calcReducedDamageByHB(player, data, maxD), 
-                mcAccess.getHandle().dealFallDamageFiresAnEvent().decide());
+        maxD = calcDamagewithfeatherfalling(player, calcReducedDamageByHB(player, data, maxD), 
+                                            mcAccess.getHandle().dealFallDamageFiresAnEvent().decide());
         fallOn(player, fallDist);
 
         if (maxD >= Magic.FALL_DAMAGE_MINIMUM) {
@@ -135,6 +138,7 @@ public class NoFall extends Check {
         }
     }
 
+
     /**
      * Change state of some blocks when they fall on like Farmland
      * 
@@ -143,6 +147,7 @@ public class NoFall extends Check {
      * @return if allow to change the block
      */
     private void fallOn(final Player player, final double fallDist) {
+
         // TODO: Turtle eggs too?
         Block block = player.getLocation().subtract(0.0, 1.0, 0.0).getBlock();
         if (block.getType() == BridgeMaterial.FARMLAND && fallDist > 0.5 && random.nextFloat() < fallDist - 0.5 && ShouldChangeBlock(player, block)) {
@@ -153,6 +158,7 @@ public class NoFall extends Check {
         }
     }
     
+
     /**
      * Fire events to see if other plugins allow to change the block
      * 
@@ -161,6 +167,7 @@ public class NoFall extends Check {
      * @return boolean
      */
     private boolean ShouldChangeBlock(final Player player, final Block block) {
+
         final PlayerInteractEvent interactevent = new PlayerInteractEvent(player, Action.PHYSICAL, null, block, BlockFace.SELF);
         Bukkit.getPluginManager().callEvent(interactevent);
         if (interactevent.isCancelled()) return false;
@@ -176,7 +183,8 @@ public class NoFall extends Check {
                 Bukkit.getPluginManager().callEvent(event);
                 if (event.isCancelled()) return false;
             }
-        } else {
+        } 
+        else {
             final EntityChangeBlockEvent blockevent = new EntityChangeBlockEvent(player, block, Bukkit.createBlockData(Material.DIRT)); 
             Bukkit.getPluginManager().callEvent(blockevent);
             if (blockevent.isCancelled()) return false;
@@ -193,7 +201,17 @@ public class NoFall extends Check {
     	return true;
     }
 
+
+    /**
+     * Correct fall damage according to the feather fall enchant
+     * 
+     * @param player
+     * @param damage
+     * @param active
+     * @return corrected fall damage
+     */
     public static double calcDamagewithfeatherfalling(Player player, double damage, boolean active) {
+
         if (active) return damage;
         if (BridgeEnchant.hasFeatherFalling() && damage > 0.0) {
             int levelench = BridgeEnchant.getFeatherFallingLevel(player);
@@ -206,17 +224,29 @@ public class NoFall extends Check {
         return damage;
     }
     
-    /** Calculate the damage was reduced by HoneyBlock */
+
+    /**
+     * Reduce the fall damage if the player lands on an honey block
+     * 
+     * @param player
+     * @param data
+     * @param damage
+     * @return reduced damage
+     */
     public static double calcReducedDamageByHB(final Player player, final MovingData data,final double damage) {
+
         final PlayerMoveData validmove = data.playerMoves.getLatestValidMove();
         if (validmove != null && validmove.toIsValid) {
     	    final Material blockmat = player.getWorld().getBlockAt(
     	            Location.locToBlock(validmove.to.getX()), Location.locToBlock(validmove.to.getY()), Location.locToBlock(validmove.to.getZ())
     	            ).getType();
-    	    if ((BlockProperties.getBlockFlags(blockmat) & BlockProperties.F_STICKY) != 0) return Math.round(damage / 5);
+    	    if ((BlockProperties.getBlockFlags(blockmat) & BlockProperties.F_STICKY) != 0) {
+                return Math.round(damage / 5);
+            }
         }
         return damage;
     }
+
 
     /**
      * Estimate the applicable fall height for the given data.
@@ -229,12 +259,12 @@ public class NoFall extends Check {
      * @param data
      * @return
      */
-    private static double getApplicableFallHeight(final Player player, final double y, 
-            final double previousSetBackY, final MovingData data) {
+    private static double getApplicableFallHeight(final Player player, final double y, final double previousSetBackY, final MovingData data) {
+
         //return getDamage(Math.max((float) (data.noFallMaxY - y), Math.max(data.noFallFallDistance, player.getFallDistance())));
         final double yDistance = Math.max(data.noFallMaxY - y, data.noFallFallDistance);
         if (yDistance > 0.0 && data.jumpAmplifier > 0.0 
-                && previousSetBackY != Double.NEGATIVE_INFINITY) {
+            && previousSetBackY != Double.NEGATIVE_INFINITY) {
             // Fall height counts below previous set-back-y.
             // TODO: Likely updating the amplifier after lift-off doesn't make sense.
             // TODO: In case of velocity... skip too / calculate max exempt height?
@@ -247,10 +277,12 @@ public class NoFall extends Check {
         return yDistance;
     }
 
+
     public static double getApplicableFallHeight(final Player player, final double y, final MovingData data) {
         return getApplicableFallHeight(player, y, 
                 data.hasSetBack() ? data.getSetBackY() : Double.NEGATIVE_INFINITY, data);
     }
+
 
     /**
      * Test if fall damage would be dealt accounting for the given data.
@@ -264,9 +296,10 @@ public class NoFall extends Check {
      * @return
      */
     public boolean willDealFallDamage(final Player player, final double y, 
-            final double previousSetBackY, final MovingData data) {
-        return getDamage((float) getApplicableFallHeight(player, y, 
-                previousSetBackY, data)) - Magic.FALL_DAMAGE_DIST >= Magic.FALL_DAMAGE_MINIMUM;
+                                      final double previousSetBackY, final MovingData data) {
+
+        return getDamage((float) getApplicableFallHeight(player, y, previousSetBackY, data))
+                                 - Magic.FALL_DAMAGE_DIST >= Magic.FALL_DAMAGE_MINIMUM;
     }
 
     /**
@@ -277,13 +310,17 @@ public class NoFall extends Check {
      * @param data
      * @param cc
      */
-    private void adjustFallDistance(final Player player, final double minY, final boolean reallyOnGround, final MovingData data, final MovingConfig cc) {
+    private void adjustFallDistance(final Player player, final double minY, final boolean reallyOnGround, 
+                                    final MovingData data, final MovingConfig cc) {
+
         final float noFallFallDistance = Math.max(data.noFallFallDistance, (float) (data.noFallMaxY - minY));
         if (noFallFallDistance >= Magic.FALL_DAMAGE_DIST) {
             final float fallDistance = player.getFallDistance();
+
             if (noFallFallDistance - fallDistance >= 0.5f // TODO: Why not always adjust, if greater?
-                    || noFallFallDistance >= Magic.FALL_DAMAGE_DIST && fallDistance < Magic.FALL_DAMAGE_DIST // Ensure damage.
-                    ) {
+                || noFallFallDistance >= Magic.FALL_DAMAGE_DIST 
+                && fallDistance < Magic.FALL_DAMAGE_DIST // Ensure damage.
+                ) {
                 player.setFallDistance(noFallFallDistance);
             }
         }
@@ -317,7 +354,8 @@ public class NoFall extends Check {
                         }
                     };
                     TickTask.addTickListener(damagePlayer);
-                } else {
+                } 
+                else {
                     player.setLastDamageCause(event);
                     mcAccess.getHandle().dealFallDamage(player, BridgeHealth.getRawDamage(event));
                 }
@@ -344,19 +382,16 @@ public class NoFall extends Check {
      *            Double.NEGATIVE_INFINITY.
      */
     public void check(final Player player, final PlayerLocation pFrom, final PlayerLocation pTo, 
-            final double previousSetBackY,
-            final MovingData data, final MovingConfig cc, final IPlayerData pData) {
+                      final double previousSetBackY,
+                      final MovingData data, final MovingConfig cc, final IPlayerData pData) {
 
         final boolean debug = pData.isDebugActive(type);
         final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
         final LocationData from = thisMove.from;
         final LocationData to = thisMove.to;
-
         final double fromY = from.getY();
         final double toY = to.getY();
-
         final double yDiff = toY - fromY;
-
         final double oldNFDist = data.noFallFallDistance;
 
         // Reset-cond is not touched by yOnGround.
@@ -382,7 +417,8 @@ public class NoFall extends Check {
             adjustYonGround(pFrom, pTo , cc.noFallyOnGround);
             fromOnGround = pFrom.isOnGround();
             toOnGround = pTo.isOnGround();
-        } else {
+        } 
+        else {
             fromOnGround = from.onGround;
             toOnGround = to.onGround;
         }
@@ -442,12 +478,15 @@ public class NoFall extends Check {
         else if (cc.noFallAntiCriticals && (toReset || toOnGround || (fromReset || fromOnGround || thisMove.touchedGround) && yDiff >= 0)) {
             final double max = Math.max(data.noFallFallDistance, mcFallDistance);
             if (max > 0.0 && max < 0.75) { // (Ensure this does not conflict with deal-damage set to false.) 
+
                 if (debug) {
                     debug(player, "NoFall: Reset fall distance (anticriticals): mc=" + mcFallDistance +" / nf=" + data.noFallFallDistance);
                 }
+
                 if (data.noFallFallDistance > 0) {
                     data.noFallFallDistance = 0;
                 }
+                
                 if (mcFallDistance > 0f) {
                     player.setFallDistance(0f);
                 }

@@ -392,7 +392,6 @@ public class VehicleEnvelope extends Check {
                 ) {
                 violation = true;
                 tags.add("liquidwalk");
-                
             }
             
             Block blockUnder = vehicle.getLocation().subtract(0, 0.3, 0).getBlock();
