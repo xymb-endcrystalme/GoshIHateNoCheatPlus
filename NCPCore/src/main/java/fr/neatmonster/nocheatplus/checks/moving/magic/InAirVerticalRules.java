@@ -103,20 +103,20 @@ public class InAirVerticalRules {
      */
     public static boolean oddBounce(final PlayerLocation to, final double yDistance, final PlayerMoveData lastMove, final MovingData data) {
 
-    	final SimpleEntry entry = data.peekVerticalVelocity(yDistance, 0, 4);
-		if (entry != null && entry.hasFlag(VelocityFlags.ORIGIN_BLOCK_BOUNCE)) {
-			data.setFrictionJumpPhase();
-			return true;
-		}
+        final SimpleEntry entry = data.peekVerticalVelocity(yDistance, 0, 4);
+        if (entry != null && entry.hasFlag(VelocityFlags.ORIGIN_BLOCK_BOUNCE)) {
+            data.setFrictionJumpPhase();
+            return true;
+        }
         else {
-			// Try to use past yDis
-			final SimpleEntry entry2 = data.peekVerticalVelocity(lastMove.yDistance, 0, 4);
-			if (entry2 != null && entry2.hasFlag(VelocityFlags.ORIGIN_BLOCK_BOUNCE)) {
-				data.setFrictionJumpPhase();
-				return true;
-			}
-		}
-		return false;
+            // Try to use past yDis
+            final SimpleEntry entry2 = data.peekVerticalVelocity(lastMove.yDistance, 0, 4);
+            if (entry2 != null && entry2.hasFlag(VelocityFlags.ORIGIN_BLOCK_BOUNCE)) {
+                data.setFrictionJumpPhase();
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -243,7 +243,7 @@ public class InAirVerticalRules {
         //        yDistance >= -GRAVITY_MAX - GRAVITY_SPAN 
         //        && (yDistChange < -GRAVITY_MIN && Math.abs(yDistChange) <= 2.0 * GRAVITY_MAX + GRAVITY_SPAN
         //        || from.isHeadObstructed(from.getyOnGround()) || data.fromWasReset && from.isHeadObstructed())
-		final int blockdata = from.getData(from.getBlockX(), from.getBlockY(), from.getBlockZ());
+        final int blockdata = from.getData(from.getBlockX(), from.getBlockY(), from.getBlockZ());
         return 
                 // 0: Any envelope (supposedly normal) near 0 yDistance.
                 yDistance > -2.0 * Magic.GRAVITY_MAX - Magic.GRAVITY_MIN && yDistance < 2.0 * Magic.GRAVITY_MAX + Magic.GRAVITY_MIN
