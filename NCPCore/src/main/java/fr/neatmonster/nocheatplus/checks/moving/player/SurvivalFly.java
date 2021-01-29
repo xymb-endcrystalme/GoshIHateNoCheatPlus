@@ -76,12 +76,18 @@ public class SurvivalFly extends Check {
 
     // Tags
     private static final String DOUBLE_BUNNY = "doublebunny";
-    // Other.
-    /** Bunny-hop delay. */
+    // Server versions ugly but gets the job done...
+    private final boolean Server1_8 = ServerVersion.compareMinecraftVersion("1.8") >= 0;
+    private final boolean Server1_9 = ServerVersion.compareMinecraftVersion("1.9") >= 0;
+    private final boolean Server1_10 = ServerVersion.compareMinecraftVersion("1.10") >= 0;
+    private final boolean Server1_13 = ServerVersion.compareMinecraftVersion("1.13") >= 0;
+    private final boolean Server1_16 = ServerVersion.compareMinecraftVersion("1.16") >= 0;
+    /** Maximum hop delay. */
     private static final int bunnyHopMax = 10;
     /** Divisor vs. last hDist for minimum slow down. */
     private static final double bunnyDivFriction = 160.0; // Rather in-air, blocks would differ by friction.
     private boolean snowFix;
+    /** Flag to indicate whether the buffer should be used for this move. */
     private boolean bufferUse;
     // TODO: Friction by block to walk on (horizontal only, possibly to be in BlockProperties rather).
     /** To join some tags with moving check violations. */
@@ -223,6 +229,7 @@ public class SurvivalFly extends Check {
         // TODO: This isn't correct, needs redesign.
         // TODO: Quick addition. Reconsider entry points etc.
         else if (isSamePos) {
+
             if (useBlockChangeTracker && from.isOnGroundOpportune(cc.yOnGround, 0L, blockChangeTracker, data.blockChangeRef, tick)) {
                 resetFrom = true;
                 tags.add("pastground_from");
@@ -280,7 +287,9 @@ public class SurvivalFly extends Check {
         data.newHDist = (from.getBlockFlags() & BlockProperties.F_MIN_HEIGHT16_15) != 0 && from.isInWater()
                          && !BlockProperties.isLiquid(from.getTypeId(from.getBlockX(), Location.locToBlock(from.getY() + 0.3), from.getBlockZ()));
                          
-        if (data.newHDist) data.liftOffEnvelope = LiftOffEnvelope.NORMAL;
+        if (data.newHDist) {
+            data.liftOffEnvelope = LiftOffEnvelope.NORMAL;
+        }
 
         snowFix = (from.getBlockFlags() & BlockProperties.F_HEIGHT_8_INC) != 0;
         bufferUse = true;
@@ -724,7 +733,7 @@ public class SurvivalFly extends Check {
             else if (data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID 
                     || data.liftOffEnvelope == LiftOffEnvelope.LIMIT_NEAR_GROUND) {
                 // 1.8.8 in-water moves with jumping near/on surface. 1.2 is max factor for one move (!).
-                limitFCMH =  ServerVersion.compareMinecraftVersion("1.10") >= 0 ? 1.05 : 1.1; 
+                limitFCMH =  Server1_10 ? 1.05 : 1.1; 
             }
             else {
                 limitFCMH = 1.0;
@@ -826,14 +835,15 @@ public class SurvivalFly extends Check {
         
         // Vanilla MC disallows players from sprinting with blindness
         if (player.isSprinting() && hDistance > thisMove.walkSpeed && player.hasPotionEffect(PotionEffectType.BLINDNESS)
-            && data.lostSprintCount == 0) {
+            && data.lostSprintCount == 0 
+            && !data.isVelocityJumpPhase()) {
             hDistanceAboveLimit = Math.max(hDistanceAboveLimit, (hDistance - thisMove.walkSpeed)); // Allow players to walk at walking pace, rather than invalidating all hDist
             tags.add("blindsprint");
             bufferUse = false;
         }
         
         // Prevent players from sprinting backwards
-        if (player.isSprinting() && hDistance > thisMove.walkSpeed && data.lostSprintCount == 0){
+        if (player.isSprinting() && hDistance > thisMove.walkSpeed && data.lostSprintCount == 0 && !data.isVelocityJumpPhase()){
             if (TrigUtil.isMovingBackwards(xDistance, zDistance, LocUtil.correctYaw(from.getYaw()))){
                 hDistanceAboveLimit = Math.max(hDistanceAboveLimit, (hDistance - thisMove.walkSpeed)); // Allow players to walk at walking pace, rather than invalidating all hDist
                 tags.add("backsprint");
@@ -1219,7 +1229,7 @@ public class SurvivalFly extends Check {
                 // Jump/left ground
                 if (!thisMove.to.onGround) {
                     final double speedAmplifier = mcAccess.getHandle().getFasterMovementAmplifier(player);
-                    hAllowedDistance = (lastMove.hDistance > 0.23 ? 0.4 : 0.23 + (Bridge1_13.hasIsSwimming() ? 0.155 : 0.0)) +
+                    hAllowedDistance = (lastMove.hDistance > 0.23 ? 0.4 : 0.23 + (Server1_13 ? 0.155 : 0.0)) +
                                         0.02 * (Double.isInfinite(speedAmplifier) ? 0 : speedAmplifier + 1.0);
                     hAllowedDistance *= cc.survivalFlyBlockingSpeed / 100D;
                     data.noslowhop = 1;
@@ -1260,7 +1270,7 @@ public class SurvivalFly extends Check {
         }
         
         // Collision with entities (1.9+)
-        else if (Bridge1_9.hasLevitation() && CollisionUtil.isCollidingWithEntities(player, true) && hAllowedDistance < 0.35) {
+        else if (Server1_9 && CollisionUtil.isCollidingWithEntities(player, true) && hAllowedDistance < 0.35) {
             tags.add("hcollision");
             hAllowedDistance = Magic.modCollision * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             useBaseModifiers = true;
@@ -1274,7 +1284,7 @@ public class SurvivalFly extends Check {
             if (sprinting) {
                 tags.add("sprinting");
                 if (!thisMove.from.onGround && thisMove.to.onGround) {
-                    data.bunnyhopTick = Bridge1_13.hasIsSwimming() ? 6 : 3;
+                    data.bunnyhopTick = Server1_13 ? 6 : 3;
                     hAllowedDistance = 1.14 * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
                 }
                 else if (data.bunnyhopTick > 0) {
@@ -1976,7 +1986,7 @@ public class SurvivalFly extends Check {
             else if (Bridge1_9.hasGetItemInOffHand() && data.offhanduse) {
                 ItemStack stack = Bridge1_9.getItemInOffHand(player);
                 if (stack != null) {
-                    if (Bridge1_13.hasIsSwimming()) {
+                    if (Server1_13) {
                         if (player.isHandRaised()) {
                             // Does nothing
                         }
@@ -1992,7 +2002,7 @@ public class SurvivalFly extends Check {
             // Main hand (non nms)
             else if (!data.offhanduse) {
                 ItemStack stack = Bridge1_9.getItemInMainHand(player);
-                if (Bridge1_13.hasIsSwimming()) {
+                if (Server1_13) {
                     if (player.isHandRaised()) {
                         data.olditemslot = player.getInventory().getHeldItemSlot();
                         if (stack != null) player.setCooldown(stack.getType(), 10);
@@ -2235,7 +2245,7 @@ public class SurvivalFly extends Check {
         // bunnyhop-> bunnyslope-> bunnyfriction-> ground-> microjump(still bunnyfriction)-> bunnyfriction
         //or bunnyhop-> ground-> slidedown-> bunnyfriction
         // Hit ground but slipped away by somehow and still remain bunny friction
-        final double inc = Bridge1_13.hasIsSwimming() ? 0.03 : 0;
+        final double inc = Server1_13 ? 0.03 : 0;
         final double hopMargin = (data.bunnyhopTick > 0 ? (data.bunnyhopTick > 2 ? 1.0 + inc : 1.11 + inc) : 1.22 + inc);
 
         if (lastMove.toIsValid && data.bunnyhopDelay <= 0 && data.lastbunnyhopDelay > 0 && lastMove.hDistance > hDistance 
@@ -2430,8 +2440,9 @@ public class SurvivalFly extends Check {
 
 
     private boolean isBubbleColumn(PlayerLocation from) {
-        if (!Bridge1_13.hasIsSwimming()) return false;
-        if (BlockProperties.collidesBlock(from.getBlockCache(), from.getMinX(), from.getMinY(), from.getMinZ(), from.getMaxX(), from.getMaxY(), from.getMaxZ(), Material.BUBBLE_COLUMN)) {
+        if (!Server1_13) return false;
+        if (BlockProperties.collidesBlock(from.getBlockCache(), from.getMinX(), from.getMinY(), from.getMinZ(), 
+                                          from.getMaxX(), from.getMaxY(), from.getMaxZ(), Material.BUBBLE_COLUMN)) {
             return true;
         }
         return false;
