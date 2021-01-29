@@ -65,9 +65,9 @@ public class Magic {
     };
     public static final double modWeb               = 0.09D / WALK_SPEED; // TODO: walkingSpeed * 0.15D; <- does not work
     public static final double modSoulSand          = 0.16D / WALK_SPEED;
-    public static final double modIce               = 2.5D; 
     public static final double modCollision         = 1.36D;
     public static final double modSoulSpeed         = 1.4D;
+    public static final double modIce               = 2.5D; 
     public static final double modDownStream        = 0.19 / (WALK_SPEED * modSwim[0]);
 
     /**
