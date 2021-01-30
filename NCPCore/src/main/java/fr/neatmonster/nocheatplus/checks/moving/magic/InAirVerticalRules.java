@@ -572,14 +572,9 @@ public class InAirVerticalRules {
                                                   final long now, final double yDistChange, 
                                                   final double maxJumpGain, final Player player,
                                                   final PlayerMoveData thisMove, final boolean resetTo){
-        
-        if (yDistance <= 0.0 && (resetTo || thisMove.touchedGround)) {
-            // Allow falling shorter than expected, if onto ground.
-            // Note resetFrom should usually mean that allowed dist is > 0 ?
-            return true;
-        }
-        else if (yDistance < 0.0 && lastMove.yDistance < 0.0 && yDistChange > -Magic.GRAVITY_MAX
-                && (from.isOnGround(Math.abs(yDistance) + 0.001) || BlockProperties.isLiquid(to.getTypeId(to.getBlockX(), 
+    
+        if (yDistance < 0.0 && lastMove.yDistance < 0.0 && yDistChange > -Magic.GRAVITY_MAX
+            && (from.isOnGround(Math.abs(yDistance) + 0.001) || BlockProperties.isLiquid(to.getTypeId(to.getBlockX(), 
                                                                     Location.locToBlock(to.getY() - 0.5), to.getBlockZ())))
             ) {
             // Pretty coarse workaround, should instead do a proper modeling for from.getDistanceToGround.

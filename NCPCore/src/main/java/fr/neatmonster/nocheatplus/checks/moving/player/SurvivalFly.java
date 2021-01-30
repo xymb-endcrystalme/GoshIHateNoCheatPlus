@@ -1062,8 +1062,7 @@ public class SurvivalFly extends Check {
 
             // Berry bush
             if ((from.getBlockFlags() & BlockProperties.F_COBWEB2) != 0) {
-                hAllowedDistance = modBerryBush * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
-                useBaseModifiersSprint = true;
+                hAllowedDistance = sprinting ? (0.0255 * modBerryBush) : modBerryBush * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             }
             friction = 0.0; 
             useBaseModifiers = true;
@@ -1551,6 +1550,7 @@ public class SurvivalFly extends Check {
         ///////////////////////////////////////////////////////////////
         boolean vDistRelVL = false;
         final double yDistDiffEx          = yDistance - vAllowedDistance; 
+        final boolean honeyBlockCollision = isCollideWithHB(from, to, data) && yDistance < -0.125 && yDistance > -0.128;
         final boolean gravityEffects      = InAirVerticalRules.oddJunction(from, to, yDistance, yDistChange, yDistDiffEx, maxJumpGain, resetTo, thisMove, lastMove, data, cc);
         final boolean outOfEnvelope       = InAirVerticalRules.outOfEnvelopeExemptions(yDistance, yDistDiffEx, lastMove, data, from, to, now, yDistChange, maxJumpGain, player, thisMove, resetTo);
         final boolean shortMoveExemptions = InAirVerticalRules.shortMoveExemptions(yDistance, yDistDiffEx, lastMove, data, from, to, now, strictVdistRel, maxJumpGain, vAllowedDistance, player, thisMove);
@@ -1571,16 +1571,15 @@ public class SurvivalFly extends Check {
         }
         // Upper bound violation: bigger move than expected/allowed
         else if (yDistDiffEx > 0.0) { 
-
-            if (lastMove.toIsValid && (outOfEnvelope || gravityEffects)) {
+            
+            if (yDistance <= 0.0 && (resetTo || thisMove.touchedGround)) {
+                // Allow falling shorter than expected, if onto ground.
+                // Note resetFrom should usually mean that allowed dist is > 0 ?
+                // Does not require lastMove.toIsValid
+            }
+            else if (lastMove.toIsValid && (outOfEnvelope || gravityEffects || honeyBlockCollision || isLanternUpper(to))) {
                 // Determine if there could have been a reason for the player to have moved unexepctedly, om match, ignore.
             }
-            else if (isLanternUpper(to)){
-                // Ignore.
-            }
-            else if (isCollideWithHB(from, to, data) && yDistance < -0.125 && yDistance > -0.128) {
-               // Side collision with a honey block thus slower movement than expected.
-            } 
             else vDistRelVL = true;
         } 
         // Upper bound violation: smaller move than expected/allowed (yDistDiffEx <= 0.0)
@@ -1606,11 +1605,8 @@ public class SurvivalFly extends Check {
             else if (lastMove.toIsValid && gravityEffects) {
                // Several types of odd in-air moves, mostly with gravity near maximum, friction, medium change.
             }
-            else if (isLanternUpper(to)) {
+            else if (isLanternUpper(to) || honeyBlockCollision) {
                 // Ignore.
-            }
-            else if (isCollideWithHB(from, to, data) && yDistance < -0.125 && yDistance > -0.128) {
-                // Side collision with a honey block thus slower movement than expected.
             }
             else vDistRelVL = true; 
         }
