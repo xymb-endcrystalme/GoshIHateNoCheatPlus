@@ -124,7 +124,17 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     /** Is the player on the ground?. */
     Boolean onGround = null;
     
+    /** Is the player on soul sand. */
     Boolean onSoulSand = null;
+    
+    /** Is the player on a honey block. */
+    Boolean onHoneyBlock = null;
+    
+    /** Is the player on a slime block? */
+    Boolean onSlimeBlock = null;
+    
+    /** Is the player in a berry bush? */
+    Boolean inBerryBush = null;
 
 
     // "Heavy" object members that need to be set to null on cleanup. //
@@ -789,6 +799,27 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     }
 
     /**
+     * Checks if the player is in berry bush.
+     * 
+     * @return true, if the player is in berry bush
+     */
+    public boolean isInBerryBush() {
+        if (inBerryBush == null) {
+            if (blockFlags == null || (blockFlags & BlockProperties.F_COBWEB2) != 0L ) {
+                // TODO: inset still needed / configurable?
+                final double inset = 0.001d;
+                inBerryBush = BlockProperties.collides(blockCache, minX + inset, minY + inset, minZ + inset, 
+                        maxX - inset, maxY - inset, maxZ - inset, 
+                        BlockProperties.F_COBWEB2);
+            }
+            else {
+                inBerryBush = false;
+            }
+        }
+        return inBerryBush;
+    }
+
+    /**
      * Check the location is on ice, only regarding the center. Currently
      * demands to be on ground as well.
      *
@@ -809,6 +840,12 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         return onIce;
     }
     
+    /**
+     * Check the location is on soul sand only regarding the center. Currently
+     * demands to be on ground as well.
+     *
+     * @return true, if is on ice
+     */
     public boolean isOnSoulSand() {
         if (onSoulSand == null) {
             // TODO: Use a box here too ?
@@ -822,6 +859,48 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
             }
         }
         return onSoulSand;
+    }
+
+    /**
+     * Check the location is on slime only regarding the center. Currently
+     * demands to be on ground as well.
+     *
+     * @return true, if is on ice
+     */
+    public boolean isOnSlimeBlock() {
+        if (onSlimeBlock == null) {
+            // TODO: Use a box here too ?
+            // TODO: check if player is really sneaking (refactor from survivalfly to static access in Combined ?)!
+            if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_SLIME) == 0) {
+                // TODO: check onGroundMinY !?
+                onSlimeBlock = false;
+            } else {
+                // TODO: Might skip the isOnGround part, e.g. if boats sink in slightly. Needs testing.
+                onSlimeBlock = isOnGround() && BlockProperties.collides(blockCache, minX, minY - yOnGround, minZ, maxX, minY, maxZ, BlockProperties.F_SLIME);
+            }
+        }
+        return onSlimeBlock;
+    }
+
+    /**
+     * Check the location is on soul sand only regarding the center. Currently
+     * demands to be on ground as well.
+     *
+     * @return true, if is on ice
+     */
+    public boolean isOnHoneyBlock() {
+        if (onHoneyBlock == null) {
+            // TODO: Use a box here too ?
+            // TODO: check if player is really sneaking (refactor from survivalfly to static access in Combined ?)!
+            if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_STICKY) == 0) {
+                // TODO: check onGroundMinY !?
+                onHoneyBlock = false;
+            } else {
+                // TODO: Might skip the isOnGround part, e.g. if boats sink in slightly. Needs testing.
+                onHoneyBlock = isOnGround() && BlockProperties.collides(blockCache, minX, minY - yOnGround, minZ, maxX, minY, maxZ, BlockProperties.F_STICKY);
+            }
+        }
+        return onHoneyBlock;
     }
 
     /**
@@ -1375,6 +1454,9 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         this.inWaterLogged = other.isInWaterLogged();
         this.inLava = other.isInLava();
         this.inWeb = other.isInWeb();
+        this.inBerryBush = other.isInBerryBush();
+        this.onHoneyBlock = other.isOnHoneyBlock();
+        this.onSlimeBlock = other.isOnSlimeBlock();
         this.onIce = other.isOnIce();
         this.onSoulSand = other.isOnSoulSand();
         this.onClimbable = other.isOnClimbable();
@@ -1445,7 +1527,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
 
         // Reset cached values.
         node = nodeBelow = null;
-        aboveStairs = inLava = inWater = inWaterLogged = inWeb = onIce = onSoulSand = onGround = onClimbable = passable = passableBox = null;
+        aboveStairs = inLava = inWater = inWaterLogged = inWeb = onIce = onSoulSand = onHoneyBlock = onSlimeBlock = inBerryBush = onGround = onClimbable = passable = passableBox = null;
         onGroundMinY = Double.MAX_VALUE;
         notOnGroundMaxY = Double.MIN_VALUE;
         blockFlags = null;

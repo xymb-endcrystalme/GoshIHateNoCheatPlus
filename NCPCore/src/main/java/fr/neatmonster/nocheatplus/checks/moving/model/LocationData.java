@@ -36,7 +36,7 @@ public class LocationData implements IGetLocationWithLook {
     /** Must be checked before using any of the flags. */
     public boolean extraPropertiesValid = false;
     /** Basic environmental properties. */
-    public boolean onClimbable, inWeb, inLava, inWater, inLiquid, onGround, onIce, onSoulSand;
+    public boolean onClimbable, inWeb, inLava, inWater, inLiquid, onGround, onIce, onSoulSand, onSlimeBlock, inBerryBush, onHoneyBlock;
     /** Aggregate properties (reset means potentially resetting fall damage). */
     public boolean resetCond, onGroundOrResetCond;
 
@@ -94,6 +94,9 @@ public class LocationData implements IGetLocationWithLook {
         inWeb = loc.isInWeb();
         onSoulSand = loc.isOnSoulSand();
         inLiquid = loc.isInLiquid();
+        inBerryBush = loc.isInBerryBush();
+        onSlimeBlock = loc.isOnSlimeBlock();
+        onHoneyBlock = loc.isOnHoneyBlock();
         if (inLiquid) {
             inLava = loc.isInLava();
             inWater = loc.isInWater();

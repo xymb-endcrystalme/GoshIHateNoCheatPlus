@@ -31,7 +31,7 @@ public class Magic {
 
     // Gravity.
     public static final double GRAVITY_MAX = 0.0834;
-    public static final double GRAVITY_MIN = 0.0624; // TODO: Special cases go down to 0.05.
+    public static final double GRAVITY_MIN = 0.0624; 
     public static final double GRAVITY_SPAN = GRAVITY_MAX - GRAVITY_MIN;
     public static final double GRAVITY_ODD = 0.05; // 19; // TODO: This should probably be min. / cleanup.
     /** Assumed minimal average decrease per move, suitable for regarding 3 moves. */
@@ -63,8 +63,10 @@ public class Magic {
             0.1995 / modSwim[0] / WALK_SPEED,
             1.0 / modSwim[0], // Results in walkspeed.
     };
-    public static final double modWeb               = 0.09D / WALK_SPEED; // TODO: walkingSpeed * 0.15D; <- does not work
+    public static final double modWeb               = 0.09D / WALK_SPEED; 
     public static final double modSoulSand          = 0.16D / WALK_SPEED;
+    public static final double modBush              = 0.14D / WALK_SPEED;
+    public static final double modSlime             = 0.18D / WALK_SPEED;
     public static final double modCollision         = 1.36D;
     public static final double modSoulSpeed         = 1.4D;
     public static final double modIce               = 2.5D; 

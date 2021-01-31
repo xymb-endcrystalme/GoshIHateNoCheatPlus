@@ -289,7 +289,7 @@ public class InventoryMove extends Check {
         }
         // Sneaking on the ground. 
         else if (player.isSneaking()){
-            hDistMin = cc.invMoveHdistMin * thisMove.walkSpeed; // old: 0.050
+            hDistMin = 0.45 * thisMove.walkSpeed; // old: 0.050
         }
         // TODO: Ice friction
         // Fallback to default min hDist.

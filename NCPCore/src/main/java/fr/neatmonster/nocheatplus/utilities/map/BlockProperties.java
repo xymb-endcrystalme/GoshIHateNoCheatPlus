@@ -855,8 +855,10 @@ public class BlockProperties {
 
     /** Cobweb like blocks (adhesive). */
     public static final long F_COBWEB                       = f_flag();
+    /** Berry bush-like, similar to webs but with higher speed (adhesive). */
     public static final long F_COBWEB2                      = f_flag();
     public static final long F_SOULSAND                     = f_flag();
+    public static final long F_SLIME                        = f_flag();
 
     /**
      * Block change tracking: ordinary right click interaction (use) can change
@@ -872,8 +874,6 @@ public class BlockProperties {
     /** Height 15/16 (0.9375 = 1 - 0.0625). */
     public static final long F_HEIGHT16_15                  = f_flag();
 
-    /** Flag for all slabs to fix issue when jumping on "stairs" of slabs, flagging for hackStep. */
-    public static final long F_SLAB                         = f_flag();
     public static final long F_ANVIL                        = f_flag();
     public static final long F_FAKEBOUNDS                   = f_flag();
 
