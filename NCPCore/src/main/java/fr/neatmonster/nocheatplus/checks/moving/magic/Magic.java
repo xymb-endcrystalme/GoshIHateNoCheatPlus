@@ -16,6 +16,7 @@ package fr.neatmonster.nocheatplus.checks.moving.magic;
 
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 
 /**
  * Keeping some of the magic confined in here.
@@ -80,6 +81,10 @@ public class Magic {
     // Vertical speeds/modifiers. 
     public static final double climbSpeedAscend        = 0.119;
     public static final double climbSpeedDescend       = 0.151;
+    public static final double webSpeedDescendH        = -0.062;
+    public static final double webSpeedDescendDefault  = -0.032;
+    public static final double bushSpeedAscend         = 0.315;
+    public static final double bushSpeedDescend        = -0.09;
 
     /**
      * Some kind of minimum y descend speed (note the negative sign), for an
@@ -134,8 +139,10 @@ public class Magic {
      * @return
      */
     public static double swimBaseSpeedV(boolean isSwimming) {
+        final boolean ServerIsBelow1_13 = ServerVersion.compareMinecraftVersion("1.13") < 0;
+        if (ServerIsBelow1_13) return WALK_SPEED * modSwim[2] + 0.1; // Allow legacy versions to go at swimming speed regardless...(ViaVesion)
         // TODO: Does this have to be the dynamic walk speed (refactoring)?
-        return isSwimming ? WALK_SPEED * modSwim[2] + 0.1 : WALK_SPEED * modSwim[0] + 0.07; // 0.244
+        else return isSwimming ? WALK_SPEED * modSwim[2] + 0.1 : WALK_SPEED * modSwim[0] + 0.07; // 0.244
     }
 
     /**

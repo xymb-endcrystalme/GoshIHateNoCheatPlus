@@ -670,7 +670,12 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         }
         return inWater;
     }
-
+    
+    /**
+     * Checks if the player is in a water logged block
+     * 
+     * @return true, if the player is in a water logged block.
+     */
     public boolean isInWaterLogged() {
         if (inWaterLogged == null) {
             inWaterLogged = BlockProperties.isWaterlogged(world, blockCache, minX, minY, minZ, maxX, maxY, maxZ);
@@ -844,7 +849,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      * Check the location is on soul sand only regarding the center. Currently
      * demands to be on ground as well.
      *
-     * @return true, if is on ice
+     * @return true, if is on soul sand
      */
     public boolean isOnSoulSand() {
         if (onSoulSand == null) {
@@ -865,7 +870,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      * Check the location is on slime only regarding the center. Currently
      * demands to be on ground as well.
      *
-     * @return true, if is on ice
+     * @return true, if is on slime block
      */
     public boolean isOnSlimeBlock() {
         if (onSlimeBlock == null) {
@@ -883,10 +888,10 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     }
 
     /**
-     * Check the location is on soul sand only regarding the center. Currently
+     * Check the location is on honey block only regarding the center. Currently
      * demands to be on ground as well.
      *
-     * @return true, if is on ice
+     * @return true, if is on honey block
      */
     public boolean isOnHoneyBlock() {
         if (onHoneyBlock == null) {

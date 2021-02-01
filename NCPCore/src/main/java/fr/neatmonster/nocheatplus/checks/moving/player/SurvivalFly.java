@@ -77,7 +77,6 @@ public class SurvivalFly extends Check {
     // Tags
     private static final String DOUBLE_BUNNY = "doublebunny";
     // Server versions ugly but gets the job done...
-    private final boolean ServerIsAtLeast1_8 = ServerVersion.compareMinecraftVersion("1.8") >= 0;
     private final boolean ServerIsAtLeast1_9 = ServerVersion.compareMinecraftVersion("1.9") >= 0;
     private final boolean ServerIsAtLeast1_10 = ServerVersion.compareMinecraftVersion("1.10") >= 0;
     private final boolean ServerIsAtLeast1_13 = ServerVersion.compareMinecraftVersion("1.13") >= 0;
@@ -144,11 +143,11 @@ public class SurvivalFly extends Check {
 
         // Calculate some distances.
         final double xDistance, yDistance, zDistance, hDistance;
-        final boolean hasHdist;
+        final boolean HasHorizontalDistance;
         if (isSamePos) {
             // TODO: Could run a completely different check here (roughly none :p).
             xDistance = yDistance = zDistance = hDistance = 0.0;
-            hasHdist = false;
+            HasHorizontalDistance = false;
         }
         else {
             xDistance = to.getX() - from.getX();
@@ -156,10 +155,10 @@ public class SurvivalFly extends Check {
             zDistance = to.getZ() - from.getZ();
             if (xDistance == 0.0 && zDistance == 0.0) {
                 hDistance = 0.0;
-                hasHdist = false;
+                HasHorizontalDistance = false;
             }
             else {
-                hasHdist = true;
+                HasHorizontalDistance = true;
                 hDistance = thisMove.hDistance;
             }
         }
@@ -331,7 +330,7 @@ public class SurvivalFly extends Check {
         else if (data.sfOnIce > 0) data.sfOnIce--;
 
         // Run through all hDistance checks if the player has actually some horizontal distance
-        if (hasHdist) {
+        if (HasHorizontalDistance) {
 
             final double attrMod = attributeAccess.getHandle().getSpeedAttributeMultiplier(player);
             // Set the allowed distance and determine the distance above limit
@@ -711,7 +710,7 @@ public class SurvivalFly extends Check {
 
 
 
-  /**
+   /**
     * The horizontal accounting subcheck, it monitors average combined-medium (e.g. air+ground or air+water) speed, 
     * with a rather simple bucket(s)-overflow mechanism.
     * We feed 1.0 whenever we're below the allowed BASE speed, and (actual / base) if we're above. 
@@ -764,7 +763,7 @@ public class SurvivalFly extends Check {
     }
     
 
-  /**
+   /**
     * Directly checks for cheat implementation types that aim at walking on liquids
     *
     * @return hDistanceAboveLimit
@@ -817,7 +816,7 @@ public class SurvivalFly extends Check {
     }
 
 
-  /**
+   /**
     * Checks for illegal sprinting modifications, such as sprinting backwards, sideways and on impossible conditions
     * 
     * @param sprinting
@@ -836,7 +835,7 @@ public class SurvivalFly extends Check {
         // sprinting all the time (when possible), even if they are just walking. 
         // Potential fixes: 
         // 1) Review if the workaround is still nedeed. (-> Seems like it's crucial for PVP since players will still get setbacked without this...);
-        // 2) Confine assumeSprint more (Attempeted in the MovingListener: moving backwards or having blindness won't apply assumeSprint);
+        // 2) Confine assumeSprint more (-> How?);
         // 3) Simply use player#isSprinting() (But events could be missing, out of order or not sent for whatever reason, in a lostGround fashion...).
         
         // Vanilla MC disallows players from sprinting with blindness
@@ -1106,7 +1105,7 @@ public class SurvivalFly extends Check {
             friction = 0.0;
             
             // Multiprotocol plugins 
-            if ((from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) != 0){
+            if ((from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) != 0) {
                hAllowedDistance = sprinting ? Magic.modSprint : 1.0 * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             }
         }
@@ -1384,9 +1383,9 @@ public class SurvivalFly extends Check {
         }
 
         
-        /////////////////////
-        //Other properties//
-        ////////////////////
+        ///////////////////////
+        // Other properties. //
+        ///////////////////////
         // TODO: Reset friction on too big change of direction?
 
         // Account for flowing liquids (only if needed).
@@ -2053,10 +2052,7 @@ public class SurvivalFly extends Check {
         // 3: After failure permission checks ( + speed modifier + sneaking + blocking + speeding) and velocity (!).
         // Noslow require no permission rechecks
         // TODO: Most cases these will not apply. Consider redesign to do these last or checking right away and skip here on some conditions.
-        if (hDistanceAboveLimit > 0.12 
-            && !tags.contains("usingitem(cancel)") 
-            && !skipPermChecks 
-            )  {
+        if (hDistanceAboveLimit > 0.12 && !tags.contains("usingitem(cancel)") && !skipPermChecks)  {
             hAllowedDistance = setAllowedhDist(player, sprinting, thisMove, data, cc, pData, from, true);
             hDistanceAboveLimit = thisMove.hDistance - hAllowedDistance;
             tags.add("permchecks");
@@ -2203,6 +2199,7 @@ public class SurvivalFly extends Check {
                         || data.bunnyhopTick > 6 || data.isVelocityJumpPhase() 
                         || thisMove.headObstructed && hDistance < 0.39 
                         || data.keepfrictiontick > 0) {
+                        tags.add("allowbunny");
                         hDistanceAboveLimit = 0.0;
                     }
                      
@@ -2360,9 +2357,7 @@ public class SurvivalFly extends Check {
                 thisMove.bunnyHop = true;
                 tags.add("bunnyhop");
             }
-            else {
-                tags.add("bunnyenv");
-            }
+            else tags.add("bunnyenv");
         }
 
         return hDistanceAboveLimit;
@@ -2508,7 +2503,7 @@ public class SurvivalFly extends Check {
             }
         }
 
-        if (yDistance > 0) {
+        if (yDistance > 0.0) {
             if (!data.playerMoves.getCurrentMove().touchedGround) {
                 // Check if player may climb up.
                 // (This does exclude ladders.)
@@ -2563,15 +2558,14 @@ public class SurvivalFly extends Check {
 
         // Ascend: players cannot ascend in webs
         if (yDistance >= 0.0) {
-
-            vAllowedDistance = (toOnGround && yDistance <= 0.5) ? yDistance : thisMove.from.onGround ? 0.1D : 0; 
+            vAllowedDistance = (toOnGround && yDistance <= 0.5) ? yDistance : thisMove.from.onGround ? 0.1D : 0.0; 
             if (toOnGround && yDistance <= 0.5 && yDistance > 0.0) tags.add("web_step");
             vDistanceAboveLimit = yDistance - vAllowedDistance;
         }
         // Descend
         else {
             if (thisMove.from.resetCond && thisMove.to.resetCond) {
-                vAllowedDistance = thisMove.hDistance > 0.018 ? -0.062 : -0.032;
+                vAllowedDistance = thisMove.hDistance > 0.018 ? Magic.webSpeedDescendH : Magic.webSpeedDescendDefault;
                 vDistanceAboveLimit = yDistance < vAllowedDistance ? Math.abs(yDistance - vAllowedDistance) : 0.0;
             }
         }
@@ -2611,6 +2605,7 @@ public class SurvivalFly extends Check {
         */
 
         final double yDistance = thisMove.yDistance;
+        final double jumpGainMargin = 0.005;
         double vAllowedDistance = 0.0;
         double vDistanceAboveLimit = 0.0;
         data.sfNoLowJump = true;
@@ -2620,14 +2615,14 @@ public class SurvivalFly extends Check {
         if (yDistance >= 0.0) {
             vAllowedDistance = (from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) != 0 ?
                                 // Compatibility with multiprotocol plugins: allow normal jumping
-                                LiftOffEnvelope.NORMAL.getMaxJumpGain(data.jumpAmplifier) + 0.005 : 0.315;
+                                LiftOffEnvelope.NORMAL.getMaxJumpGain(data.jumpAmplifier) + jumpGainMargin : Magic.bushSpeedAscend;
             vDistanceAboveLimit = yDistance - vAllowedDistance;
         }
         // Descend
         else {
             // Observed: Upon first collision with a berry bush, a lot of lost ground cases will apply (pyramid and edgedesc)
             // Allow the first move when falling from far above.
-            vAllowedDistance = (data.sfJumpPhase > 5 && !fromOnGround && toOnGround || thisMove.touchedGroundWorkaround) ? yDistance : -0.09;
+            vAllowedDistance = (data.sfJumpPhase > 5 && !fromOnGround && toOnGround || thisMove.touchedGroundWorkaround) ? yDistance : Magic.bushSpeedDescend;
             vDistanceAboveLimit = yDistance < vAllowedDistance ? Math.abs(yDistance - vAllowedDistance) : 0.0;
         }
 
@@ -2811,9 +2806,9 @@ public class SurvivalFly extends Check {
         builder.append("\nonground: " + (thisMove.headObstructed ? "(head obstr.) " : "") + (thisMove.touchedGroundWorkaround ? "(touched ground) " : "") + (fromOnGround ? "onground -> " : (resetFrom ? "resetcond -> " : "--- -> ")) + (toOnGround ? "onground" : (resetTo ? "resetcond" : "---")) + ", jumpphase: " + data.sfJumpPhase + ", liftoff: " + data.liftOffEnvelope.name() + "(" + data.insideMediumCount + ")");
         final String dHDist = lastMove.toIsValid ? " (" + StringUtil.formatDiff(hDistance, lastMove.hDistance) + ")" : "";
         final String dYDist = lastMove.toIsValid ? " (" + StringUtil.formatDiff(yDistance, lastMove.yDistance)+ ")" : "";
-        final String hopDelay = (data.bunnyhopDelay > 0 ? (" bHopDelay= " + data.bunnyhopDelay) : "");
+        final String hopDelay = (data.bunnyhopDelay > 0 ? (" bHopDelay= " + data.bunnyhopDelay)  : "");
         final String hopTick = (data.bunnyhopTick > 0 ? (" bHopTick= " + data.bunnyhopTick) : "");
-        builder.append(hopDelay + " / " + hopTick);
+        builder.append(hopDelay + hopTick);
         builder.append("\n" + " hDist: " + StringUtil.fdec3.format(hDistance) + dHDist + " / Allowed: " +  StringUtil.fdec3.format(hAllowedDistance) + hBuf + lostSprint + hVelUsed + " , vDist: " + StringUtil.fdec3.format(yDistance) + dYDist + " / Allowed: " + StringUtil.fdec3.format(vAllowedDistance) + " , sby=" + (data.hasSetBack() ? (data.getSetBackY() + " (" + StringUtil.fdec3.format(to.getY() - data.getSetBackY()) + " / " + data.liftOffEnvelope.getMaxJumpHeight(data.jumpAmplifier) + ")") : "?"));
         if (lastMove.toIsValid) {
             builder.append(" , fdsq: " + StringUtil.fdec3.format(thisMove.distanceSquared / lastMove.distanceSquared));

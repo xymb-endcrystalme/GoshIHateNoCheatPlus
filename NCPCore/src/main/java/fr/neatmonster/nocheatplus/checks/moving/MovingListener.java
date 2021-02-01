@@ -709,12 +709,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
 
         final long time = System.currentTimeMillis();
-        // Confine assumeSprint: if one of these conditions is met, the workaround won't be applied.
-        boolean assumeSprintResetCond = player.hasPotionEffect(PotionEffectType.BLINDNESS) // Can't sprint if blind
-                                        || TrigUtil.isMovingBackwards(xDistance, zDistance, LocUtil.correctYaw(from.getYaw())); // Can't sprint if moving backwards
-        boolean assumeSprint = cc.assumeSprint && !assumeSprintResetCond;
 
-        if (player.isSprinting() || assumeSprint) {
+        if (player.isSprinting() || cc.assumeSprint) {
             // TODO: Collect all these properties within a context object (abstraction + avoid re-fetching). 
             if (player.getFoodLevel() > 5 || player.getAllowFlight() || player.isFlying()) {
                 data.timeSprinting = time;
@@ -723,7 +719,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 if (data.multSprinting == Double.MAX_VALUE) {
                     data.multSprinting = 1.30000002;
                 }
-                else if (assumeSprint && data.multSprinting == 1.0) {
+                else if (cc.assumeSprint && data.multSprinting == 1.0) {
                     // Server side can be inconsistent, so the multiplier might be plain wrong (1.0).
                     // TODO: Could be more/less than actual, but "infinite" latency would not work either.
                     data.multSprinting = 1.30000002;
