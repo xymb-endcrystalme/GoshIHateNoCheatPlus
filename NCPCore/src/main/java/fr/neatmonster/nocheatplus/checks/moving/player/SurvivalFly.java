@@ -839,12 +839,12 @@ public class SurvivalFly extends Check {
         // 3) Simply use player#isSprinting() (But events could be missing, out of order or not sent for whatever reason, in a lostGround fashion...).
         
         // Vanilla MC disallows players from sprinting with blindness
-        if (player.isSprinting() && hDistance > thisMove.walkSpeed && player.hasPotionEffect(PotionEffectType.BLINDNESS)
-            && data.lostSprintCount == 0 && !data.isVelocityJumpPhase()) {
-            hDistanceAboveLimit = Math.max(hDistanceAboveLimit, (hDistance - thisMove.walkSpeed)); // Allow players to walk at walking pace, rather than invalidating all hDist
-            tags.add("blindsprint");
-            bufferUse = false;
-        }
+        //if (player.isSprinting() && hDistance > thisMove.walkSpeed && player.hasPotionEffect(PotionEffectType.BLINDNESS)
+        //    && data.lostSprintCount == 0 && !data.isVelocityJumpPhase()) {
+        //    hDistanceAboveLimit = Math.max(hDistanceAboveLimit, (hDistance - thisMove.walkSpeed)); // Allow players to walk at walking pace, rather than invalidating all hDist
+        //    tags.add("blindsprint");
+        //    bufferUse = false;
+        //}
         
         // Prevent players from sprinting backwards
         if (player.isSprinting() && hDistance > thisMove.walkSpeed && data.lostSprintCount == 0 && !data.isVelocityJumpPhase()){
