@@ -1086,7 +1086,7 @@ public class SurvivalFly extends Check {
         // Slimeblock
         else if (thisMove.from.onSlimeBlock) {
             tags.add("hslimeblock");
-            friction = 0.0;
+            //friction = 0.0;
             hAllowedDistance = Magic.modSlime * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             if (actuallySneaking) hAllowedDistance *= Magic.modSneak;
             if (isBlockingOrUsing) hAllowedDistance *= Magic.modBlock;
