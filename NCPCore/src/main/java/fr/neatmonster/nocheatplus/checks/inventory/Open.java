@@ -17,6 +17,7 @@ package fr.neatmonster.nocheatplus.checks.inventory;
 import java.util.UUID;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.checks.Check;
@@ -27,6 +28,7 @@ import fr.neatmonster.nocheatplus.hooks.ExemptionSettings;
 import fr.neatmonster.nocheatplus.players.DataManager;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.InventoryUtil;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 
 /**
  * Watch over open inventories - check with "combined" static access, put here because it has too much to do with inventories.
@@ -69,18 +71,23 @@ public class Open extends Check implements IDisableListener{
      * @return If cancelling some event is opportune (open inventory and cancel flag set).
      */
     public boolean check(final Player player) {
+
+        final boolean isShulkerBox = ServerVersion.compareMinecraftVersion("1.11") >= 0 
+                                     && (player.getOpenInventory().getTopInventory().getType() == InventoryType.SHULKER_BOX); 
+        
         if (
                 // TODO: POC: Item duplication with teleporting NPCS, having their inventory open.
                 exeSet.getHandle().isRegardedAsNpc(player)
                 || !isEnabled(player) 
-                || !InventoryUtil.hasInventoryOpen(player)) {
+                || !InventoryUtil.hasInventoryOpen(player)
+                || isShulkerBox) {
             return false;
         }
         final IPlayerData pData = DataManager.getPlayerData(player);
         final InventoryConfig cc = pData.getGenericInstance(InventoryConfig.class);
         if (cc.openClose) {
             final UUID id = player.getUniqueId();
-            if (this.nestedPlayer == null || !id.equals(this.nestedPlayer)) {
+            if ((this.nestedPlayer == null || !id.equals(this.nestedPlayer)) && !isShulkerBox) {
                 // (The second condition represents an error, but we don't handle alternating things just yet.)
                 this.nestedPlayer = id;
                 player.closeInventory();

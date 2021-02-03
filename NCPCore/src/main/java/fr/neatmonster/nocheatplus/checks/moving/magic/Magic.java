@@ -16,6 +16,7 @@ package fr.neatmonster.nocheatplus.checks.moving.magic;
 
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 
 /**
  * Keeping some of the magic confined in here.
@@ -31,7 +32,7 @@ public class Magic {
 
     // Gravity.
     public static final double GRAVITY_MAX = 0.0834;
-    public static final double GRAVITY_MIN = 0.0624; // TODO: Special cases go down to 0.05.
+    public static final double GRAVITY_MIN = 0.0624; 
     public static final double GRAVITY_SPAN = GRAVITY_MAX - GRAVITY_MIN;
     public static final double GRAVITY_ODD = 0.05; // 19; // TODO: This should probably be min. / cleanup.
     /** Assumed minimal average decrease per move, suitable for regarding 3 moves. */
@@ -51,10 +52,10 @@ public class Magic {
     public static final double modBlock             = 0.1277D / WALK_SPEED;
     public static final double[] modSwim            = new double[] {0.115D / WALK_SPEED, 0.044D / WALK_SPEED, 0.3D / WALK_SPEED}; // 0.044D for horizontal, 0.3 for vertical swimming
     public static final double[] modRiptide         = new double[] {
-    		1.0,
-    		4.8, //4.6 ?
-    		7.2, //7.0 ?
-    		10.0
+            1.0,
+            4.8, //4.6 ?
+            7.2, //7.0 ?
+            10.0
     };
     public static final double modDolphinsGrace     = 4.3D; // TODO: Adjust value to be more stricter and closer to actual movement speed, and use different value from in water vs above water
     public static final double[] modDepthStrider    = new double[] {
@@ -63,11 +64,13 @@ public class Magic {
             0.1995 / modSwim[0] / WALK_SPEED,
             1.0 / modSwim[0], // Results in walkspeed.
     };
-    public static final double modWeb               = 0.09D / WALK_SPEED; // TODO: walkingSpeed * 0.15D; <- does not work
+    public static final double modWeb               = 0.09D / WALK_SPEED; 
     public static final double modSoulSand          = 0.16D / WALK_SPEED;
-    public static final double modStairs            = 0.27D / WALK_SPEED;
-    public static final double modIce               = 2.5D; // 
-    /** Faster moving down stream (water mainly). */
+    public static final double modBush              = 0.134D / WALK_SPEED;
+    public static final double modSlime             = 0.13D / WALK_SPEED;
+    public static final double modCollision         = 1.36D;
+    public static final double modSoulSpeed         = 1.4D;
+    public static final double modIce               = 2.5D; 
     public static final double modDownStream        = 0.19 / (WALK_SPEED * modSwim[0]);
 
     /**
@@ -78,6 +81,10 @@ public class Magic {
     // Vertical speeds/modifiers. 
     public static final double climbSpeedAscend        = 0.119;
     public static final double climbSpeedDescend       = 0.151;
+    public static final double webSpeedDescendH        = -0.062;
+    public static final double webSpeedDescendDefault  = -0.032;
+    public static final double bushSpeedAscend         = 0.315;
+    public static final double bushSpeedDescend        = -0.09;
 
     /**
      * Some kind of minimum y descend speed (note the negative sign), for an
@@ -132,8 +139,10 @@ public class Magic {
      * @return
      */
     public static double swimBaseSpeedV(boolean isSwimming) {
+        final boolean ServerIsBelow1_13 = ServerVersion.compareMinecraftVersion("1.13") < 0;
+        if (ServerIsBelow1_13) return WALK_SPEED * modSwim[2] + 0.1; // Allow legacy versions to go at swimming speed regardless...(ViaVesion)
         // TODO: Does this have to be the dynamic walk speed (refactoring)?
-        return isSwimming ? WALK_SPEED * modSwim[2] + 0.1 : WALK_SPEED * modSwim[0] + 0.07; // 0.244
+        else return isSwimming ? WALK_SPEED * modSwim[2] + 0.1 : WALK_SPEED * modSwim[0] + 0.07; // 0.244
     }
 
     /**

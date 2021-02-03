@@ -90,31 +90,50 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public double         survivalFlyVL            = 0.0;
     public double         vehicleMorePacketsVL     = 0.0;
     public double         vehicleEnvelopeVL        = 0.0;
+    public double         passableVL               = 0.0;
+
 
     // Data shared between the fly checks -----
     public long           selfhittime = 0;
+    /** Tick counter for how long a player has been in water 0= out of water, 10=fully in water. */
     public int            liqtick = 0;
+    /** (0 = no checking, 1 = check when leaving a liquid block until touching the ground) */
     public int            watermovect = 0;
+    /** Temporary snow fix flag */
     public boolean        snowFix = false;
+    /** Whether or not this horizontal movement is leading downstream */
     public boolean        isdownstream = false;
-	/** tick for repeated motion or remain high motion */
+	/** Tick counter used to workaround certain transitions with repeated or high motion */
     public int            keepfrictiontick = 0;
+    /** Countdown for the next bunnyhop (sprintjump(10) -> countdown -> ground(0) -> sprintjump (...)) */
     public int            bunnyhopDelay;
     public int            lastbunnyhopDelay = 0;
     public int            bunnyhopTick = 0;
     public double         jumpAmplifier = 0;
+    /** Used in fly/nofly transitions for velocity. */
     public long           delayWorkaround = 0;
+    /** Whether or not the calculated explosion velocity should be applied. */
     public boolean        applyexplosionvel = false;
+    /** Velocity explosion counter (X). */
     public double         explosionvelX = 0.0;
+    /** Velocity explosion counter (Y). */
     public double         explosionvelY = 0.0;
+    /** Velocity explosion counter (Z). */
     public double         explosionvelZ = 0.0;
     /** Last time the player was actually sprinting. */
     public long           timeSprinting = 0;
+    /** Last time the player was sleeping. */
     public long           bedLeaveTime = 0;
+    /** Last time the player was riptiding */
     public long           timeRiptiding = 0;
+    /** Last time the player was swimming, currently used for the invMove check. */
+    public long           timeSwimming = 0;
+    /** The riptide level. */
     public int            RiptideLevel = 0;
+    /** Represents how long a vehicle has been tossed up by a bubble column */
     public long           timeVehicletoss = 0;
-    public double         multSprinting = 1.30000002; // Multiplier at the last time sprinting.
+    /** Multiplier at the last time sprinting. */
+    public double         multSprinting = 1.30000002; 
     /** Compatibility entry for bouncing of slime blocks and the like. */
     public SimpleEntry verticalBounce = null;
     /** Last used block change id (BlockChangeTracker). */
@@ -222,13 +241,11 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public double           noFallMaxY = 0;
     /** Indicate that NoFall is not to use next damage event for checking on-ground properties. */ 
     public boolean          noFallSkipAirCheck = false;
-    // Passable check.
-    public double           passableVL;
-
     // Data of the survival fly check.
     public double       sfHorizontalBuffer = 0.0; // ineffective: SurvivalFly.hBufMax / 2.0;
     /** Event-counter to cover up for sprinting resetting server side only. Set in the FighListener. */
     public int          lostSprintCount = 0;
+    /** Count how long the player has been in the air, resets when landing on ground */
     public int          sfJumpPhase = 0;
     /**
      * Count how many times in a row v-dist has been zero, only for in-air
@@ -239,9 +256,9 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
 
     /** "Dirty" flag, for receiving velocity and similar while in air. */
     private boolean     sfDirty = false;
-
     /** Indicate low jumping descending phase (likely cheating). */
     public boolean sfLowJump = false;
+    /** Hacky way to indicate that this movement cannot be a lowjump */
     public boolean sfNoLowJump = false; // Hacks.
 
     /**
@@ -255,8 +272,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      */
     public int          sfHoverLoginTicks = 0;
     public int          sfOnIce = 0; // TODO: Replace by allowed speed + friction.
-    public long         sfCobwebTime = 0;
-    public double       sfCobwebVL = 0;
     /** Fake in air flag: set with any violation, reset once on ground. */
     public boolean       sfVLInAir = false;
 
@@ -1260,7 +1275,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         final long time = System.currentTimeMillis();
         timeSprinting = Math.min(timeSprinting, time);
         vehicleMorePacketsLastTime = Math.min(vehicleMorePacketsLastTime, time);
-        sfCobwebTime = Math.min(sfCobwebTime, time);
         clearAccounting(); // Not sure: adding up might not be nice.
         removeAllPlayerSpeedModifiers(); // TODO: This likely leads to problems.
         // (ActionFrequency can handle this.)
