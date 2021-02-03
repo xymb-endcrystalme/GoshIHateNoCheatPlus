@@ -37,12 +37,26 @@ import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
  */
 public class Against extends Check {
 
-    
+   /**
+    * Instanties a new Against check.
+    *
+    */
     public Against() {
         super(CheckType.BLOCKPLACE_AGAINST);
     }
 
-    
+    /**
+     * Checks a player
+     * @param player
+     * @param block
+     * @param placedMat the material placed.
+     * @param blockAgainst
+     * @param isInteractBlock
+     * @param data
+     * @param cc
+     * @param pData
+     *
+     */
     public boolean check(final Player player, final Block block, final Material placedMat, 
                          final Block blockAgainst, final boolean isInteractBlock, 
                          final BlockPlaceData data, final BlockPlaceConfig cc, final IPlayerData pData) {
@@ -52,19 +66,19 @@ public class Against extends Check {
          * TODO: Make more precise (workarounds like BridgeMisc.LILY_PAD,
          * general points, such as action?).
          */
-        // Workaround for signs on cactus and similar.
-        final BlockInteractData bdata = pData.getGenericInstance(BlockInteractData.class); // TODO: pass as argument.
+        final BlockInteractData bIData = pData.getGenericInstance(BlockInteractData.class); // TODO: pass as argument.
         final Material againstType = blockAgainst.getType();
-        if (bdata.isConsumedCheck(this.type) && !bdata.isPassedCheck(this.type)) {
+        final Material matAgainst = bIData.getLastType();
+
+        if (bIData.isConsumedCheck(this.type) && !bIData.isPassedCheck(this.type)) {
             // TODO: Awareness of repeated violation probably is to be implemented below somewhere.
             violation = true;
             if (pData.isDebugActive(type)) {
                 debug(player, "Cancel due to block having been consumed by this check.");
             }
         }
-        else if (BlockProperties.isAir(againstType)) {
+        else if (BlockProperties.isAir(matAgainst)) {
             // Attempt to workaround blocks like cactus.
-            final Material matAgainst = bdata.getLastType();
             if (isInteractBlock && !BlockProperties.isAir(matAgainst) && ! BlockProperties.isLiquid(matAgainst)) {
                 // Block was placed against something (e.g. cactus), allow it.
             }
@@ -72,25 +86,25 @@ public class Against extends Check {
                 violation = true;
             }
         }
-        else if (BlockProperties.isLiquid(againstType)) {
+        else if (BlockProperties.isLiquid(matAgainst)) {
             // TODO: F_PLACE_AGAINST_WATER|LIQUID...
             if ((placedMat != BridgeMaterial.LILY_PAD
-                 || !BlockProperties.isLiquid(block.getRelative(BlockFace.DOWN).getType()))
-                 && !BlockProperties.isNewLiq(bdata.getLastType())
-                 && !pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_LIQUIDS, player)) {
+                || !BlockProperties.isLiquid(block.getRelative(BlockFace.DOWN).getType()))
+                && !BlockProperties.isNewLiq(bIData.getLastType())
+                && !pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_LIQUIDS, player)) {
                 violation = true;
             }
         }
         // Replace block placed by block placed and interact with air or water 
-        else if (block.equals(blockAgainst) && (bdata.getLastType() == null || (BlockProperties.isLiquid(bdata.getLastType())
-                && !BlockProperties.isNewLiq(bdata.getLastType())))
-        	    && !pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_SELF, player) 
+        else if (block.equals(blockAgainst) && (bIData.getLastType() == null || (BlockProperties.isLiquid(bIData.getLastType())
+                && !BlockProperties.isNewLiq(bIData.getLastType())))
+                && !pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_SELF, player) 
                 && placedMat != BridgeMaterial.LILY_PAD) {
-        	violation = true;
+            violation = true;
         }  
         
         // Handle violation and return.
-        bdata.addConsumedCheck(this.type);
+        bIData.addConsumedCheck(this.type);
         if (violation) {
             data.againstVL += 1.0;
             final ViolationData vd = new ViolationData(this, player, data.againstVL, 1, cc.againstActions);
@@ -99,7 +113,7 @@ public class Against extends Check {
         }
         else {
             data.againstVL *=  0.99; // Assume one false positive every 100 blocks.
-            bdata.addPassedCheck(this.type);
+            bIData.addPassedCheck(this.type);
             return false;
         }
     }
