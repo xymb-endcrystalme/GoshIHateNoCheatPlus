@@ -1062,7 +1062,7 @@ public class SurvivalFly extends Check {
             // Cumulative modifier: ice/slime.
             // Technically, blocking and sneaking slow down even more, but the speed gain is so little that it's not worth checking it...
             // TODO: Accurate Magic constants...
-            if (thisMove.from.onSlimeBlock || thisMove.from.onIce) hAllowedDistance *= Magic.modSlime + webJumpAccell; // sometimes false positives show up when jumping to gain a little accelleration...
+            if (thisMove.from.onSlimeBlock || thisMove.from.onIce) hAllowedDistance *= (Magic.modSlime - Magic.modWeb) + webJumpAccell; // sometimes false positives show up when jumping to gain a little accelleration...
             useBaseModifiersSprint = false; 
             friction = 0.0; 
             useBaseModifiers = true;
@@ -1078,18 +1078,17 @@ public class SurvivalFly extends Check {
             if (hasEnchant && inSoulBlock) hAllowedDistance *= Magic.modSoulSpeed;
             if (hasEnchant) data.keepfrictiontick = 60;
             // Cumulative modifiers: blocking/items, sneaking.
-            if (actuallySneaking) hAllowedDistance *= Magic.modSneak;
-            if (isBlockingOrUsing) hAllowedDistance *= Magic.modBlock;
+            if (actuallySneaking) hAllowedDistance *= Magic.modSoulSand - Magic.modSneak;
+            if (isBlockingOrUsing) hAllowedDistance *= Magic.modSoulSand - Magic.modBlock;
             useBaseModifiers = true;
         }
         
         // Slimeblock
         else if (thisMove.from.onSlimeBlock) {
             tags.add("hslimeblock");
-            //friction = 0.0;
             hAllowedDistance = Magic.modSlime * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
-            if (actuallySneaking) hAllowedDistance *= Magic.modSneak;
-            if (isBlockingOrUsing) hAllowedDistance *= Magic.modBlock;
+            if (actuallySneaking) hAllowedDistance *= Magic.modSlime - Magic.modSneak;
+            if (isBlockingOrUsing) hAllowedDistance *= Magic.modSlime - Magic.modBlock;
             useBaseModifiers = true;
             useBaseModifiersSprint = false;
         }
@@ -1099,8 +1098,8 @@ public class SurvivalFly extends Check {
             tags.add("hbush");
             hAllowedDistance = Magic.modBush * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             // Cumulative modifiers: blocking/items, sneaking.
-            if (actuallySneaking) hAllowedDistance *= Magic.modSneak;
-            if (isBlockingOrUsing) hAllowedDistance *= Magic.modBlock;
+            if (actuallySneaking) hAllowedDistance *= Magic.modBush - Magic.modSneak;
+            if (isBlockingOrUsing) hAllowedDistance *= Magic.modBush - Magic.modBlock;
             useBaseModifiers = true;
             friction = 0.0;
             
@@ -1115,8 +1114,8 @@ public class SurvivalFly extends Check {
             tags.add("hhoneyblock");
             hAllowedDistance = modHoneyBlock * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             // Cumulative modifiers: blocking/items, sneaking.
-            if (actuallySneaking) hAllowedDistance *= Magic.modSneak;
-            if (isBlockingOrUsing) hAllowedDistance *= Magic.modBlock;
+            if (actuallySneaking) hAllowedDistance *= modHoneyBlock - Magic.modSneak;
+            if (isBlockingOrUsing) hAllowedDistance *= modHoneyBlock - Magic.modBlock;
             useBaseModifiers = true;
         }
 
@@ -1162,8 +1161,8 @@ public class SurvivalFly extends Check {
             useBaseModifiers = false;
             if (sfDirty) friction = 0.0;
             // Cumulative modifiers: blocking/items, sneaking.
-            if (actuallySneaking) hAllowedDistance *= Magic.modSneak;
-            if (isBlockingOrUsing) hAllowedDistance *= Magic.modBlock;
+            if (actuallySneaking) hAllowedDistance *= Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] - Magic.modSneak;
+            if (isBlockingOrUsing) hAllowedDistance *= Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] - Magic.modBlock;
             
             // Account for all water-related enchants
             if (thisMove.from.inWater || !thisMove.from.inLava) { 
