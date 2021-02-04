@@ -1161,8 +1161,8 @@ public class SurvivalFly extends Check {
             useBaseModifiers = false;
             if (sfDirty) friction = 0.0;
             // Cumulative modifiers: blocking/items, sneaking.
-            if (actuallySneaking) hAllowedDistance *= Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] - Magic.modSneak;
-            if (isBlockingOrUsing) hAllowedDistance *= Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] - Magic.modBlock;
+            if (actuallySneaking) hAllowedDistance *= (Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0]) - Magic.modSneak;
+            if (isBlockingOrUsing) hAllowedDistance *= (Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0]) - Magic.modBlock;
             
             // Account for all water-related enchants
             if (thisMove.from.inWater || !thisMove.from.inLava) { 
