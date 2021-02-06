@@ -138,7 +138,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public SimpleEntry verticalBounce = null;
     /** Last used block change id (BlockChangeTracker). */
     public final BlockChangeReference blockChangeRef = new BlockChangeReference();
-    public boolean        newHDist = false;
+    /** Moving half on 15/16 height block and half on water. Set in Survivalfly.check */
+    public boolean        isHalfGroundHalfWater = false;
 
     /** Tick at which walk/fly speeds got changed last time. */
     public int speedTick = 0;

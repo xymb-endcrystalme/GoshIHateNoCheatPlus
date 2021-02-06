@@ -283,10 +283,11 @@ public class SurvivalFly extends Check {
         }
 
         // Moving half on farmland(or end_potal_frame) and half on water
-        data.newHDist = (from.getBlockFlags() & BlockProperties.F_MIN_HEIGHT16_15) != 0 && from.isInWater()
-                         && !BlockProperties.isLiquid(from.getTypeId(from.getBlockX(), Location.locToBlock(from.getY() + 0.3), from.getBlockZ()));
+        data.isHalfGroundHalfWater = (from.getBlockFlags() & BlockProperties.F_MIN_HEIGHT16_15) != 0 && from.isInWater()
+                                     && !BlockProperties.isLiquid(from.getTypeId(from.getBlockX(), Location.locToBlock(from.getY() + 0.3), 
+                                     from.getBlockZ()));
                          
-        if (data.newHDist) {
+        if (data.isHalfGroundHalfWater) {
             data.liftOffEnvelope = LiftOffEnvelope.NORMAL;
         }
 
@@ -796,7 +797,7 @@ public class SurvivalFly extends Check {
             && (blockUnder.getType().toString().endsWith("WATER") 
                 || blockUnder.getType().toString().endsWith("LAVA"))) {
             
-            if (!data.newHDist && hDistanceAboveLimit <= 0D && hDistance > 0.11D && yDistance <= 0.1D 
+            if (!data.isHalfGroundHalfWater && hDistanceAboveLimit <= 0D && hDistance > 0.11D && yDistance <= 0.1D 
                 && !toOnGround && !fromOnGround
                 && lastMove.toIsValid && lastMove.yDistance == yDistance 
                 || lastMove.yDistance == yDistance * -1 && lastMove.yDistance != 0D
@@ -1074,7 +1075,7 @@ public class SurvivalFly extends Check {
             friction = 0.0;
             final boolean hasEnchant = BridgeEnchant.hasSoulSpeed(player);
             final boolean inSoulBlock = (BlockProperties.getBlockFlags(from.getTypeId()) & BlockProperties.F_SOULSAND) != 0;
-            hAllowedDistance = inSoulBlock ? Magic.modSoulSand : (sprinting ? Magic.modSprint : 1.0) * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+            hAllowedDistance = (inSoulBlock ? Magic.modSoulSand : (sprinting ? Magic.modSprint : 1.0)) * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             if (hasEnchant && inSoulBlock) hAllowedDistance *= Magic.modSoulSpeed;
             if (hasEnchant) data.keepfrictiontick = 60;
             // Cumulative modifiers: blocking/items, sneaking.
@@ -1120,6 +1121,7 @@ public class SurvivalFly extends Check {
         }
 
         // Stairs
+        // TODO: Test: Demand slower speed on sneaking/blocking
         else if (from.isAboveStairs()) {
             tags.add("hstairs");
             useBaseModifiers = true;
@@ -1137,6 +1139,7 @@ public class SurvivalFly extends Check {
         }
 
         // Collision with entities (1.9+)
+        // TODO: Test: Demand slower speed on sneaking/blocking
         else if (ServerIsAtLeast1_9 && CollisionUtil.isCollidingWithEntities(player, true) && hAllowedDistance < 0.35) {
             tags.add("hcollision");
             hAllowedDistance = Magic.modCollision * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
@@ -1155,7 +1158,8 @@ public class SurvivalFly extends Check {
         // In liquid
         // Check all liquids (lava might demand even slower speed though).
         // TODO: Test how to go with only checking from (less dolphins).
-        else if (thisMove.from.inLiquid && thisMove.to.inLiquid && !data.newHDist) {
+        // TODO: TEST: Isn't walkSpeed static here? /walspeed shouldn't work in liquids...
+        else if (thisMove.from.inLiquid && thisMove.to.inLiquid && !data.isHalfGroundHalfWater) {
             tags.add("hliquid");
             hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed / 100D;
             useBaseModifiers = false;
@@ -1204,7 +1208,7 @@ public class SurvivalFly extends Check {
 
         // Speed limit for players moving above surface
         // TODO: Still check with velocity?
-        else if (!data.newHDist && !sfDirty && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_WATERWALK, player) 
+        else if (!data.isHalfGroundHalfWater && !sfDirty && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_WATERWALK, player) 
                 && ((thisMove.from.inLiquid && !thisMove.to.inLiquid) || data.watermovect == 1) 
                 && data.liftOffEnvelope.name().startsWith("LIMIT")
                 ) {
@@ -1249,7 +1253,7 @@ public class SurvivalFly extends Check {
             tags.add("sneaking");
             hAllowedDistance = Magic.modSneak * thisMove.walkSpeed * cc.survivalFlySneakingSpeed / 100D;
             // Cumulative modifier: blocking/items
-            if (isBlockingOrUsing) hAllowedDistance *= Magic.modBlock;
+            if (isBlockingOrUsing) hAllowedDistance *= Magic.modSneak - Magic.modBlock;
             friction = 0.0; // Ensure friction can't be used to speed.
             useBaseModifiers = true;
             useBaseModifiersSprint = false;
@@ -1316,16 +1320,20 @@ public class SurvivalFly extends Check {
         else {
             useBaseModifiers = true;
             if (sprinting) {
-                tags.add("sprinting");
                 if (!thisMove.from.onGround && thisMove.to.onGround) {
                     data.bunnyhopTick = ServerIsAtLeast1_13 ? 6 : 3;
                     hAllowedDistance = 1.14 * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
+                    tags.add("sprintTo");
                 }
                 else if (data.bunnyhopTick > 0) {
                     hAllowedDistance = modHopSprint * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
                     if (snowFix && data.bunnyhopTick > 5) hAllowedDistance *= 1.6;
+                    tags.add("sprinthop");
                 }
-                else hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;               
+                else {
+                    hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D; 
+                    tags.add("sprintwalk");              
+                }
             }
             else {
                 tags.add("walking");
@@ -2345,7 +2353,7 @@ public class SurvivalFly extends Check {
                     || double_bunny
                 )
                 // 0: Don't allow bunny to run out of liquid.
-                && (!from.isResetCond() && !to.isResetCond() || data.newHDist) // TODO: !to.isResetCond() should be reviewed.
+                && (!from.isResetCond() && !to.isResetCond() || data.isHalfGroundHalfWater) // TODO: !to.isResetCond() should be reviewed.
                 ) {
 
                 // TODO: Jump effect might allow more strictness. 
