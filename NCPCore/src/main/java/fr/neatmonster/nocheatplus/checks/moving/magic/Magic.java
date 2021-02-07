@@ -67,7 +67,7 @@ public class Magic {
     public static final double modWeb               = 0.09D / WALK_SPEED; 
     public static final double modSoulSand          = 0.16D / WALK_SPEED;
     public static final double modBush              = 0.134D / WALK_SPEED;
-    public static final double modSlime             = 0.13D / WALK_SPEED;
+    public static final double modSlime             = 0.131D / WALK_SPEED;
     public static final double modCollision         = 1.36D;
     public static final double modSoulSpeed         = 1.4D;
     public static final double modIce               = 2.5D; 
