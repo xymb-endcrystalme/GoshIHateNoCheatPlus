@@ -45,33 +45,35 @@ public class Magic {
     /** Friction for lava. */
     public static final double FRICTION_MEDIUM_LAVA = 0.535;
 
-    // Horizontal speeds/modifiers.
+    // Horizontal speeds/modifiers. 
     public static final double WALK_SPEED           = 0.221D;
-    public static final double modSneak             = 0.13D / WALK_SPEED;
-    public static final double modSprint            = 0.27 / WALK_SPEED; // TODO: without bunny  0.29 / practical is 0.35
+    public static final double modBlockSneak        = (0.13D / WALK_SPEED) - (0.1277D / WALK_SPEED); // 0,0104
+    public static final double modWeb               = 0.09D / WALK_SPEED; 
     public static final double modBlock             = 0.1277D / WALK_SPEED;
+    public static final double modSneak             = 0.13D / WALK_SPEED;
+    public static final double modSlime             = 0.131D / WALK_SPEED;
+    public static final double modBush              = 0.134D / WALK_SPEED;
+    public static final double modSoulSand          = 0.16D / WALK_SPEED;
+    public static final double modSprint            = 0.27D / WALK_SPEED; // TODO: without bunny  0.29 / practical is 0.35
+    public static final double[] modSurface         = new double [] {0.23426D / WALK_SPEED, 0.29835D / WALK_SPEED};
+    public static final double modCollision         = 0.3006D / WALK_SPEED;
+    public static final double modSoulSpeed         = 0.3094D / WALK_SPEED;
+    public static final double modIce               = 0.5525D / WALK_SPEED; 
+    public static final double modDolphinsGrace     = 0.9945D / WALK_SPEED; // TODO: Adjust value to be more stricter and closer to actual movement speed, and use different value from in water vs above water
     public static final double[] modSwim            = new double[] {0.115D / WALK_SPEED, 0.044D / WALK_SPEED, 0.3D / WALK_SPEED}; // 0.044D for horizontal, 0.3 for vertical swimming
+    public static final double modDownStream        = 0.19D / (WALK_SPEED * modSwim[0]);
     public static final double[] modRiptide         = new double[] {
             1.0,
             4.8, //4.6 ?
             7.2, //7.0 ?
             10.0
     };
-    public static final double modDolphinsGrace     = 4.3D; // TODO: Adjust value to be more stricter and closer to actual movement speed, and use different value from in water vs above water
     public static final double[] modDepthStrider    = new double[] {
             1.0,
             0.1645 / modSwim[0] / WALK_SPEED,
             0.1995 / modSwim[0] / WALK_SPEED,
             1.0 / modSwim[0], // Results in walkspeed.
     };
-    public static final double modWeb               = 0.09D / WALK_SPEED; 
-    public static final double modSoulSand          = 0.16D / WALK_SPEED;
-    public static final double modBush              = 0.134D / WALK_SPEED;
-    public static final double modSlime             = 0.131D / WALK_SPEED;
-    public static final double modCollision         = 1.36D;
-    public static final double modSoulSpeed         = 1.4D;
-    public static final double modIce               = 2.5D; 
-    public static final double modDownStream        = 0.19 / (WALK_SPEED * modSwim[0]);
 
     /**
      * Somewhat arbitrary horizontal speed gain maximum for advance glide phase.
