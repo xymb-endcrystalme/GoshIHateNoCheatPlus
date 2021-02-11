@@ -1245,7 +1245,6 @@ public class SurvivalFly extends Check {
                 ) {
             tags.add("sneaking");
             hAllowedDistance = Magic.modSneak * thisMove.walkSpeed * cc.survivalFlySneakingSpeed / 100D;
-            useBlockOrSneakModifier = true;
             useBaseModifiers = true;
             if (isBlockingOrUsing) hAllowedDistance *= Magic.modBlock;
             friction = 0.0; // Ensure friction can't be used to speed.
