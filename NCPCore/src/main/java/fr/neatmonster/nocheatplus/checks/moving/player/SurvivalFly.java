@@ -1044,6 +1044,8 @@ public class SurvivalFly extends Check {
         double friction                   = data.lastFrictionHorizontal; // Friction to use with this move.
         boolean useBaseModifiers          = false;
         boolean useBaseModifiersSprint    = true;
+        boolean useBlockAndSneakModifier  = false;
+        boolean useBlockOrSneakModifier   = false;
 
   
         // Preliminary resets
@@ -1059,38 +1061,33 @@ public class SurvivalFly extends Check {
             tags.add("hweb");
             data.sfOnIce = 0;
             hAllowedDistance = Magic.modWeb * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
-            // Cumulative modifier: ice/slime.
-            // Technically, blocking and sneaking slow down even more, but the speed gain is so little that it's not worth checking it...
-            // TODO: Accurate Magic constants...
-            if (thisMove.from.onSlimeBlock || thisMove.from.onIce) hAllowedDistance *= (Magic.modSlime - Magic.modWeb) + webJumpAccell; // sometimes false positives show up when jumping to gain a little accelleration...
+            // Walking through webs with slime/ice underneath slows down even more.
+            // TODO: Accurate Magic.(get rid of the accell thingy)
+            if (thisMove.from.onSlimeBlock || thisMove.from.onIce) hAllowedDistance *= (Magic.modSlime - Magic.modWeb) + webJumpAccell; 
             useBaseModifiersSprint = false; 
-            friction = 0.0; 
             useBaseModifiers = true;
+            friction = 0.0; 
         }
         
         // Soulsand
         else if (thisMove.from.onSoulSand) {
             tags.add("hsoulsand");
-            friction = 0.0;
             final boolean hasEnchant = BridgeEnchant.hasSoulSpeed(player);
             final boolean inSoulBlock = (BlockProperties.getBlockFlags(from.getTypeId()) & BlockProperties.F_SOULSAND) != 0;
             hAllowedDistance = (inSoulBlock ? Magic.modSoulSand : (sprinting ? Magic.modSprint : 1.0)) * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             if (hasEnchant && inSoulBlock) hAllowedDistance *= Magic.modSoulSpeed;
             if (hasEnchant) data.keepfrictiontick = 60;
-            // Cumulative modifiers: blocking/items, sneaking.
-            // Observed: Jumping can accellerate the player when sneaking and blocking at the same time.
-            //if (actuallySneaking && isBlockingOrUsing) hAllowedDistance *= Magic.modBlockSneak;
-            else if (actuallySneaking || isBlockingOrUsing) hAllowedDistance *= actuallySneaking ? Magic.modSneak : Magic.modBlock; 
+            useBlockOrSneakModifier = true;
+            useBlockAndSneakModifier = true; // (OK)
             useBaseModifiers = true;
+            friction = 0.0;
         }
         
         // Slimeblock
         else if (thisMove.from.onSlimeBlock) {
             tags.add("hslimeblock");
             hAllowedDistance = Magic.modSlime * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
-            // Cumulative modifiers: sneaking/blocking
-            // Observed: Same speed applies if sneaking and blocking at the same time.
-            if (actuallySneaking || isBlockingOrUsing) hAllowedDistance *= actuallySneaking ? Magic.modSneak : Magic.modBlock; 
+            useBlockOrSneakModifier = true; 
             useBaseModifiers = true;
             useBaseModifiersSprint = false;
         }
@@ -1099,9 +1096,7 @@ public class SurvivalFly extends Check {
         else if (thisMove.from.inBerryBush) {
             tags.add("hbush");
             hAllowedDistance = Magic.modBush * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
-            // Cumulative modifiers: blocking/items, sneaking.
-            // Observed: Jumping can accellerate the player when sneaking and blocking at the same time.
-            if (actuallySneaking || isBlockingOrUsing) hAllowedDistance *= actuallySneaking ? Magic.modSneak : Magic.modBlock; 
+            useBlockOrSneakModifier = true;
             useBaseModifiers = true;
             friction = 0.0;
             
@@ -1115,19 +1110,17 @@ public class SurvivalFly extends Check {
         else if (thisMove.from.onHoneyBlock) {
             tags.add("hhoneyblock");
             hAllowedDistance = modHoneyBlock * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
-            // Cumulative modifiers: blocking/items, sneaking.
-            // Observed: Jumping can accellerate the player when sneaking and blocking at the same time.
-            //if (actuallySneaking && isBlockingOrUsing) hAllowedDistance *= Magic.modBlockSneak;
-            if (actuallySneaking || isBlockingOrUsing) hAllowedDistance *= actuallySneaking ? Magic.modSneak : Magic.modBlock; 
+            useBlockOrSneakModifier = true;
             useBaseModifiers = true;
+            friction = 0.0 
         }
 
         // Stairs
-        // TODO: Test: Demand slower speed on sneaking/blocking
         else if (from.isAboveStairs()) {
             tags.add("hstairs");
             useBaseModifiers = true;
             hAllowedDistance = modStairs * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+            friction = 0.0;
             if (!Double.isInfinite(mcAccess.getHandle().getFasterMovementAmplifier(player))) hAllowedDistance *= 0.88;
         }
 
@@ -1141,7 +1134,6 @@ public class SurvivalFly extends Check {
         }
 
         // Collision with entities (1.9+)
-        // TODO: Test: Demand slower speed on sneaking/blocking
         else if (ServerIsAtLeast1_9 && CollisionUtil.isCollidingWithEntities(player, true) && hAllowedDistance < 0.35) {
             tags.add("hcollision");
             hAllowedDistance = Magic.modCollision * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
@@ -1165,10 +1157,9 @@ public class SurvivalFly extends Check {
             tags.add("hliquid");
             hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * cc.survivalFlySwimmingSpeed / 100D;
             useBaseModifiers = false;
+            useBlockOrSneakModifier = true; 
+            useBlockAndSneakModifier = true; // (OK)
             if (sfDirty) friction = 0.0;
-            // Cumulative modifiers: blocking/items, sneaking.
-            if (actuallySneaking && isBlockingOrUsing) hAllowedDistance *= Magic.modBlockSneak;
-            else if (actuallySneaking || isBlockingOrUsing) hAllowedDistance *= actuallySneaking ? Magic.modSneak : Magic.modBlock; 
             
             // Account for all water-related enchants
             if (thisMove.from.inWater || !thisMove.from.inLava) { 
@@ -1254,11 +1245,10 @@ public class SurvivalFly extends Check {
                 ) {
             tags.add("sneaking");
             hAllowedDistance = Magic.modSneak * thisMove.walkSpeed * cc.survivalFlySneakingSpeed / 100D;
-            // Cumulative modifier: blocking/items
-            if (isBlockingOrUsing) hAllowedDistance *= Magic.modSneak - Magic.modBlock;
-            friction = 0.0; // Ensure friction can't be used to speed.
+            useBlockOrSneakModifier = true;
             useBaseModifiers = true;
-            useBaseModifiersSprint = false;
+            if (isBlockingOrUsing) hAllowedDistance *= Magic.modBlock;
+            friction = 0.0; // Ensure friction can't be used to speed.
 
             if (!Double.isInfinite(mcAccess.getHandle().getFasterMovementAmplifier(player))) {
                 hAllowedDistance *= 0.88;
@@ -1390,7 +1380,18 @@ public class SurvivalFly extends Check {
                 }
             }
         }
-
+        
+        // Player is blocking and sneaking at the same time
+        // TODO: Our constants don't match 100%, so blocking and sneaking at the same time slows down too much when on certain blocks (Observed: honeyblock, berry bush, webs)
+        // Henche the distinguishing between sneaking AND/OR blocking (Seems OK for water and soulsand)
+        // NOTE: Blocking and sneaking on a slime block has the same speed as either blocking or sneaking.
+        // TEST: Collision, stairs
+        if (useBlockAndSneakModifier && (isBlockingOrUsing && actuallySneaking)) {
+        	hAllowedDistance *= Magic.modBlockSneak;
+        }
+        else if (useBlockOrSneakModifier && (isBlockingOrUsing || actuallySneaking)) {
+        	hAllowedDistance *= isBlockingOrUsing ? Magic.modBlock : Magic.modSneak;
+        }
         
         ///////////////////////
         // Other properties. //
