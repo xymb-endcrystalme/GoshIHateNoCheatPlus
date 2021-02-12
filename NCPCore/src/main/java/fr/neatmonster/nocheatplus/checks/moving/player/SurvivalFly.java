@@ -1112,7 +1112,7 @@ public class SurvivalFly extends Check {
             hAllowedDistance = modHoneyBlock * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             useBlockOrSneakModifier = true;
             useBaseModifiers = true;
-            friction = 0.0 
+            friction = 0.0; 
         }
 
         // Stairs
