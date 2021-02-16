@@ -125,8 +125,10 @@ public class Critical extends Check {
                 // TODO: Use past move tracking to check for SurvivalFly and the like?
                 final PlayerMoveInfo moveInfo = auxMoving.usePlayerMoveInfo();
                 moveInfo.set(player, loc, null, mcc.yOnGround);
-                
-                if (MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, mData, mcc, pData)) {
+
+                // False positives with medium counts reset all nofall data when nearby boat
+                // TODO: Fix isOnGroundDueToStandingOnAnEntity() to work on entity not nearby
+                if (MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, mData, mcc, pData) && !moveInfo.from.isOnGroundDueToStandingOnAnEntity()) {
                     moveInfo.from.collectBlockFlags(0.4);
                     
                     // TODO: maybe these require a fix/modification with NoFall? For now, exempt the player.

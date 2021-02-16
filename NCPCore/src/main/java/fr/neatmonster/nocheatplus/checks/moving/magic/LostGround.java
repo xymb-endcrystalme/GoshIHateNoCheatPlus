@@ -170,7 +170,7 @@ public class LostGround {
                 // Generic could step.
                 // TODO: Possibly confine margin depending on side, moving direction (see client code).
                 // TODO: Should this also be checked vs. last from?
-                if (BlockProperties.isOnGroundShuffled(to.getBlockCache(), from.getX(), from.getY() + cc.sfStepHeight, from.getZ(), to.getX(), to.getY(), to.getZ(), 0.1 + from.getBoxMarginHorizontal(), to.getyOnGround(), 0.0)) {
+                if (from.isOnGround(1.0) && BlockProperties.isOnGroundShuffled(to.getBlockCache(), from.getX(), from.getY() + cc.sfStepHeight, from.getZ(), to.getX(), to.getY(), to.getZ(), 0.1 + from.getBoxMarginHorizontal(), to.getyOnGround(), 0.0)) {
                     // TODO: Set a data property, so vdist does not trigger (currently: scan for tag)
                     // TODO: !to.isOnGround?
                     return applyLostGround(player, from, false, thisMove, data, "couldstep", tags);

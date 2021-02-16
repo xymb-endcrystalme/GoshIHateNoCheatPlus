@@ -98,8 +98,12 @@ public class ProtocolLibComponent implements IDisableListener, INotifyReload, Jo
     }
 
     private void register(Plugin plugin) {
-        StaticLog.logInfo("Adding packet level hooks for ProtocolLib (MC " + ProtocolLibrary.getProtocolManager().getMinecraftVersion().getVersion() + ")...");
         final IWorldDataManager worldMan = NCPAPIProvider.getNoCheatPlusAPI().getWorldDataManager();
+        if (!worldMan.isActiveAnywhere(CheckType.NET)) {
+            StaticLog.logInfo("No packet level checks activated.");
+            return;
+        }
+        StaticLog.logInfo("Adding packet level hooks for ProtocolLib (MC " + ProtocolLibrary.getProtocolManager().getMinecraftVersion().getVersion() + ")...");
         //Special purpose.
         if (ConfigManager.isTrueForAnyConfig(ConfPaths.NET + ConfPaths.SUB_DEBUG) || ConfigManager.isTrueForAnyConfig(ConfPaths.CHECKS_DEBUG) ) {
             // (Debug logging. Only activates if debug is set for checks or checks.net, not on the fly.)

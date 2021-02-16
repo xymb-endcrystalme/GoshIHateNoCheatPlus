@@ -135,8 +135,6 @@ public class UseEntityAdapter extends BaseAdapter {
         final IPlayerData pData = DataManager.getPlayerDataSafe(player);
         if (pData == null) return;
 
-        if (!pData.isCheckActive(CheckType.NET, player)) return;
-
         final NetData data = pData.getGenericInstance(NetData.class);
         // Always set last received time.
         data.lastKeepAliveTime = time;

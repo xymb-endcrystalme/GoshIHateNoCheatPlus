@@ -19,6 +19,7 @@ import java.util.List;
 
 import fr.neatmonster.nocheatplus.compat.blocks.init.BlockInit;
 import fr.neatmonster.nocheatplus.utilities.map.MaterialUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
@@ -80,9 +81,10 @@ public class MultiClientProtocolBlockShapePatch extends AbstractBlockPropertiesP
         }
 
         try {
-            BlockInit.setAs("SWEET_BERRY_BUSH", Material.GRASS);
-            BlockFlags.addFlags("SWEET_BERRY_BUSH", BlockProperties.F_ALLOW_LOWJUMP | BlockProperties.F_COBWEB2);
-            done.add("sweet_berry_bush");
+            if (Bukkit.getServer().getPluginManager().getPlugin("ProtocolSupport") != null) {
+                BlockFlags.addFlags("SWEET_BERRY_BUSH", BlockProperties.F_ALLOW_LOWJUMP);
+                done.add("sweet_berry_bush");
+            }
         }
 
         catch (Throwable t)  {

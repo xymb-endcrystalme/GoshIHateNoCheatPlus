@@ -73,6 +73,7 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         // Bubble column.
         // TODO: Drag down effect: probably not using velocity.
         BlockInit.setAs("BUBBLE_COLUMN", Material.WATER);
+        BlockFlags.addFlags("BUBBLE_COLUMN", BlockProperties.F_BUBBLECOLUMN);
 
         // Further melon/pumpkin stems.
 

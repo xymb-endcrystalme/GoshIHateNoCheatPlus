@@ -874,6 +874,8 @@ public class BlockProperties {
     /** Height 15/16 (0.9375 = 1 - 0.0625). */
     public static final long F_HEIGHT16_15                  = f_flag();
 
+    /** For bubble column */
+    public static final long F_BUBBLECOLUMN                 = f_flag();
     public static final long F_ANVIL                        = f_flag();
     public static final long F_FAKEBOUNDS                   = f_flag();
 
