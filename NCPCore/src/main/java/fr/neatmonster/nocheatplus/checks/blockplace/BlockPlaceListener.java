@@ -111,10 +111,10 @@ public class BlockPlaceListener extends CheckListener {
     /** The reach check. */
     private final Reach     reach     = addCheck(new Reach());
 
-	/** The scaffold check. */
+    /** The scaffold check. */
     private final Scaffold   Scaffold = addCheck(new Scaffold());
 
-	/** The speed check. */
+    /** The speed check. */
     private final Speed     speed     = addCheck(new Speed());
 
     /** For temporary use: LocUtil.clone before passing deeply, call setWorld(null) after use. */
@@ -203,9 +203,9 @@ public class BlockPlaceListener extends CheckListener {
         int skippedRedundantChecks = 0;
         final boolean debug = pData.isDebugActive(CheckType.BLOCKPLACE);
         final BlockFace placedFace = event.getBlock().getFace(blockAgainst);
-		final Block blockPlaced = event.getBlockPlaced();
-		final double distance = player.getLocation().distance(blockPlaced.getLocation());
-		boolean shouldCheck;
+        final Block blockPlaced = event.getBlockPlaced();
+        final double distance = player.getLocation().distance(blockPlaced.getLocation());
+        boolean shouldCheck;
         final boolean shouldSkipSome;
 
         if (blockMultiPlaceEvent != null && event.getClass() == blockMultiPlaceEvent) {
@@ -243,12 +243,12 @@ public class BlockPlaceListener extends CheckListener {
             }
             else if (cc.fastPlaceImprobableWeight > 0.0f) {
 
-            	if (cc.fastPlaceImprobableFeedOnly) {
-            		Improbable.feed(player, cc.fastPlaceImprobableWeight, System.currentTimeMillis());
-            	} 
+                if (cc.fastPlaceImprobableFeedOnly) {
+                    Improbable.feed(player, cc.fastPlaceImprobableWeight, System.currentTimeMillis());
+                } 
                 else if (Improbable.check(player, cc.fastPlaceImprobableWeight, System.currentTimeMillis(), "blockplace.fastplace", pData)) {
-            		cancelled = true;
-            	}
+                    cancelled = true;
+                }
             }
         }
 
@@ -301,12 +301,12 @@ public class BlockPlaceListener extends CheckListener {
                     skippedRedundantChecks++;
                 }
                 else if (directionCheck) {
-		            if (blockAgainst.getType() == Material.LADDER || BlockProperties.isCarpet(blockAgainst.getType())) {
+                    if (blockAgainst.getType() == Material.LADDER || BlockProperties.isCarpet(blockAgainst.getType())) {
                         // Ignore
-			        } 
-			        else if (direction.check(player, loc, eyeHeight, block, null, flyingHandle, data, cc, pData)) {
-			            cancelled = true;
-			        }
+                    } 
+                    else if (direction.check(player, loc, eyeHeight, block, null, flyingHandle, data, cc, pData)) {
+                        cancelled = true;
+                    }
                 }
             }
             useLoc.setWorld(null);
@@ -322,7 +322,7 @@ public class BlockPlaceListener extends CheckListener {
         if (cancelled) {
             event.setCancelled(cancelled);
         }
-		// Debug check breaks when checking blockAgainst is equal to something, disabled for now
+        // Debug check breaks when checking blockAgainst is equal to something, disabled for now
         /* else {
             // Debug log (only if not cancelled, to avoid spam).
             if (debug) {
@@ -520,12 +520,12 @@ public class BlockPlaceListener extends CheckListener {
                 cancel = true;
             }
             else if (cc.speedImprobableWeight > 0.0f) {
-            	if (cc.speedImprobableFeedOnly) {
-            		Improbable.feed(player, cc.speedImprobableWeight, now);
-            	} 
+                if (cc.speedImprobableFeedOnly) {
+                    Improbable.feed(player, cc.speedImprobableWeight, now);
+                } 
                 else if (Improbable.check(player, cc.speedImprobableWeight, now, "blockplace.speed", pData)) {
-            		cancel = true;
-            	}
+                    cancel = true;
+                }
             }
         }
 
@@ -537,7 +537,7 @@ public class BlockPlaceListener extends CheckListener {
             }
             else if (!BlockProperties.isPassable(projectile.getLocation(useLoc))) {
                 // Launch into a block.
-                // TODO: This might be a general check later.       		
+                // TODO: This might be a general check later.               
                 cancel = true;
             }
             else {
@@ -576,16 +576,16 @@ public class BlockPlaceListener extends CheckListener {
     // TODO: remove this
     @EventHandler(priority = EventPriority.MONITOR)
     public void onMove(PlayerMoveEvent event) {
-    	Player player = event.getPlayer();
-    	final IPlayerData pData = DataManager.getPlayerData(player);
+        Player player = event.getPlayer();
+        final IPlayerData pData = DataManager.getPlayerData(player);
         final BlockPlaceData data = pData.getGenericInstance(BlockPlaceData.class);
 
         if (!pData.isCheckActive(CheckType.BLOCKPLACE, player)) return;
 
         if (player.isSprinting()) {
-        	data.sprintTime = TickTask.getTick();
+            data.sprintTime = TickTask.getTick();
         } else if (player.isSneaking()) {
-        	data.sneakTime = TickTask.getTick();
+            data.sneakTime = TickTask.getTick();
         }
 
     }
