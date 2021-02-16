@@ -421,7 +421,7 @@ public class SurvivalFly extends Check {
         double vAllowedDistance = 0, vDistanceAboveLimit = 0;
         
         // Wild-card allow step height from ground to ground.
-        if (yDistance >= 0.0 && yDistance <= cc.sfStepHeight && toOnGround && fromOnGround ) {
+        if (yDistance >= 0.0 && yDistance <= cc.sfStepHeight && toOnGround && fromOnGround) {
             vAllowedDistance = cc.sfStepHeight;
         }
 
@@ -1042,7 +1042,6 @@ public class SurvivalFly extends Check {
         final double modHoneyBlock        = Magic.modSoulSand * (thisMove.to.onGround ? 0.8 : 1.75);
         final double modStairs            = isMovingBackwards ? 1.0 : thisMove.yDistance == 0.5 ? 1.85 : 1.325;
         final double modHopSprint         = (data.bunnyhopTick < 3 ? 1.15 : Magic.modSprint);
-        final double modBackHopWalk       = (isMovingBackwards && data.bunnyhopDelay == 9) ? 1.099 : 1.0;  // Fix players hopping backwards triggering hSpeed when walking
         final double webJumpAccell        = (thisMove.yDistance > 0.0 ? 0.26 : 0.0);
         final boolean sfDirty             = data.isVelocityJumpPhase(); 
         double hAllowedDistance           = 0D;
@@ -1095,6 +1094,7 @@ public class SurvivalFly extends Check {
             useBlockOrSneakModifier = true; 
             useBaseModifiers = true;
             useBaseModifiersSprint = false;
+            // Friction is used as is.
         }
         
         // Berry bush
@@ -1105,9 +1105,9 @@ public class SurvivalFly extends Check {
             useBaseModifiers = true;
             friction = 0.0;
             
-            // Multiprotocol plugins 
+            // Multiprotocol plugins: allow normal walking.
             if ((from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) != 0) {
-               hAllowedDistance = sprinting ? Magic.modSprint : 1.0 * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+               hAllowedDistance = thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             }
         }
 
@@ -1131,11 +1131,11 @@ public class SurvivalFly extends Check {
 
         // NoSlow
         else if (data.isHackingRI && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_BLOCKING, player)) {
+            tags.add("usingitem(cancel)");
             data.isHackingRI = false;
             hAllowedDistance = 0.0;
             friction = 0.0;
             useBaseModifiers = false;
-            tags.add("usingitem(cancel)");
         }
 
         // Collision with entities (1.9+)
@@ -1200,7 +1200,6 @@ public class SurvivalFly extends Check {
                     }
                 }
             }
-            // (Friction is used as is.)
         }
 
 
@@ -1333,7 +1332,7 @@ public class SurvivalFly extends Check {
             }
             else {
                 tags.add("walking");
-                hAllowedDistance = modBackHopWalk * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+                hAllowedDistance = thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             }
             // Ensure friction can't be used to speed.
             // TODO: Model bunny hop as a one time peak + friction. Allow medium based friction.
@@ -1397,6 +1396,8 @@ public class SurvivalFly extends Check {
         	hAllowedDistance *= isBlockingOrUsing ? Magic.modBlock : Magic.modSneak;
         }
         
+
+
         ///////////////////////
         // Other properties. //
         ///////////////////////
@@ -1511,18 +1512,19 @@ public class SurvivalFly extends Check {
         final PlayerMoveData thisMove    = data.playerMoves.getCurrentMove();
         final double yDistChange         = lastMove.toIsValid ? yDistance - lastMove.yDistance : Double.MAX_VALUE; // Change seen from last yDistance.
         final double maxJumpGain         = data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier);
+        final int maxJumpPhase           = data.liftOffEnvelope.getMaxJumpPhase(data.jumpAmplifier);
         final double jumpGainMargin      = 0.005; // TODO: Model differently, workarounds where needed. 0.05 interferes with max height vs. velocity (<= 0.47 gain).
         final boolean envelopeHack       = InAirVerticalRules.venvHacks(from, to, yDistance, yDistChange, thisMove, lastMove, data) && !resetFrom && !resetTo;
-        final int maxJumpPhase           = data.liftOffEnvelope.getMaxJumpPhase(data.jumpAmplifier);
         final boolean strictVdistRel;
 
 
         /////////////////////////////////////
         // Determine the allowed yDistance //
         /////////////////////////////////////
+
+        // Less headache: Always allow falling. 
+        // TODO: Base should be data.lastFrictionVertical? Problem: "not set" detection?
         if (lastMove.toIsValid && Magic.fallingEnvelope(yDistance, lastMove.yDistance, data.lastFrictionVertical, 0.0)) {
-            // Less headache: Always allow falling. 
-            // TODO: Base should be data.lastFrictionVertical? Problem: "not set" detection?
             vAllowedDistance = lastMove.yDistance * data.lastFrictionVertical - Magic.GRAVITY_MIN; // Upper bound.
             strictVdistRel = true;
         }
@@ -1531,10 +1533,11 @@ public class SurvivalFly extends Check {
             // TODO: More concise conditions? Some workaround may allow more.
             if (toOnGround) {
 
-                // Hack for boats (coarse: allows minecarts too).
+                // Hack for boats (coarse: allows minecarts too): allow staying on an entity
                 if (yDistance > cc.sfStepHeight && yDistance - cc.sfStepHeight < 0.00000003 && to.isOnGroundDueToStandingOnAnEntity()) {
                     vAllowedDistance = yDistance;
                 }
+                // Allow jumping height
                 else vAllowedDistance = Math.max(cc.sfStepHeight, maxJumpGain + jumpGainMargin);
             }
             else {
@@ -1590,8 +1593,7 @@ public class SurvivalFly extends Check {
         final boolean gravityEffects      = InAirVerticalRules.oddJunction(from, to, yDistance, yDistChange, yDistDiffEx, maxJumpGain, resetTo, thisMove, lastMove, data, cc);
         final boolean outOfEnvelope       = InAirVerticalRules.outOfEnvelopeExemptions(yDistance, yDistDiffEx, lastMove, data, from, to, now, yDistChange, maxJumpGain, player, thisMove, resetTo);
         final boolean shortMoveExemptions = InAirVerticalRules.shortMoveExemptions(yDistance, yDistDiffEx, lastMove, data, from, to, now, strictVdistRel, maxJumpGain, vAllowedDistance, player, thisMove);
-        final boolean fastFallExemptions  = InAirVerticalRules.fastFallExemptions(yDistance, yDistDiffEx, lastMove, data, from, to, now, strictVdistRel, yDistChange, resetTo, 
-                                                                                  fromOnGround, toOnGround, maxJumpGain, player, thisMove, resetFrom);
+        final boolean fastFallExemptions  = InAirVerticalRules.fastFallExemptions(yDistance, yDistDiffEx, lastMove, data, from, to, now, strictVdistRel, yDistChange, resetTo, fromOnGround, toOnGround, maxJumpGain, player, thisMove, resetFrom);
 
   
         // Quick invalidation for too much water envelope
@@ -1611,7 +1613,7 @@ public class SurvivalFly extends Check {
             if (yDistance <= 0.0 && (resetTo || thisMove.touchedGround)) {
                 // Allow falling shorter than expected, if onto ground.
                 // Note resetFrom should usually mean that allowed dist is > 0 ?
-                // Does not require lastMove.toIsValid
+                // NOTE: Does not require lastMove.toIsValid
             }
             else if (lastMove.toIsValid && (outOfEnvelope || gravityEffects || honeyBlockCollision || isLanternUpper(to))) {
                 // Determine if there could have been a reason for the player to have moved unexepctedly, om match, ignore.
@@ -1669,6 +1671,7 @@ public class SurvivalFly extends Check {
             final double vAllowedAbsoluteDistance = data.liftOffEnvelope.getMaxJumpHeight(data.jumpAmplifier);
             final double totalVDistViolation      =  to.getY() - data.getSetBackY() - vAllowedAbsoluteDistance;
             if (totalVDistViolation > 0.0) {
+
                 // Check for exemptions
                 if (InAirVerticalRules.vDistSBExemptions(toOnGround, thisMove, lastMove, data, cc, now, player, totalVDistViolation, yDistance, fromOnGround)){
                     // Skip
@@ -2122,20 +2125,17 @@ public class SurvivalFly extends Check {
         }
 
         // 7: Horizontal buffer.
-        // TODO: Consider to confine use to "not in air" and similar.
-        if (hDistanceAboveLimit > 0.0 && data.sfHorizontalBuffer > 0.0 && bufferUse) {
-            // Consume buffer.
+        if (hDistanceAboveLimit > 0.0 && data.sfHorizontalBuffer > 0.0 && bufferUse) { // && !Magic.inAir(thisMove)) {
             tags.add("hbufuse");
             final double amount = Math.min(data.sfHorizontalBuffer, hDistanceAboveLimit);
             hDistanceAboveLimit -= amount;
-            // Ensure we never end up below zero.
-            data.sfHorizontalBuffer = Math.max(0.0, data.sfHorizontalBuffer - amount);
+            data.sfHorizontalBuffer = Math.max(0.0, data.sfHorizontalBuffer - amount); // Ensure we never end up below zero.
         }
         
         // TODO: Remove this...
         if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
             if (Bridge1_9.isGliding(player) && hDistanceAboveLimit < 0.5) {
-                hDistanceAboveLimit=0.0;
+                hDistanceAboveLimit = 0.0;
             }
             tags.add("hriptide");
         }
@@ -2359,8 +2359,7 @@ public class SurvivalFly extends Check {
                     // 1: Ordinary/obvious lift-off.
                     data.sfJumpPhase == 0 && thisMove.from.onGround 
                     // 1: Touched ground somehow.
-                    || data.sfJumpPhase <= 1 && (thisMove.touchedGroundWorkaround || 
-                        lastMove.touchedGround && !lastMove.bunnyHop) 
+                    || data.sfJumpPhase <= 1 && (thisMove.touchedGroundWorkaround || lastMove.touchedGround && !lastMove.bunnyHop) 
                     // 1: Double bunny.
                     || double_bunny
                 )
