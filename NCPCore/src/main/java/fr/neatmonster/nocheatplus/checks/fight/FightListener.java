@@ -332,20 +332,20 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
                 else {
                 	if (cc.speedImprobableWeight > 0.0f) {
                     	Improbable.feed(player, cc.speedImprobableWeight, now);
-                    	}
                     }
-                    // Improbable.feed(player, 2f, now);
+                }
+                // Improbable.feed(player, 2f, now);
+            }
+        }
+        else if (normalizedMove > 2.0) { // && Improbable.check(player, 1f, now, "fight.speed", pData)) {
+            if (cc.speedImprobableWeight > 0.0f) {
+                if (!cc.speedImprobableFeedOnly && Improbable.check(player, cc.speedImprobableWeight, now, "fight.speed", pData)) {
+                	cancelled = true;
                 }
             }
-            else if (normalizedMove > 2.0) { // && Improbable.check(player, 1f, now, "fight.speed", pData)) {
-            	if (cc.speedImprobableWeight > 0.0f) {
-                	if (!cc.speedImprobableFeedOnly && Improbable.check(player, cc.speedImprobableWeight, now, "fight.speed", pData)) {
-                		cancelled = true;
-                	}
-                }
                 // Feed improbable in case of ok-moves too.
                 // TODO: consider only feeding if attacking with higher average speed (!)
-            }
+        }
         // TODO: Consider to always check improbable (first?). At least if config.always or speed or net.attackfrequency are enabled.
 
         if (!cancelled && critical.isEnabled(player, pData) 
@@ -363,7 +363,8 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
             // TODO: Permission ?
             if (mCc.survivalFlyResetItem && mcAccess.getHandle().resetActiveItem(player)) {
 
-            } else cancelled = true;
+            } 
+            else cancelled = true;
         }
 
         if (!cancelled) {

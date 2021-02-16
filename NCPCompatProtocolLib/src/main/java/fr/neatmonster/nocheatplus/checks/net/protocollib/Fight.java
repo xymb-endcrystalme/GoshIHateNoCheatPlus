@@ -92,16 +92,20 @@ public class Fight extends BaseAdapter{
     }
 
     public void handleAnmationPacket(final PacketEvent event) {
+        
+        final Player player = event.getPlayer();
+        final FightData data = DataManager.getGenericInstance(player, FightData.class);
         // TODO: Count temporary player as well?
         if (event.isPlayerTemporary()) return;
-        if (event.getPacketType() != PacketType.Play.Client.ARM_ANIMATION) return;
-        final Player player = event.getPlayer();
-
+        if (event.getPacketType() != PacketType.Play.Client.ARM_ANIMATION) {
+            //data.noSwingPacket = false;
+            //data.noSwingArmSwung = false;
+            return;
+        }
         if (player == null) {
             counters.add(ProtocolLibComponent.idNullPlayer, 1);
             return;
         }
-        final FightData data = DataManager.getGenericInstance(player, FightData.class);
         data.noSwingPacket = true;
         data.noSwingArmSwung = true;
     }

@@ -81,7 +81,7 @@ public class MultiClientProtocolBlockShapePatch extends AbstractBlockPropertiesP
 
         try {
             BlockInit.setAs("SWEET_BERRY_BUSH", Material.GRASS);
-            BlockFlags.addFlags("SWEET_BERRY_BUSH", BlockProperties.F_COBWEB | BlockProperties.F_ALLOW_LOWJUMP);
+            BlockFlags.addFlags("SWEET_BERRY_BUSH", BlockProperties.F_ALLOW_LOWJUMP | BlockProperties.F_COBWEB2);
             done.add("sweet_berry_bush");
         }
 

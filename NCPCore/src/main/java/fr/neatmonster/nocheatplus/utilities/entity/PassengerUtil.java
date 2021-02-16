@@ -339,40 +339,46 @@ public class PassengerUtil {
     private final boolean teleportPlayerPassenger(final Player player, final Entity vehicle, 
             final Location location, final boolean vehicleTeleported, final MovingData data,
             final boolean debug) {
+        
         final boolean playerTeleported;
         if (player.isOnline() && !player.isDead()) {
             final MovingConfig cc = DataManager.getGenericInstance(player, MovingConfig.class);
             // Mask player teleport as a set back.
             data.prepareSetBack(location);
-            playerTeleported = player.teleport(LocUtil.clone(location), 
-                    BridgeMisc.TELEPORT_CAUSE_CORRECTION_OF_POSITION);
+            playerTeleported = player.teleport(LocUtil.clone(location), BridgeMisc.TELEPORT_CAUSE_CORRECTION_OF_POSITION);
             data.resetTeleported(); // Cleanup, just in case.
             // Workarounds.
             // Allow re-use of certain workarounds. Hack/shouldbedoneelsewhere?
             data.ws.resetConditions(WRPT.G_RESET_NOTINAIR);
             if (playerTeleported && vehicleTeleported 
-                    && player.getLocation(useLoc2).distance(vehicle.getLocation(useLoc)) < 1.5) {
+                 && player.getLocation(useLoc2).distance(vehicle.getLocation(useLoc)) < 1.5) {
                 // Still set as passenger.
                 // NOTE: VehicleEnter fires, unknown TP fires.
                 boolean scheduledelay = cc.schedulevehicleSetPassenger;
                 if (data.vehicleSetPassengerTaskId == -1) {
                     if (vehicle.getType() == EntityType.BOAT) {
                         // Not schedule set passenger for boat due to location async
-                    } else
-                    if (scheduledelay) {
+                    } 
+                    else if (scheduledelay) {
+
                         data.vehicleSetPassengerTaskId = Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new VehicleSetPassengerTask(handleVehicle, vehicle, player), 2L);
                         if (data.vehicleSetPassengerTaskId == -1) {
+
                             if (debug) CheckUtils.debug(player, CheckType.MOVING_VEHICLE, "Failed to schedule set passenger!");
                             scheduledelay = false;
-                        } else if (debug) CheckUtils.debug(player, CheckType.MOVING_VEHICLE, "Schedule set passenger task id: " + data.vehicleSetPassengerTaskId);
+                        } 
+                        else if (debug) CheckUtils.debug(player, CheckType.MOVING_VEHICLE, "Schedule set passenger task id: " + data.vehicleSetPassengerTaskId);
                     }
+
                     if (!scheduledelay) {
                         if (debug) CheckUtils.debug(player, CheckType.MOVING_VEHICLE, "Attempt set passenger directly");
+
                         if (!handleVehicle.getHandle().addPassenger(player, vehicle)) {
                             // TODO: What?
                         }
                     }
-                } else if (debug) CheckUtils.debug(player, CheckType.MOVING_VEHICLE, "Set passenger task already scheduled, skip this time.");
+                } 
+                else if (debug) CheckUtils.debug(player, CheckType.MOVING_VEHICLE, "Set passenger task already scheduled, skip this time.");
                 // Ensure a set back.
                 // TODO: Set backs get invalidated somewhere, likely on an extra unknown TP. Use data.isVehicleSetBack in MovingListener/teleport.
                 if (data.vehicleSetBacks.getFirstValidEntry(location) == null) {
@@ -384,8 +390,7 @@ public class PassengerUtil {
                 }
                 // Set this location as past move.
                 final VehicleMoveData firstPastMove = data.vehicleMoves.getFirstPastMove();
-                if (!firstPastMove.valid || firstPastMove.toIsValid 
-                        || !TrigUtil.isSamePos(firstPastMove.from, location)) {
+                if (!firstPastMove.valid || firstPastMove.toIsValid || !TrigUtil.isSamePos(firstPastMove.from, location)) {
                     NCPAPIProvider.getNoCheatPlusAPI().getGenericInstance(AuxMoving.class).resetVehiclePositions(vehicle, location, data, cc);
                 }
             }

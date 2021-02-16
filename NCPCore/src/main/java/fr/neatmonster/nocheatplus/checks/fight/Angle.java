@@ -41,8 +41,10 @@ import org.bukkit.ChatColor;
  * Thanks @asofold for the original idea!
  */
 public class Angle extends Check {
-	
-	private final List<String> tags = new LinkedList<String>();
+  
+
+  private final List<String> tags = new LinkedList<String>();
+
 
     public static class AttackLocation {
         public final double x, y, z;
@@ -80,7 +82,9 @@ public class Angle extends Check {
         }
     }
 
+
     public static long maxTimeDiff = 1000L;
+
 
     /**
      * Instantiates a new angle check.
@@ -88,6 +92,7 @@ public class Angle extends Check {
     public Angle() {
         super(CheckType.FIGHT_ANGLE);
     }
+
 
     /**
      * The Angle check.
@@ -99,12 +104,10 @@ public class Angle extends Check {
      * @return
      */
     public boolean check(final Player player, final Location loc, 
-            final Entity damagedEntity, final boolean worldChanged, 
-            final FightData data, final FightConfig cc, final IPlayerData pData) {
+                         final Entity damagedEntity, final boolean worldChanged, 
+                         final FightData data, final FightConfig cc, final IPlayerData pData) {
 
-        if (worldChanged){
-            data.angleHits.clear();
-        }
+        if (worldChanged) data.angleHits.clear();
 
         boolean cancel = false;
         tags.clear();
@@ -163,101 +166,86 @@ public class Angle extends Check {
 
         // Declare the variables.
         double violation = 0.0;
-        double violationone = 0.0;
-        double violationtwo = 0.0;
-        double violationthree = 0.0;
-        double violationfour = 0.0;
+        double violationMove = 0.0;
+        double violationTime = 0.0;
+        double violationYaw = 0.0;
+        double violationSwitchSpeed = 0.0;
 
         // If the average move is between 0 and 0.2 block(s), add it to the violation.
         if (averageMove >= 0.0 && averageMove < 0.2D) {
-            violationone += 20.0 * (0.2 - averageMove) / 0.2;
-            tags.add("Average_move");
+            violationMove += 20.0 * (0.2 - averageMove) / 0.2;
+            tags.add("avgmove");
             if (pData.isDebugActive(type) && pData.hasPermission(Permissions.ADMINISTRATION_DEBUG, player)){
-                player.sendMessage(ChatColor.RED + "NC+ Debug: " + ChatColor.RESET + "avgMove: " + averageMove + " avgMove VL: " + violationone + "/" + cc.angleMove);
+                player.sendMessage(ChatColor.RED + "NC+ Debug: " + ChatColor.RESET + "avgMove: " + averageMove + " avgMove VL: " + violationMove + "/" + cc.angleMove);
             }
         }
 
         // If the average time elapsed is between 0 and 150 millisecond(s), add it to the violation.
         if (averageTime >= 0.0 && averageTime < 150.0) {
-            violationtwo += 30.0 * (150.0 - averageTime) / 150.0;
-            tags.add("Average_time");
+            violationTime += 30.0 * (150.0 - averageTime) / 150.0;
+            tags.add("avgtime");
             if (pData.isDebugActive(type) && pData.hasPermission(Permissions.ADMINISTRATION_DEBUG, player)){
-                player.sendMessage(ChatColor.RED + "NC+ Debug: " + ChatColor.RESET + "avgTime: " + averageTime + " avgTime VL: " + violationtwo + "/" + cc.angleTime);
+                player.sendMessage(ChatColor.RED + "NC+ Debug: " + ChatColor.RESET + "avgTime: " + averageTime + " avgTime VL: " + violationTime + "/" + cc.angleTime);
             }
         }
 
         // If the average difference of yaw is superior to 50 degrees, add it to the violation.
         if (averageYaw > 50.0) {
-            violationthree += 30.0 * averageYaw / 180.0;
-            tags.add("Average_yaw");
+            violationYaw += 30.0 * averageYaw / 180.0;
+            tags.add("avgyaw");
             if (pData.isDebugActive(type) && pData.hasPermission(Permissions.ADMINISTRATION_DEBUG, player)){
-                player.sendMessage(ChatColor.RED + "NC+ Debug: " + ChatColor.RESET + "avgYaw: " + averageYaw + " avgYaw VL: " + violationthree + "/" + cc.angleYaw);
+                player.sendMessage(ChatColor.RED + "NC+ Debug: " + ChatColor.RESET + "avgYaw: " + averageYaw + " avgYaw VL: " + violationYaw + "/" + cc.angleYaw);
             }
         }
-
+        
+        // Check for too quick target switch speed
         if (averageSwitching > 0.0) {
-            violationfour += 20.0 * averageSwitching;
-            tags.add("SwitchSpeed");
+            violationSwitchSpeed += 20.0 * averageSwitching;
+            tags.add("switchspeed");
             if (pData.isDebugActive(type) && pData.hasPermission(Permissions.ADMINISTRATION_DEBUG, player)){
-                player.sendMessage(ChatColor.RED + "NC+ Debug: " + ChatColor.RESET + "avgSwitch: " + averageSwitching + " avgSwitch VL: " + violationfour + "/" + cc.angleSwitch);
+                player.sendMessage(ChatColor.RED + "NC+ Debug: " + ChatColor.RESET + "avgSwitch: " + averageSwitching + " avgSwitch VL: " + violationSwitchSpeed + "/" + cc.angleSwitch);
             }
         }
 
-        // Is the violation is superior to the threshold defined in the configuration?
-        if (violationone > cc.angleMove) {
-          // Has the server lagged?
-          if (TickTask.getLag(maxTimeDiff, true) < 1.5f){
-        	// If it hasn't, increment the violation level
-             violation = violationone;
-             data.angleVL += violation;
-             final ViolationData vd = new ViolationData(this, player, data.angleVL, violation, cc.angleActions);
-             if (vd.needsParameters()){
-	            vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
-	         }
-                return executeActions(vd).willCancel();
-          } 
+
+        if (violationMove > cc.angleMove) {
+            if (TickTask.getLag(maxTimeDiff, true) < 1.5f){
+                violation = violationMove;
+                data.angleVL += violation;
+                final ViolationData vd = new ViolationData(this, player, data.angleVL, violation, cc.angleActions);
+                if (vd.needsParameters()) vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
+                cancel = executeActions(vd).willCancel();
+            } 
         }
-        else if (violationtwo > cc.angleTime) {
-           // Has the server lagged?
-           if (TickTask.getLag(maxTimeDiff, true) < 1.5f){
-          	// If it hasn't, increment the violation level
-             violation = violationtwo;
-             data.angleVL += violation;
-             final ViolationData vd = new ViolationData(this, player, data.angleVL, violation, cc.angleActions);
-             if (vd.needsParameters()){
-  	            vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
-  	         }
-                return executeActions(vd).willCancel();
-           } 
+        else if (violationTime > cc.angleTime) {
+            if (TickTask.getLag(maxTimeDiff, true) < 1.5f){
+                violation = violationTime;
+                data.angleVL += violation;
+                final ViolationData vd = new ViolationData(this, player, data.angleVL, violation, cc.angleActions);
+                if (vd.needsParameters()) vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
+                cancel = executeActions(vd).willCancel();
+            } 
         }
-        else if (violationthree > cc.angleYaw) {
-        	// Has the server lagged?
-           if (TickTask.getLag(maxTimeDiff, true) < 1.5f){
-           	// If it hasn't, increment the violation level
-             violation = violationthree;
-             data.angleVL += violation;
-             final ViolationData vd = new ViolationData(this, player, data.angleVL, violation, cc.angleActions);
-             if (vd.needsParameters()){
-   	             vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
-   	         }
-                 return executeActions(vd).willCancel();
-           } 
+        else if (violationYaw > cc.angleYaw) {
+            if (TickTask.getLag(maxTimeDiff, true) < 1.5f){
+                violation = violationYaw;
+                data.angleVL += violation;
+                final ViolationData vd = new ViolationData(this, player, data.angleVL, violation, cc.angleActions);
+                if (vd.needsParameters()) vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
+                cancel = executeActions(vd).willCancel();
+            } 
         } 
-        else if (violationfour > cc.angleSwitch) {
-          // Has the server lagged?
-          if (TickTask.getLag(maxTimeDiff, true) < 1.5f){
-          // If it hasn't, increment the violation level
-             violation = violationfour;
-             data.angleVL += violation;
-             final ViolationData vd = new ViolationData(this, player, data.angleVL, violation, cc.angleActions);
-             if (vd.needsParameters()){
-   	             vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
-   	         }
-                return executeActions(vd).willCancel();
-          } 
+        else if (violationSwitchSpeed > cc.angleSwitch) {
+            if (TickTask.getLag(maxTimeDiff, true) < 1.5f){
+                violation = violationSwitchSpeed;
+                data.angleVL += violation;
+                final ViolationData vd = new ViolationData(this, player, data.angleVL, violation, cc.angleActions);
+                if (vd.needsParameters()) vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
+                cancel = executeActions(vd).willCancel();
+            } 
         } 
         else {
-        	// Reward the player by lowering their violation level.
+            // Reward the player by lowering their violation level.
             data.angleVL *= 0.98D;  
         }
         return cancel;

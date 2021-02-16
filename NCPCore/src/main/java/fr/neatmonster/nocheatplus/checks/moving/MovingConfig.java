@@ -115,7 +115,6 @@ public class MovingConfig extends ACheckConfig {
     public final int        survivalFlySprintingSpeed;
     public final int        survivalFlySwimmingSpeed;
     public final int        survivalFlyWalkingSpeed;
-    public final boolean    survivalFlyCobwebHack;
     public final boolean    sfSlownessSprintHack;
     /**
      * If true, will allow moderate bunny hop without lift off. Applies for
@@ -261,7 +260,6 @@ public class MovingConfig extends ACheckConfig {
         survivalFlySprintingSpeed = config.getInt(ConfPaths.MOVING_SURVIVALFLY_SPRINTINGSPEED, 100);
         survivalFlySwimmingSpeed = config.getInt(ConfPaths.MOVING_SURVIVALFLY_SWIMMINGSPEED, 100);
         survivalFlyWalkingSpeed = config.getInt(ConfPaths.MOVING_SURVIVALFLY_WALKINGSPEED, 100);
-        survivalFlyCobwebHack = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_COBWEBHACK, true);
         sfSlownessSprintHack = config.getAlmostBoolean(ConfPaths.MOVING_SURVIVALFLY_SLOWNESSSPRINTHACK, AlmostBoolean.MAYBE).decideOptimistically();
         sfGroundHop = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_GROUNDHOP, ServerVersion.compareMinecraftVersion("1.7") == -1);
         survivalFlyAccountingH = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_HACC, false);

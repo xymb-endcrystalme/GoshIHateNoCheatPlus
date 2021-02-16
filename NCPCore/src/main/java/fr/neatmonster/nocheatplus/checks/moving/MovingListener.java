@@ -318,8 +318,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
         if (!pData.isCheckActive(CheckType.MOVING, player)) return;
 
-	final MovingData data = pData.getGenericInstance(MovingData.class);
-	data.bedLeaveTime = System.currentTimeMillis();
+	    final MovingData data = pData.getGenericInstance(MovingData.class);
+	    data.bedLeaveTime = System.currentTimeMillis();
         if (pData.isCheckActive(bedLeave.getType(), player) 
                 && bedLeave.checkBed(player, pData)) {
             final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
@@ -529,6 +529,10 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         	data.RiptideLevel = BridgeEnchant.getRiptideLevel(player);
         }
 
+        if (Bridge1_13.isSwimming(player)){
+           data.timeSwimming = System.currentTimeMillis();
+        }
+
         final boolean debug = pData.isDebugActive(checkType);
 
         // TODO: Might log base parts here (+extras).
@@ -671,6 +675,10 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             final PlayerMoveEvent event) {
 
         Location newTo = null;
+        final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
+        final double xDistance = to.getX() - from.getX();
+        final double zDistance = to.getZ() - from.getZ();
+
 
         // TODO: Order this to above "early return"?
         // Set up data / caching.
@@ -683,7 +691,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
         // Check for illegal move and bounding box etc.
         if ((moveInfo.from.hasIllegalCoords() || moveInfo.to.hasIllegalCoords()) ||
-                !cc.ignoreStance && (moveInfo.from.hasIllegalStance() || moveInfo.to.hasIllegalStance())) {
+            !cc.ignoreStance && (moveInfo.from.hasIllegalStance() || moveInfo.to.hasIllegalStance())
+            ) {
             MovingUtil.handleIllegalMove(event, player, data, cc);
             return true;
         }
@@ -700,12 +709,13 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
 
         final long time = System.currentTimeMillis();
+
         if (player.isSprinting() || cc.assumeSprint) {
-            // Hard to confine assumesprint further (some logics change with hdist or sprinting).
             // TODO: Collect all these properties within a context object (abstraction + avoid re-fetching). 
             if (player.getFoodLevel() > 5 || player.getAllowFlight() || player.isFlying()) {
                 data.timeSprinting = time;
                 data.multSprinting = attributeAccess.getHandle().getSprintAttributeMultiplier(player);
+
                 if (data.multSprinting == Double.MAX_VALUE) {
                     data.multSprinting = 1.30000002;
                 }
@@ -735,7 +745,6 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
 
         // Set some data for this move.
-        final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
         thisMove.set(pFrom, pTo);
         if (multiMoveCount > 0) {
             thisMove.multiMoveCount = multiMoveCount;
@@ -917,7 +926,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         // TODO: Redesign to set set backs later (queue + invalidate).
         boolean mightSkipNoFall = false; // If to skip nofall check (mainly on violation of other checks).
         if (newTo == null && checkPassable
-                && player.getGameMode() != BridgeMisc.GAME_MODE_SPECTATOR ) {
+            && player.getGameMode() != BridgeMisc.GAME_MODE_SPECTATOR ) {
             // Passable is checked first to get the original set back locations from the other checks, if needed. 
             newTo = passable.check(player, pFrom, pTo, data, cc, pData, tick, useBlockChangeTracker);
             if (newTo != null) {
@@ -936,26 +945,31 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
          */
         if (data.applyexplosionvel) {
             data.applyexplosionvel = false;
-            double xDistance = 0.0; double zDistance = 0.0; double yDistance = 0.0;
+            double xLastDistance = 0.0; double zLastDistance = 0.0; double yLastDistance = 0.0;
+
             if (lastMove.toIsValid) {
-                xDistance = lastMove.to.getX() - lastMove.from.getX();
-                zDistance = lastMove.to.getZ() - lastMove.from.getZ();
-                yDistance = lastMove.to.onGround ? 0 : lastMove.yDistance; 
+                xLastDistance = lastMove.to.getX() - lastMove.from.getX();
+                zLastDistance = lastMove.to.getZ() - lastMove.from.getZ();
+                yLastDistance = lastMove.to.onGround ? 0 : lastMove.yDistance; 
             }
             boolean addHorizontalVelocity = true;
-            final double xDistance2 = data.explosionvelX + xDistance;
-            final double zDistance2 = data.explosionvelZ + zDistance;
+            
+            // Process the distances after the explosion
+            final double xDistance2 = data.explosionvelX + xLastDistance;
+            final double zDistance2 = data.explosionvelZ + zLastDistance;
             final double hDistance = Math.sqrt(xDistance2*xDistance2 + zDistance2*zDistance2);
 
             // Prevent duplicate entry come from PlayerVelocityEvent
             if (data.hasActiveHorVel() && data.getHorizontalFreedom() < hDistance
                 || data.hasQueuedHorVel() && data.useHorizontalVelocity(hDistance) < hDistance
                 || !data.hasAnyHorVel()
-                    ) {
+                ) {
                 data.getHorizontalVelocityTracker().clear();
-            } else addHorizontalVelocity = false;
-            if (addHorizontalVelocity) data.addVelocity(player, cc, xDistance2, data.explosionvelY + yDistance - Magic.GRAVITY_ODD, zDistance2);
-            else data.addVerticalVelocity(new SimpleEntry(data.explosionvelY + yDistance - Magic.GRAVITY_ODD, cc.velocityActivationCounter));
+            } 
+            else addHorizontalVelocity = false;
+
+            if (addHorizontalVelocity) data.addVelocity(player, cc, xDistance2, data.explosionvelY + yLastDistance - Magic.GRAVITY_ODD, zDistance2);
+            else data.addVerticalVelocity(new SimpleEntry(data.explosionvelY + yLastDistance - Magic.GRAVITY_ODD, cc.velocityActivationCounter));
 
             data.explosionvelX = 0.0;
             data.explosionvelY = 0.0;
