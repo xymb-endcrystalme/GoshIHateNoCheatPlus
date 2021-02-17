@@ -37,7 +37,8 @@ public enum ParameterName {
     TAGS("tags"),
     UUID("uuid"),
     VIOLATIONS("violations"),
-    WORLD("world");
+    WORLD("world"),
+    MODEL("model");
 
     /**
      * Gets the parameter associated to the text.
