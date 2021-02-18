@@ -289,6 +289,9 @@ public class InventoryMove extends Check {
            else if (thisMove.from.onSoulSand || thisMove.from.onHoneyBlock) {
               hDistMin = cc.invMoveHdistMin * Magic.modSoulSand;
            }
+           else {
+              hDistMin = cc.invMoveHdistMin;
+           }
         }
 
 
