@@ -37,6 +37,7 @@ import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
  */
 public class Against extends Check {
 
+
    /**
     * Instanties a new Against check.
     *
@@ -44,6 +45,7 @@ public class Against extends Check {
     public Against() {
         super(CheckType.BLOCKPLACE_AGAINST);
     }
+
 
     /**
      * Checks a player
@@ -96,8 +98,8 @@ public class Against extends Check {
             }
         }
         // Replace block placed by block placed and interact with air or water 
-        else if (block.equals(blockAgainst) && (bIData.getLastType() == null || (BlockProperties.isLiquid(bIData.getLastType())
-                && !BlockProperties.isNewLiq(bIData.getLastType())))
+        else if (block.equals(blockAgainst) 
+                && (bIData.getLastType() == null || (BlockProperties.isLiquid(bIData.getLastType()) && !BlockProperties.isNewLiq(bIData.getLastType())))
                 && !pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_SELF, player) 
                 && placedMat != BridgeMaterial.LILY_PAD) {
             violation = true;

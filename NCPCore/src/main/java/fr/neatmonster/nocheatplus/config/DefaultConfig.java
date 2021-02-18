@@ -685,7 +685,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".chatfast", start + "acted like spamming (message deleted) (IP: &6[ip]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".chatnormal", start + "seems to be spamming the server chat" + end, 1154);
         set(ConfPaths.STRINGS + ".commands", start + "issued too many commands too quickly" + end, 785);
-        set(ConfPaths.STRINGS + ".creativefly", start + "tried to move unexpectedly while in air (Tags: &6[tags]&7)" + end, 1154);
+        set(ConfPaths.STRINGS + ".creativefly", start + "performed a move that deviates from the model (Model: &6[model]&7, Tags: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".critical", start + "tried to perform an illegal critical hit (Tags: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".drop", start + "tried to drop more items than allowed" + end, 785);
         set(ConfPaths.STRINGS + ".dropkick", kick + "Dropping items too fast.", 1154);

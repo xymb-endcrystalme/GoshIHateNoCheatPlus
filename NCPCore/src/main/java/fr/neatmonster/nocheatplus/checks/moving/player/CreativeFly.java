@@ -295,6 +295,7 @@ public class CreativeFly extends Check {
                 vd.setParameter(ParameterName.LOCATION_FROM, String.format(Locale.US, "%.2f, %.2f, %.2f", from.getX(), from.getY(), from.getZ()));
                 vd.setParameter(ParameterName.LOCATION_TO, String.format(Locale.US, "%.2f, %.2f, %.2f", to.getX(), to.getY(), to.getZ()));
                 vd.setParameter(ParameterName.DISTANCE, String.format(Locale.US, "%.2f", TrigUtil.distance(from,  to)));
+                vd.setParameter(ParameterName.MODEL, model.getId().toString());
                 if (!tags.isEmpty()) {
                     vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
                 }
