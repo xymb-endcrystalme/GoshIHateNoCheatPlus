@@ -344,7 +344,7 @@ public class MovingConfig extends ACheckConfig {
         vehiclePreventDestroyOwn = config.getBoolean(ConfPaths.MOVING_VEHICLE_PREVENTDESTROYOWN);
         scheduleVehicleSetBacks = config.getAlmostBoolean(ConfPaths.MOVING_VEHICLE_SCHEDULESETBACKS, AlmostBoolean.MAYBE).decide();
         vehicleMorePacketsActions = config.getOptimizedActionList(ConfPaths.MOVING_VEHICLE_MOREPACKETS_ACTIONS, Permissions.MOVING_MOREPACKETS);
-        schedulevehicleSetPassenger = config.getAlmostBoolean(ConfPaths.MOVING_VEHICLE_DELAYADDPASSENGER, AlmostBoolean.MAYBE).decide();
+        schedulevehicleSetPassenger = config.getAlmostBoolean(ConfPaths.MOVING_VEHICLE_DELAYADDPASSENGER, AlmostBoolean.MAYBE).decideOptimistically();
         ref = config.getAlmostBoolean(ConfPaths.MOVING_VEHICLE_ENVELOPE_ACTIVE, AlmostBoolean.MAYBE);
         if (ServerVersion.compareMinecraftVersion("1.9") < 0) {
             worldData.overrideCheckActivation(CheckType.MOVING_VEHICLE_ENVELOPE, 

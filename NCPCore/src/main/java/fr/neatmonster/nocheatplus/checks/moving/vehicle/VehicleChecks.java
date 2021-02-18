@@ -233,13 +233,13 @@ public class VehicleChecks extends CheckListener {
         else {
             // (Auto detection of missing events, might fire one time too many per plugin run.)
             final EntityType vehicleType = vehicle.getType();
-            if (!normalVehicles.contains(vehicleType)) {
+            //if (!normalVehicles.contains(vehicleType)) {
                 // Treat like VehicleUpdateEvent.
                 onVehicleUpdate(vehicle, vehicleType, player, true, 
                         data, pData, pData.isDebugActive(checkType));
-                return null;
-            }
-            else {
+                //return null;
+            //}
+            //else {
                 final Location vLoc = vehicle.getLocation();
                 data.vehicleConsistency = MoveConsistency.getConsistency(from, to, vLoc);
                 // TODO: Consider TeleportUtil.forceMount or similar.
@@ -259,7 +259,7 @@ public class VehicleChecks extends CheckListener {
                     aux.resetPositionsAndMediumProperties(player, vLoc, data, cc);
                     return null;
                 }
-            }
+            //}
         }
     }
 
@@ -296,16 +296,16 @@ public class VehicleChecks extends CheckListener {
             onPlayerVehicleLeave(player, vehicle);
             return;
         }
-        final IPlayerData pData = DataManager.getPlayerData(player);
-        final MovingData data = pData.getGenericInstance(MovingData.class);
+        //final IPlayerData pData = DataManager.getPlayerData(player);
+        //final MovingData data = pData.getGenericInstance(MovingData.class);
         //final MovingConfig cc = MovingConfig.getConfig(player);
-        final boolean debug = pData.isDebugActive(checkType);
-        if (debug) {
-            final Location loc = vehicle.getLocation(useLoc1);
-            debug(player, "VehicleUpdateEvent: " + vehicleType + " " + loc);
-            useLoc1.setWorld(null);
-        }
-        onVehicleUpdate(vehicle, vehicleType, player, false, data, pData, debug);
+       // final boolean debug = pData.isDebugActive(checkType);
+        //if (debug) {
+        //    final Location loc = vehicle.getLocation(useLoc1);
+        //    debug(player, "VehicleUpdateEvent: " + vehicleType + " " + loc);
+       //     useLoc1.setWorld(null);
+        //}
+        //onVehicleUpdate(vehicle, vehicleType, player, false, data, pData, debug);
     }
 
     /**
@@ -410,6 +410,11 @@ public class VehicleChecks extends CheckListener {
             aux.returnVehicleMoveInfo(moveInfo);
             return;
         }
+        // TODO: Does really need?
+        //if (useFrom.equals(useTo)) {
+        //    aux.returnVehicleMoveInfo(moveInfo);
+        //    return; 
+        //}
         // Ensure chunks are loaded.
         MovingUtil.ensureChunksLoaded(player, useFrom, useTo, firstPastMove, 
                 "vehicle move", cc, pData);
@@ -535,6 +540,15 @@ public class VehicleChecks extends CheckListener {
             ensureSetBack(player, thisMove, data, pData);
         }
 
+        //if ((newTo == null || data.vehicleSetBacks.getSafeMediumEntry().isValidAndOlderThan(newTo))
+        //        //&& pData.isCheckActive(CheckType.MOVING_VEHICLE_PASSABLE, player)
+        //        ) {
+        //    final SetBackEntry tempNewTo = vehiclePassable.check(player, moveInfo.from, moveInfo.to, data, cc, pData, TickTask.getTick(), false);
+        //    if (tempNewTo != null) {
+        //        newTo = tempNewTo;
+        //    }
+        //}
+        
         // Moving envelope check(s).
         // TODO: Use set back storage for testing if this is appropriate (use SetBackEntry instead, remove Location retrieval then?).
         if ((newTo == null || data.vehicleSetBacks.getSafeMediumEntry().isValidAndOlderThan(newTo))

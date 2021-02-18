@@ -37,6 +37,7 @@ import fr.neatmonster.nocheatplus.checks.ViolationData;
 import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.moving.location.setback.SetBackEntry;
+import fr.neatmonster.nocheatplus.checks.moving.magic.LostGroundVehicle;
 import fr.neatmonster.nocheatplus.checks.moving.magic.MagicVehicle;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.checks.moving.model.VehicleMoveData;
@@ -148,7 +149,8 @@ public class VehicleEnvelope extends Check {
             debugDetails.clear();
             data.ws.setJustUsedIds(debugDetails); // Add just used workaround ids to this list directly, for now.
         }
-
+        // TODO: Need confine more!
+        LostGroundVehicle.lostGround(vehicle, moveInfo.from, moveInfo.to, thisMove.hDistance, thisMove.yDistance, false, data.vehicleMoves.getFirstPastMove(), data, cc, null, tags);
         final boolean violation = checkEntity(player, vehicle, thisMove, isFake, data, cc, debug, moveInfo);
 
         if (debug && !debugDetails.isEmpty()) {
@@ -209,11 +211,11 @@ public class VehicleEnvelope extends Check {
         final Double cap = cc.vehicleEnvelopeHorizontalSpeedCap.get(type);
 
         if (cap == null) {
-            if (type == EntityType.BOAT && (thisMove.from.onIce || thisMove.to.onIce)) return 4.1;
+            if (type == EntityType.BOAT && (thisMove.from.onIce || thisMove.to.onIce)) return 2.3;
             return cc.vehicleEnvelopeHorizontalSpeedCap.get(null);
         }
         else {
-            if (type == EntityType.BOAT && (thisMove.from.onIce || thisMove.to.onIce)) return cap * 2.5;
+            if (type == EntityType.BOAT && (thisMove.from.onIce || thisMove.to.onIce)) return cap * 2.3;
             return cap;
         }
     }
@@ -245,8 +247,10 @@ public class VehicleEnvelope extends Check {
             debugDetails.add("inair: " + data.sfJumpPhase);
         }
 
-        if (isBubbleColumn(moveInfo.from) 
-            || (isBouncingBlock(moveInfo.from) && thisMove.yDistance >= 0.0 && thisMove.yDistance <= 1.0)) {
+        if ((moveInfo.from.getBlockFlags() & BlockProperties.F_BUBBLECOLUMN) != 0
+            // Should use BlockTraceTracker instead blind leniency
+            //|| (isBouncingBlock(moveInfo.from) && thisMove.yDistance >= 0.0 && thisMove.yDistance <= 1.0)
+            ) {
             data.timeVehicletoss = System.currentTimeMillis();
         }
 
@@ -380,7 +384,7 @@ public class VehicleEnvelope extends Check {
             tags.add("descend_much");
             violation = true;
         }
-        
+
         if (vehicle instanceof LivingEntity) {
             final VehicleMoveData firstPastMove = data.vehicleMoves.getFirstPastMove();
             
@@ -393,52 +397,22 @@ public class VehicleEnvelope extends Check {
                 violation = true;
                 tags.add("liquidwalk");
             }
-            
-            Block blockUnder = vehicle.getLocation().subtract(0, 0.3, 0).getBlock();
+
+            Material blockUnder = vehicle.getLocation().subtract(0, 0.3, 0).getBlock().getType();
             Material blockAbove = vehicle.getLocation().add(0, 0.10, 0).getBlock().getType();
-            if (blockUnder != null && blockAbove != null 
-                && (blockUnder.getType().toString().endsWith("WATER") 
-                    || (blockUnder.getType().toString().endsWith("LAVA") && !(strider != null && strider.isAssignableFrom(vehicle.getClass())))) 
+            if (blockUnder != null && blockAbove != null && BlockProperties.isAir(blockAbove)
+                && BlockProperties.isLiquid(blockUnder) && !(strider != null && strider.isAssignableFrom(vehicle.getClass()))
                 ) {
+                if (thisMove.hDistance > 0.11D && thisMove.yDistance <= 0.1D && !thisMove.to.onGround && !thisMove.from.onGround
+                    && firstPastMove.valid && firstPastMove.yDistance == thisMove.yDistance || firstPastMove.yDistance == thisMove.yDistance * -1 
+                    && firstPastMove.yDistance != 0D
+                    && !thisMove.headObstructed) {
 
-                if (blockAbove.name().endsWith("AIR")) { // Account for all air types 
-                    if (thisMove.hDistance > 0.11D && thisMove.yDistance <= 0.1D && !thisMove.to.onGround && !thisMove.from.onGround
-                        && firstPastMove.valid && firstPastMove.yDistance == thisMove.yDistance || firstPastMove.yDistance == thisMove.yDistance * -1 
-                        && firstPastMove.yDistance != 0D
-                        && !thisMove.headObstructed) {
-
-                        // Prevent being flagged if a vehicle transitions from a block to water and the player falls into the water.
-                        if (!(thisMove.yDistance < 0 && thisMove.yDistance != 0 && firstPastMove.yDistance < 0 && firstPastMove.yDistance != 0)) {
-                           violation = true;
-                           tags.add("liquidmove");
-                        }
+                    // Prevent being flagged if a vehicle transitions from a block to water and the player falls into the water.
+                    if (!(thisMove.yDistance < 0 && thisMove.yDistance != 0 && firstPastMove.yDistance < 0 && firstPastMove.yDistance != 0)) {
+                        violation = true;
+                        tags.add("liquidmove");
                     }
-                    
-                    //Bouncing on water
-                    //if (!violation && firstPastMove.valid && !thisMove.to.onGround && !thisMove.from.onGround 
-                    //&& (thisMove.from.getY() < thisMove.to.getY()) && !(firstPastMove.from.inLiquid && !thisMove.to.inLiquid)
-                    //&& !firstPastMove.from.onGround && !thisMove.headObstructed) {
-                    //    boolean tag = false;
-                    //    if (Bridge1_13.hasIsSwimming()) {
-                    //        if (((Levelled)blockUnder.getBlockData()).getLevel() == 0) tag = true;
-                    //    } else if (blockUnder.getData() == 0) tag = true;
-                    //    Block blockUnder2 = blockUnder.getRelative(BlockFace.DOWN);
-                    //    if (checkDetails.canJump) {
-                    //        if (BlockProperties.isGround(blockUnder2.getType())) 
-                    //            tag = false;
-                    //        else {
-                    //        if (BlockProperties.isGround(blockUnder2.getRelative(BlockFace.EAST).getType())
-                    //            || BlockProperties.isGround(blockUnder2.getRelative(BlockFace.WEST).getType())
-                    //            || BlockProperties.isGround(blockUnder2.getRelative(BlockFace.NORTH).getType())
-                    //            || BlockProperties.isGround(blockUnder2.getRelative(BlockFace.SOUTH).getType())
-                    //            ) tag = false; 
-                    //        }
-                    //    }
-                    //    if (tag) {
-                    //      violation = true;
-                    //        tags.add("waterjump");
-                    //    }
-                    //}
                 }
             }
         }
@@ -474,17 +448,7 @@ public class VehicleEnvelope extends Check {
     *
     */
     private boolean isBouncingBlock(RichEntityLocation from) {
-        return BlockProperties.collides(from.getBlockCache(), from.getMinX(), from.getMinY() - 1.0, from.getMinZ(), from.getMaxX(), from.getMaxY(), from.getMaxZ(), BlockProperties.F_BOUNCE25);
-    }
-    
-
-  /**
-    * @param from
-    *
-    */
-    private boolean isBubbleColumn(RichEntityLocation from) {
-        if (!Bridge1_13.hasIsSwimming()) return false;
-        return BlockProperties.collidesId(from.getBlockCache(), from.getMinX(), from.getMinY(), from.getMinZ(), from.getMaxX(), from.getMaxY(), from.getMaxZ(), Material.BUBBLE_COLUMN);
+        return (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0;
     }
 
 
@@ -624,9 +588,7 @@ public class VehicleEnvelope extends Check {
         if (data.sfJumpPhase > (checkDetails.canJump ? MagicVehicle.maxJumpPhaseAscend : 1)
             && thisMove.yDistance > Math.max(minDescend, -checkDetails.gravityTargetSpeed)) {
 
-            if (ColliesHoneyBlock(from)) {
-                data.sfJumpPhase = 5; 
-            }
+            if (ColliesHoneyBlock(from)) data.sfJumpPhase = 5; 
             else if (!(vehicle instanceof LivingEntity && !Double.isInfinite(Bridge1_13.getSlowfallingAmplifier((LivingEntity)vehicle)))) {
                 tags.add("slow_fall_vdist");
                 violation = true;
@@ -700,6 +662,6 @@ public class VehicleEnvelope extends Check {
     *
     */
     private boolean ColliesHoneyBlock(RichEntityLocation from) {
-        return BlockProperties.collides(from.getBlockCache(), from.getMinX() - 0.1, from.getMinY(), from.getMinZ() - 0.1, from.getMaxX() + 0.1, from.getMaxY() + 0.3, from.getMaxZ() + 0.1, BlockProperties.F_STICKY);
+        return (from.getBlockFlags() & BlockProperties.F_STICKY) != 0;
     }
 }
