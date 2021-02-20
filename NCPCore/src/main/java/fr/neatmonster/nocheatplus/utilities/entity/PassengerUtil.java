@@ -358,6 +358,10 @@ public class PassengerUtil {
                 if (data.vehicleSetPassengerTaskId == -1) {
                     if (vehicle.getType() == EntityType.BOAT) {
                         // Not schedule set passenger for boat due to location async
+                        // Re-add to vehicle then reject. Fix boat teleported but player didn't
+                        if (!handleVehicle.getHandle().addPassenger(player, vehicle)) {
+
+                        } else vehicle.eject();
                     } 
                     else if (scheduledelay) {
 
