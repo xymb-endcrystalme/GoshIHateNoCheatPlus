@@ -79,9 +79,10 @@ public class Against extends Check {
                 debug(player, "Cancel due to block having been consumed by this check.");
             }
         }
-        else if (BlockProperties.isAir(matAgainst)) {
+        // NOTE: Null material/matAgainst = AIR
+        else if (BlockProperties.isAir(matAgainst) && placedMat != BridgeMaterial.LILY_PAD) {
             // Attempt to workaround blocks like cactus.
-            if (isInteractBlock && !BlockProperties.isAir(matAgainst) && ! BlockProperties.isLiquid(matAgainst)) {
+            if (isInteractBlock && !BlockProperties.isAir(matAgainst) && !BlockProperties.isLiquid(matAgainst)) {
                 // Block was placed against something (e.g. cactus), allow it.
             }
             else if (!pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_AIR, player)) {
@@ -110,7 +111,7 @@ public class Against extends Check {
         if (violation) {
             data.againstVL += 1.0;
             final ViolationData vd = new ViolationData(this, player, data.againstVL, 1, cc.againstActions);
-            vd.setParameter(ParameterName.BLOCK_TYPE, placedMat.toString());
+            vd.setParameter(ParameterName.BLOCK_TYPE, matAgainst == null ? null : matAgainst.toString());
             return executeActions(vd).willCancel();
         }
         else {

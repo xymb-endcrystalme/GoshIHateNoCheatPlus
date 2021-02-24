@@ -155,7 +155,7 @@ public class BlockBreakListener extends CheckListener {
 
         final Block block = event.getBlock();
         boolean cancelled = false;
-        if (block.getType().toString().equals("SCAFFOLDING")) return;
+        if (BlockProperties.isScaffolding(block.getType())) return;
         // Do the actual checks, if still needed. It's a good idea to make computationally cheap checks first, because
         // it may save us from doing the computationally expensive checks.
 

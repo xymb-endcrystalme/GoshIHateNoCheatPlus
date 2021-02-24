@@ -190,7 +190,8 @@ public class BlockInteractListener extends CheckListener {
         if (block == null) {
             data.resetLastBlock();
             blockChecks = false;
-        } else if (block.getType().toString().equals("SCAFFOLDING")) {
+        } 
+        else if (BlockProperties.isScaffolding(block.getType())) { // null check included in BlockProperties.
         	blockChecks = false;
         }
         else {
@@ -211,7 +212,7 @@ public class BlockInteractListener extends CheckListener {
                 if (stack != null && stack.getType() == Material.ENDER_PEARL) {
                     checkEnderPearlRightClickBlock(player, block, face, event, previousLastTick, data, pData);
                 }
-                if (stack != null && stack.getType().toString().equals("SCAFFOLDING")) {
+                if (BlockProperties.isScaffolding(stack.getType())) {
                 	blockChecks = false;
                 }
                 break;
