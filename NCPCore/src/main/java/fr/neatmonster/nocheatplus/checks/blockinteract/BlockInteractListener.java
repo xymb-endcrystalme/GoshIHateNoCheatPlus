@@ -191,9 +191,9 @@ public class BlockInteractListener extends CheckListener {
             data.resetLastBlock();
             blockChecks = false;
         } 
-        else if (BlockProperties.isScaffolding(block.getType())) { // null check included in BlockProperties.
-        	blockChecks = false;
-        }
+        //  else if (BlockProperties.isScaffolding(block.getType())) { // null check included in BlockProperties.
+        // 	   blockChecks = false;
+        //  }
         else {
             data.setLastBlock(block, action);
         }

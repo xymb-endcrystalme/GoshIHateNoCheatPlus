@@ -83,7 +83,7 @@ public class Against extends Check {
                 debug(player, "Cancel due to block having been consumed by this check.");
             }
         }
-        else if (BlockProperties.isActuallyAir(matAgainst)) {
+        else if (BlockProperties.isAir(matAgainst)) {
             if (isInteractBlock && !BlockProperties.isAir(matAgainst) && !BlockProperties.isLiquid(matAgainst)) {
                 // Block was placed against something (e.g. cactus), allow it.
             }
@@ -100,13 +100,6 @@ public class Against extends Check {
                 violation = true;
             }
         }
-        // Replace block placed by block placed and interact with air or water 
-        else if (block.equals(blockAgainst) 
-                && (bIData.getLastType() == null || (BlockProperties.isLiquid(matAgainst) && !BlockProperties.isNewLiq(matAgainst)))
-                && !pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_SELF, player) 
-                && placedMat != BridgeMaterial.LILY_PAD) {
-            violation = true;
-        }  
         
         // Handle violation and return.
         bIData.addConsumedCheck(this.type);
