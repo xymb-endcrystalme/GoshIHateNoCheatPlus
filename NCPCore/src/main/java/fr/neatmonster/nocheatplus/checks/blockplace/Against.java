@@ -72,6 +72,10 @@ public class Against extends Check {
         final Material againstType = blockAgainst.getType();
         final Material matAgainst = bIData.getLastType();
 
+        if (pData.isDebugActive(type)) {
+            debug(player, "Player placed (" + placedMat + ") against (" + blockAgainst.toString() +"/"+ matAgainst + "). againstType: " + againstType);
+        }
+
         if (bIData.isConsumedCheck(this.type) && !bIData.isPassedCheck(this.type)) {
             // TODO: Awareness of repeated violation probably is to be implemented below somewhere.
             violation = true;
@@ -79,18 +83,16 @@ public class Against extends Check {
                 debug(player, "Cancel due to block having been consumed by this check.");
             }
         }
-        // NOTE: Null material/matAgainst = AIR
-        else if (BlockProperties.isAir(matAgainst) && placedMat != BridgeMaterial.LILY_PAD) {
-            // Attempt to workaround blocks like cactus.
+        else if (BlockProperties.isActuallyAir(matAgainst)) {
             if (isInteractBlock && !BlockProperties.isAir(matAgainst) && !BlockProperties.isLiquid(matAgainst)) {
                 // Block was placed against something (e.g. cactus), allow it.
             }
-            else if (!pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_AIR, player)) {
+            else if (!pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_AIR, player)
+                    && placedMat != BridgeMaterial.LILY_PAD) {
                 violation = true;
             }
         }
         else if (BlockProperties.isLiquid(matAgainst)) {
-            // TODO: F_PLACE_AGAINST_WATER|LIQUID...
             if ((placedMat != BridgeMaterial.LILY_PAD
                 || !BlockProperties.isLiquid(block.getRelative(BlockFace.DOWN).getType()))
                 && !BlockProperties.isNewLiq(bIData.getLastType())
@@ -100,7 +102,7 @@ public class Against extends Check {
         }
         // Replace block placed by block placed and interact with air or water 
         else if (block.equals(blockAgainst) 
-                && (bIData.getLastType() == null || (BlockProperties.isLiquid(bIData.getLastType()) && !BlockProperties.isNewLiq(bIData.getLastType())))
+                && (bIData.getLastType() == null || (BlockProperties.isLiquid(matAgainst) && !BlockProperties.isNewLiq(matAgainst)))
                 && !pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_SELF, player) 
                 && placedMat != BridgeMaterial.LILY_PAD) {
             violation = true;

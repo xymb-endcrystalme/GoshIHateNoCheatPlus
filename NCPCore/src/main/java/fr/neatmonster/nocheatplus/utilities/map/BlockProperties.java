@@ -2815,6 +2815,18 @@ public class BlockProperties {
     }
 
     /**
+    * Convenience method excluding null as air result.
+    *
+    * @param type
+    *            the type
+    * @return true, if is air
+    */
+    public static final boolean isActuallyAir(Material type) {
+        
+        return type != null && (type == Material.AIR || type == Material.CAVE_AIR || type == Material.VOID_AIR);
+    }
+
+    /**
      * Convenience method including null check.
      *
      * @param type
