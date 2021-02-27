@@ -2807,11 +2807,23 @@ public class BlockProperties {
      */
     public static final boolean isAir(Material type) {
         // TODO: Flags rather?
-        return type != null && (type == Material.AIR
+        return type == null || type == Material.AIR
                 // Assume the compiler throws away further null values.
                 || type == BridgeMaterial.VOID_AIR
-                || type == BridgeMaterial.CAVE_AIR)
+                || type == BridgeMaterial.CAVE_AIR
                 ;
+    }
+
+    /**
+     * Convenience method excluding null as air result.
+     *
+     * @param type
+     *            the type
+     * @return true, if is air
+     */
+    public static final boolean isActuallyAir(Material type) {
+        // TODO: Flags rather?
+        return type != null && isAir(type);
     }
 
     /**

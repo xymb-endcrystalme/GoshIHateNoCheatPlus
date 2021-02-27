@@ -83,7 +83,7 @@ public class Against extends Check {
                 debug(player, "Cancel due to block having been consumed by this check.");
             }
         }
-        else if (BlockProperties.isAir(matAgainst)) {
+        else if (BlockProperties.isActuallyAir(matAgainst)) {
             if (isInteractBlock && !BlockProperties.isAir(matAgainst) && !BlockProperties.isLiquid(matAgainst)) {
                 // Block was placed against something (e.g. cactus), allow it.
             }
