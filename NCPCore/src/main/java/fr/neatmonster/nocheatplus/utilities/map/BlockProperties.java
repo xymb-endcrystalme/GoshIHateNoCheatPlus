@@ -2815,6 +2815,42 @@ public class BlockProperties {
     }
 
     /**
+     * Convenience method excluding null as air result.
+     *
+     * @param type
+     *            the type
+     * @return true, if is air
+     */
+    public static final boolean isActuallyAir(Material type) {
+        // TODO: Flags rather?
+        return type != null && isAir(type);
+    }
+
+    /**
+     * Convenience method including null check.
+     *
+     * @param type
+     *            the type
+     * @return true, if is Scaffolding
+     */
+    public static final boolean isScaffolding(Material type) {
+
+        return type != null && type == BridgeMaterial.SCAFFOLDING;
+    }
+
+    /**
+     * Convenience method including null check.
+     *
+     * @param type
+     *            the type
+     * @return true, if is Scaffolding
+     */
+    public static final boolean isScaffolding(ItemStack stack) {
+
+        return stack != null && isScaffolding(stack.getType());
+    }
+
+    /**
      * Convenience method including null checks.
      *
      * @param stack

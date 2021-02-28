@@ -189,7 +189,6 @@ public class BlockPlaceListener extends CheckListener {
             placedMat = BlockProperties.isAir(stack) ? Material.AIR : stack.getType();
         }
         else placedMat = Bridge1_9.getItemInMainHand(player).getType(); // Safety first.
-        final boolean isScaffoldingBlock = placedMat.toString().equals("SCAFFOLDING");
     
         boolean cancelled = false;
 
@@ -220,7 +219,7 @@ public class BlockPlaceListener extends CheckListener {
             }
         } 
         else {
-            shouldSkipSome = placedMat.toString().equals("SCAFFOLDING");
+            shouldSkipSome = BlockProperties.isScaffolding(placedMat);
         }
 
         if (placedMat.toString().endsWith("SIGN")) {
@@ -313,7 +312,7 @@ public class BlockPlaceListener extends CheckListener {
         }
 
         // Surrounding material.
-        if (!cancelled && against.isEnabled(player, pData) && !isScaffoldingBlock 
+        if (!cancelled && against.isEnabled(player, pData) && !BlockProperties.isScaffolding(placedMat)
             && against.check(player, block, placedMat, blockAgainst, isInteractBlock, data, cc, pData)) {
             cancelled = true;
         }

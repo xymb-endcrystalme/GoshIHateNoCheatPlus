@@ -280,6 +280,8 @@ public class BridgeMaterial {
 
     public static final Material REPEATING_COMMAND_BLOCK = getFirst(
             "repeating_command_block", "command_repeating");
+    
+    public static final Material SCAFFOLDING = get("scaffolding");
 
     /** Sign block. */
     public static final Material SIGN = getFirstNotNull("acacia_sign", "birch_sign", "dark_oak_sign", "jungle_sign", "oak_sign", "spruce_sign",  "acacia_wall_sign", "birch_wall_sign", "dark_oak_wall_sign", "jungle_wall_sign", "oak_wall_sign", "spruce_wall_sign", "sign_post", "sign", "wall_sign");
