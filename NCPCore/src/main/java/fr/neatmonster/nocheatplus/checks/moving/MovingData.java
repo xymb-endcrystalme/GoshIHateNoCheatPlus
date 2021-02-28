@@ -140,6 +140,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public final BlockChangeReference blockChangeRef = new BlockChangeReference();
     /** Moving half on 15/16 height block and half on water. Set in Survivalfly.check */
     public boolean        isHalfGroundHalfWater = false;
+    /** If is Bedrock Player (no feature for now - just for compatibility) */
+    public boolean        bedrockPlayer = false;
 
     /** Tick at which walk/fly speeds got changed last time. */
     public int speedTick = 0;
@@ -493,6 +495,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         trace.reset();
         playerMoves.invalidate();
         vehicleMoves.invalidate();
+        bedrockPlayer = false;
     }
 
     /**

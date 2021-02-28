@@ -39,7 +39,7 @@ public class SimpleAxisVelocity {
     private static final double marginAcceptZero = 0.005;
 
     /** Size of queued for which to force cleanup on add. */
-    private static final double thresholdCleanup = 10;
+    private static final double thresholdCleanup = 20;
 
     private final LinkedList<SimpleEntry> queued = new LinkedList<SimpleEntry>();
 

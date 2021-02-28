@@ -341,7 +341,7 @@ public class SurvivalFly extends Check {
 
             final double attrMod = attributeAccess.getHandle().getSpeedAttributeMultiplier(player);
             // Set the allowed distance and determine the distance above limit
-            hAllowedDistance = setAllowedhDist(player, sprinting, thisMove, data, cc, pData, from, false);
+            hAllowedDistance = setAllowedhDist(player, sprinting, thisMove, data, cc, pData, from, true);
             hDistanceAboveLimit = hDistance - hAllowedDistance;
 
             // Ugly temporary workaround for riptiding.
@@ -1101,6 +1101,8 @@ public class SurvivalFly extends Check {
         else if (thisMove.from.inBerryBush) {
             tags.add("hbush");
             hAllowedDistance = Magic.modBush * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+            if (thisMove.to.inBerryBush) hAllowedDistance *= 0.8;
+            if (thisMove.yDistance > 0.0 && thisMove.from.onGround && !thisMove.to.onGround) hAllowedDistance *= 2.0;
             useBlockOrSneakModifier = true;
             useBaseModifiers = true;
             friction = 0.0;
@@ -1554,10 +1556,6 @@ public class SurvivalFly extends Check {
               vAllowedDistance = lastMove.yDistance * 5.0D;
               strictVdistRel = false;
         }
-        else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
-             strictVdistRel = false;
-             vAllowedDistance = yDistance;          
-        }
         else if (lastMove.toIsValid) {
 
             if (lastMove.yDistance >= -Math.max(Magic.GRAVITY_MAX / 2.0, 1.3 * Math.abs(yDistance)) && lastMove.yDistance <= 0.0 
@@ -1646,7 +1644,7 @@ public class SurvivalFly extends Check {
             else if (isLanternUpper(to) || honeyBlockCollision) {
                 // Ignore.
             }
-            else vDistRelVL = true; 
+            else vDistRelVL = true;
         }
 
         
@@ -1839,7 +1837,6 @@ public class SurvivalFly extends Check {
             else if (thisMove.verVelUsed == null) { // Only skip if just used.
                 // Here yDistance can be negative and positive.
                 if ((data.timeRiptiding + 500 > now) 
-                    || (data.bedLeaveTime + 500 > now && yDistance < 0.45) 
                     || isLanternUpper(to) 
                     || (lastMove.from.inLiquid && Math.abs(yDistance) < 0.31)) {
                     // Ignore
@@ -1930,7 +1927,6 @@ public class SurvivalFly extends Check {
                 if (data.bunnyhopDelay < 9 && !((lastMove.touchedGround || lastMove.from.onGroundOrResetCond) && lastMove.yDistance == 0D) && data.getOrUseVerticalVelocity(yDistance) == null) {
                     // TODO: adjust limit for bunny-hop.
                     if ((data.timeRiptiding + 500 > now) 
-                        || (data.bedLeaveTime + 500 > now && yDistance < 0.45) 
                         || isLanternUpper(to)) {
                         // Ignore.
                     }
@@ -2008,13 +2004,8 @@ public class SurvivalFly extends Check {
         // TODO: Still not entirely sure about this checking order.
         // TODO: Would quick returns make sense for hDistanceAfterFailure == 0.0?
         final long now = System.currentTimeMillis();
-     
-        // 1: Test bunny early, because it applies often and destroys as little as possible.
-        if (!(from.isAboveStairs() && to.isAboveStairs() && to.isOnGround())){
-            hDistanceAboveLimit = bunnyHop(from, to, hAllowedDistance, hDistanceAboveLimit, sprinting, thisMove, lastMove, data, cc);
-        }
 
-        // 2: Attempt to reset item on NoSlow Violation
+        // 1: Attempt to reset item on NoSlow Violation
         if (cc.survivalFlyResetItem && hDistanceAboveLimit > 0.0 && data.sfHorizontalBuffer <= 0.5 && tags.contains("usingitem")) {
             tags.add("itemreset");
             // Handle through nms
@@ -2065,14 +2056,19 @@ public class SurvivalFly extends Check {
             }
         }
 
+        // 2: Test bunny early, because it applies often and destroys as little as possible.
+        if (!(from.isAboveStairs() && to.isAboveStairs() && to.isOnGround())){
+            hDistanceAboveLimit = bunnyHop(from, to, hAllowedDistance, hDistanceAboveLimit, sprinting, thisMove, lastMove, data, cc);
+        }
+
         // 3: After failure permission checks ( + speed modifier + sneaking + blocking + speeding) and velocity (!).
         // Noslow require no permission rechecks
         // TODO: Most cases these will not apply. Consider redesign to do these last or checking right away and skip here on some conditions.
-        if (hDistanceAboveLimit > 0.12 && !tags.contains("usingitem(cancel)") && !skipPermChecks)  {
-            hAllowedDistance = setAllowedhDist(player, sprinting, thisMove, data, cc, pData, from, true);
-            hDistanceAboveLimit = thisMove.hDistance - hAllowedDistance;
-            tags.add("permchecks");
-        }
+        //if (hDistanceAboveLimit > 0.12 && !tags.contains("usingitem(cancel)") && !skipPermChecks)  {
+        //    hAllowedDistance = setAllowedhDist(player, sprinting, thisMove, data, cc, pData, from, true);
+        //    hDistanceAboveLimit = thisMove.hDistance - hAllowedDistance;
+        //    tags.add("permchecks");
+        //}
        
         // 4: Check being moved by blocks.
         // 1.025 is a Magic value
@@ -2643,7 +2639,7 @@ public class SurvivalFly extends Check {
             // TODO: Friction ?
             vAllowedDistance = (from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) != 0 ?
                                 // Compatibility with multiprotocol plugins: allow normal jumping
-                                LiftOffEnvelope.NORMAL.getMaxJumpGain(data.jumpAmplifier) + jumpGainMargin : (data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier) * 0.75);
+                                LiftOffEnvelope.NORMAL.getMaxJumpGain(data.jumpAmplifier) + jumpGainMargin : (data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier) * 20 / 21); // Normal 3/4 but....
             vDistanceAboveLimit = yDistance - vAllowedDistance;
         }
         // Descend

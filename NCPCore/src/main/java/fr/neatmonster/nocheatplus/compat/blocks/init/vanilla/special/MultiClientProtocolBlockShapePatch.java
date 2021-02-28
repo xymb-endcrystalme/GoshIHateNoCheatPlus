@@ -69,6 +69,9 @@ public class MultiClientProtocolBlockShapePatch extends AbstractBlockPropertiesP
                 | BlockProperties.F_GROUND_HEIGHT);
         done.add("soil");
 
+        BlockFlags.addFlags(Material.VINE, BlockProperties.F_CLIMBUPABLE);
+        done.add("vine");
+
         try {
             BlockFlags.addFlags("HONEY_BLOCK", BlockProperties.F_MIN_HEIGHT16_15 
                 | BlockProperties.F_HEIGHT100 

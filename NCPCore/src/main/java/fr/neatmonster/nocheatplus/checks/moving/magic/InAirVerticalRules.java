@@ -486,10 +486,6 @@ public class InAirVerticalRules {
             data.keepfrictiontick = 0;
             return true;
         }
-        else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
-           // False positives when exiting a bed
-           return true;
-        }
         return false;
     }
 
@@ -778,6 +774,11 @@ public class InAirVerticalRules {
         if (InAirVerticalRules.oddFriction(yDistance, yDistDiffEx, lastMove, data)) {
             // Odd behavior with moving up or (slightly) down, accounting for more than one past move.
             return true;
+        }
+        if (lastMove.from.inBerryBush && !thisMove.from.inBerryBush &&
+            yDistance < -Magic.GRAVITY_MIN && yDistance > Magic.bushSpeedDescend) {
+            // False positives when jump out berry bush but still applied bush friction
+			return true;
         }
         //        if (Bridge1_9.isWearingElytra(from.getPlayer()) && InAirVerticalRules.oddElytra(yDistance, yDistDiffEx, lastMove, data)) {
         //            // Odd behavior with/after wearing elytra.

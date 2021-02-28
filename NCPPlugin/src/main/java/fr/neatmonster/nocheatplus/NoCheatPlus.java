@@ -69,7 +69,6 @@ import fr.neatmonster.nocheatplus.checks.moving.util.AuxMoving;
 import fr.neatmonster.nocheatplus.checks.net.NetConfig;
 import fr.neatmonster.nocheatplus.checks.net.NetStatic;
 import fr.neatmonster.nocheatplus.checks.workaround.WRPT;
-import fr.neatmonster.nocheatplus.clients.ModUtil;
 import fr.neatmonster.nocheatplus.command.NoCheatPlusCommand;
 import fr.neatmonster.nocheatplus.command.admin.VersionCommand;
 import fr.neatmonster.nocheatplus.compat.BridgeMisc;
@@ -1371,7 +1370,7 @@ public class NoCheatPlus extends JavaPlugin implements NoCheatPlusAPI {
             }
         }
         // Mod message (left on low instead of lowest to allow some permissions plugins compatibility).
-        ModUtil.motdOnJoin(player);
+        //ModUtil.motdOnJoin(player);
     }
 
     private void onLeave(final Player player) {

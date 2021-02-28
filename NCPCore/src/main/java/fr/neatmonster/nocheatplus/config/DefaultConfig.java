@@ -112,8 +112,8 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.PROTECT_COMMANDS_CONSOLEONLY_MSG, "&cI'm sorry, but this command can't be executed in chat. Use the console instead!", 785);
         set(ConfPaths.PROTECT_COMMANDS_CONSOLEONLY_CMDS, Arrays.asList("op", "deop"), 785);
         // Client motd.
-        set(ConfPaths.PROTECT_CLIENTS_MOTD_ACTIVE, true, 785);
-        set(ConfPaths.PROTECT_CLIENTS_MOTD_ALLOWALL, false, 785);
+        //set(ConfPaths.PROTECT_CLIENTS_MOTD_ACTIVE, true, 785);
+        //set(ConfPaths.PROTECT_CLIENTS_MOTD_ALLOWALL, false, 785);
 
 
         /* Checks! */
@@ -584,7 +584,7 @@ public class DefaultConfig extends ConfigFile {
         //set(ConfPaths.MOVING_TRACE_MAXAGE, 200, 785); // Your grandma reads code.
         //set(ConfPaths.MOVING_TRACE_MAXSIZE, 200, 785);
         // Velocity.
-        set(ConfPaths.MOVING_VELOCITY_ACTIVATIONCOUNTER, 8, 1154);
+        set(ConfPaths.MOVING_VELOCITY_ACTIVATIONCOUNTER, 20, 1154);
         set(ConfPaths.MOVING_VELOCITY_ACTIVATIONTICKS, 140, 785);
         set(ConfPaths.MOVING_VELOCITY_STRICTINVALIDATION, true, 785);
         // General.

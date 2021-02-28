@@ -361,6 +361,35 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
     }
 
+    // Temporary fix "stuck" on boat for 1.14 still work till now
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onUnknowBoatTeleport(final PlayerTeleportEvent event) {
+    	if (!Bridge1_13.hasIsSwimming()) return;
+    	if (event.getCause() == TeleportCause.UNKNOWN) {
+    		final Player player = event.getPlayer();
+    		final IPlayerData pData = DataManager.getPlayerData(player);
+    		final MovingData data = pData.getGenericInstance(MovingData.class);
+    		if (!data.waspreInVehicle && standsOnEntity(player, player.getLocation().getY())) {
+    			event.setCancelled(true);
+    			player.setSwimming(false);
+    		}
+    	}
+    }
+
+    private boolean standsOnEntity(final Entity entity, final double minY){
+            // TODO: Probably check other ids too before doing this ?
+            for (final Entity other : entity.getNearbyEntities(1.5, 1.5, 1.5)){
+                final EntityType type = other.getType();
+                if (type != EntityType.BOAT){
+                    continue; 
+                }
+                final Material m = other.getLocation().getBlock().getType();
+                final double locY = other.getLocation().getY();
+                return Math.abs(locY - minY) < 0.7 && BlockProperties.isLiquid(m);
+            }
+        return false;
+    }
+
     /**
      * Just for security, if a player switches between worlds, reset the fly and more packets checks data, because it is
      * definitely invalid now.
@@ -960,7 +989,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             if (lastMove.toIsValid && lastMove.flyCheck == CheckType.MOVING_CREATIVEFLY) {
                 final long tickhaslag = data.delayWorkaround + Math.round(200 / TickTask.getLag(200, true));
                 if (data.delayWorkaround > time || tickhaslag < time) {
-                    workaroundFlyNoFlyTransition(player, tick, debug, data);
+                    workaroundFlyNoFlyTransition(player, tick, debug, data, cc);
                     data.delayWorkaround = time;
                 }
             }
@@ -1601,14 +1630,14 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
      * @param data
      */
     private void workaroundFlyNoFlyTransition(final Player player, final int tick, 
-            final boolean debug, final MovingData data) {
+            final boolean debug, final MovingData data, final MovingConfig cc) {
         final PlayerMoveData lastMove = data.playerMoves.getFirstPastMove();
-        final double amount = guessFlyNoFlyVelocity(player, data.playerMoves.getCurrentMove(), lastMove, data);
+        final double amount = guessFlyNoFlyVelocity(player, data.playerMoves.getCurrentMove(), lastMove, data, cc);
         data.clearActiveHorVel(); // Clear active velocity due to adding actual speed here.
         data.bunnyhopDelay = 0; // Remove bunny hop due to add velocity 
-        if (amount > 0.0) data.addHorizontalVelocity(new AccountEntry(tick, amount, 2, MovingData.getHorVelValCount(amount)));
-        data.addVerticalVelocity(new SimpleEntry(lastMove.yDistance, 2));
-        data.addVerticalVelocity(new SimpleEntry(0.0, 2));
+        if (amount > 0.0) data.addHorizontalVelocity(new AccountEntry(tick, amount, cc.velocityActivationCounter, MovingData.getHorVelValCount(amount)));
+        data.addVerticalVelocity(new SimpleEntry(lastMove.yDistance, cc.velocityActivationCounter));
+        data.addVerticalVelocity(new SimpleEntry(0.0, cc.velocityActivationCounter));
         data.setFrictionJumpPhase();
         if (debug) {
             debug(player, "Fly-nofly transition: Add velocity.");
@@ -1616,25 +1645,24 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
     }
 
     private static double guessFlyNoFlyVelocity(final Player player, 
-            final PlayerMoveData thisMove, final PlayerMoveData lastMove, final MovingData data) {
+            final PlayerMoveData thisMove, final PlayerMoveData lastMove, final MovingData data, final MovingConfig cc) {
         // Default margin: Allow slightly less than the previous speed.
         final double defaultAmount = lastMove.hDistance * (1.0 + Magic.FRICTION_MEDIUM_AIR) / 2.0;
         // Test for exceptions.
         if (Bridge1_9.isWearingElytra(player) && lastMove.modelFlying != null && lastMove.modelFlying.getId().equals(MovingConfig.ID_JETPACK_ELYTRA)) {
-            data.addVerticalVelocity(new SimpleEntry(lastMove.yDistance < -0.1034 ? (lastMove.yDistance * Magic.FRICTION_MEDIUM_AIR + 0.1034) : lastMove.yDistance, 3));
+            data.addVerticalVelocity(new SimpleEntry(
+			    lastMove.yDistance < -0.1034 ? (lastMove.yDistance * Magic.FRICTION_MEDIUM_AIR + 0.1034) : lastMove.yDistance, cc.velocityActivationCounter
+            ));
             //data.addVerticalVelocity(new SimpleEntry(0.34, 3));
-            data.keepfrictiontick = -10;
+            data.keepfrictiontick = -15;
             if (thisMove.hDistance > defaultAmount) {
                 // Allowing the same speed won't always work on elytra (still increasing, differing modeling on client side with motXYZ).
                 // (Doesn't seem to be overly effective.)
                 final PlayerMoveData secondPastMove = data.playerMoves.getSecondPastMove();
                 if (data.fireworksBoostDuration > 0 && Math.round(data.fireworksBoostTickNeedCheck / 4.5) <= data.fireworksBoostDuration) {
-                    data.addHorizontalVelocity(new AccountEntry(2.0, 2, 15));
-                    return 0.0;
+                    return 2.0;
                 } else if (lastMove.toIsValid && lastMove.hAllowedDistance > 0.0) return lastMove.hAllowedDistance; // This one might replace below?
-                if (secondPastMove.modelFlying != null && Magic.glideEnvelopeWithHorizontalGain(thisMove, lastMove, secondPastMove)) {
-                    return lastMove.hDistance + 0.5;
-                }
+                return defaultAmount + 0.5;
             }
         }
         return defaultAmount;
