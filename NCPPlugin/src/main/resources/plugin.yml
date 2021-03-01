@@ -20,16 +20,16 @@ commands:
         description: NoCheatPlus command(s).
         # permissions: nocheatplus.admin.(...)
         usage: |
-               Administrative commands overview:
-               /<command> top (entries) (check/s...) (sort by...) NEW.
-               /<command> info (player): Violation summary for a player.
-               /<command> inspect (player): Status info for a player.
-               /<command> notify on|off: In-game notifications per player.
-               /<command> removeplayer (player) [(check type)]: Remove data.
-               /<command> reload: Reload the configuration.
-               /<command> lag: Lag-related info.
-               /<command> version: Version information.
-               /<command> commands: List all commands, adds rarely used ones.
+               §6§lCommands Overview:
+               §c• §c§o/<command> top (entries) (check/s...) (sort by...)§7 - Display the top results of a given check.
+               §c• §c§o/<command> info (player)§7 - Violation summary for a player.
+               §c• §c§o/<command> inspect (player)§7 - Status info for a player.
+               §c• §c§o/<command> notify on|off§7 - Toggle in-game notifications on/off.
+               §c• §c§o/<command> removeplayer (player) [(check type)]§7 - Clear a check's data for a given player.
+               §c• §c§o/<command> reload§7 - Reload the configuration.
+               §c• §c§o/<command> lag§7 - Lag-related info.
+               §c• §c§o/<command> version§7 - Display information about both the server and the plugin.
+               §c• §c§o/<command> commands§7 - List all commands including auxiliary ones.
 
 permissions:
     # Check silent permissions (no log alerts if present).

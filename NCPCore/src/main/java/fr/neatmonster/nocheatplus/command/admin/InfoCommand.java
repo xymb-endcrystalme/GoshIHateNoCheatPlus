@@ -61,15 +61,21 @@ public class InfoCommand extends BaseCommand {
     	final ViolationHistory history = ViolationHistory.getHistory(playerName, false);
     	final boolean known = player != null || history != null;
     	if (history == null){
-    		sender.sendMessage(TAG + "No entries for " + playerName + "'s violations... " + (known?"":"(exact spelling?)") +".");
+    		sender.sendMessage(TAG + "No entries for " + ChatColor.RED + playerName + ChatColor.GRAY + "'s violations. " + (known?"":"(exact spelling?)") +".");
     		return;
     	}
     	
         final DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
         final ViolationLevel[] violations = history.getViolationLevels();
         if (violations.length > 0) {
-            sender.sendMessage(TAG + "Displaying " + playerName + "'s violations...");
-            final String c = (sender instanceof Player) ? ChatColor.GRAY.toString() : ""; 
+            sender.sendMessage(TAG + "Displaying " + ChatColor.RED + playerName + ChatColor.GRAY + "'s violations: ");
+            final String cG, cR, cGO; 
+            if (sender instanceof Player) {
+                cG = ChatColor.GRAY + ""; 
+                cR = ChatColor.RED + "";
+                cGO = ChatColor.GOLD + "";
+            }
+            else cG = cR = cGO = "";
             for (final ViolationLevel violationLevel : violations) {
                 final long time = violationLevel.time;
                 final String[] parts = violationLevel.check.split("\\.");
@@ -78,11 +84,16 @@ public class InfoCommand extends BaseCommand {
                 final long sumVL = Math.round(violationLevel.sumVL);
                 final long maxVL = Math.round(violationLevel.maxVL);
                 final long avVl  = Math.round(violationLevel.sumVL / (double) violationLevel.nVL);
-                sender.sendMessage(TAG + "[" + dateFormat.format(new Date(time)) + "] " + parent + "." + check
-                        + " VL " + sumVL + c + "  (n" + violationLevel.nVL + "a" + avVl +"m" + maxVL +")");
+                sender.sendMessage(
+                    ChatColor.GRAY + "[" + dateFormat.format(new Date(time)) + "] " 
+                    + cGO + ChatColor.ITALIC + parent + "." + check  
+                    + cR + "\nVLs Sum: " + cG + sumVL  
+                    + cR + "\nAmount of VLs: " + cG + violationLevel.nVL 
+                    + cR + "\nAverage: " + cG + avVl 
+                    + cR + "\nMax: " + cG + maxVL);
             }
-        } else
-            sender.sendMessage(TAG + "Displaying " + playerName + "'s violations... nothing to display.");
+        } 
+        else sender.sendMessage(TAG + "No violations to display for player " + ChatColor.RED + playerName);
         
     }
 

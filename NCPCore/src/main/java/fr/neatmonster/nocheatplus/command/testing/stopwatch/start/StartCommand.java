@@ -20,10 +20,13 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import fr.neatmonster.nocheatplus.command.BaseCommand;
 import fr.neatmonster.nocheatplus.command.AbstractCommand;
 import fr.neatmonster.nocheatplus.command.testing.stopwatch.StopWatchRegistry;
 
 public class StartCommand extends AbstractCommand<StopWatchRegistry> {
+
+    public static final String TAG = ChatColor.GRAY +""+ ChatColor.BOLD + "[" + ChatColor.RED + "NC+" + ChatColor.GRAY +""+ ChatColor.BOLD + "] " + ChatColor.GRAY;
 
     public StartCommand(StopWatchRegistry access) {
         super(access, "start", null);
@@ -32,7 +35,7 @@ public class StartCommand extends AbstractCommand<StopWatchRegistry> {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
         access.setClock((Player) sender, new SimpleStopWatch((Player) sender));
-        sender.sendMessage(ChatColor.GREEN + "New stopwatch started.");
+        sender.sendMessage(TAG + "New stopwatch started.");
         return true;
     }
 

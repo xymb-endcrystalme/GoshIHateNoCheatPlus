@@ -16,10 +16,12 @@ package fr.neatmonster.nocheatplus.command.testing.stopwatch;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-
 import fr.neatmonster.nocheatplus.utilities.Misc;
 
 public abstract class StopWatch {	
+
+    public static final String TAG = ChatColor.GRAY +""+ ChatColor.BOLD + "[" + ChatColor.RED + "NC+" + ChatColor.GRAY +""+ ChatColor.BOLD + "] " + ChatColor.GRAY;
+
     public final long start;
 
     protected boolean finished = false;
@@ -80,7 +82,7 @@ public abstract class StopWatch {
     public void sendStatus() {
         final long duration = getTime();
         final long tenths = (duration % 1000) / 100;
-        player.sendMessage(ChatColor.AQUA + "Stopwatch" + clockDetails + ": " + (finished ? ChatColor.RED : ChatColor.GREEN) + Misc.millisToShortDHMS(duration) + "." + tenths);
+        player.sendMessage(TAG + "Stopwatch" + ChatColor.GOLD + clockDetails + ChatColor.GRAY + ": " + (finished ? ChatColor.RED : ChatColor.GREEN) + Misc.millisToShortDHMS(duration) + "." + tenths);
     }
 
     /**

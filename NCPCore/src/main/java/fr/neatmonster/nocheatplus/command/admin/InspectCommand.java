@@ -85,18 +85,18 @@ public class InspectCommand extends BaseCommand {
         }
         // Fly settings.
         if (player.isFlying()) {
-            builder.append(" flying");
+            builder.append(" currently flyingw");
         }
         if (player.getAllowFlight()) {
-            builder.append(" allowflight");
+            builder.append(" allowed to fly");
         }
         // Speed settings.
-        builder.append(" flyspeed=" + player.getFlySpeed());
-        builder.append(" walkspeed=" + player.getWalkSpeed());
+        builder.append(" flyspeed= " + player.getFlySpeed());
+        builder.append(" walkspeed= " + player.getWalkSpeed());
         // Potion effects.
         final Collection<PotionEffect> effects = player.getActivePotionEffects();
         if (!effects.isEmpty()) {
-            builder.append(" effects=");
+            builder.append(" effects= ");
             for (final PotionEffect effect : effects) {
                 builder.append(effect.getType() + "@" + effect.getAmplifier() +",");
             }

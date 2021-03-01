@@ -28,6 +28,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.ChatColor;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.command.BaseCommand;
@@ -55,24 +56,24 @@ public class VersionCommand extends BaseCommand{
         final List<String> lines = new LinkedList<String>();
         final MCAccess mcAccess = NCPAPIProvider.getNoCheatPlusAPI().getGenericInstance(MCAccess.class);
         lines.addAll(Arrays.asList(new String[]{
-                "---- Version information ----",
-                "#### Server ####",
-                alt(Bukkit.getServer().getVersion()),
-                "  detected: " + alt(ServerVersion.getMinecraftVersion()),
-                "#### NoCheatPlus ####",
-                "Plugin: " + alt(Bukkit.getPluginManager().getPlugin("NoCheatPlus").getDescription().getVersion()),
-                "MCAccess: " + alt(mcAccess.getMCVersion() + " / " + mcAccess.getServerVersionTag()),
+                ChatColor.RED +""+ ChatColor.BOLD + "»Version information«" + ChatColor.GRAY,
+                ChatColor.GOLD +""+ ChatColor.BOLD + "Server:" + ChatColor.GRAY,
+                ChatColor.GRAY + alt(Bukkit.getServer().getVersion()),
+                ChatColor.GRAY +""+ ChatColor.ITALIC + "Detected: " + ChatColor.GRAY + alt(ServerVersion.getMinecraftVersion()),
+                ChatColor.GOLD +""+ ChatColor.BOLD + "NoCheatPlus:" + ChatColor.GRAY,
+                ChatColor.GRAY +""+ ChatColor.ITALIC + "Plugin: "+ ChatColor.GRAY + alt(Bukkit.getPluginManager().getPlugin("NoCheatPlus").getDescription().getVersion()),
+                ChatColor.GRAY +""+ ChatColor.ITALIC +  "MCAccess: " + ChatColor.GRAY + alt(mcAccess.getMCVersion() + " / " + mcAccess.getServerVersionTag()),
         }));
         final Map<String, Set<String>> featureTags = NCPAPIProvider.getNoCheatPlusAPI().getAllFeatureTags();
         if (!featureTags.isEmpty()) {
             final List<String> features = new LinkedList<String>();
             // Add present features.
             for (final Entry<String, Set<String>> entry : featureTags.entrySet()) {
-                features.add(alt("  " + entry.getKey() + ": " + StringUtil.join(entry.getValue(), " | ")));
+                features.add(alt(ChatColor.GRAY + "  " + entry.getKey() + ": " + StringUtil.join(entry.getValue(), ChatColor.WHITE + " | " + ChatColor.GRAY)));
             }
             // Sort and add.
             Collections.sort(features, String.CASE_INSENSITIVE_ORDER);
-            features.add(0, "Features:");
+            features.add(0, ChatColor.GOLD +""+ ChatColor.BOLD +"Features:");
             lines.addAll(features);
         }
         final Collection<NCPHook> hooks = NCPHookManager.getAllHooks();
@@ -82,19 +83,18 @@ public class VersionCommand extends BaseCommand{
                 fullNames.add(alt(hook.getHookName() + " " + hook.getHookVersion()));
             }
             Collections.sort(fullNames, String.CASE_INSENSITIVE_ORDER);
-            lines.add("Hooks: " + StringUtil.join(fullNames, " | "));
+            lines.add(ChatColor.GOLD +""+ ChatColor.BOLD + "Hooks: " + ChatColor.GRAY + StringUtil.join(fullNames, ChatColor.WHITE + " | " + ChatColor.GRAY));
         }
         final List<String> relatedPlugins = new LinkedList<String>();
-        for (final String name : new String[]{
-                "CompatNoCheatPlus", "ProtocolLib", "ViaVersion", "ProtocolSupport", "PNCP", "NTAC"}) {
+        for (final String name : new String[]{"CompatNoCheatPlus", "ProtocolLib", "ViaVersion", "ProtocolSupport", "PNCP", "NTAC"}) {
             Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
             if (plugin != null) {
                 relatedPlugins.add(alt(plugin.getDescription().getFullName()));
             }
         }
         if (!relatedPlugins.isEmpty()) {
-            lines.add("#### Related Plugins ####");
-            lines.add(StringUtil.join(relatedPlugins, " | "));
+            lines.add(ChatColor.RED +""+ ChatColor.BOLD + "»Related Plugins«" + ChatColor.GRAY);
+            lines.add(ChatColor.GRAY +""+ StringUtil.join(relatedPlugins, ChatColor.WHITE + " | " + ChatColor.GRAY));
         }
         return lines;
     }

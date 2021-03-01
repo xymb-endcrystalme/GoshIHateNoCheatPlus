@@ -21,6 +21,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.ChatColor;
 
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationHistory;
@@ -50,7 +51,7 @@ public class RemovePlayerCommand extends BaseCommand {
                 checkType = CheckType.valueOf(args[2].toUpperCase().replace('-', '_').replace('.', '_'));
             } catch (Exception e){
                 sender.sendMessage(TAG + "Could not interpret: " + args[2]);
-                sender.sendMessage(TAG + "Check type should be one of: " + StringUtil.join(Arrays.asList(CheckType.values()), " | "));
+                sender.sendMessage(TAG + "Check type should be one of: " + StringUtil.join(Arrays.asList(CheckType.values()), ChatColor.WHITE + " | " + ChatColor.GRAY));
                 return true;
             }
         }
@@ -58,7 +59,7 @@ public class RemovePlayerCommand extends BaseCommand {
 
         if (playerName.equals("*")){
             DataManager.clearData(checkType);
-            sender.sendMessage(TAG + "Removed all data and history: " + checkType);
+            sender.sendMessage(TAG + "Removed all data and history: " + ChatColor.RED + checkType);
             return true;
         }
 
@@ -84,10 +85,10 @@ public class RemovePlayerCommand extends BaseCommand {
         }
 
         if (somethingFound){
-            sender.sendMessage(TAG + "Issued history and data removal (" + checkType + "): " + playerName);
+            sender.sendMessage(TAG + "Issued history and data removal (" + ChatColor.RED + checkType + ChatColor.GRAY +"): " + ChatColor.RED + playerName + ChatColor.GRAY);
         }
         else
-            sender.sendMessage(TAG + "Nothing found (" + checkType + "): " + playerName + " (spelled correctly?)");
+            sender.sendMessage(TAG + "Nothing found (" + ChatColor.RED + checkType + ChatColor.GRAY +"): " + ChatColor.RED + playerName + ChatColor.GRAY + " (spelled correctly?)");
         return true;
     }
 

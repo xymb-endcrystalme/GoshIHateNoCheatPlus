@@ -25,6 +25,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.ChatColor;
 
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.command.BaseCommand;
@@ -74,7 +75,7 @@ public class DebugPlayerCommand extends BaseCommand {
 
     public DebugPlayerCommand(JavaPlugin plugin) {
         super(plugin, "player", null);
-        usage = "/ncp debug player ... online player name or UUID, (yes|no|default)[:CheckType1[:CheckType2...]] to set the default behavior - mix with player names/ids.";
+        usage = TAG + "/ncp debug player (playername/UUID), (yes|no|default)[:CheckType1[:CheckType2...]] to set the default behavior - mix with player names/ids.";
     }
 
     @Override
@@ -111,7 +112,7 @@ public class DebugPlayerCommand extends BaseCommand {
             else {
                 UUID id = IdUtil.UUIDFromStringSafe(input);
                 if (id == null) {
-                    sender.sendMessage("Bad name or UUID: " + input);
+                    sender.sendMessage(TAG + "Bad name or UUID: " +ChatColor.RED+ input);
                     return true;
                 }
                 else {
@@ -119,11 +120,11 @@ public class DebugPlayerCommand extends BaseCommand {
                 }
             }
             if (player == null) {
-                sender.sendMessage("Not online: " + input);
+                sender.sendMessage(TAG + "Not online: " + input);
                 return true;
             }
         } else if (args.length <= 2) {
-            sender.sendMessage("Bad setup!");
+            sender.sendMessage(TAG + "Bad setup!");
             return true;
         }
 
@@ -131,7 +132,7 @@ public class DebugPlayerCommand extends BaseCommand {
             String input = args[3];
             entry = DebugEntry.parseEntry(input);
             if (entry == null) {
-                sender.sendMessage("Bad setup: " + input);
+                sender.sendMessage(TAG + "Bad setup: " + input);
                 // Can't continue.
                 return true;
             }
@@ -156,7 +157,7 @@ public class DebugPlayerCommand extends BaseCommand {
                         OverrideType.CUSTOM, true);
             }
         }
-        sender.sendMessage("Set debug = " + entry.active + " for player " + player.getName() + " for checks: " + StringUtil.join(checkTypes, ","));
+        sender.sendMessage(TAG + "Set debug: " +ChatColor.RED+ entry.active +ChatColor.GRAY+ " for player " + ChatColor.RED + player.getName() +ChatColor.GRAY+ " for checks: " +ChatColor.RED+ StringUtil.join(checkTypes, ","));
         return true;
     }
 

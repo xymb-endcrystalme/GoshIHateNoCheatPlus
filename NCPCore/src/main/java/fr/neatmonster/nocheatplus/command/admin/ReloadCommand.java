@@ -55,7 +55,7 @@ public class ReloadCommand extends BaseCommand {
 
     /**
      * Handle the '/nocheatplus reload' command.
-     * 
+     *
      * @param sender
      *            the sender
      * @return true, if successful

@@ -19,6 +19,7 @@ import java.util.Arrays;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.ChatColor;
 
 import fr.neatmonster.nocheatplus.command.BaseCommand;
 import fr.neatmonster.nocheatplus.permissions.Permissions;
@@ -32,21 +33,22 @@ import fr.neatmonster.nocheatplus.utilities.StringUtil;
 public class CommandsCommand extends BaseCommand {
 	
 	final String[] moreCommands = new String[]{
-			"Console commands (actions):",
-	        "/<command> ban [delay=(ticks)] (player) [(reason)...]: ban player",
-	        "/<command> kick [delay=(ticks)] (player) [(reason)...]: kick player",
-	        "/<command> tell [delay=(ticks)] (player) (message)...: tell a message",
-	        "/<command> delay [delay=(ticks)] (command)...: delay a command",
-	        "/<command> denylogin [delay=(ticks)] (player) (minutes) [(reason)...]",
-	        "More administrative commands:",
-	        "/<command> log counters: Show some stats/debug counters summary.",
-            "/<command> reset counters: Reset some stats/debug counters",
-            "/<command> debug player (player): Log debug info for the player.",
-	        "/<command> denylist: Show players, currently denied to log in.",
-	        "/<command> allowlogin (player): Allow a player to login again.",
-	        "/<command> exemptions (player): Show exemptions.",
-            "/<command> exempt (player) [(check type)]: Exempt a player.",
-            "/<command> unexempt (player) [(check type)]: Unexempt a player.",
+			ChatColor.GOLD +""+ ChatColor.BOLD + "Console commands:",
+	        ChatColor.RED +"• "+ChatColor.RED +""+ ChatColor.ITALIC + "/<command> ban (playername) (reason) "+ChatColor.GRAY+" - Ban player",
+	        ChatColor.RED +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> kick (playername) (reason) "+ChatColor.GRAY+" - Kick player",
+	        ChatColor.RED +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> tell (playername) (message) "+ChatColor.GRAY+" - tell a message",
+	        ChatColor.RED +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> delay (delay=ticks) (command to delay) "+ChatColor.GRAY+" - delay a command execution. Time is in ticks.",
+	        ChatColor.RED +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> denylogin  (playername) (minutes) (reason) "+ChatColor.GRAY+" - Deny log-in for a player.",
+	        "",
+	        ChatColor.GOLD +""+ ChatColor.BOLD + "More administrative commands:" + ChatColor.GRAY,
+	        ChatColor.RED +"• "+ChatColor.RED +""+ ChatColor.ITALIC + "/<command> log counters "+ChatColor.GRAY+" - Show some stats/debug counters summary.",
+            ChatColor.RED +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> reset counters" +ChatColor.GRAY+ " - Reset some stats/debug counters",
+            ChatColor.RED +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> debug player (playername) yes/no:(check type) "+ChatColor.GRAY+" - Start/End a debug session for a specific check.",
+	        ChatColor.RED +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> denylist "+ChatColor.GRAY+"- Lists players that have been denied to log-in.",
+	        ChatColor.RED +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> allowlogin (playername) "+ChatColor.GRAY+" - Allow a player to login again.",
+	        ChatColor.RED +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> exemptions (playername) "+ChatColor.GRAY+" - Lists all exemptions for a player.",
+            ChatColor.RED +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> exempt (playername) (check type) "+ChatColor.GRAY+" - Exempt a player from a check. * will exempt from all checks.",
+            ChatColor.RED +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> unexempt (playername) (check type) "+ChatColor.GRAY+" - Unexempt a player from a check. * will unexempt from all checks.",
 	};
 	
 	final String allCommands;
@@ -56,7 +58,7 @@ public class CommandsCommand extends BaseCommand {
 		for (int i = 0; i < moreCommands.length; i++){
 			moreCommands[i] = moreCommands[i].replace("<command>", "ncp");
 		}
-		String all = TAG + "All commands info:\n";
+		String all = TAG + ChatColor.GOLD + "All commands info:\n";
 		Command cmd = plugin.getCommand("nocheatplus");
 		if (cmd != null){
 			all += cmd.getUsage().replace("<command>", "ncp");
