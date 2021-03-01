@@ -61,7 +61,7 @@ public class InspectCommand extends BaseCommand {
         for (int i = 1; i < args.length; i++) {
             final Player player = DataManager.getPlayer(args[i].trim().toLowerCase());
             if (player == null) {
-                sender.sendMessage("(Not online: " + args[i] + ")");
+                sender.sendMessage(TAG + "Not online: " + args[i]);
             } else {
                 sender.sendMessage(getInspectMessage(player, c1));
             }
@@ -72,39 +72,56 @@ public class InspectCommand extends BaseCommand {
     public static String getInspectMessage(final Player player, final ChatColor contentColor) {
         final String c1 = contentColor == null ? "" : contentColor.toString();
         final StringBuilder builder = new StringBuilder(256);
-        builder.append(player.getName() + c1);
-        builder.append(" (" + (player.isOnline() ? "online" : "offline") + "," + (player.isOp() ? "!OP!," : "") + player.getGameMode() + (player.isDead() ? ",dead" : "") + (player.isValid() ? "" : ",invalid") + (player.isInsideVehicle() ? (",vehicle=" + player.getVehicle().getType() + "@" + locString(player.getVehicle().getLocation())) : "")+ "):");
-        // TODO: isValid, isDead,  isInsideVehicle ...
+        // More spaghetti.
+        builder.append(TAG + ChatColor.GRAY + "Status information for player: " + ChatColor.RED + player.getName());
+        if (player.isOnline()) {
+            builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+ " Is currently online.");
+        }
+        else builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+ " Is offline.");
+        if (player.isValid()) {
+            builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+ " Player is valid");
+        }
+        else builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+ " Player is invalid");
         // Health.
-        builder.append(" health=" + f1.format(BridgeHealth.getHealth(player)) + "/" + f1.format(BridgeHealth.getMaxHealth(player)));
+        builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+ " Current health: " + f1.format(BridgeHealth.getHealth(player)) + "/" + f1.format(BridgeHealth.getMaxHealth(player)));
         // Food.
-        builder.append(" food=" + player.getFoodLevel());
+        builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+ " Current food level: " + player.getFoodLevel());
+        builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+ " Is in " + player.getGameMode() + " gamemode.");
         // Exp.
         if (player.getExp() > 0f) {
-            builder.append(" explvl=" + f1.format(player.getExpToLevel()) + "(exp=" + f1.format(player.getExp()) + ")");
+            builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+ " Experience Lvl: " + f1.format(player.getExpToLevel()) + "(exp=" + f1.format(player.getExp()) + ")");
         }
-        // Fly settings.
+        if (player.isInsideVehicle()) {
+            builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+ " Is riding a vehicle (" + player.getVehicle().getType() +") at " + locString(player.getVehicle().getLocation()));
+        }
+        if (player.isDead()) {
+            builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+ " Currently dead.");
+        }
+        if (player.isOp()){
+            builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+ " Is Op!");
+        }
+        // Fly settings. 
         if (player.isFlying()) {
-            builder.append(" currently flyingw");
+            builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+ " Currently flying.");
         }
         if (player.getAllowFlight()) {
-            builder.append(" allowed to fly");
+            builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+ " Is allowed to fly.");
         }
         // Speed settings.
-        builder.append(" flyspeed= " + player.getFlySpeed());
-        builder.append(" walkspeed= " + player.getWalkSpeed());
+        builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+" FlySpeed: " + player.getFlySpeed());
+        builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+ " WalkSpeed: " + player.getWalkSpeed());
         // Potion effects.
         final Collection<PotionEffect> effects = player.getActivePotionEffects();
         if (!effects.isEmpty()) {
-            builder.append(" effects= ");
+            builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+ "Effects: ");
             for (final PotionEffect effect : effects) {
-                builder.append(effect.getType() + "@" + effect.getAmplifier() +",");
+                builder.append(effect.getType() + " at " + effect.getAmplifier() +",");
             }
         }
         // TODO: is..sneaking,sprinting,blocking,
         // Finally the block location.
         final Location loc = player.getLocation();
-        builder.append(" pos=" + locString(loc));
+        builder.append("\n "+ ChatColor.GRAY + "" + ChatColor.BOLD + "•" +c1+ " Position: " + locString(loc));
         return builder.toString();
     }
 

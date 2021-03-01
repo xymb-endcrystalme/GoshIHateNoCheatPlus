@@ -61,7 +61,7 @@ public class InfoCommand extends BaseCommand {
     	final ViolationHistory history = ViolationHistory.getHistory(playerName, false);
     	final boolean known = player != null || history != null;
     	if (history == null){
-    		sender.sendMessage(TAG + "No entries for " + ChatColor.RED + playerName + ChatColor.GRAY + "'s violations. " + (known?"":"(exact spelling?)") +".");
+    		sender.sendMessage(TAG + "No entries for " + ChatColor.RED + playerName + ChatColor.GRAY + "'s violations " + (known?"":"(exact spelling?)") +".");
     		return;
     	}
     	
@@ -86,11 +86,11 @@ public class InfoCommand extends BaseCommand {
                 final long avVl  = Math.round(violationLevel.sumVL / (double) violationLevel.nVL);
                 sender.sendMessage(
                     ChatColor.GRAY + "[" + dateFormat.format(new Date(time)) + "] " 
-                    + cGO + ChatColor.ITALIC + parent + "." + check  
-                    + cR + "\nVLs Sum: " + cG + sumVL  
-                    + cR + "\nAmount of VLs: " + cG + violationLevel.nVL 
-                    + cR + "\nAverage: " + cG + avVl 
-                    + cR + "\nMax: " + cG + maxVL);
+                    + cGO + ChatColor.ITALIC +""+ ChatColor.BOLD + parent + "." + check  
+                    + cG + "\nVLs Sum: " + cR + sumVL  
+                    + cG + "\nAmount of VLs: " + cR + violationLevel.nVL 
+                    + cG + "\nAverage: " + cR + avVl 
+                    + cG + "\nMax: " + cR + maxVL);
             }
         } 
         else sender.sendMessage(TAG + "No violations to display for player " + ChatColor.RED + playerName);

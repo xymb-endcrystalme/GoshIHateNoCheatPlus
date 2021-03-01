@@ -20,16 +20,19 @@ commands:
         description: NoCheatPlus command(s).
         # permissions: nocheatplus.admin.(...)
         usage: |
-               §6§lCommands Overview:
-               §c• §c§o/<command> top (entries) (check/s...) (sort by...)§7 - Display the top results of a given check.
-               §c• §c§o/<command> info (player)§7 - Violation summary for a player.
-               §c• §c§o/<command> inspect (player)§7 - Status info for a player.
-               §c• §c§o/<command> notify on|off§7 - Toggle in-game notifications on/off.
-               §c• §c§o/<command> removeplayer (player) [(check type)]§7 - Clear a check's data for a given player.
-               §c• §c§o/<command> reload§7 - Reload the configuration.
-               §c• §c§o/<command> lag§7 - Lag-related info.
-               §c• §c§o/<command> version§7 - Display information about both the server and the plugin.
-               §c• §c§o/<command> commands§7 - List all commands including auxiliary ones.
+               §6§l+§7§l------------------§6§l+
+               §7§l|§6§l Commands Overview  §7§l|
+               §6§l+§7§l------------------§6§l+
+               §7§l• §c§o/<command> top (entries) (check/s...) (sort by...)§7 - Display the top results of a given check.
+               §7§l• §c§o/<command> info (player)§7 - Violation summary for a player.
+               §7§l• §c§o/<command> inspect (player)§7 - Status info for a player.
+               §7§l• §c§o/<command> notify on|off§7 - Toggle in-game notifications on/off.
+               §7§l• §c§o/<command> removeplayer (player) [(check type)]§7 - Clear a check's data for a given player.
+               §7§l• §c§o/<command> reload§7 - Reload the configuration.
+               §7§l• §c§o/<command> lag§7 - Lag-related info.
+               §7§l• §c§o/<command> version§7 - Display information about both the server and the plugin.
+               §7§l• §c§o/<command> commands§7 - List all commands including auxiliary ones.
+               §7§l• §c§o/<command> stopwatch (distance) [stop/start/return]§7 - Simple command for measuring time and distances. Useful for testing purposes.
 
 permissions:
     # Check silent permissions (no log alerts if present).

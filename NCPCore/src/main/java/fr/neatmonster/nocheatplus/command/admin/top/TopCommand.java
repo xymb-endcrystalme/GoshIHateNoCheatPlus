@@ -113,29 +113,31 @@ public class TopCommand extends BaseCommand{
         @Override
         public void run() {
             final DecimalFormat format = new DecimalFormat("#.#");
-            final String c1, c2;
+            final String c1, c2, bo, it;
             if (sender instanceof Player) {
+                it = ChatColor.ITALIC.toString();
+                bo = ChatColor.BOLD.toString();
                 c1 = ChatColor.GRAY.toString();
                 c2 = ChatColor.RED.toString();
             } else {
-                c1 = c2 = "";
+                c1 = c2 = bo = it = "";
             }
             // Sort
             Collections.sort(views, comparator);
             // Display.
             final StringBuilder builder = new StringBuilder(100 + 32 * views.size());
-            builder.append(TAG + "Top result for check: " + ChatColor.GOLD + checkType.toString().toLowerCase() +":" + ChatColor.GRAY);
+            builder.append(TAG + "Top result for check: " + ChatColor.GOLD + bo +""+ it + checkType.toString().toLowerCase());
             int done = 0;
             for (final VLView view : views) {
-                builder.append("\n"+ c1 +"Player with most results:" + c2 + view.name);
+                builder.append("\n"+ c1 +"Player with most results: " + c2 +""+ it + view.name);
                 // sum
-                builder.append("\n" + c1 + "Sum of all VLs: " + c2 + format.format(view.sumVL));
+                builder.append("\n" + c1 + "Sum of all VLs: " + c2 +""+ it + format.format(view.sumVL));
                 // n
-                builder.append("\n" + c1 + "VLs amount: " + c2 + view.nVL);
+                builder.append("\n" + c1 + "VLs amount: " + c2 +""+ it + view.nVL);
                 // avg
-                builder.append("\n" + c1 + "Average VL: " + c2 + format.format(view.sumVL / view.nVL) );
+                builder.append("\n" + c1 + "Average VL: " + c2 +""+ it + format.format(view.sumVL / view.nVL) );
                 // max
-                builder.append("\n" + c1 + "Max VL: " + c2 + format.format(view.maxVL));
+                builder.append("\n" + c1 + "Max VL: " + c2 +""+ it + format.format(view.maxVL));
     
                 done ++;
                 if (done >= n) {
