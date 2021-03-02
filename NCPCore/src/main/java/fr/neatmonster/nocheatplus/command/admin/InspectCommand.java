@@ -30,6 +30,11 @@ import fr.neatmonster.nocheatplus.command.BaseCommand;
 import fr.neatmonster.nocheatplus.compat.BridgeHealth;
 import fr.neatmonster.nocheatplus.permissions.Permissions;
 import fr.neatmonster.nocheatplus.players.DataManager;
+import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
+import fr.neatmonster.nocheatplus.players.IPlayerData;
+import fr.neatmonster.nocheatplus.checks.moving.MovingData;
+import fr.neatmonster.nocheatplus.compat.Bridge1_13;
+import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 
 public class InspectCommand extends BaseCommand {
     private static final DecimalFormat f1 = new DecimalFormat("#.#");
@@ -75,6 +80,9 @@ public class InspectCommand extends BaseCommand {
     public static String getInspectMessage(final Player player, final ChatColor c1, final ChatColor c2, final ChatColor c3) {
 
         final StringBuilder builder = new StringBuilder(256);
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        final MovingData mData = pData.getGenericInstance(MovingData.class);
+        final MovingConfig mCC = pData.getGenericInstance(MovingConfig.class);
 
         // More spaghetti.
         builder.append(TAG + c1 + "Status information for player: " + c3 + player.getName());
@@ -85,16 +93,49 @@ public class InspectCommand extends BaseCommand {
         else builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is offline.");
 
         if (player.isValid()) {
-            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Player is valid");
+            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Player is valid.");
         }
-        else builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Player is invalid");
+        else builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Player is invalid.");
 
         builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Current health: " + f1.format(BridgeHealth.getHealth(player)) + "/" + f1.format(BridgeHealth.getMaxHealth(player)));
         builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Current food level: " + player.getFoodLevel());
         builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is in " + player.getGameMode() + " gamemode.");
 
+        if (mCC.assumeSprint) {
+            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is assumed to sprint.");
+        }
+        else builder.append("\n "+ c1 + "" + c2 + "•" + c1 +  " Assume sprint workaround disabled!");
+
         if (player.getExp() > 0f) {
             builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Experience Lvl: " + f1.format(player.getExpToLevel()) + "(exp=" + f1.format(player.getExp()) + ")");
+        }
+
+        if (Bridge1_9.isGlidingWithElytra(player)) {
+            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is gliding with elytra.");
+        }
+
+        if (Bridge1_13.isSwimming(player)) {
+            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is swimming (1.13).");
+        }
+        
+        if (player.isSneaking()) {
+            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is sneaking.");
+        }
+
+        if (player.isBlocking()) {
+            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is blocking.");
+        }
+
+        if (player.isSprinting()) {
+            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is sprinting.");
+        }
+
+        if (mData.isusingitem) {
+            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is using an item."); // TODO: Which item?
+        }
+
+        if (mData.lostSprintCount > 0) {
+            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Their sprint status has been lost for: " + mData.lostSprintCount + " ticks.");
         }
 
         if (player.isInsideVehicle()) {
@@ -109,7 +150,6 @@ public class InspectCommand extends BaseCommand {
             builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is Op!");
         }
 
-      
         if (player.isFlying()) {
             builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Currently flying.");
         }
@@ -128,7 +168,6 @@ public class InspectCommand extends BaseCommand {
                 builder.append(effect.getType() + " at " + effect.getAmplifier() +",");
             }
         }
-        // TODO: is..sneaking,sprinting,blocking,
         // Finally the block location.
         final Location loc = player.getLocation();
         builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Position: " + locString(loc));
