@@ -43,12 +43,12 @@ public class DistanceCommand  extends AbstractCommand<StopWatchRegistry> {
             distance = Double.parseDouble(args[2]);
         } catch (NumberFormatException e) {}
         if (distance == null || distance.isNaN() || distance.isInfinite() || distance.doubleValue() < 0.0) {
-            sender.sendMessage(TAG + "Bad distance: " + args[2]);
+            sender.sendMessage(TAG + "Bad distance: " + ChatColor.RED +""+ args[2] + ChatColor.GRAY);
             return true;
         }
         StopWatch clock = new DistanceStopWatch((Player) sender, distance.doubleValue());
         access.setClock((Player) sender, clock);
-        sender.sendMessage(TAG + "New stopwatch started " + clock.getClockDetails() + ".");
+        sender.sendMessage(TAG + "New stopwatch started: " + ChatColor.GREEN +""+ clock.getClockDetails() + ChatColor.GRAY + ".");
         return true;
     }
 

@@ -21,7 +21,7 @@ commands:
         # permissions: nocheatplus.admin.(...)
         usage: |
                §6§l+§7§l------------------§6§l+
-               §7§l|§6§l Commands Overview  §7§l|
+               §7§l|§6§l Commands Overview  §7§l |
                §6§l+§7§l------------------§6§l+
                §7§l• §c§o/<command> top (entries) (check/s...) (sort by...)§7 - Display the top results of a given check.
                §7§l• §c§o/<command> info (player)§7 - Violation summary for a player.

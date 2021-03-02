@@ -113,21 +113,25 @@ public class TopCommand extends BaseCommand{
         @Override
         public void run() {
             final DecimalFormat format = new DecimalFormat("#.#");
-            final String c1, c2, bo, it;
+
+            final String c1, c2, c3, bo, it;
             if (sender instanceof Player) {
-                it = ChatColor.ITALIC.toString();
-                bo = ChatColor.BOLD.toString();
                 c1 = ChatColor.GRAY.toString();
                 c2 = ChatColor.RED.toString();
+                c3 = ChatColor.GOLD.toString();
+                bo = ChatColor.BOLD.toString();
+                it = ChatColor.ITALIC.toString();
             } else {
-                c1 = c2 = bo = it = "";
+                c1 = c2 = c3 = bo = it = "";
             }
+            
             // Sort
             Collections.sort(views, comparator);
             // Display.
             final StringBuilder builder = new StringBuilder(100 + 32 * views.size());
-            builder.append(TAG + "Top result for check: " + ChatColor.GOLD + bo +""+ it + checkType.toString().toLowerCase());
+            builder.append(TAG + "Top result for check: " + c3 + bo +""+ it + checkType.toString().toLowerCase());
             int done = 0;
+
             for (final VLView view : views) {
                 builder.append("\n"+ c1 +"Player with most results: " + c2 +""+ it + view.name);
                 // sum

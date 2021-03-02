@@ -75,7 +75,7 @@ public class DebugPlayerCommand extends BaseCommand {
 
     public DebugPlayerCommand(JavaPlugin plugin) {
         super(plugin, "player", null);
-        usage = TAG + "/ncp debug player (playername/UUID), (yes|no|default)[:CheckType1[:CheckType2...]] to set the default behavior - mix with player names/ids.";
+        usage = TAG + "/ncp debug player (playername/UUID) (yes|no|default)[:CheckType[:Check]]";
     }
 
     @Override
@@ -98,6 +98,19 @@ public class DebugPlayerCommand extends BaseCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
+
+        final ChatColor c1, c2, c3, c4, c5, c6, c7;
+        if (sender instanceof Player) {
+            c1 = ChatColor.GRAY;
+            c2 = ChatColor.BOLD;
+            c3 = ChatColor.RED;
+            c4 = ChatColor.ITALIC;
+            c5 = ChatColor.GOLD;
+            c6 = ChatColor.WHITE;
+            c7 = ChatColor.YELLOW;
+        } else {
+            c1 = c2 = c3 = c4 = c5 = c6 = c7 = null;
+        }
         // TODO: Wild cards (all players)?
         // TODO: (Allow to specify OverrideType ?)
 
@@ -112,7 +125,7 @@ public class DebugPlayerCommand extends BaseCommand {
             else {
                 UUID id = IdUtil.UUIDFromStringSafe(input);
                 if (id == null) {
-                    sender.sendMessage(TAG + "Bad name or UUID: " +ChatColor.RED+ input);
+                    sender.sendMessage(TAG + "Bad name or UUID: " + c3 + input);
                     return true;
                 }
                 else {
@@ -120,7 +133,7 @@ public class DebugPlayerCommand extends BaseCommand {
                 }
             }
             if (player == null) {
-                sender.sendMessage(TAG + "Not online: " + input);
+                sender.sendMessage(TAG + "Not online: " + c3 + input);
                 return true;
             }
         } else if (args.length <= 2) {
@@ -132,7 +145,7 @@ public class DebugPlayerCommand extends BaseCommand {
             String input = args[3];
             entry = DebugEntry.parseEntry(input);
             if (entry == null) {
-                sender.sendMessage(TAG + "Bad setup: " + input);
+                sender.sendMessage(TAG + "Bad setup: " + c3 + input);
                 // Can't continue.
                 return true;
             }
@@ -153,11 +166,10 @@ public class DebugPlayerCommand extends BaseCommand {
                 data.resetDebug(checkType);
             }
             else {
-                data.overrideDebug(checkType, entry.active, 
-                        OverrideType.CUSTOM, true);
+                data.overrideDebug(checkType, entry.active, OverrideType.CUSTOM, true);
             }
         }
-        sender.sendMessage(TAG + "Set debug: " +ChatColor.RED+ entry.active +ChatColor.GRAY+ " for player " + ChatColor.RED + player.getName() +ChatColor.GRAY+ " for checks: " +ChatColor.RED+ StringUtil.join(checkTypes, ","));
+        sender.sendMessage(TAG + "Set debug: " +c3+ entry.active +c1+ " for player " + c3 + player.getName() +c1+ " for checks: " +c3+ StringUtil.join(checkTypes, ","));
         return true;
     }
 

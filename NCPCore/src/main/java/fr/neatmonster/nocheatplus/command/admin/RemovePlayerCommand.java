@@ -41,17 +41,29 @@ public class RemovePlayerCommand extends BaseCommand {
 
     @SuppressWarnings("deprecation")
     @Override
-    public boolean onCommand(CommandSender sender, Command command,
-            String label, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        final ChatColor c1, c2, c3, c5, c6;
+        if (sender instanceof Player) {
+            c1 = ChatColor.GRAY;
+            c2 = ChatColor.BOLD;
+            c3 = ChatColor.RED;
+            c5 = ChatColor.GOLD;
+            c6 = ChatColor.WHITE;
+        } else {
+            c1 = c2 = c3 = c5 = c6 = null;
+        }
+
         if (args.length < 2 || args.length > 3) return false;
         String playerName = args[1];
         final CheckType checkType;
+
         if (args.length == 3){
             try{
                 checkType = CheckType.valueOf(args[2].toUpperCase().replace('-', '_').replace('.', '_'));
             } catch (Exception e){
                 sender.sendMessage(TAG + "Could not interpret: " + args[2]);
-                sender.sendMessage(TAG + "Check type should be one of: " + StringUtil.join(Arrays.asList(CheckType.values()), ChatColor.WHITE + " | " + ChatColor.GRAY));
+                sender.sendMessage(TAG + "Check type should be one of: " + StringUtil.join(Arrays.asList(CheckType.values()), c6 + " | " + c3));
                 return true;
             }
         }
@@ -59,7 +71,7 @@ public class RemovePlayerCommand extends BaseCommand {
 
         if (playerName.equals("*")){
             DataManager.clearData(checkType);
-            sender.sendMessage(TAG + "Removed all data and history: " + ChatColor.RED + checkType);
+            sender.sendMessage(TAG + "Removed all data and history: " + c3 + checkType);
             return true;
         }
 
@@ -85,10 +97,10 @@ public class RemovePlayerCommand extends BaseCommand {
         }
 
         if (somethingFound){
-            sender.sendMessage(TAG + "Issued history and data removal (" + ChatColor.RED + checkType + ChatColor.GRAY +"): " + ChatColor.RED + playerName + ChatColor.GRAY);
+            sender.sendMessage(TAG + "Issued history and data removal (" + c3 + checkType + c1 +"): " + c3 + playerName + c1);
         }
         else
-            sender.sendMessage(TAG + "Nothing found (" + ChatColor.RED + checkType + ChatColor.GRAY +"): " + ChatColor.RED + playerName + ChatColor.GRAY + " (spelled correctly?)");
+            sender.sendMessage(TAG + "Nothing found (" + c3 + checkType + c1 +"): " + c3 + playerName + c1 + " (spelled correctly?)");
         return true;
     }
 

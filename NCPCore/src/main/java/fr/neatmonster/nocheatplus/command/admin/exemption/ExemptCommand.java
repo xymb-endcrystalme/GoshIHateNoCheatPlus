@@ -21,6 +21,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.ChatColor;
 
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.command.BaseCommand;
@@ -38,6 +39,20 @@ public class ExemptCommand extends BaseCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        final ChatColor c1, c2, c3, c4, c5, c6, c7;
+        if (sender instanceof Player) {
+            c1 = ChatColor.GRAY;
+            c2 = ChatColor.BOLD;
+            c3 = ChatColor.RED;
+            c4 = ChatColor.ITALIC;
+            c5 = ChatColor.GOLD;
+            c6 = ChatColor.WHITE;
+            c7 = ChatColor.YELLOW;
+        } else {
+            c1 = c2 = c3 = c4 = c5 = c6 = c7 = null;
+        }
+
         // TODO: Reduce copy and paste by introducing some super class.
         if (args.length < 2 || args.length > 3) {
             return false;
@@ -48,8 +63,8 @@ public class ExemptCommand extends BaseCommand {
             try{
                 checkType = CheckType.valueOf(args[2].toUpperCase().replace('-', '_').replace('.', '_'));
             } catch (Exception e){
-                sender.sendMessage(TAG + "Could not interpret: " + args[2]);
-                sender.sendMessage(TAG + "Check type should be one of: " + StringUtil.join(Arrays.asList(CheckType.values()), " | "));
+                sender.sendMessage(TAG + "Could not interpret: " + c3 +""+ args[2]);
+                sender.sendMessage(TAG + "Check type should be one of: "  + c3 +""+ StringUtil.join(Arrays.asList(CheckType.values()), c6 + " | " + c3));
                 return true;
             }
         }
@@ -59,14 +74,14 @@ public class ExemptCommand extends BaseCommand {
 
         final Player player = DataManager.getPlayer(playerName);
         if (player == null){
-            sender.sendMessage(TAG + "Player not online: " + playerName);
+            sender.sendMessage(TAG + "Player not online: " + c3+""+ playerName);
             return true;
         }
         else {
             playerName = player.getName();
         }
         NCPExemptionManager.exemptPermanently(player, checkType);
-        sender.sendMessage(TAG + "Player " + playerName + " is now exempted from: " + checkType); 
+        sender.sendMessage(TAG + "Player " + c3 +""+ playerName + c1 + " is now exempted from: " + c3 +""+ checkType); 
         return true;
     }
 
