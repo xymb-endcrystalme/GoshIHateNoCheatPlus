@@ -41,7 +41,7 @@ public class CommandsCommand extends BaseCommand {
 	        ChatColor.GRAY +""+ ChatColor.BOLD +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> delay (delay=ticks) (command to delay) "+ChatColor.GRAY+" - delay a command execution. Time is in ticks.",
 	        ChatColor.GRAY +""+ ChatColor.BOLD +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> denylogin  (playername) (minutes) (reason) "+ChatColor.GRAY+" - Deny log-in for a player.",
 	        "",
-	        ChatColor.GOLD +""+ ChatColor.BOLD + "Auxiliary commands:" + ChatColor.GRAY,
+	        ChatColor.GOLD +""+ ChatColor.BOLD + "Auxiliary commands:",
 	        ChatColor.GRAY +""+ ChatColor.BOLD +"• "+ChatColor.RED +""+ ChatColor.ITALIC + "/<command> log counters "+ChatColor.GRAY+" - Show some stats/debug counters summary.",
             ChatColor.GRAY +""+ ChatColor.BOLD +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> reset counters" +ChatColor.GRAY+ " - Reset some stats/debug counters",
             ChatColor.GRAY +""+ ChatColor.BOLD +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> debug player (playername) yes/no:(check type) "+ChatColor.GRAY+" - Start/End a debug session for a specific check.",
