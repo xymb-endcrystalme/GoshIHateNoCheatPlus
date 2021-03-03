@@ -43,15 +43,15 @@ public class RemovePlayerCommand extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        final ChatColor c1, c2, c3, c5, c6;
+        final String c1, c2, c3, c5, c6;
         if (sender instanceof Player) {
-            c1 = ChatColor.GRAY;
-            c2 = ChatColor.BOLD;
-            c3 = ChatColor.RED;
-            c5 = ChatColor.GOLD;
-            c6 = ChatColor.WHITE;
+            c1 = ChatColor.GRAY.toString();
+            c2 = ChatColor.BOLD.toString();
+            c3 = ChatColor.RED.toString();
+            c5 = ChatColor.GOLD.toString();
+            c6 = ChatColor.WHITE.toString();
         } else {
-            c1 = c2 = c3 = c5 = c6 = null;
+            c1 = c2 = c3 = c5 = c6 = "";
         }
 
         if (args.length < 2 || args.length > 3) return false;

@@ -57,13 +57,13 @@ public class InspectCommand extends BaseCommand {
             }
         }
 
-        final ChatColor c1, c2, c3;
+        final String c1, c2, c3;
         if (sender instanceof Player) {
-            c1 = ChatColor.GRAY;
-            c2 = ChatColor.BOLD;
-            c3 = ChatColor.RED;
+            c1 = ChatColor.GRAY.toString();
+            c2 = ChatColor.BOLD.toString();
+            c3 = ChatColor.RED.toString();
         } else {
-            c1 = c2 = c3 = null;
+            c1 = c2 = c3 = "";
         }
         
         for (int i = 1; i < args.length; i++) {
@@ -77,7 +77,7 @@ public class InspectCommand extends BaseCommand {
         return true;
     }
 
-    public static String getInspectMessage(final Player player, final ChatColor c1, final ChatColor c2, final ChatColor c3) {
+    public static String getInspectMessage(final Player player, final String c1, final String c2, final String c3) {
 
         final StringBuilder builder = new StringBuilder(256);
         final IPlayerData pData = DataManager.getPlayerData(player);

@@ -41,17 +41,17 @@ public class UnexemptCommand extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        final ChatColor c1, c2, c3, c4, c5, c6, c7;
+        final String c1, c2, c3, c4, c5, c6, c7;
         if (sender instanceof Player) {
-            c1 = ChatColor.GRAY;
-            c2 = ChatColor.BOLD;
-            c3 = ChatColor.RED;
-            c4 = ChatColor.ITALIC;
-            c5 = ChatColor.GOLD;
-            c6 = ChatColor.WHITE;
-            c7 = ChatColor.YELLOW;
+            c1 = ChatColor.GRAY.toString();
+            c2 = ChatColor.BOLD.toString();
+            c3 = ChatColor.RED.toString();
+            c4 = ChatColor.ITALIC.toString();
+            c5 = ChatColor.GOLD.toString();
+            c6 = ChatColor.WHITE.toString();
+            c7 = ChatColor.YELLOW.toString();
         } else {
-            c1 = c2 = c3 = c4 = c5 = c6 = c7 = null;
+            c1 = c2 = c3 = c4 = c5 = c6 = c7 = "";
         }
 
         // TODO: Reduce copy and paste by introducing some super class.

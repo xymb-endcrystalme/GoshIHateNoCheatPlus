@@ -71,7 +71,7 @@ public class InfoCommand extends BaseCommand {
     	final ViolationHistory history = ViolationHistory.getHistory(playerName, false);
     	final boolean known = player != null || history != null;
     	if (history == null){
-    		sender.sendMessage(TAG + "No entries for " + cR + playerName + cG + "'s violations " + (known?"":"(exact spelling?)") +".");
+    		sender.sendMessage(TAG + "No entries for " + cR + playerName + cG + "'s violations " + ( known? "" : "(exact spelling?)") + ".");
     		return;
     	}
     	
@@ -92,8 +92,8 @@ public class InfoCommand extends BaseCommand {
                     cG + bold +"[" + cG + dateFormat.format(new Date(time)) + bold + "] " + cGO + italicbold + parent + "." + check  
                     +cG+bold + "\n• "+ cG + "VLs Sum: " + cR + sumVL  
                     +cG+bold + "\n• "+ cG + "Amount of VLs: " + cR + violationLevel.nVL 
-                    +cG+bold + "\n• "+ cG + "Average: " + cR + avVl 
-                    +cG+bold + "\n• "+ cG + "Max: " + cR + maxVL);
+                    +cG+bold + "\n• "+ cG + "Average VL: " + cR + avVl 
+                    +cG+bold + "\n• "+ cG + "Max VL: " + cR + maxVL);
             }
         } 
         else sender.sendMessage(TAG + "No violations to display for player " + cR + playerName);

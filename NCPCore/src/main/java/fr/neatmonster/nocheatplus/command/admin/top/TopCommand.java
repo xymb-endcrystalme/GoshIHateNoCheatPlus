@@ -133,15 +133,15 @@ public class TopCommand extends BaseCommand{
             int done = 0;
 
             for (final VLView view : views) {
-                builder.append("\n"+ c1 +"Player with most results: " + c2 +""+ it + view.name);
+                builder.append(c1 + "\n• "+ c1 +"Player with most results: " + c2 +""+ it + view.name);
                 // sum
-                builder.append("\n" + c1 + "Sum of all VLs: " + c2 +""+ it + format.format(view.sumVL));
+                builder.append(c1 + "\n• " + c1 + "Sum of all VLs: " + c2 +""+ it + format.format(view.sumVL));
                 // n
-                builder.append("\n" + c1 + "VLs amount: " + c2 +""+ it + view.nVL);
+                builder.append(c1 + "\n• " + c1 + "VLs amount: " + c2 +""+ it + view.nVL);
                 // avg
-                builder.append("\n" + c1 + "Average VL: " + c2 +""+ it + format.format(view.sumVL / view.nVL) );
+                builder.append(c1 + "\n• " + c1 + "Average VL: " + c2 +""+ it + format.format(view.sumVL / view.nVL) );
                 // max
-                builder.append("\n" + c1 + "Max VL: " + c2 +""+ it + format.format(view.maxVL));
+                builder.append(c1 + "\n• " + c1 + "Max VL: " + c2 +""+ it + format.format(view.maxVL));
     
                 done ++;
                 if (done >= n) {
