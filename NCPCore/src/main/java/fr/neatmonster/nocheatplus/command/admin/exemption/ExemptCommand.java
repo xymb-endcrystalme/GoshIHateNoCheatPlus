@@ -63,8 +63,8 @@ public class ExemptCommand extends BaseCommand {
             try{
                 checkType = CheckType.valueOf(args[2].toUpperCase().replace('-', '_').replace('.', '_'));
             } catch (Exception e){
-                sender.sendMessage(TAG + "Could not interpret: " + c3 +""+ args[2]);
-                sender.sendMessage(TAG + "Check type should be one of: "  + c3 +""+ StringUtil.join(Arrays.asList(CheckType.values()), c6 + " | " + c3));
+                sender.sendMessage((sender instanceof Player ? TAG : "") + "Could not interpret: " + c3 +""+ args[2]);
+                sender.sendMessage((sender instanceof Player ? TAG : "") + "Check type should be one of: "  + c3 +""+ StringUtil.join(Arrays.asList(CheckType.values()), c6 + ", " + c3));
                 return true;
             }
         }
@@ -74,14 +74,14 @@ public class ExemptCommand extends BaseCommand {
 
         final Player player = DataManager.getPlayer(playerName);
         if (player == null){
-            sender.sendMessage(TAG + "Player not online: " + c3+""+ playerName);
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Player not online: " + c3+""+ playerName);
             return true;
         }
         else {
             playerName = player.getName();
         }
         NCPExemptionManager.exemptPermanently(player, checkType);
-        sender.sendMessage(TAG + "Player " + c3 +""+ playerName + c1 + " is now exempted from: " + c3 +""+ checkType); 
+        sender.sendMessage((sender instanceof Player ? TAG : "") + "Player " + c3 +""+ playerName + c1 + " is now exempted from: " + c3 +""+ checkType); 
         return true;
     }
 

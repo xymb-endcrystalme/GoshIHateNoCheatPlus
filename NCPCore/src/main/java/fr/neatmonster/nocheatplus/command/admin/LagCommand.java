@@ -44,7 +44,7 @@ public class LagCommand extends BaseCommand {
         else cGO = cR = cG = bO = "";
 
         StringBuilder builder = new StringBuilder(300);
-        builder.append(TAG + "Displaying lag information...\n");
+        builder.append((sender instanceof Player ? TAG : "" )+ "Displaying lag information...\n");
 
         // Lag spikes.
         long[] spikeDurations = TickTask.getLagSpikeDurations();
@@ -68,7 +68,7 @@ public class LagCommand extends BaseCommand {
                     continue; // Could be break.
                 }
                 else if (i < spikeDurations.length - 1){
-                    builder.append(cG + "\n• " + cGO +""+ (spikes[i] - spikes[i + 1]) + cG + "spike(s) x " + cGO +""+ cGO +""+ spikeDurations[i] + cG + "ms = " + cGO +""+ spikeDurations[i + 1] + cG + ". ");
+                    builder.append(cG + "\n• " + cGO +""+ (spikes[i] - spikes[i + 1]) + cG + "spike(s) x " + cGO +""+ cGO +""+ spikeDurations[i] + cG + "ms -> " + cGO +""+ spikeDurations[i + 1] + cG + ". ");
                 }
                 else{
                     builder.append(cG + "\n• " + cGO +""+ spikes[i] + cG + "spike(s) x " + cGO +""+ cGO +""+ spikeDurations[i] + cG + ".");

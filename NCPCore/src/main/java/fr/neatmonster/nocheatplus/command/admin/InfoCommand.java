@@ -71,14 +71,14 @@ public class InfoCommand extends BaseCommand {
     	final ViolationHistory history = ViolationHistory.getHistory(playerName, false);
     	final boolean known = player != null || history != null;
     	if (history == null){
-    		sender.sendMessage(TAG + "No entries for " + cR + playerName + cG + "'s violations " + ( known? "" : "(exact spelling?)") + ".");
+    		sender.sendMessage((sender instanceof Player ? TAG : "") + "No entries for " + cR + playerName + cG + "'s violations " + ( known? "" : "(exact spelling?)") + ".");
     		return;
     	}
     	
         final DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
         final ViolationLevel[] violations = history.getViolationLevels();
         if (violations.length > 0) {
-            sender.sendMessage(TAG + "Displaying " + cR + playerName + cG + "'s violations: ");
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Displaying " + cR + playerName + cG + "'s violations: ");
             for (final ViolationLevel violationLevel : violations) {
 
                 final long time = violationLevel.time;

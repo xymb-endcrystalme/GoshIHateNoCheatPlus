@@ -65,7 +65,7 @@ public class ExemptionsCommand extends BaseCommand {
         }
         final List<String> entries = new LinkedList<String>();
         if (id == null) {
-            sender.sendMessage(TAG + "Not online nor a UUID: " + c3 +""+ playerName + c1 + " .");
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Not online nor a UUID: " + c3 +""+ playerName + c1 + " .");
             return true;
         } else {
             for (CheckType type : CheckType.values()){
@@ -75,11 +75,11 @@ public class ExemptionsCommand extends BaseCommand {
             }
         }
         if (entries.isEmpty()) {
-            sender.sendMessage(TAG + "No exemption entries available for " + c3 +""+ playerName + c1 + " .");
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "No exemption entries available for " + c3 +""+ playerName + c1 + " .");
         }
         else {
             // TODO: Compress entries ?
-            sender.sendMessage(TAG + "Exemptions for " + c3 +""+  playerName + c1 + ": " + c3 +""+ StringUtil.join(entries, ", "));
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Exemptions for " + c3 +""+  playerName + c1 + ": " + c3 +""+ StringUtil.join(entries, ", "));
         }
         return true;
     }

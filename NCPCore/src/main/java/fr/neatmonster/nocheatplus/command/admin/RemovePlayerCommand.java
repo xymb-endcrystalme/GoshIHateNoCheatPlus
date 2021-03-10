@@ -62,8 +62,8 @@ public class RemovePlayerCommand extends BaseCommand {
             try{
                 checkType = CheckType.valueOf(args[2].toUpperCase().replace('-', '_').replace('.', '_'));
             } catch (Exception e){
-                sender.sendMessage(TAG + "Could not interpret: " + args[2]);
-                sender.sendMessage(TAG + "Check type should be one of: " + StringUtil.join(Arrays.asList(CheckType.values()), c6 + " | " + c3));
+                sender.sendMessage((sender instanceof Player ? TAG : "") + "Could not interpret: " + args[2]);
+                sender.sendMessage((sender instanceof Player ? TAG : "") + "Check type should be one of: " + StringUtil.join(Arrays.asList(CheckType.values()), c6 + ", " + c3));
                 return true;
             }
         }
@@ -71,7 +71,7 @@ public class RemovePlayerCommand extends BaseCommand {
 
         if (playerName.equals("*")){
             DataManager.clearData(checkType);
-            sender.sendMessage(TAG + "Removed all data and history: " + c3 + checkType);
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Removed all data and history: " + c3 + checkType);
             return true;
         }
 
@@ -97,10 +97,10 @@ public class RemovePlayerCommand extends BaseCommand {
         }
 
         if (somethingFound){
-            sender.sendMessage(TAG + "Issued history and data removal (" + c3 + checkType + c1 +"): " + c3 + playerName + c1);
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Issued history and data removal (" + c3 + checkType + c1 +"): " + c3 + playerName + c1);
         }
         else
-            sender.sendMessage(TAG + "Nothing found (" + c3 + checkType + c1 +"): " + c3 + playerName + c1 + " (spelled correctly?)");
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Nothing found (" + c3 + checkType + c1 +"): " + c3 + playerName + c1 + " (spelled correctly?)");
         return true;
     }
 

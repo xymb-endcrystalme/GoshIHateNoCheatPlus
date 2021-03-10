@@ -75,10 +75,10 @@ public class VersionCommand extends BaseCommand {
                 c3 +""+ c2 + "»Version information«" + c1,
                 c5 +""+ c2 + "Server:" + c1,
                 c1 + alt(Bukkit.getServer().getVersion()),
-                c1 +""+ c4 + "Detected: " + c1 + alt(ServerVersion.getMinecraftVersion()),
+                c1 +""+ c7 + "Detected: " + c1 + alt(ServerVersion.getMinecraftVersion()),
                 c5 +""+ c2 + "NoCheatPlus:" + c1,
-                c1 +""+ c4 + "Plugin: "+ c1 + alt(Bukkit.getPluginManager().getPlugin("NoCheatPlus").getDescription().getVersion()),
-                c1 +""+ c4 +  "MCAccess: " + c1 + alt(mcAccess.getMCVersion() + " / " + mcAccess.getServerVersionTag()),
+                c1 +""+ c7 + "Plugin: "+ c1 + alt(Bukkit.getPluginManager().getPlugin("NoCheatPlus").getDescription().getVersion()),
+                c1 +""+ c7 +  "MCAccess: " + c1 + alt(mcAccess.getMCVersion() + " / " + mcAccess.getServerVersionTag()),
         }));
 
         final Map<String, Set<String>> featureTags = NCPAPIProvider.getNoCheatPlusAPI().getAllFeatureTags();
@@ -86,7 +86,7 @@ public class VersionCommand extends BaseCommand {
             final List<String> features = new LinkedList<String>();
             // Add present features.
             for (final Entry<String, Set<String>> entry : featureTags.entrySet()) {
-                features.add(alt(c1 +""+ c7 +""+ entry.getKey() + c1 + ": " + StringUtil.join(entry.getValue(), c6 + " | " + c1)));
+                features.add(alt(c1 +""+ c7 +""+ entry.getKey() + c1 + ": " + StringUtil.join(entry.getValue(), c6 + ", " + c1)));
             }
             // Sort and add.
             Collections.sort(features, String.CASE_INSENSITIVE_ORDER);
@@ -101,7 +101,7 @@ public class VersionCommand extends BaseCommand {
                 fullNames.add(alt(hook.getHookName() + " " + hook.getHookVersion()));
             }
             Collections.sort(fullNames, String.CASE_INSENSITIVE_ORDER);
-            lines.add(c5 +""+ c2 + "Hooks: " + c1 + StringUtil.join(fullNames, c6 + " | " + c1));
+            lines.add(c5 +""+ c2 + "Hooks: " + c1 + StringUtil.join(fullNames, c6 + ", " + c1));
         }
 
         final List<String> relatedPlugins = new LinkedList<String>();
@@ -114,7 +114,7 @@ public class VersionCommand extends BaseCommand {
 
         if (!relatedPlugins.isEmpty()) {
             lines.add(c3 +""+ c2 + "»Related Plugins«" + c1);
-            lines.add(c1 +""+ StringUtil.join(relatedPlugins, c6 + " | " + c1));
+            lines.add(c1 +""+ StringUtil.join(relatedPlugins, c6 + ", " + c1));
         }
         return lines;
     }

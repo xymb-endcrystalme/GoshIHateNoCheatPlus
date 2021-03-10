@@ -51,8 +51,9 @@ public class InspectCommand extends BaseCommand {
         if (args.length == 1) {
             if (sender instanceof Player) {
                 args = new String[]{args[0], sender.getName()};
-            } else {
-                sender.sendMessage(TAG + "Please specify a player to inspect.");
+            } 
+            else {
+                sender.sendMessage((sender instanceof Player ? TAG : "") + "Please specify a player to inspect.");
                 return true;
             }
         }
@@ -62,15 +63,17 @@ public class InspectCommand extends BaseCommand {
             c1 = ChatColor.GRAY.toString();
             c2 = ChatColor.BOLD.toString();
             c3 = ChatColor.RED.toString();
-        } else {
+        } 
+        else {
             c1 = c2 = c3 = "";
         }
         
         for (int i = 1; i < args.length; i++) {
             final Player player = DataManager.getPlayer(args[i].trim().toLowerCase());
             if (player == null) {
-                sender.sendMessage(TAG + "Not online: " + c3 +""+ args[i]);
-            } else {
+                sender.sendMessage((sender instanceof Player ? TAG : "") + "Not online: " + c3 +""+ args[i]);
+            } 
+            else {
                 sender.sendMessage(getInspectMessage(player, c1, c2, c3));
             }
         }
@@ -165,7 +168,7 @@ public class InspectCommand extends BaseCommand {
         if (!effects.isEmpty()) {
             builder.append("\n "+ c1 + "" + c2 + "•" +c1+ "Effects: ");
             for (final PotionEffect effect : effects) {
-                builder.append(effect.getType() + " at " + effect.getAmplifier() +",");
+                builder.append(effect.getType() + " at level " + effect.getAmplifier() +", ");
             }
         }
         // Finally the block location.

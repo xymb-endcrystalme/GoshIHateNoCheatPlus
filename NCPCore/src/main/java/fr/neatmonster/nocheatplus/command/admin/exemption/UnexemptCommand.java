@@ -62,8 +62,8 @@ public class UnexemptCommand extends BaseCommand {
             try{
                 checkType = CheckType.valueOf(args[2].toUpperCase().replace('-', '_').replace('.', '_'));
             } catch (Exception e){
-                sender.sendMessage(TAG + "Could not interpret: " + c3 +""+ args[2]);
-                sender.sendMessage(TAG + "Check type should be one of: " + c3 +""+ StringUtil.join(Arrays.asList(CheckType.values()), c6 + " | " + c3));
+                sender.sendMessage((sender instanceof Player ? TAG : "") + "Could not interpret: " + c3 +""+ args[2]);
+                sender.sendMessage((sender instanceof Player ? TAG : "") + "Check type should be one of: " + c3 +""+ StringUtil.join(Arrays.asList(CheckType.values()), c6 + ", " + c3));
                 return true;
             }
         }
@@ -72,7 +72,7 @@ public class UnexemptCommand extends BaseCommand {
             // Unexempt all.
             // TODO: might care to find players only ?
             NCPExemptionManager.clear();
-            sender.sendMessage(TAG + "Removed exemptions for all players for checks: " + c3 +""+ checkType);
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Removed exemptions for all players for checks: " + c3 +""+ checkType);
             return true;
         }
         // Find player.
@@ -85,10 +85,10 @@ public class UnexemptCommand extends BaseCommand {
             id = DataManager.getUUID(playerName);
         }
         if (id == null) {
-            sender.sendMessage(TAG + "Not an online player nor a UUID: " + c3 +""+ playerName);
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Not an online player nor a UUID: " + c3 +""+ playerName);
         } else {
             NCPExemptionManager.unexempt(id, checkType);
-            sender.sendMessage(TAG + "Remove exemptions for " + c3 +""+ playerName + c1 + " for checks: " + c3 +""+ checkType);
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Remove exemptions for " + c3 +""+ playerName + c1 + " for checks: " + c3 +""+ checkType);
         }
         return true;
     }
