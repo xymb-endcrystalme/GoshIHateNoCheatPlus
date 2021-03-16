@@ -101,7 +101,7 @@ public class VersionCommand extends BaseCommand {
                 fullNames.add(alt(hook.getHookName() + " " + hook.getHookVersion()));
             }
             Collections.sort(fullNames, String.CASE_INSENSITIVE_ORDER);
-            lines.add(c5 +""+ c2 + "Hooks: " + c1 + StringUtil.join(fullNames, c6 + ", " + c1));
+            lines.add(c5 +""+ c2 + "Hooks:\n" + c1 + StringUtil.join(fullNames, c6 + ", " + c1));
         }
 
         final List<String> relatedPlugins = new LinkedList<String>();

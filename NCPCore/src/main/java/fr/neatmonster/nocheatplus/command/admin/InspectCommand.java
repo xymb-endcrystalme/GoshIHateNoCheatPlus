@@ -146,7 +146,7 @@ public class InspectCommand extends BaseCommand {
         }
 
         if (player.isDead()) {
-            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Currently dead.");
+            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is currently dead.");
         }
 
         if (player.isOp()){
@@ -178,7 +178,7 @@ public class InspectCommand extends BaseCommand {
     }
 
     private static final String locString(Location loc) {
-        return loc.getWorld().getName() + "/" + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ();
+        return loc.getWorld().getName() + " at " + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ();
     }
 
     /* (non-Javadoc)
