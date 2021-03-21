@@ -91,7 +91,7 @@ public class InfoCommand extends BaseCommand {
                 sender.sendMessage(
                     cG + bold +"[" + cG + dateFormat.format(new Date(time)) + bold + "] " + cGO + italicbold + parent + "." + check  
                     +cG+bold + "\n• "+ cG + "VLs Sum: " + cR + sumVL  
-                    +cG+bold + "\n• "+ cG + "Amount of VLs: " + cR + violationLevel.nVL 
+                    +cG+bold + "\n• "+ cG + "VLs amount: " + cR + violationLevel.nVL 
                     +cG+bold + "\n• "+ cG + "Average VL: " + cR + avVl 
                     +cG+bold + "\n• "+ cG + "Max VL: " + cR + maxVL);
             }

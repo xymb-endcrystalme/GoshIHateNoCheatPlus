@@ -135,7 +135,7 @@ public class TopCommand extends BaseCommand{
             for (final VLView view : views) {
                 builder.append(c1 + "\n• "+ c1 +"Player with most results: " + c2 +""+ it + view.name);
                 // sum
-                builder.append(c1 + "\n• " + c1 + "Sum of all VLs: " + c2 +""+ it + format.format(view.sumVL));
+                builder.append(c1 + "\n• " + c1 + "VLs Sum: " + c2 +""+ it + format.format(view.sumVL));
                 // n
                 builder.append(c1 + "\n• " + c1 + "VLs amount: " + c2 +""+ it + view.nVL);
                 // avg

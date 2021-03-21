@@ -35,10 +35,10 @@ public class CommandsCommand extends BaseCommand {
 	final String[] moreCommands = new String[]{
 		    // TODO: Mmmmh, spaghetti.
 			ChatColor.GOLD +""+ ChatColor.BOLD + "Console commands:",
-	        ChatColor.GRAY +""+ ChatColor.BOLD +"• "+ChatColor.RED +""+ ChatColor.ITALIC + "/<command> ban (playername) (reason)"+ChatColor.GRAY+" - Ban player",
-	        ChatColor.GRAY +""+ ChatColor.BOLD +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> kick (playername) (reason)"+ChatColor.GRAY+" - Kick player",
-	        ChatColor.GRAY +""+ ChatColor.BOLD +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> tell (playername) (message)"+ChatColor.GRAY+" - Tell a message",
-	        ChatColor.GRAY +""+ ChatColor.BOLD +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> delay (delay=ticks) (command to delay)"+ChatColor.GRAY+" - delay a command execution. Time is in ticks.",
+	        ChatColor.GRAY +""+ ChatColor.BOLD +"• "+ChatColor.RED +""+ ChatColor.ITALIC + "/<command> ban (playername) (reason)"+ChatColor.GRAY+" - Ban player.",
+	        ChatColor.GRAY +""+ ChatColor.BOLD +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> kick (playername) (reason)"+ChatColor.GRAY+" - Kick player.",
+	        ChatColor.GRAY +""+ ChatColor.BOLD +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> tell (playername) (message)"+ChatColor.GRAY+" - Tell a private message to the player.",
+	        ChatColor.GRAY +""+ ChatColor.BOLD +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> delay (delay=ticks) (command to delay)"+ChatColor.GRAY+" - Delay a command execution. Time is in ticks.",
 	        ChatColor.GRAY +""+ ChatColor.BOLD +"• "+ChatColor.RED +""+ ChatColor.ITALIC +"/<command> denylogin  (playername) (minutes) (reason)"+ChatColor.GRAY+" - Deny log-in for a player.",
 	        "",
 	        ChatColor.GOLD +""+ ChatColor.BOLD + "Auxiliary commands:",
