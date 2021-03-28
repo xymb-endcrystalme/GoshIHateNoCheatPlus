@@ -21,7 +21,6 @@ import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.permissions.Permissions;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.TickTask;
-import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 
 /**
  * Legacy check (client side health regeneration).
@@ -36,9 +35,6 @@ public class FastHeal extends Check {
     }
 
     public boolean check(final Player player, final IPlayerData pData){
-        if (ServerVersion.compareMinecraftVersion("1.9") >= 0) {
-    		return false;
-    	}
         final long time = System.currentTimeMillis();
 
         final FightConfig cc = pData.getGenericInstance(FightConfig.class);

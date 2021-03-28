@@ -28,7 +28,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 
 import fr.neatmonster.nocheatplus.checks.CheckType;
-import fr.neatmonster.nocheatplus.checks.fight.FightData;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.players.DataManager;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
@@ -36,7 +35,7 @@ import fr.neatmonster.nocheatplus.players.IPlayerData;
 public class Fight extends BaseAdapter{
     private static PacketType[] initPacketTypes() {
         final List<PacketType> types = new LinkedList<PacketType>(Arrays.asList(
-                PacketType.Play.Client.ARM_ANIMATION,
+                //PacketType.Play.Client.ARM_ANIMATION,
                 PacketType.Play.Server.EXPLOSION
         ));
         return types.toArray(new PacketType[types.size()]);
@@ -46,10 +45,10 @@ public class Fight extends BaseAdapter{
         super(plugin, ListenerPriority.MONITOR, initPacketTypes());
     }
 
-    @Override
-    public void onPacketReceiving(final PacketEvent event) {
-        handleAnmationPacket(event);
-    }
+    //@Override
+    //public void onPacketReceiving(final PacketEvent event) {
+    //    handleAnmationPacket(event);
+    //}
 
     @Override
     public void onPacketSending(final PacketEvent event) {
@@ -91,22 +90,22 @@ public class Fight extends BaseAdapter{
         data.explosionvelZ += velZ;
     }
 
-    public void handleAnmationPacket(final PacketEvent event) {
+    //public void handleAnmationPacket(final PacketEvent event) {
         
-        final Player player = event.getPlayer();
-        final FightData data = DataManager.getGenericInstance(player, FightData.class);
+     //   final Player player = event.getPlayer();
+     //   final FightData data = DataManager.getGenericInstance(player, FightData.class);
         // TODO: Count temporary player as well?
-        if (event.isPlayerTemporary()) return;
-        if (event.getPacketType() != PacketType.Play.Client.ARM_ANIMATION) {
+     //   if (event.isPlayerTemporary()) return;
+     //   if (event.getPacketType() != PacketType.Play.Client.ARM_ANIMATION) {
             //data.noSwingPacket = false;
             //data.noSwingArmSwung = false;
-            return;
-        }
-        if (player == null) {
-            counters.add(ProtocolLibComponent.idNullPlayer, 1);
-            return;
-        }
-        data.noSwingPacket = true;
-        data.noSwingArmSwung = true;
-    }
+     //       return;
+     //   }
+     //   if (player == null) {
+     //       counters.add(ProtocolLibComponent.idNullPlayer, 1);
+     //       return;
+     //   }
+     //   data.noSwingPacket = true;
+     //   data.noSwingArmSwung = true;
+    //}
 }

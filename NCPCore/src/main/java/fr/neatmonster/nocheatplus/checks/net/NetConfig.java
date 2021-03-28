@@ -14,6 +14,7 @@
  */
 package fr.neatmonster.nocheatplus.checks.net;
 
+import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.actions.ActionList;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.access.ACheckConfig;
@@ -108,8 +109,17 @@ public class NetConfig extends ACheckConfig {
 
         if (ServerVersion.compareMinecraftVersion("1.9") >= 0) {
             // TODO: Disable packet frequency or activate 'pessimistically'.
-            worldData.overrideCheckActivation(CheckType.NET_PACKETFREQUENCY, 
-                    AlmostBoolean.NO, OverrideType.PERMANENT, true);
+            /** Note: Disable check should use
+             *    NCPAPIProvider#getNoCheatPlusAPI()#getWorldDataManager()#overrideCheckActivation()
+             *  to actually disable from all worlds. 
+             *  Using worldData from config will only affect
+             *  on world they are staying on join; And on other worlds still remain unchanged.
+             */
+            NCPAPIProvider.getNoCheatPlusAPI().getWorldDataManager().overrideCheckActivation(
+                    CheckType.NET_PACKETFREQUENCY, AlmostBoolean.NO, 
+                    OverrideType.PERMANENT, true);
+            //worldData.overrideCheckActivation(CheckType.NET_PACKETFREQUENCY,
+            //        AlmostBoolean.NO, OverrideType.PERMANENT, true);
         }
         packetFrequencyPacketsPerSecond = config.getInt(ConfPaths.NET_PACKETFREQUENCY_PPS);
         packetFrequencySeconds = config.getInt(ConfPaths.NET_PACKETFREQUENCY_SECONDS);

@@ -14,6 +14,7 @@
  */
 package fr.neatmonster.nocheatplus.checks.fight;
 
+import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.actions.ActionList;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.access.ACheckConfig;
@@ -123,9 +124,15 @@ public class FightConfig extends ACheckConfig {
         directionActions = config.getOptimizedActionList(ConfPaths.FIGHT_DIRECTION_ACTIONS, Permissions.FIGHT_DIRECTION);
 
         if (ServerVersion.compareMinecraftVersion("1.9") >= 0) {
-            worldData.overrideCheckActivation(CheckType.FIGHT_FASTHEAL, 
-                    AlmostBoolean.NO, OverrideType.PERMANENT, 
-                    true);
+            /** Note: Disable check should use
+             *    NCPAPIProvider#getNoCheatPlusAPI()#getWorldDataManager()#overrideCheckActivation()
+             *  to actually disable from all worlds. 
+             *  Using worldData from config will only affect
+             *  on world they are staying on join; And on other worlds still remain unchanged.
+             */
+            NCPAPIProvider.getNoCheatPlusAPI().getWorldDataManager().overrideCheckActivation(
+                    CheckType.FIGHT_FASTHEAL, AlmostBoolean.NO, 
+                    OverrideType.PERMANENT, true);
         }
         fastHealInterval = config.getLong(ConfPaths.FIGHT_FASTHEAL_INTERVAL);
         fastHealBuffer = config.getLong(ConfPaths.FIGHT_FASTHEAL_BUFFER);

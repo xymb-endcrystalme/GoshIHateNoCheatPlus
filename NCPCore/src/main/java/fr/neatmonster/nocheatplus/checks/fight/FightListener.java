@@ -252,10 +252,10 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
             // (This is done even if the event has already been cancelled, to keep track, if the player is on a horse.)
             damagedTrace = DataManager.getPlayerData(damagedPlayer).getGenericInstance(
                     MovingData.class
-                    ).updateTrace(
-                            damagedPlayer, damagedLoc, tick, 
-                            damagedIsFake ? null : mcAccess.getHandle()
-                            );
+                    ).getTrace(damagedPlayer);//.updateTrace(
+                     //       damagedPlayer, damagedLoc, tick, 
+                      //      damagedIsFake ? null : mcAccess.getHandle()
+                      //      );
         }
         else {
             damagedPlayer = null; // TODO: This is a temporary workaround.
@@ -886,13 +886,8 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerAnimation(final PlayerAnimationEvent event) {
         // Set a flag telling us that the arm has been swung.
-        /*
-         * TODO: First one always fails: Packet inversion on 1.12.2? This could
-         * be moved to packet level (register either).
-         */
         final FightData data = DataManager.getGenericInstance(event.getPlayer(), FightData.class);
-        if (data.noSwingPacket) return;
-        data.noSwingArmSwung = true;
+        data.noSwingCount = Math.max(data.noSwingCount - 1, 0);
         
     }
 

@@ -149,6 +149,7 @@ public class NoFall extends Check {
     private void fallOn(final Player player, final double fallDist) {
 
         // TODO: Turtle eggs too?
+        // TODO: Need move data pTo, this location isn't updated
         Block block = player.getLocation().subtract(0.0, 1.0, 0.0).getBlock();
         if (block.getType() == BridgeMaterial.FARMLAND && fallDist > 0.5 && random.nextFloat() < fallDist - 0.5 && ShouldChangeBlock(player, block)) {
             // Move up a little bit in order not to stuck in a block
@@ -198,7 +199,7 @@ public class NoFall extends Check {
             Bukkit.getPluginManager().callEvent(fadeevent);
             if (fadeevent.isCancelled()) return false;
         }
-    	return true;
+        return true;
     }
 
 
@@ -237,10 +238,11 @@ public class NoFall extends Check {
 
         final PlayerMoveData validmove = data.playerMoves.getLatestValidMove();
         if (validmove != null && validmove.toIsValid) {
-    	    final Material blockmat = player.getWorld().getBlockAt(
-    	            Location.locToBlock(validmove.to.getX()), Location.locToBlock(validmove.to.getY()), Location.locToBlock(validmove.to.getZ())
-    	            ).getType();
-    	    if ((BlockProperties.getBlockFlags(blockmat) & BlockProperties.F_STICKY) != 0) {
+            // TODO: Need move data pTo, this location isn't updated
+            final Material blockmat = player.getWorld().getBlockAt(
+                    Location.locToBlock(validmove.to.getX()), Location.locToBlock(validmove.to.getY()), Location.locToBlock(validmove.to.getZ())
+                    ).getType();
+            if ((BlockProperties.getBlockFlags(blockmat) & BlockProperties.F_STICKY) != 0) {
                 return Math.round(damage / 5);
             }
         }

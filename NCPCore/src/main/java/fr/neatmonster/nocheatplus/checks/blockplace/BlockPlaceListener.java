@@ -388,7 +388,8 @@ public class BlockPlaceListener extends CheckListener {
             priority = EventPriority.MONITOR)
     public void onPlayerAnimation(final PlayerAnimationEvent event) {
         // Just set a flag to true when the arm was swung.
-        DataManager.getPlayerData(event.getPlayer()).getGenericInstance(BlockPlaceData.class).noSwingArmSwung = true;
+        final BlockPlaceData data = DataManager.getGenericInstance(event.getPlayer(), BlockPlaceData.class);
+        data.noSwingCount = Math.max(data.noSwingCount - 1, 0);
     }
 
     /**
