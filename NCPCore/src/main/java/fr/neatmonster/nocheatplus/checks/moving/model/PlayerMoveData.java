@@ -60,6 +60,12 @@ public class PlayerMoveData extends MoveData {
     /** This move was a bunny hop. */
     public boolean bunnyHop;
 
+    /** This move was allowed to step. Set in SurvivalFly.check(vdistrel) */
+    public boolean allowstep;
+
+    /** This move was allowed to jump. Set in SurvivalFly.check(vdistrel) */
+    public boolean allowjump;
+
     // TODO: verVel/horvel used?
 
     // Meta stuff.
@@ -83,6 +89,8 @@ public class PlayerMoveData extends MoveData {
         walkSpeed = 0.2;
         // Properties involving the environment.
         bunnyHop = false;
+        allowstep = false;
+        allowjump = false;
         // Bounds set by checks.
         hAllowedDistanceBase = 0.0;
         yAllowedDistance = 0.0;

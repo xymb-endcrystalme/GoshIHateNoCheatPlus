@@ -62,7 +62,7 @@ public class BlockBreakData extends ACheckData implements IDataOnReload {
     public int     frequencyShortTermTick;
 
     // Data of the no swing check.
-    public boolean noSwingArmSwung     = true;
+    public int noSwingCount     = 0;
 
     // Data of the reach check.
     public double  reachDistance;

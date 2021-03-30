@@ -19,8 +19,13 @@ import java.util.Set;
 
 import org.bukkit.Material;
 
+import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.actions.ActionList;
+import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.access.ACheckConfig;
+import fr.neatmonster.nocheatplus.compat.AlmostBoolean;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
+import fr.neatmonster.nocheatplus.components.config.value.OverrideType;
 import fr.neatmonster.nocheatplus.config.ConfPaths;
 import fr.neatmonster.nocheatplus.config.ConfigFile;
 import fr.neatmonster.nocheatplus.permissions.Permissions;
@@ -95,6 +100,25 @@ public class InventoryConfig extends ACheckConfig {
         fastClickImprobableWeight = (float) data.getDouble(ConfPaths.INVENTORY_FASTCLICK_IMPROBABLE_WEIGHT);
         fastClickActions = data.getOptimizedActionList(ConfPaths.INVENTORY_FASTCLICK_ACTIONS, Permissions.INVENTORY_FASTCLICK);
 
+        if (ServerVersion.compareMinecraftVersion("1.9") >= 0) {
+            /** Note: Disable check should use
+             *    NCPAPIProvider#getNoCheatPlusAPI()#getWorldDataManager()#overrideCheckActivation()
+             *  to actually disable from all worlds. 
+             *  Using worldData from config will only affect
+             *  on world they are staying on join; And on other worlds still remain unchanged.
+             */
+            NCPAPIProvider.getNoCheatPlusAPI().getWorldDataManager().overrideCheckActivation(
+                    CheckType.INVENTORY_FASTCONSUME, AlmostBoolean.NO, 
+                    OverrideType.PERMANENT, true);
+            // Just in case they disable fastconsume in the config and switch to default (instanteat)
+            NCPAPIProvider.getNoCheatPlusAPI().getWorldDataManager().overrideCheckActivation(
+                    CheckType.INVENTORY_INSTANTEAT, AlmostBoolean.NO, 
+                    OverrideType.PERMANENT, true);
+            NCPAPIProvider.getNoCheatPlusAPI().getWorldDataManager().overrideCheckActivation(
+                    CheckType.INVENTORY_INSTANTBOW, AlmostBoolean.NO, 
+                    OverrideType.PERMANENT, true);
+        }
+        
         fastConsumeDuration = (long) (1000.0 * data.getDouble(ConfPaths.INVENTORY_FASTCONSUME_DURATION));
         fastConsumeWhitelist = data.getBoolean(ConfPaths.INVENTORY_FASTCONSUME_WHITELIST);
         data.readMaterialFromList(ConfPaths.INVENTORY_FASTCONSUME_ITEMS, fastConsumeItems);

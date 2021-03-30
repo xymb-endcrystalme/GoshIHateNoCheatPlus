@@ -91,12 +91,7 @@ public class DefaultConfig extends ConfigFile {
                  * Relog, logins: Note: aims at login denial, would invalidate
                  * once offline/world change. +- not sure.
                  */
-                "nocheatplus.checks.chat.relog :: INTERVAL:10",
-                "nocheatplus.checks.chat.logins :: INTERVAL:10",
-                "nocheatplus.checks.chat.* :: INTERVAL:4",
-                "nocheatplus.checks.net.* :: INTERVAL:5",
-                "nocheatplus.checks.moving* :: INTERVAL:5", // (Excludes the sf base permission.)
-                "nocheatplus.checks.inventory.moreinventory :: INTERVAL:5"
+                "nocheatplus.checks* :: INTERVAL:6"
                 ), 1154);
 
 
@@ -338,7 +333,8 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_ACTIVE, "default", 1144);
         // General
         set(ConfPaths.FIGHT_CANCELDEAD, true, 785);
-	    set(ConfPaths.FIGHT_MAXLOOPLETENCYTICKS, 8, 1154);
+        // TODO: Using System.currentTimeMillis() for timestamp not server tick?
+        set(ConfPaths.FIGHT_MAXLOOPLETENCYTICKS, 8, 1154);
         set(ConfPaths.FIGHT_TOOLCHANGEPENALTY, 0L, 1154); // Disabled for now, it interferes too much with pvp. 500L
         set(ConfPaths.FIGHT_PVP_KNOCKBACKVELOCITY, "default", 785);
         // YawRate activation flag
@@ -592,7 +588,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_IGNORESTANCE, "default", 785);
         set(ConfPaths.MOVING_TEMPKICKILLEGAL, true, 785);
         set(ConfPaths.MOVING_LOADCHUNKS_JOIN, true, 785);
-        set(ConfPaths.MOVING_LOADCHUNKS_MOVE, true, 785);
+        set(ConfPaths.MOVING_LOADCHUNKS_MOVE, false, 1154);
         set(ConfPaths.MOVING_LOADCHUNKS_TELEPORT, true, 785);
         set(ConfPaths.MOVING_LOADCHUNKS_WORLDCHANGE, true, 785);
         set(ConfPaths.MOVING_SPRINTINGGRACE, 2.0, 785);

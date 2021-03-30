@@ -45,13 +45,12 @@ public class NoSwing extends Check {
         boolean cancel = false;
 
         // Did they swing their arm before?
-        if (data.noSwingArmSwung) {
-            // "Consume" the flag.
-            data.noSwingArmSwung = false;
+        if (++data.noSwingCount <= 1) {
             // Reward with lowering of the violation level.
             data.noSwingVL *= 0.9D;
         } else {
             // They failed, increase violation level.
+            data.noSwingCount = 0;
             data.noSwingVL += 1D;
 
             // Execute whatever actions are associated with this check and the violation level and find out if we should

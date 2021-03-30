@@ -302,7 +302,8 @@ public class BlockBreakListener extends CheckListener {
     public void onPlayerAnimation(final PlayerAnimationEvent event) {
         // Just set a flag to true when the arm was swung.
         // debug(player, "Animation");
-        DataManager.getPlayerData(event.getPlayer()).getGenericInstance(BlockBreakData.class).noSwingArmSwung = true;
+        final BlockBreakData data = DataManager.getPlayerData(event.getPlayer()).getGenericInstance(BlockBreakData.class);
+        data.noSwingCount = Math.max(data.noSwingCount - 1, 0);
     }
 
     /**

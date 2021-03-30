@@ -421,12 +421,13 @@ public class SurvivalFly extends Check {
         double vAllowedDistance = 0, vDistanceAboveLimit = 0;
         
         // Wild-card allow step height from ground to ground.
-        if (yDistance >= 0.0 && yDistance <= cc.sfStepHeight && toOnGround && fromOnGround) {
+        if (yDistance >= 0.0 && yDistance <= cc.sfStepHeight && toOnGround && fromOnGround && !from.isOnClimbable()) {
             vAllowedDistance = cc.sfStepHeight;
+            thisMove.allowstep = true;
         }
 
         // HoneyBlock
-        else if (from.isOnHoneyBlock()) {
+        else if ((BlockProperties.getBlockFlags(from.getTypeId()) & BlockProperties.F_STICKY) != 0) {
             final Double Amplifier = PotionUtil.getPotionEffectAmplifier(from.getPlayer(), PotionEffectType.JUMP);
             vAllowedDistance = 0.21 * (Double.isInfinite(Amplifier) ? 1.0 : 1.0 + 0.48  * (Amplifier + 1));
             if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) vAllowedDistance = 1.5;
@@ -782,9 +783,9 @@ public class SurvivalFly extends Check {
                                    final boolean fromOnGround, double hDistanceAboveLimit,
                                    final boolean toOnGround, final PlayerLocation from, final PlayerLocation to){
 
-        Material blockUnder = player.getLocation().subtract(0, 0.3, 0).getBlock().getType();
-        Material blockAbove = player.getLocation().add(0, 0.10, 0).getBlock().getType();
-        
+        Material blockUnder = from.getTypeId(from.getBlockX(), Location.locToBlock(from.getY() - 0.3), from.getBlockZ());
+        Material blockAbove = from.getTypeId(from.getBlockX(), Location.locToBlock(from.getY() + 0.1), from.getBlockZ());
+
         // Checks for 0 y deltas when on/in water
         if (hDistanceAboveLimit <= 0D && hDistance > 0.1D && yDistance == 0D && lastMove.toIsValid && lastMove.yDistance == 0D 
             && BlockProperties.isLiquid(to.getTypeId()) 
@@ -1540,13 +1541,18 @@ public class SurvivalFly extends Check {
                     vAllowedDistance = yDistance;
                 }
                 // Allow jumping height
-                else vAllowedDistance = Math.max(cc.sfStepHeight, maxJumpGain + jumpGainMargin);
+                else {
+                    vAllowedDistance = Math.max(cc.sfStepHeight, maxJumpGain + jumpGainMargin);
+                    thisMove.allowstep = true;
+                    thisMove.allowjump = true;
+                }
             }
             else {
 
                 // Code duplication with the absolute limit below.
                 if (yDistance < 0.0 || yDistance > cc.sfStepHeight || !tags.contains("lostground_couldstep")) {
                     vAllowedDistance = maxJumpGain + jumpGainMargin;
+                    thisMove.allowjump = true;
                 }
                 else vAllowedDistance = yDistance;
             }
@@ -1563,8 +1569,12 @@ public class SurvivalFly extends Check {
 
                 if (resetTo) {
                     vAllowedDistance = cc.sfStepHeight;
+                    thisMove.allowstep = true;
                 }
-                else vAllowedDistance = maxJumpGain + jumpGainMargin; // TODO: Needs more precise confinement + setting set back or distance to ground or estYDist.
+                else {
+                    vAllowedDistance = maxJumpGain + jumpGainMargin;
+                    thisMove.allowjump = true;
+                } // TODO: Needs more precise confinement + setting set back or distance to ground or estYDist.
                 strictVdistRel = false;
             }
             else {

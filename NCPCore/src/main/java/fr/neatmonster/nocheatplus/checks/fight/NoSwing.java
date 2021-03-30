@@ -41,14 +41,16 @@ public class NoSwing extends Check {
     public boolean check(final Player player, final FightData data, final FightConfig cc) {
         boolean cancel = false;
 
+        if (data.exemptArmSwing) {
+            data.exemptArmSwing = false;
+        }
         // Did they swing his arm before?
-        if (data.noSwingArmSwung) {
+        else if (++data.noSwingCount <= 1) {
             // Yes, reward them with reduction of their violation level.
-            data.noSwingArmSwung = false;
-            data.noSwingPacket = false;
             data.noSwingVL *= 0.9D;
         } 
-        else if (!data.exemptArmSwing) {
+        else {
+            data.noSwingCount = 0;
             // No, increase their violation level.
             data.noSwingVL += 1D;
 

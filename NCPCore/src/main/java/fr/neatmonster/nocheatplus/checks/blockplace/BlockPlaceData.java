@@ -55,7 +55,7 @@ public class BlockPlaceData extends ACheckData {
     public int fastPlaceShortTermCount				= 0;
 
     // Data of the no swing check.
-    public boolean noSwingArmSwung = true;
+    public int noSwingCount = 0;
 
     // Data of the reach check.
     public double  reachDistance;

@@ -28,8 +28,7 @@ import fr.neatmonster.nocheatplus.utilities.location.RichBoundsLocation;
  * <li>Is meant to always carry some location, however right after
  * initialization it may throw NullPointerException if you use it without
  * updating to a location.</li>
- * <li>Records only the end-positions of a move. Typically also updated, when a
- * player is attacked.</li>
+ * Records only the end-positions of a move.
  * <li>Prefer calling add(...) with the current location, before iterating.
  * Alternative: guard with isEmpty().</li>
  * <li>Updating on teleport events is not intended - if the distance is too big,
@@ -44,6 +43,8 @@ import fr.neatmonster.nocheatplus.utilities.location.RichBoundsLocation;
  */
 public class LocationTrace {
 
+    // TODO: Using System.currentTimeMillis() for timestamp not server tick?
+    // TODO: Find out reason it is not recording right location for combat checks!
     public static interface ITraceEntry extends IGetPosition {
 
         public double getBoxMarginHorizontal();
