@@ -36,13 +36,14 @@ public class ReturnCommand extends AbstractCommand<StopWatchRegistry> {
     public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
         Double distance = null;
         if (args.length != 3) {
-            return false;
+            sender.sendMessage(TAG + "Not enough arguments. Command usage: /ncp stopwatch return (margin). The stopwatch will end when the player returns to the position where the it had been started.");
+            return true;
         }
         try {
             distance = Double.parseDouble(args[2]);
         } catch (NumberFormatException e) {}
         if (distance == null || distance.isNaN() || distance.isInfinite() || distance.doubleValue() < 0.0) {
-            sender.sendMessage(TAG+ "Bad distance: " + ChatColor.RED +""+ args[2] + ChatColor.GRAY);
+            sender.sendMessage(TAG + "Bad distance: " + ChatColor.RED +""+ args[2] + ChatColor.GRAY + ".");
             return true;
         }
         StopWatch clock = new ReturnStopWatch((Player) sender, distance.doubleValue());

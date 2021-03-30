@@ -49,7 +49,8 @@ public class ReloadCommand extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label,
             String[] args) {
-        if (args.length != 1) return false;
+        if (args.length != 1) 
+            return false;
         handleReloadCommand(sender);
         return true;
     }

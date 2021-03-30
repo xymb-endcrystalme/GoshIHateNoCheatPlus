@@ -39,6 +39,7 @@ import fr.neatmonster.nocheatplus.permissions.RegisteredPermission;
  *
  */
 public abstract class AbstractCommand<A> implements TabExecutor{
+    public static final String TAG = ChatColor.GRAY +""+ ChatColor.BOLD + "[" + ChatColor.RED + "NC+" + ChatColor.GRAY +""+ ChatColor.BOLD + "] " + ChatColor.GRAY;
 
     public static final List<String> noTabChoices = Collections.unmodifiableList(new LinkedList<String>());
 
@@ -91,7 +92,7 @@ public abstract class AbstractCommand<A> implements TabExecutor{
         if (sender instanceof ConsoleCommandSender) {
             return true;
         } else {
-            sender.sendMessage("This command can only be run from the console.");
+            sender.sendMessage(TAG + "This command can only be run from the console.");
             return false;
         }
     }

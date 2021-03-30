@@ -111,6 +111,11 @@ public class DebugPlayerCommand extends BaseCommand {
         } else {
             c1 = c2 = c3 = c4 = c5 = c6 = c7 = "";
         }
+
+        if (args.length <= 2) {
+            sender.sendMessage((sender instanceof Player ? TAG : "" ) + "Bad setup. Command usage: /ncp debug player (playername) yes/no:(checktype).");
+            return true;
+        }
         // TODO: Wild cards (all players)?
         // TODO: (Allow to specify OverrideType ?)
 
@@ -125,7 +130,7 @@ public class DebugPlayerCommand extends BaseCommand {
             else {
                 UUID id = IdUtil.UUIDFromStringSafe(input);
                 if (id == null) {
-                    sender.sendMessage(TAG + "Bad name or UUID: " + c3 + input);
+                    sender.sendMessage((sender instanceof Player ? TAG : "" ) + "Bad name or UUID: " + c3 + input);
                     return true;
                 }
                 else {
@@ -133,19 +138,17 @@ public class DebugPlayerCommand extends BaseCommand {
                 }
             }
             if (player == null) {
-                sender.sendMessage(TAG + "Not online: " + c3 + input);
+                sender.sendMessage((sender instanceof Player ? TAG : "" )+ "Not online: " + c3 + input);
                 return true;
             }
-        } else if (args.length <= 2) {
-            sender.sendMessage(TAG + "Bad setup!");
-            return true;
         }
+        
 
         if (args.length > 3) {
             String input = args[3];
             entry = DebugEntry.parseEntry(input);
             if (entry == null) {
-                sender.sendMessage(TAG + "Bad setup: " + c3 + input);
+                sender.sendMessage((sender instanceof Player ? TAG : "" ) + "Bad setup: " + c3 + input);
                 // Can't continue.
                 return true;
             }

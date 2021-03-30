@@ -37,7 +37,8 @@ public class DistanceCommand  extends AbstractCommand<StopWatchRegistry> {
     public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
         Double distance = null;
         if (args.length != 3) {
-            return false;
+            sender.sendMessage(TAG + "Not enough arguments. Command usage: /ncp stopwatch distance (distance in blocks).");
+            return true;
         }
         try {
             distance = Double.parseDouble(args[2]);

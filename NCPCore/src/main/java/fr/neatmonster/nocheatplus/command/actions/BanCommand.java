@@ -47,8 +47,13 @@ public class BanCommand extends BaseCommand {
         // TODO: Consider supporting vanilla syntax or removing this command :p.
 
         // Args contains "ban" as first arg.
-        if (args.length < 2) {
-            return false;
+        if (args.length == 1) {
+            StaticLog.logWarning("Please specify a player to ban.");
+            return true;
+        }
+        else if (args.length == 2) {
+            StaticLog.logWarning("Please specify the ban time (minutes).");
+            return true;
         }
         final String name = args[1].trim();
         final String reason;

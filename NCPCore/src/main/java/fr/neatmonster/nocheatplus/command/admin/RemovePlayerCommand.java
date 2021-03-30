@@ -54,7 +54,14 @@ public class RemovePlayerCommand extends BaseCommand {
             c1 = c2 = c3 = c5 = c6 = "";
         }
 
-        if (args.length < 2 || args.length > 3) return false;
+        if (args.length < 2) {
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Please specify a player's data to remove.");
+            return true;
+        }
+        else if (args.length > 3) {
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Too many arguments. Command usage: /ncp removeplayer (playername) (checktype).");
+            return true;
+        }
         String playerName = args[1];
         final CheckType checkType;
 

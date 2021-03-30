@@ -40,6 +40,7 @@ public class ExemptionsCommand extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
+
         final String c1, c2, c3, c4, c5, c6, c7;
         if (sender instanceof Player) {
             c1 = ChatColor.GRAY.toString();
@@ -53,7 +54,10 @@ public class ExemptionsCommand extends BaseCommand {
             c1 = c2 = c3 = c4 = c5 = c6 = c7 = "";
         }
 
-        if (args.length != 2) return false;
+        if (args.length != 2) {
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Please specify a player.");
+            return true;
+        } 
         String playerName = args[1].trim();
         Player player = DataManager.getPlayer(playerName);
         UUID id;

@@ -83,7 +83,7 @@ public class TopCommand extends BaseCommand{
                 }
             }
             if (views == null) {
-                sender.sendMessage(TAG + "No more history to process.");
+                sender.sendMessage(TAG + "No history to process.");
             } else {
                 // Start sorting and result processing asynchronously.
                 Bukkit.getScheduler().runTaskAsynchronously(plugin, 
@@ -175,7 +175,8 @@ public class TopCommand extends BaseCommand{
     @Override
     public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length < 2) {
-            return false;
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Bad setup.\nOptional: Specify number of entries to show (once).\nObligatory: Specify check types (multiple possible).\nOptional: Specify what to sort by (multiple possible: -sumvl, -avgvl, -maxvl, -nvl, -name, -time).\nThis is a heavy operation, use with care."); // -check)
+            return true;
         }
         int startIndex = 1;
         int n = 10;

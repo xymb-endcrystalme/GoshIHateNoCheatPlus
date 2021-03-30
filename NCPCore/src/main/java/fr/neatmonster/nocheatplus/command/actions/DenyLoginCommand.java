@@ -37,8 +37,20 @@ public class DenyLoginCommand extends BaseCommand {
 
     @Override
     public boolean onCommand(final CommandSender sender, Command command, String label, String[] args) {
+
+        if (sender instanceof Player) {
+            sender.sendMessage(TAG + "This command can only be run from the console.");
+            return true;
+        }
         // Args contains sub command label as first arg.
-        if (args.length < 3) return false;
+        if (args.length == 1) {
+            StaticLog.logInfo("Please specify a player to temporarily deny log-in.");
+            return true;
+        }
+        else if (args.length == 2) {
+            StaticLog.logInfo("Please specify the log-in denial duration (minutes).");
+            return true;
+        }
         long base = 60000; // minutes (!)
         final String name = args[1];
         long duration = -1;

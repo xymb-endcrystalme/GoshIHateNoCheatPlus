@@ -39,7 +39,10 @@ public class InfoCommand extends BaseCommand {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (args.length != 2 ) return false;
+		if (args.length != 2) {
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Please specify a player.");
+            return true;
+        }
 		handleInfoCommand(sender, args[1]);
 		return true;
 	}
@@ -71,7 +74,7 @@ public class InfoCommand extends BaseCommand {
     	final ViolationHistory history = ViolationHistory.getHistory(playerName, false);
     	final boolean known = player != null || history != null;
     	if (history == null){
-    		sender.sendMessage((sender instanceof Player ? TAG : "") + "No entries for " + cR + playerName + cG + "'s violations " + ( known? "" : "(exact spelling?)") + ".");
+    		sender.sendMessage((sender instanceof Player ? TAG : "") + "No entries for " + cR + playerName + cG + "'s violations " + ( known? "" : "(exact spelling ?)") + ".");
     		return;
     	}
     	
@@ -96,7 +99,7 @@ public class InfoCommand extends BaseCommand {
                     +cG+bold + "\n• "+ cG + "Max VL: " + cR + maxVL);
             }
         } 
-        else sender.sendMessage(TAG + "No violations to display for player " + cR + playerName);
+        else sender.sendMessage((sender instanceof Player ? TAG : "") + "No violations to display for player " + cR + playerName);
         
     }
 

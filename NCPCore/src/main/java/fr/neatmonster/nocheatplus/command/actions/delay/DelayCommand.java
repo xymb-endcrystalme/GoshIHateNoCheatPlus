@@ -22,6 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import fr.neatmonster.nocheatplus.command.AbstractCommand;
 import fr.neatmonster.nocheatplus.permissions.Permissions;
+import fr.neatmonster.nocheatplus.logging.StaticLog;
 
 /**
  * Delay an arbitrary command, the command is always delayed, unless for bad delay input.
@@ -37,8 +38,9 @@ public class DelayCommand extends DelayableCommand {
 	
 	@Override
 	public boolean execute(CommandSender sender, Command command, String label, String[] alteredArgs, long delay) {
-		if (alteredArgs.length < 2) {
-			return false;
+		if (alteredArgs.length <= 2) {
+			StaticLog.logInfo("Bad setup. Command usage /ncp delay delay=(ticks) (command to delay).");
+			return true;
 		}
 		final String cmd = AbstractCommand.join(alteredArgs, 1);
 		schedule(new Runnable() {

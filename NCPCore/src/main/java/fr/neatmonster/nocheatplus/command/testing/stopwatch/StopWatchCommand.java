@@ -63,10 +63,10 @@ public class StopWatchCommand extends BaseCommand {
     public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
         if (!(sender instanceof Player)) {
             // TODO: Implement checking others clocks!
-            sender.sendMessage(" Stopwatch functionality is only available to players.");
+            sender.sendMessage("Stopwatch functionality is only available to players.");
             return true;
         }
-        if (args.length == 0) {
+        if (args.length == 1) {
             StopWatch clock = registry.getClock((Player) sender);
             sender.sendMessage(TAG + "Use tab completion for stopwatch options.");
             if (clock != null) {

@@ -82,7 +82,7 @@ public abstract class StopWatch {
     public void sendStatus() {
         final long duration = getTime();
         final long tenths = (duration % 1000) / 100;
-        player.sendMessage(TAG + "Stopwatch" + ChatColor.GOLD + clockDetails + ChatColor.GRAY + ": " + (finished ? ChatColor.RED : ChatColor.GREEN) + Misc.millisToShortDHMS(duration) + "." + tenths);
+        player.sendMessage(TAG + "Stopwatch " + ChatColor.GOLD + clockDetails + ChatColor.GRAY + ": " + (finished ? ChatColor.RED : ChatColor.GREEN) + Misc.millisToShortDHMS(duration) + "." + tenths);
     }
 
     /**

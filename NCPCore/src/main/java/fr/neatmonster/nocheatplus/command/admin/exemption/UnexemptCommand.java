@@ -55,7 +55,14 @@ public class UnexemptCommand extends BaseCommand {
         }
 
         // TODO: Reduce copy and paste by introducing some super class.
-        if (args.length < 2 || args.length > 3) return false;
+        if (args.length < 2) {
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Please specify a player to unexempt.");
+            return true;
+        }
+        else if (args.length > 3) {
+            sender.sendMessage((sender instanceof Player ? TAG : "") + "Too many arguments. Command usage: /ncp unexempt (playername) (checktype).");
+            return true;
+        }
         String playerName = args[1];
         final CheckType checkType;
         if (args.length == 3){

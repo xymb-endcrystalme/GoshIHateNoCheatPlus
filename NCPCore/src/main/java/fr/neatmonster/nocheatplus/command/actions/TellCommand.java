@@ -26,6 +26,7 @@ import fr.neatmonster.nocheatplus.command.BaseCommand;
 import fr.neatmonster.nocheatplus.permissions.Permissions;
 import fr.neatmonster.nocheatplus.players.DataManager;
 import fr.neatmonster.nocheatplus.utilities.ColorUtil;
+import fr.neatmonster.nocheatplus.logging.StaticLog;
 
 /**
  * For warnings etc.
@@ -44,7 +45,8 @@ public class TellCommand extends BaseCommand {
 			return true;
 		}
 		if (args.length < 3) {
-			return false;
+			StaticLog.logInfo("Bad setup. Command usage /ncp tell (playername) (message to send).");
+			return true;
 		}
 		final String name = args[1].trim();
 		final String message = AbstractCommand.join(args, 2);
