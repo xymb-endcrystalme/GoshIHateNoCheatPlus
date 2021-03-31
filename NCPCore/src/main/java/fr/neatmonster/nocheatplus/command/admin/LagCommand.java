@@ -71,7 +71,7 @@ public class LagCommand extends BaseCommand {
                     builder.append(cG + "\n• " + cGO +""+ (spikes[i] - spikes[i + 1]) + cG + "spike(s) x " + cGO +""+ cGO +""+ spikeDurations[i] + cG + "ms -> " + cGO +""+ spikeDurations[i + 1] + cG + ". ");
                 }
                 else{
-                    builder.append(cG + "\n• " + cGO +""+ spikes[i] + cG + "spike(s) x " + cGO +""+ cGO +""+ spikeDurations[i] + cG + ".");
+                    builder.append(cG + "\n• " + cGO +""+ spikes[i] + cG + "spike(s) x " + cGO +""+ cGO +""+ spikeDurations[i] +"ms"+ cG + ".");
                 }
             }
         }
