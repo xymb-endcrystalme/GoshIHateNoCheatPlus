@@ -129,19 +129,19 @@ public class TopCommand extends BaseCommand{
             Collections.sort(views, comparator);
             // Display.
             final StringBuilder builder = new StringBuilder(100 + 32 * views.size());
-            builder.append(TAG + "Top results for check: " + c3 + bo +""+ it + checkType.toString().toLowerCase());
+            builder.append((sender instanceof Player ? TAG : CTAG) + "Top results for check: " + c3 + bo +""+ it + checkType.toString().toLowerCase());
             int done = 0;
 
             for (final VLView view : views) {
-                builder.append(c1 + "\n• "+ c1 +"Player with most results: " + c2 +""+ it + view.name);
+                builder.append(c1 + "\n• "+ c1 +"Player with most results: " + c2 + view.name);
                 // sum
-                builder.append(c1 + "\n• " + c1 + "VLs Sum: " + c2 +""+ it + format.format(view.sumVL));
+                builder.append(c1 + "\n• " + c1 + "VLs Sum: " + c2 + format.format(view.sumVL));
                 // n
-                builder.append(c1 + "\n• " + c1 + "VLs amount: " + c2 +""+ it + view.nVL);
+                builder.append(c1 + "\n• " + c1 + "VLs amount: " + c2 + view.nVL);
                 // avg
-                builder.append(c1 + "\n• " + c1 + "Average VL: " + c2 +""+ it + format.format(view.sumVL / view.nVL) );
+                builder.append(c1 + "\n• " + c1 + "Average VL: " + c2 + format.format(view.sumVL / view.nVL) );
                 // max
-                builder.append(c1 + "\n• " + c1 + "Max VL: " + c2 +""+ it + format.format(view.maxVL));
+                builder.append(c1 + "\n• " + c1 + "Max VL: " + c2 + format.format(view.maxVL));
     
                 done ++;
                 if (done >= n) {
@@ -149,7 +149,7 @@ public class TopCommand extends BaseCommand{
                 }
             }
             if (views.isEmpty()) {
-                builder.append((sender instanceof Player ? TAG : "") + "Nothing to display.");
+                builder.append((sender instanceof Player ? TAG : CTAG) + "Nothing to display.");
             }
             final String message = builder.toString();
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin,
@@ -175,7 +175,7 @@ public class TopCommand extends BaseCommand{
     @Override
     public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage((sender instanceof Player ? TAG : "") + "Bad setup.\nOptional: Specify number of entries to show (once).\nObligatory: Specify check types (multiple possible).\nOptional: Specify what to sort by (multiple possible: -sumvl, -avgvl, -maxvl, -nvl, -name, -time).\nThis is a heavy operation, use with care."); // -check)
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Bad setup.\nOptional: Specify number of entries to show (once).\nObligatory: Specify check types (multiple possible).\nOptional: Specify what to sort by (multiple possible: -sumvl, -avgvl, -maxvl, -nvl, -name, -time).\nThis is a heavy operation, use with care."); // -check)
             return true;
         }
         int startIndex = 1;
@@ -185,13 +185,13 @@ public class TopCommand extends BaseCommand{
             startIndex = 2;
         } catch (NumberFormatException e) {}
         if (n <= 0) {
-            sender.sendMessage((sender instanceof Player ? TAG : "") + "Setting number of entries to 10");
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Setting number of entries to 10");
             n = 1;
         } else if ((sender instanceof Player) && n > 300) {
-            sender.sendMessage((sender instanceof Player ? TAG : "") + "Capping number of entries at 300.");
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Capping number of entries at 300.");
             n = 300;
         } else if  (n > 10000) {
-            sender.sendMessage((sender instanceof Player ? TAG : "") + "Capping number of entries at 10000.");
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Capping number of entries at 10000.");
             n = 10000;
         }
         
@@ -206,7 +206,7 @@ public class TopCommand extends BaseCommand{
             }
         }
         if (checkTypes.isEmpty()) {
-            sender.sendMessage((sender instanceof Player ? TAG : "") + "No check types specified.");
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "No check types specified.");
             return false;
         }
         

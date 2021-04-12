@@ -35,11 +35,12 @@ public class NotifyOnCommand extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length != 2){
-            return false;
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Not enough arguments. Command usage: /ncp notify on/off.");
+            return true;
         }
         if (!(sender instanceof Player)){
             // TODO: Might implement if upvoted a lot.
-            sender.sendMessage("Toggling notifications is only available for online players.");
+            sender.sendMessage(CTAG + "Toggling notifications is only available for online players.");
             return true;
         }
         DataManager.getPlayerData((Player) sender).setNotifyOff(false);

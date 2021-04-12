@@ -52,7 +52,7 @@ public class BanCommand extends BaseCommand {
             return true;
         }
         else if (args.length == 2) {
-            StaticLog.logWarning("Please specify the ban time (minutes).");
+            StaticLog.logWarning("Please specify the ban time (minutes, reason is optional).");
             return true;
         }
         final String name = args[1].trim();

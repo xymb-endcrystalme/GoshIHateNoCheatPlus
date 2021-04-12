@@ -55,11 +55,11 @@ public class ExemptCommand extends BaseCommand {
 
         // TODO: Reduce copy and paste by introducing some super class.
         if (args.length < 2) {
-            sender.sendMessage((sender instanceof Player ? TAG : "") + "Please specify a player to exempt.");
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Please specify a player to exempt.");
             return true;
         }
         else if (args.length > 3) {
-            sender.sendMessage((sender instanceof Player ? TAG : "") + "Too many arguments. Command usage: /ncp exempt (playername) (checktype).");
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Too many arguments. Command usage: /ncp exempt (playername) (checktype).");
             return true;
         }
         String playerName = args[1];
@@ -68,8 +68,8 @@ public class ExemptCommand extends BaseCommand {
             try{
                 checkType = CheckType.valueOf(args[2].toUpperCase().replace('-', '_').replace('.', '_'));
             } catch (Exception e){
-                sender.sendMessage((sender instanceof Player ? TAG : "") + "Could not interpret: " + c3 +""+ args[2]);
-                sender.sendMessage((sender instanceof Player ? TAG : "") + "Check type should be one of: "  + c3 +""+ StringUtil.join(Arrays.asList(CheckType.values()), c6 + ", " + c3));
+                sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Could not interpret: " + c3 +""+ args[2]);
+                sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Check type should be one of: "  + c3 +""+ StringUtil.join(Arrays.asList(CheckType.values()), c6 + ", " + c3));
                 return true;
             }
         }
@@ -79,14 +79,14 @@ public class ExemptCommand extends BaseCommand {
 
         final Player player = DataManager.getPlayer(playerName);
         if (player == null){
-            sender.sendMessage((sender instanceof Player ? TAG : "") + "Player not online: " + c3+""+ playerName);
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Player not online: " + c3+""+ playerName);
             return true;
         }
         else {
             playerName = player.getName();
         }
         NCPExemptionManager.exemptPermanently(player, checkType);
-        sender.sendMessage((sender instanceof Player ? TAG : "") + "Player " + c3 +""+ playerName + c1 + " is now exempted from: " + c3 +""+ checkType); 
+        sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Player " + c3 +""+ playerName + c1 + " is now exempted from: " + c3 +""+ checkType); 
         return true;
     }
 

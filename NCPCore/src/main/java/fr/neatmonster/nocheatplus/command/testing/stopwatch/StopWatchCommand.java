@@ -63,7 +63,7 @@ public class StopWatchCommand extends BaseCommand {
     public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
         if (!(sender instanceof Player)) {
             // TODO: Implement checking others clocks!
-            sender.sendMessage("Stopwatch functionality is only available to players.");
+            sender.sendMessage(CTAG + "Stopwatch functionality is only available to players.");
             return true;
         }
         if (args.length == 1) {

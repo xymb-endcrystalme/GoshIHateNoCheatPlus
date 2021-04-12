@@ -44,7 +44,7 @@ public class LagCommand extends BaseCommand {
         else cGO = cR = cG = bO = "";
 
         StringBuilder builder = new StringBuilder(300);
-        builder.append((sender instanceof Player ? TAG : "" )+ "Displaying lag information...\n");
+        builder.append((sender instanceof Player ? TAG : CTAG) + "Displaying lag information...\n");
 
         // Lag spikes.
         long[] spikeDurations = TickTask.getLagSpikeDurations();

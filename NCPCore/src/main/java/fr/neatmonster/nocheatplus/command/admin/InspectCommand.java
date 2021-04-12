@@ -53,7 +53,7 @@ public class InspectCommand extends BaseCommand {
                 args = new String[]{args[0], sender.getName()};
             } 
             else {
-                sender.sendMessage((sender instanceof Player ? TAG : "") + "Please specify a player to inspect.");
+                sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Please specify a player to inspect.");
                 return true;
             }
         }
@@ -71,7 +71,7 @@ public class InspectCommand extends BaseCommand {
         for (int i = 1; i < args.length; i++) {
             final Player player = DataManager.getPlayer(args[i].trim().toLowerCase());
             if (player == null) {
-                sender.sendMessage((sender instanceof Player ? TAG : "") + "Not online: " + c3 +""+ args[i]);
+                sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Not online: " + c3 +""+ args[i]);
             } 
             else {
                 sender.sendMessage(getInspectMessage(player, c1, c2, c3));
