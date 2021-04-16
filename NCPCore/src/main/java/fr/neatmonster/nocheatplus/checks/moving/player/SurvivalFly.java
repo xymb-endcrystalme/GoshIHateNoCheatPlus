@@ -424,14 +424,17 @@ public class SurvivalFly extends Check {
         if (yDistance >= 0.0 && yDistance <= cc.sfStepHeight && toOnGround && fromOnGround && !from.isOnClimbable()) {
             vAllowedDistance = cc.sfStepHeight;
             thisMove.allowstep = true;
+            tags.add("vstep");
         }
 
         // HoneyBlock
+        // TODO: Enforce descend speed as well?
         else if ((BlockProperties.getBlockFlags(from.getTypeId()) & BlockProperties.F_STICKY) != 0) {
             final Double Amplifier = PotionUtil.getPotionEffectAmplifier(from.getPlayer(), PotionEffectType.JUMP);
             vAllowedDistance = 0.21 * (Double.isInfinite(Amplifier) ? 1.0 : 1.0 + 0.48  * (Amplifier + 1));
             if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) vAllowedDistance = 1.5;
             vDistanceAboveLimit = thisMove.yDistance - vAllowedDistance;
+            tags.add("hblockasc");
         }
 
         // Webs 
@@ -442,7 +445,6 @@ public class SurvivalFly extends Check {
         }
         
         // Berry bush
-        // TODO: One more move outside block still affect, need add vdistrel workarounds
         else if (from.isInBerryBush()){
             final double[] resultBush = vDistBush(player, thisMove, toOnGround, hDistanceAboveLimit, now, data, cc, from, fromOnGround);
             vAllowedDistance = resultBush[0];
@@ -773,7 +775,8 @@ public class SurvivalFly extends Check {
     
 
    /**
-    * Directly checks for cheat implementation types that aim at walking on liquids
+    * Catch rather simple waterwalk cheat types. 
+    * Do note that the speed for moving on the surface is restricted anyway in setAllowedhDist (in case these methods get bypassed).
     *
     * @return hDistanceAboveLimit
     *
@@ -1056,6 +1059,7 @@ public class SurvivalFly extends Check {
         // Preliminary resets
         if (data.noslowhop != 0 && (sfDirty || (!data.isusingitem && !player.isBlocking()))) data.noslowhop = 0;
         if (!data.liftOffEnvelope.name().startsWith("LIMIT") || sfDirty) data.watermovect = 0;
+        if (thisMove.from.onIce) tags.add("hice");
 
 
         /////////////////////////////////////////////////////////////
@@ -1206,7 +1210,7 @@ public class SurvivalFly extends Check {
         }
 
 
-        // Speed limit for players moving above surface
+        // Speed restriction for players moving above surface
         // TODO: Still check with velocity?
         else if (!data.isHalfGroundHalfWater && !sfDirty && !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_WATERWALK, player) 
                 && ((thisMove.from.inLiquid && !thisMove.to.inLiquid) || data.watermovect == 1) 
@@ -1314,7 +1318,7 @@ public class SurvivalFly extends Check {
             useBaseModifiersSprint = false;
         }
 
-        // Fallback to Sprinting/Walking
+        // Ground->ground movement, in-air move or moving on an unspecified medium.
         else {
             useBaseModifiers = true;
             if (sprinting) {
@@ -1414,13 +1418,11 @@ public class SurvivalFly extends Check {
 
         // If the player is on ice, give them a higher maximum speed.
         if (data.sfOnIce > 9) {
-            tags.add("hice");
             hAllowedDistance *= Magic.modIce;
             if (data.bunnyhopTick > 3) hAllowedDistance *= 1.25;
             else if (data.bunnyhopTick > 0) hAllowedDistance *= 1.1;
         }
         else if (data.sfOnIce > 0) {
-            tags.add("hice");
             hAllowedDistance *= 1.0 + 0.025 * data.sfOnIce;
         }
         
@@ -1490,7 +1492,7 @@ public class SurvivalFly extends Check {
 
     /**
      * Core y-distance checks for in-air movement (may include air -> other).
-     * Also see the InAirVerticalRules to check the general regulation.
+     * Also see the InAirVerticalRules to check (most of) the exemption rules.
      *
      * @return
      */
