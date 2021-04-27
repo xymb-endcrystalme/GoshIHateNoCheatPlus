@@ -1512,7 +1512,7 @@ public class SurvivalFly extends Check {
 
     /**
      * Core y-distance checks for in-air movement (may include air -> other).
-     * Also see the InAirVerticalRules to check (most of) the exemption rules.
+     * See InAirVerticalRules to check (most of) the exemption rules.
      *
      * @return
      */
@@ -1702,7 +1702,6 @@ public class SurvivalFly extends Check {
             final double totalVDistViolation      =  to.getY() - data.getSetBackY() - vAllowedAbsoluteDistance;
             if (totalVDistViolation > 0.0) {
         
-                // Check for exemptions
                 if (InAirVerticalRules.vDistSBExemptions(toOnGround, thisMove, lastMove, data, cc, now, player, totalVDistViolation, yDistance, fromOnGround)){
                     // Skip
                 }
@@ -1723,7 +1722,7 @@ public class SurvivalFly extends Check {
         ////////////////////////////////////////////////////////////////////////////////////
         // TODO: max-phase only when from is not reset !?
         if (!envelopeHack && data.sfJumpPhase > maxJumpPhase && !data.isVelocityJumpPhase()) {
-            if (yDistance < 0.5) {
+            if (yDistance < 0.0) {
                 // Ignore falling, and let accounting deal with it.
             }
             else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
@@ -1768,14 +1767,114 @@ public class SurvivalFly extends Check {
         //}
         
 
-        ////////////////////////
-        // More in air checks.//
-        ////////////////////////
-        // TODO: move into the in air checking above !?
-        if (!envelopeHack && !resetFrom && !resetTo) {
-            vDistanceAboveLimit = Math.max(vDistanceAboveLimit, inAirChecks(now, from, to, hDistance, yDistance, thisMove, lastMove, data, cc));
-        }
+        //////////////////////////////////////////////////////////////////////////////////
+        // Check on change of Y direction: includes lowjump detection and 'ychinc' check//
+        //////////////////////////////////////////////////////////////////////////////////
+        final long now = System.currentTimeMillis();
+        final boolean InAirPhase = !envelopeHack && !resetFrom && !resetTo;
+        final boolean ChangedYDir = lastMove.toIsValid && lastMove.yDistance != yDistance
+                                        && (yDistance <= 0.0 && lastMove.yDistance >= 0.0 || yDistance >= 0.0 && lastMove.yDistance <= 0.0); 
 
+        if (InAirPhase && ChangedYDir) {
+
+            // TODO: Does this account for velocity in a sufficient way?
+            if (yDistance > 0.0) {
+                // TODO: Clear active vertical velocity here ?
+                // TODO: Demand consuming queued velocity for valid change (!).
+                // Increase
+                if (lastMove.touchedGround || lastMove.to.extraPropertiesValid && lastMove.to.resetCond) {
+                    tags.add("ychinc");
+                }
+                else {
+                    // Moving upwards after falling without having touched the ground.
+                    if (data.bunnyhopDelay < 9 && !((lastMove.touchedGround || lastMove.from.onGroundOrResetCond)
+                        && lastMove.yDistance == 0D) && data.getOrUseVerticalVelocity(yDistance) == null) {
+
+                        // TODO: adjust limit for bunny-hop.
+                        if ((data.timeRiptiding + 500 > now) || isLanternUpper(to)) {
+                            // Ignore.
+                        }
+                        else {
+                            vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance));
+                            tags.add("ychincfly");
+                        }
+                    }
+                    else tags.add("ychincair");
+                }
+            }
+            else {
+                // Decrease
+                tags.add("ychdec");
+                // Detect low jumping.
+                // TODO: sfDirty: Account for actual velocity (demands consuming queued for dir-change(!))!
+                if (!data.sfLowJump && !data.sfNoLowJump && data.liftOffEnvelope == LiftOffEnvelope.NORMAL &&
+                    lastMove.toIsValid && lastMove.yDistance > 0.0 && !data.isVelocityJumpPhase()) {
+
+                    final double setBackYDistance = from.getY() - data.getSetBackY();
+                    if (setBackYDistance > 0.0) {
+                        // Only count it if the player has actually been jumping (higher than setback).
+                        final Player player = from.getPlayer();
+                        // Estimate of minimal jump height.
+                        double estimate = 1.15;
+                        if (data.jumpAmplifier > 0) {
+                            // TODO: Could skip this.
+                            estimate += 0.5 * aux.getJumpAmplifier(player);
+                        }
+                        if (setBackYDistance < estimate) {
+                            // Low jump, further check if there might have been a reason for low jumping.
+                            if (data.playerMoves.getCurrentMove().headObstructed || yDistance <= 0.0 
+                                && lastMove.headObstructed && lastMove.yDistance >= 0.0) {
+                                // Exempt.
+                                tags.add("nolowjump_ceil");
+                            }
+                            else {
+                                tags.add("lowjump_set");
+                                data.sfLowJump = true;
+                            }
+                        }
+                    }
+                } // (Low jump.)
+            }
+        }
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // The Vertical Accounting subcheck: demand players to start to lose altitude after being airborne for a determined amount of time//
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        if (InAirPhase && cc.survivalFlyAccountingV) {
+
+            // Currently only for "air" phases.
+            if (isCollideWithHB(from, to, data) && thisMove.yDistance < 0.0 && thisMove.yDistance > -0.21) {
+                data.vDistAcc.clear();
+                data.vDistAcc.add((float)-0.2033);
+            }
+            else if (ChangedYDir && lastMove.yDistance > 0.0) { // lastMove.toIsValid is checked above. 
+                // Change to descending phase.
+                data.vDistAcc.clear();
+                // Allow adding 0.
+                data.vDistAcc.add((float) yDistance);
+            }
+            else if (thisMove.verVelUsed == null) { // Only skip if just used.
+                // Here yDistance can be negative and positive.
+                if ((data.timeRiptiding + 500 > now) 
+                    || isLanternUpper(to) 
+                    || (lastMove.from.inLiquid && Math.abs(yDistance) < 0.31)) {
+                    // Ignore
+                }
+                else {
+                    data.vDistAcc.add((float) yDistance);
+                    final double accAboveLimit = verticalAccounting(yDistance, data.vDistAcc, tags, "vacc" + (data.isVelocityJumpPhase() ? "dirty" : ""));
+                    if (accAboveLimit > vDistanceAboveLimit) {
+                        if (data.getOrUseVerticalVelocity(yDistance) == null) {
+                            vDistanceAboveLimit = accAboveLimit;
+                        }
+                    }
+                }
+            }
+            else {
+                // TODO: Just to exclude source of error, might be redundant.
+                data.vDistAcc.clear();
+            }
+        }   
 
         // Join the lowjump tag
         if (data.sfLowJump) {
@@ -1830,66 +1929,6 @@ public class SurvivalFly extends Check {
         }
         return vAllowedDistance;
     }
-
-
-    /**
-     * Extended in-air checks for vertical move: y-direction changes and accounting.
-     * 
-     * @param now
-     * @param yDistance
-     * @param data
-     * @param cc
-     * @return
-     */
-    private double inAirChecks(final long now, final PlayerLocation from, final PlayerLocation to, 
-                               final double hDistance, final double yDistance, 
-                               final PlayerMoveData thisMove, final PlayerMoveData lastMove, 
-                               final MovingData data, final MovingConfig cc) {
-
-        double vDistanceAboveLimit = 0;
-
-        // y direction change detection.
-        final boolean yDirChange = lastMove.toIsValid && lastMove.yDistance != yDistance && (yDistance <= 0.0 && lastMove.yDistance >= 0.0 || yDistance >= 0.0 && lastMove.yDistance <= 0.0 ); 
-        if (yDirChange) vDistanceAboveLimit = yDirChange(from, to, yDistance, vDistanceAboveLimit, lastMove, data);
-
-        // Accounting support.
-        if (cc.survivalFlyAccountingV) {
-            // Currently only for "air" phases.
-            // Vertical.
-            if (isCollideWithHB(from, to, data) && thisMove.yDistance < 0.0 && thisMove.yDistance > -0.21) {
-                data.vDistAcc.clear();
-                data.vDistAcc.add((float)-0.2033);
-            }
-            else if (yDirChange && lastMove.yDistance > 0) { // lastMove.toIsValid is checked above. 
-                // Change to descending phase.
-                data.vDistAcc.clear();
-                // Allow adding 0.
-                data.vDistAcc.add((float) yDistance);
-            }
-            else if (thisMove.verVelUsed == null) { // Only skip if just used.
-                // Here yDistance can be negative and positive.
-                if ((data.timeRiptiding + 500 > now) 
-                    || isLanternUpper(to) 
-                    || (lastMove.from.inLiquid && Math.abs(yDistance) < 0.31)) {
-                    // Ignore
-                }
-                else {
-                    data.vDistAcc.add((float) yDistance);
-                    final double accAboveLimit = verticalAccounting(yDistance, data.vDistAcc, tags, "vacc" + (data.isVelocityJumpPhase() ? "dirty" : ""));
-                    if (accAboveLimit > vDistanceAboveLimit) {
-                        if (data.getOrUseVerticalVelocity(yDistance) == null) {
-                            vDistanceAboveLimit = accAboveLimit;
-                        }
-                    }
-                }
-            }
-            else {
-                // TODO: Just to exclude source of error, might be redundant.
-                data.vDistAcc.clear();
-            }
-        }
-        return vDistanceAboveLimit;
-    }
     
 
     /**
@@ -1933,79 +1972,6 @@ public class SurvivalFly extends Check {
         return 0.0;
     }
 
-
-    /**
-     * Check on change of y direction. Needs last move data.
-     * 
-     * @param yDistance
-     * @param vDistanceAboveLimit
-     * @return vDistanceAboveLimit
-     */
-    private double yDirChange(final PlayerLocation from, final PlayerLocation to, 
-                              final double yDistance, double vDistanceAboveLimit, 
-                              final PlayerMoveData lastMove, final MovingData data) {
-
-        final long now = System.currentTimeMillis();
-        // TODO: Does this account for velocity in a sufficient way?
-        if (yDistance > 0.0) {
-            // TODO: Clear active vertical velocity here ?
-            // TODO: Demand consuming queued velocity for valid change (!).
-            // Increase
-            if (lastMove.touchedGround || lastMove.to.extraPropertiesValid && lastMove.to.resetCond) {
-                tags.add("ychinc");
-            }
-            else {
-                // Moving upwards after falling without having touched the ground.
-                if (data.bunnyhopDelay < 9 && !((lastMove.touchedGround || lastMove.from.onGroundOrResetCond) && lastMove.yDistance == 0D) && data.getOrUseVerticalVelocity(yDistance) == null) {
-                    // TODO: adjust limit for bunny-hop.
-                    if ((data.timeRiptiding + 500 > now) 
-                        || isLanternUpper(to)) {
-                        // Ignore.
-                    }
-                    else {
-                        vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance));
-                        tags.add("ychincfly");
-                    }
-                }
-                else tags.add("ychincair");
-            }
-        }
-        else {
-            // Decrease
-            tags.add("ychdec");
-            // Detect low jumping.
-            // TODO: sfDirty: Account for actual velocity (demands consuming queued for dir-change(!))!
-            if (!data.sfLowJump && !data.sfNoLowJump && data.liftOffEnvelope == LiftOffEnvelope.NORMAL &&
-                lastMove.toIsValid && lastMove.yDistance > 0.0 && !data.isVelocityJumpPhase()
-                ) {
-
-                final double setBackYDistance = from.getY() - data.getSetBackY();
-                if (setBackYDistance > 0.0) {
-                    // Only count it if the player has actually been jumping (higher than setback).
-                    final Player player = from.getPlayer();
-                    // Estimate of minimal jump height.
-                    double estimate = 1.15;
-                    if (data.jumpAmplifier > 0) {
-                        // TODO: Could skip this.
-                        estimate += 0.5 * aux.getJumpAmplifier(player);
-                    }
-                    if (setBackYDistance < estimate) {
-                        // Low jump, further check if there might have been a reason for low jumping.
-                        if (data.playerMoves.getCurrentMove().headObstructed || yDistance <= 0.0 
-                            && lastMove.headObstructed && lastMove.yDistance >= 0.0) {
-                            // Exempt.
-                            tags.add("nolowjump_ceil");
-                        }
-                        else {
-                            tags.add("lowjump_set");
-                            data.sfLowJump = true;
-                        }
-                    }
-                }
-            } // (Low jump.)
-        }
-        return vDistanceAboveLimit;
-    }
 
     /**
      * After-failure checks for horizontal distance.
@@ -2153,7 +2119,7 @@ public class SurvivalFly extends Check {
         }
 
         // 7: Finally, check for the Horizontal buffer if the hDistance is still above limit.
-        if (hDistanceAboveLimit > 0.0 && data.sfHorizontalBuffer > 0.0 && bufferUse) { // && !Magic.inAir(thisMove)) {
+        if (hDistanceAboveLimit > 0.0 && data.sfHorizontalBuffer > 0.0 && bufferUse && !Magic.inAir(thisMove)) {
             tags.add("hbufuse");
             final double amount = Math.min(data.sfHorizontalBuffer, hDistanceAboveLimit);
             hDistanceAboveLimit -= amount;
