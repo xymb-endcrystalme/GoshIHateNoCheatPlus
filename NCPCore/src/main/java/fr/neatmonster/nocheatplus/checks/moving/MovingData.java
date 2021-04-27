@@ -466,12 +466,22 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
             liftOffEnvelope = LiftOffEnvelope.NO_JUMP;
             nextFrictionHorizontal = nextFrictionVertical = 0.0;
         }
+        // Actually, here some friction may apply (Vertical)...
+        else if (loc.isInBerryBush()) {
+            liftOffEnvelope = LiftOffEnvelope.BERRY_JUMP;
+            nextFrictionHorizontal = nextFrictionVertical = 0.0;
+        }
+        else if (loc.isOnHoneyBlock()) {
+            liftOffEnvelope = LiftOffEnvelope.STICKY_JUMP;
+            nextFrictionHorizontal = nextFrictionVertical = 0.0;
+        }
         else if (loc.isInLiquid()) {
             // TODO: Distinguish strong limit.
             liftOffEnvelope = LiftOffEnvelope.LIMIT_LIQUID;
             if (loc.isInLava()) {
                 nextFrictionHorizontal = nextFrictionVertical = Magic.FRICTION_MEDIUM_LAVA;
-            } else {
+            } 
+            else {
                 nextFrictionHorizontal = nextFrictionVertical = Magic.FRICTION_MEDIUM_WATER;
             }
         }

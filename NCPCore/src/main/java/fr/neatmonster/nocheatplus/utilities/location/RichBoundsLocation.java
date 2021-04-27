@@ -888,21 +888,17 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     }
 
     /**
-     * Check the location is on honey block only regarding the center. Currently
-     * demands to be on ground as well.
+     * Check the location is on honey block.
      *
      * @return true, if is on honey block
      */
     public boolean isOnHoneyBlock() {
         if (onHoneyBlock == null) {
-            // TODO: Use a box here too ?
-            // TODO: check if player is really sneaking (refactor from survivalfly to static access in Combined ?)!
             if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_STICKY) == 0) {
-                // TODO: check onGroundMinY !?
                 onHoneyBlock = false;
-            } else {
-                // TODO: Might skip the isOnGround part, e.g. if boats sink in slightly. Needs testing.
-                onHoneyBlock = isOnGround() && BlockProperties.collides(blockCache, minX, minY - yOnGround, minZ, maxX, minY, maxZ, BlockProperties.F_STICKY);
+            } 
+            else {
+                onHoneyBlock = (BlockProperties.getBlockFlags(getTypeId()) & BlockProperties.F_STICKY) != 0;
             }
         }
         return onHoneyBlock;
