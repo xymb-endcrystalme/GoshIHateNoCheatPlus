@@ -1770,7 +1770,6 @@ public class SurvivalFly extends Check {
         //////////////////////////////////////////////////////////////////////////////////
         // Check on change of Y direction: includes lowjump detection and 'ychinc' check//
         //////////////////////////////////////////////////////////////////////////////////
-        final long now = System.currentTimeMillis();
         final boolean InAirPhase = !envelopeHack && !resetFrom && !resetTo;
         final boolean ChangedYDir = lastMove.toIsValid && lastMove.yDistance != yDistance
                                         && (yDistance <= 0.0 && lastMove.yDistance >= 0.0 || yDistance >= 0.0 && lastMove.yDistance <= 0.0); 
@@ -1811,15 +1810,9 @@ public class SurvivalFly extends Check {
                     lastMove.toIsValid && lastMove.yDistance > 0.0 && !data.isVelocityJumpPhase()) {
 
                     final double setBackYDistance = from.getY() - data.getSetBackY();
+                    double estimate = (data.jumpAmplifier > 0) ? 1.15 + (0.5 * aux.getJumpAmplifier(player)) : 1.15; // Estimate of minimal jump height.
+                    // Only count it if the player has actually been jumping (higher than setback).
                     if (setBackYDistance > 0.0) {
-                        // Only count it if the player has actually been jumping (higher than setback).
-                        final Player player = from.getPlayer();
-                        // Estimate of minimal jump height.
-                        double estimate = 1.15;
-                        if (data.jumpAmplifier > 0) {
-                            // TODO: Could skip this.
-                            estimate += 0.5 * aux.getJumpAmplifier(player);
-                        }
                         if (setBackYDistance < estimate) {
                             // Low jump, further check if there might have been a reason for low jumping.
                             if (data.playerMoves.getCurrentMove().headObstructed || yDistance <= 0.0 
@@ -2622,6 +2615,7 @@ public class SurvivalFly extends Check {
         */
 
         final double yDistance = thisMove.yDistance;
+        final PlayerMoveData lastMove = data.playerMoves.getFirstPastMove();
         // Allow the first move when falling from far above.
         // Observed: Upon first collision with a berry bush, a lot of lost ground cases will apply (pyramid and edgedesc)
         final double descendSpeed = (!fromOnGround && !lastMove.from.inBerryBush && toOnGround && thisMove.to.inBerryBush || thisMove.touchedGroundWorkaround) ? yDistance : Magic.bushSpeedDescend; 
