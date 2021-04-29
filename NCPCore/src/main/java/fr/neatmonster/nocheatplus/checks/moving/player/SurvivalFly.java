@@ -430,7 +430,7 @@ public class SurvivalFly extends Check {
         // HoneyBlock
         // TODO: Enforce descend speed as well?
         else if (from.isOnHoneyBlock()) {
-            data.sfLowJump = false;
+            data.sfNoLowJump = true;
             vAllowedDistance = (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) ?
                                1.5 : data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier);
             vDistanceAboveLimit = thisMove.yDistance - vAllowedDistance;
