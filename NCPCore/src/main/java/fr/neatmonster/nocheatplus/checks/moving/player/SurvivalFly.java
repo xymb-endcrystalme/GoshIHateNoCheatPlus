@@ -1100,11 +1100,12 @@ public class SurvivalFly extends Check {
         // Soulsand
         else if (thisMove.from.onSoulSand) {
             tags.add("hsoulsand");
-            final boolean hasEnchant = BridgeEnchant.hasSoulSpeed(player);
-            final boolean inSoulBlock = (BlockProperties.getBlockFlags(from.getTypeId()) & BlockProperties.F_SOULSAND) != 0;
-            hAllowedDistance = (inSoulBlock ? Magic.modSoulSand : (sprinting ? Magic.modSprint : 1.0)) * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
-            if (hasEnchant && inSoulBlock) hAllowedDistance *= Magic.modSoulSpeed;
-            if (hasEnchant) data.keepfrictiontick = 60;
+            hAllowedDistance = Magic.modSoulSand * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+            // SoulSpeed stuff
+            if (BridgeEnchant.hasSoulSpeed(player)) {
+                hAllowedDistance *= Magic.modSoulSpeed;
+                data.keepfrictiontick = 60;
+            }
             useBlockOrSneakModifier = true;
             useBlockAndSneakModifier = true; // (OK)
             useBaseModifiers = true;
