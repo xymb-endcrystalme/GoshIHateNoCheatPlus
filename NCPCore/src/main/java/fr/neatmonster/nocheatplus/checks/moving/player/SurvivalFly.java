@@ -1996,6 +1996,8 @@ public class SurvivalFly extends Check {
         // TODO: Still not entirely sure about this checking order.
         // TODO: Would quick returns make sense for hDistanceAfterFailure == 0.0?
         final long now = System.currentTimeMillis();
+        final double speedAmplifier = mcAccess.getHandle().getFasterMovementAmplifier(player);
+        final boolean bunnyHopResetCond = (from.isAboveStairs() && to.isAboveStairs() && to.isOnGround()); //|| ((speedAmplifier >= 2) && !Double.isInfinite(speedAmplifier));
 
         // 1: Attempt to reset item on NoSlow Violation, if set so in the configuration.
         if (cc.survivalFlyResetItem && hDistanceAboveLimit > 0.0 && data.sfHorizontalBuffer <= 0.5 && tags.contains("usingitem")) {
@@ -2049,7 +2051,7 @@ public class SurvivalFly extends Check {
         }
 
         // 2: Test bunny early, because it applies often and destroys as little as possible.
-        if (!(from.isAboveStairs() && to.isAboveStairs() && to.isOnGround())){
+        if (!bunnyHopResetCond){
             hDistanceAboveLimit = bunnyHop(from, to, hAllowedDistance, hDistanceAboveLimit, sprinting, thisMove, lastMove, data, cc);
         }
 
@@ -2108,7 +2110,7 @@ public class SurvivalFly extends Check {
         }
 
         // 6: Re-check for bunnyhopping if the hDistance is still above limit (2nd).
-        if (hDistanceAboveLimit > 0 && !(from.isAboveStairs() && to.isAboveStairs() && to.isOnGround())) {
+        if (hDistanceAboveLimit > 0.0 && !bunnyHopResetCond) {
             hDistanceAboveLimit = bunnyHop(from, to, hAllowedDistance, hDistanceAboveLimit, sprinting, thisMove, lastMove, data, cc);
         }
 
@@ -2161,16 +2163,17 @@ public class SurvivalFly extends Check {
         final double yDistance = thisMove.yDistance;
         final double baseSpeed = thisMove.hAllowedDistanceBase;
         final double lastBaseSpeed = lastMove.hAllowedDistanceBase;
+        final double speedAmplifier = mcAccess.getHandle().getFasterMovementAmplifier(player);
+        final boolean skipFriction = ((speedAmplifier >= 2.0) && !Double.isInfinite(speedAmplifier));
 
 
         // TODO: Check which conditions might need resetting at lower speed (!).
         // Friction phase.
-        if (lastMove.toIsValid && data.bunnyhopDelay > 0 && hDistance > baseSpeed) {
+        if (lastMove.toIsValid && data.bunnyhopDelay > 0 && hDistance > baseSpeed && !skipFriction) {
             allowHop = false;
             final int hopTime = bunnyHopMax - data.bunnyhopDelay;
 
             if (lastMove.hDistance > hDistance) {
-
                 final double hDistDiff = lastMove.hDistance - hDistance;
 
                 // Account for (sprintjump) slopes (downwards, directly after hop but before friction).
@@ -2187,13 +2190,11 @@ public class SurvivalFly extends Check {
                         || hDistDiff >= hDistanceAboveLimit / 33.3 
                         || hDistDiff >= (hDistance - baseSpeed) * (1.0 - Magic.FRICTION_MEDIUM_AIR)
                         ) {
-
                     // TODO: Confine friction by medium ?
                     // TODO: Also calculate an absolute (minimal) speed decrease over the whole time, at least max - count?
                     final double maxSpeed = baseSpeed * (data.bunnyhopTick > 0 ? 1.09 : 1.255);
                     final double allowedSpeed = maxSpeed * Math.pow(0.99, bunnyHopMax - data.bunnyhopDelay);
                     tags.add("bunnyfriction");
-                    
 
                     if (hDistance <= allowedSpeed
                         || data.bunnyhopTick > 6 || data.isVelocityJumpPhase() 
@@ -2273,8 +2274,8 @@ public class SurvivalFly extends Check {
 
         if (lastMove.toIsValid && data.bunnyhopDelay <= 0 && data.lastbunnyhopDelay > 0 && lastMove.hDistance > hDistance 
             && baseSpeed > 0.0 && hDistance / baseSpeed < hopMargin){
-
             final double hDistDiff = lastMove.hDistance - hDistance;
+        
             if (
                 hDistDiff >= lastMove.hDistance / bunnyDivFriction 
                 || hDistDiff >= hDistanceAboveLimit / 33.3 
