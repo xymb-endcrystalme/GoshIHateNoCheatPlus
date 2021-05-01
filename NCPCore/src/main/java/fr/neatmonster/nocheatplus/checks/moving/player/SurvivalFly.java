@@ -424,7 +424,7 @@ public class SurvivalFly extends Check {
         if (yDistance >= 0.0 && yDistance <= cc.sfStepHeight && toOnGround && fromOnGround && !onOrInMedium) {
             vAllowedDistance = cc.sfStepHeight;
             thisMove.allowstep = true;
-            tags.add("vstep");
+            tags.add("groundstep");
         }
 
         // HoneyBlock
@@ -434,7 +434,7 @@ public class SurvivalFly extends Check {
             vAllowedDistance = (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) ?
                                1.5 : data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier);
             vDistanceAboveLimit = thisMove.yDistance - vAllowedDistance;
-            tags.add("hblockasc");
+            if (vDistanceAboveLimit > 0.0) tags.add("honeyasc");
         }
 
         // Webs 
@@ -1996,7 +1996,6 @@ public class SurvivalFly extends Check {
         // TODO: Still not entirely sure about this checking order.
         // TODO: Would quick returns make sense for hDistanceAfterFailure == 0.0?
         final long now = System.currentTimeMillis();
-        final double speedAmplifier = mcAccess.getHandle().getFasterMovementAmplifier(player);
         final boolean bunnyHopResetCond = (from.isAboveStairs() && to.isAboveStairs() && to.isOnGround()); //|| ((speedAmplifier >= 2) && !Double.isInfinite(speedAmplifier));
 
         // 1: Attempt to reset item on NoSlow Violation, if set so in the configuration.
