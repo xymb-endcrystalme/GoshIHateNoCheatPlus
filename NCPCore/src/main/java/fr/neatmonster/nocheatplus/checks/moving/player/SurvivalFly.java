@@ -2051,7 +2051,7 @@ public class SurvivalFly extends Check {
 
         // 2: Test bunny early, because it applies often and destroys as little as possible.
         if (!bunnyHopResetCond){
-            hDistanceAboveLimit = bunnyHop(from, to, hAllowedDistance, hDistanceAboveLimit, sprinting, thisMove, lastMove, data, cc);
+            hDistanceAboveLimit = bunnyHop(from, to, player, hAllowedDistance, hDistanceAboveLimit, sprinting, thisMove, lastMove, data, cc);
         }
 
         // 3: After failure permission checks ( + speed modifier + sneaking + blocking + speeding) and velocity (!).
@@ -2110,7 +2110,7 @@ public class SurvivalFly extends Check {
 
         // 6: Re-check for bunnyhopping if the hDistance is still above limit (2nd).
         if (hDistanceAboveLimit > 0.0 && !bunnyHopResetCond) {
-            hDistanceAboveLimit = bunnyHop(from, to, hAllowedDistance, hDistanceAboveLimit, sprinting, thisMove, lastMove, data, cc);
+            hDistanceAboveLimit = bunnyHop(from, to, player, hAllowedDistance, hDistanceAboveLimit, sprinting, thisMove, lastMove, data, cc);
         }
 
         // 7: Finally, check for the Horizontal buffer if the hDistance is still above limit.
@@ -2149,7 +2149,7 @@ public class SurvivalFly extends Check {
      * @param data
      * @return hDistanceAboveLimit
      */
-    private double bunnyHop(final PlayerLocation from, final PlayerLocation to, 
+    private double bunnyHop(final PlayerLocation from, final PlayerLocation to, final Player player,
                             final double hAllowedDistance, double hDistanceAboveLimit, final boolean sprinting, 
                             final PlayerMoveData thisMove, final PlayerMoveData lastMove, 
                             final MovingData data, final MovingConfig cc) {
