@@ -37,7 +37,7 @@ public enum LiftOffEnvelope {
     STICKY_JUMP(0.21, 0.4, 4, true), 
     /** Nearly ordinary jumping gain (meant for berry bushes)*/
     // TEST: Jumping height is random, needs testing to be more strict.
-    BERRY_JUMP(0.35, 0.5, 5, true); 
+    BERRY_JUMP(0.35, 0.54, 5, true); 
     ;
 
     private double maxJumpGain;

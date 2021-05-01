@@ -810,7 +810,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isInBerryBush() {
         if (inBerryBush == null) {
-            if (blockFlags == null && (blockFlags & BlockProperties.F_COBWEB2) != 0L) {
+            if (blockFlags == null || (blockFlags & BlockProperties.F_COBWEB2) != 0L) {
                 // TODO: inset still needed / configurable? -> Nope :)
                 //final double inset = 0.001d;
                 inBerryBush = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockProperties.F_COBWEB2);
