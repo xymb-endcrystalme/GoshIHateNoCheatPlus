@@ -1723,7 +1723,7 @@ public class SurvivalFly extends Check {
         ////////////////////////////////////////////////////////////////////////////////////
         // TODO: max-phase only when from is not reset !?
         if (!envelopeHack && data.sfJumpPhase > maxJumpPhase && !data.isVelocityJumpPhase()) {
-            if (yDistance < 0.0) {
+            if (yDistance < 0.09) {
                 // Ignore falling, and let accounting deal with it.
             }
             else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
@@ -1773,7 +1773,7 @@ public class SurvivalFly extends Check {
         //////////////////////////////////////////////////////////////////////////////////
         final boolean InAirPhase = !envelopeHack && !resetFrom && !resetTo;
         final boolean ChangedYDir = lastMove.toIsValid && lastMove.yDistance != yDistance
-                                        && (yDistance <= 0.0 && lastMove.yDistance >= 0.0 || yDistance >= 0.0 && lastMove.yDistance <= 0.0); 
+                                    && (yDistance <= 0.0 && lastMove.yDistance >= 0.0 || yDistance >= 0.0 && lastMove.yDistance <= 0.0); 
 
         if (InAirPhase && ChangedYDir) {
 

@@ -681,6 +681,10 @@ public class InAirVerticalRules {
             // Ignore water logged blocks 
             return true;
         }
+        else if (lastMove.from.inBerryBush && !thisMove.from.inBerryBush &&
+            yDistance < -Magic.GRAVITY_MIN && yDistance > Magic.bushSpeedDescend) {
+            // Exiting a berry bush, ignore friction
+        }
         return false;
         
     }
