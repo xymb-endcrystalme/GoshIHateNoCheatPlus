@@ -661,7 +661,7 @@ public class InAirVerticalRules {
     */
     public static boolean vDistSBExemptions(final boolean toOnGround, final PlayerMoveData thisMove, final PlayerMoveData lastMove, 
                                             final MovingData data, final MovingConfig cc, final long now, final Player player, 
-                                            double totalVDistViolation, final double yDistance, final boolean fromOnGround){
+                                            double totalVDistViolation, final double yDistance, final boolean fromOnGround) {
 
         if ((fromOnGround || thisMove.touchedGroundWorkaround || lastMove.touchedGround) 
             && toOnGround && yDistance <= cc.sfStepHeight) {
@@ -677,13 +677,8 @@ public class InAirVerticalRules {
             // Ignore riptiding for now
             return true;
         }
-        else if ((totalVDistViolation < 0.8 && data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID)) {
-            // Ignore water logged blocks 
-            return true;
-        }
-        else if (lastMove.from.inBerryBush && !thisMove.from.inBerryBush &&
-            yDistance < -Magic.GRAVITY_MIN && yDistance > Magic.bushSpeedDescend) {
-            // Exiting a berry bush, ignore friction
+        else if (totalVDistViolation < 0.8 && (data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID || data.liftOffEnvelope == LiftOffEnvelope.BERRY_JUMP)) {
+            // Ignore water logged blocks / berry bushes
             return true;
         }
         return false;

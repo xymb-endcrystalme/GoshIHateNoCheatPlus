@@ -1118,7 +1118,7 @@ public class SurvivalFly extends Check {
             hAllowedDistance = Magic.modSlime * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             useBlockOrSneakModifier = true; 
             useBaseModifiers = true;
-            useBaseModifiersSprint = false;
+            useBaseModifiersSprint = true;
             // Friction is used as is.
         }
         
@@ -1703,7 +1703,8 @@ public class SurvivalFly extends Check {
             final double totalVDistViolation      =  to.getY() - data.getSetBackY() - vAllowedAbsoluteDistance;
             if (totalVDistViolation > 0.0) {
         
-                if (InAirVerticalRules.vDistSBExemptions(toOnGround, thisMove, lastMove, data, cc, now, player, totalVDistViolation, yDistance, fromOnGround)){
+                if (InAirVerticalRules.vDistSBExemptions(toOnGround, thisMove, lastMove, data, cc, now, player, 
+                                                         totalVDistViolation, yDistance, fromOnGround)) {
                     // Skip
                 }
                 else if (yDistance <= cc.sfStepHeight && thisMove.touchedGroundWorkaround && tags.contains("lostground_couldstep")) {
@@ -2168,7 +2169,7 @@ public class SurvivalFly extends Check {
 
         // TODO: Check which conditions might need resetting at lower speed (!).
         // Friction phase.
-        if (lastMove.toIsValid && data.bunnyhopDelay > 0 && hDistance > baseSpeed && !skipFriction) {
+        if (lastMove.toIsValid && data.bunnyhopDelay > 0 && hDistance > baseSpeed) {
             allowHop = false;
             final int hopTime = bunnyHopMax - data.bunnyhopDelay;
 
@@ -2195,10 +2196,13 @@ public class SurvivalFly extends Check {
                     final double allowedSpeed = maxSpeed * Math.pow(0.99, bunnyHopMax - data.bunnyhopDelay);
                     tags.add("bunnyfriction");
 
-                    if (hDistance <= allowedSpeed
-                        || data.bunnyhopTick > 6 || data.isVelocityJumpPhase() 
-                        || thisMove.headObstructed && hDistance < 0.39 
-                        || data.keepfrictiontick > 0) {
+                    if (!skipFriction 
+                        && (
+                           hDistance <= allowedSpeed
+                           || data.bunnyhopTick > 6 || data.isVelocityJumpPhase() 
+                           || thisMove.headObstructed && hDistance < 0.39 
+                           || data.keepfrictiontick > 0)
+                        ) {
                         tags.add("allowfrict");
                         hDistanceAboveLimit = 0.0;
                     }
