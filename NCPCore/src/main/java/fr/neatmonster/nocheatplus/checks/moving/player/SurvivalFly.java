@@ -1118,7 +1118,6 @@ public class SurvivalFly extends Check {
             hAllowedDistance = Magic.modSlime * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             useBlockOrSneakModifier = true; 
             useBaseModifiers = true;
-            useBaseModifiersSprint = true;
             // Friction is used as is.
         }
         
@@ -1339,31 +1338,25 @@ public class SurvivalFly extends Check {
             useBaseModifiersSprint = false;
         }
 
-        // Ground->ground movement, in-air move or moving on an unspecified medium.
         else {
             useBaseModifiers = true;
-            if (sprinting) {
-                if (!thisMove.from.onGround && thisMove.to.onGround) {
-                    data.bunnyhopTick = ServerIsAtLeast1_13 ? 6 : 3;
-                    hAllowedDistance = 1.14 * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
-                    tags.add("sprintTo");
-                }
-                else if (data.bunnyhopTick > 0) {
-                    hAllowedDistance = modHopSprint * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
-                    if (snowFix && data.bunnyhopTick > 5) hAllowedDistance *= 1.6;
-                    tags.add("sprinthop");
-                }
-                else {
-                    hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D; 
-                    tags.add("sprintwalk");              
-                }
+            // Landing phase
+            if (!thisMove.from.onGround && thisMove.to.onGround) {
+                data.bunnyhopTick = ServerIsAtLeast1_13 ? 6 : 3;
+                hAllowedDistance = 1.14 * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
+                tags.add("sprintTo");
             }
+            // Bunnyhopping
+            else if (data.bunnyhopTick > 0) {
+                hAllowedDistance = modHopSprint * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
+                if (snowFix && data.bunnyhopTick > 5) hAllowedDistance *= 1.6;
+                tags.add("sprinthop");
+            }
+            // Ground -> ground or Air -> air
             else {
-                tags.add("walking");
-                hAllowedDistance = thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+                hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D; 
+                tags.add("sprintwalk");              
             }
-            // Ensure friction can't be used to speed.
-            // TODO: Model bunny hop as a one time peak + friction. Allow medium based friction.
             friction = 0.0;
         }
 
@@ -1440,8 +1433,7 @@ public class SurvivalFly extends Check {
         // If the player is on ice, give them a higher maximum speed.
         if (data.sfOnIce > 9) {
             hAllowedDistance *= Magic.modIce;
-            if (data.bunnyhopTick > 3) hAllowedDistance *= 1.25;
-            else if (data.bunnyhopTick > 0) hAllowedDistance *= 1.1;
+            hAllowedDistance *= data.bunnyhopTick > 3 ? 1.25 : data.bunnyhopTick > 0 ? 1.1 : 1.0;
         }
         else if (data.sfOnIce > 0) {
             hAllowedDistance *= 1.0 + 0.025 * data.sfOnIce;
@@ -1528,7 +1520,6 @@ public class SurvivalFly extends Check {
         // TODO: lostground_pyramid(yDist < 0.0) -> step up (yDist 0.5). Needs better last-move modeling.
         // TODO: lostground_edgedesc(yDist <0.0) -> Bunny (yDist > .72, e_jump). Needs better last-move modeling.
         // TODO: air->ground...small-range-tp...air-air+vDist==0.0 (might work around with fromWasReset?).
-        // TODO: bunny after vDist<0.0... vdistsb. Might need set back detection. [solved with setFrictionJumpPhase?]
         // TODO: Other edge cases?
         // TODO: Add/set 'allow starting to fall' first (data reset / from ground on if no speed).
         // TODO: Quick detect valid envelope and move workaround code into a method.
@@ -1723,8 +1714,9 @@ public class SurvivalFly extends Check {
         // Air-stay-time: prevent players from moving further than the maximum jump phase.//
         ////////////////////////////////////////////////////////////////////////////////////
         // TODO: max-phase only when from is not reset !?
+        // TODO: Consider making the leniency yDist configurable...
         if (!envelopeHack && data.sfJumpPhase > maxJumpPhase && !data.isVelocityJumpPhase()) {
-            if (yDistance < 0.09) {
+            if (yDistance < 0.09) { // Leniency
                 // Ignore falling, and let accounting deal with it.
             }
             else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
@@ -1919,7 +1911,6 @@ public class SurvivalFly extends Check {
             tags.add("skip_paper");
         }
         else {
-            // Allow 0 y-distance once.
             vAllowedDistance = 0.0;
         }
         return vAllowedDistance;
@@ -2051,7 +2042,7 @@ public class SurvivalFly extends Check {
         }
 
         // 2: Test bunny early, because it applies often and destroys as little as possible.
-        if (!bunnyHopResetCond){
+        if (!bunnyHopResetCond) {
             hDistanceAboveLimit = bunnyHop(from, to, player, hAllowedDistance, hDistanceAboveLimit, sprinting, thisMove, lastMove, data, cc);
         }
 
@@ -2170,20 +2161,18 @@ public class SurvivalFly extends Check {
         // TODO: Check which conditions might need resetting at lower speed (!).
         // Friction phase.
         if (lastMove.toIsValid && data.bunnyhopDelay > 0 && hDistance > baseSpeed) {
-            allowHop = false;
+            allowHop = false; // Not yet.
             final int hopTime = bunnyHopMax - data.bunnyhopDelay;
 
             if (lastMove.hDistance > hDistance) {
                 final double hDistDiff = lastMove.hDistance - hDistance;
 
                 // Account for (sprintjump) slopes (downwards, directly after hop but before friction).
-                if (data.bunnyhopDelay == bunnyHopMax - 1) {
-
-                    // Ensure relative speed decrease vs. hop is met somehow.
-                    if (hDistDiff >= 0.66 * (lastMove.hDistance - baseSpeed)) {
-                        tags.add("bunnyslope");
-                        hDistanceAboveLimit = 0.0;
-                    }
+                // Ensure relative speed decrease vs. hop is met somehow.
+                if (data.bunnyhopDelay == bunnyHopMax - 1 
+                    && hDistDiff >= 0.66 * (lastMove.hDistance - baseSpeed)) {
+                    tags.add("bunnyslope");
+                    hDistanceAboveLimit = 0.0;
                 }
                 else if (
                         hDistDiff >= lastMove.hDistance / bunnyDivFriction 
@@ -2196,13 +2185,11 @@ public class SurvivalFly extends Check {
                     final double allowedSpeed = maxSpeed * Math.pow(0.99, bunnyHopMax - data.bunnyhopDelay);
                     tags.add("bunnyfriction");
 
-                    if (!skipFriction 
-                        && (
+                    if (!skipFriction && (
                            hDistance <= allowedSpeed
                            || data.bunnyhopTick > 6 || data.isVelocityJumpPhase() 
                            || thisMove.headObstructed && hDistance < 0.39 
-                           || data.keepfrictiontick > 0)
-                        ) {
+                           || data.keepfrictiontick > 0)) {
                         tags.add("allowfrict");
                         hDistanceAboveLimit = 0.0;
                     }
@@ -2214,20 +2201,21 @@ public class SurvivalFly extends Check {
                     }
                     else tags.add("bunnyfly(" + data.bunnyhopDelay +")");
                 }
-            }
+            } //(friction)
 
             // Allow sprintjumping on slime blocks
             // TODO: Better model, using the buffer here is rough.
-            if ((from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0
-                && data.bunnyhopDelay == 9 && !thisMove.from.onGround && hDistance < 0.45) {
+            if (((from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0 || (to.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0)
+                && (data.bunnyhopDelay == 9 || data.bunnyhopTick <= 5) && !thisMove.from.onGround 
+                && hDistance < 0.45) {
                 hDistanceAboveLimit = 0.0;
                 data.bunnyhopTick = 15;
-                data.sfHorizontalBuffer = Math.max(data.sfHorizontalBuffer, 0.5); 
                 tags.add("bouncebunny");
             }
 
             // 2x horizontal speed increase detection.
             // TODO: Confine to increasing set back y ?
+            // TODO: Is this one still needed?
             if (!allowHop && hDistance - lastMove.hDistance >= baseSpeed * 0.5 && hopTime == 1) {
                 if (lastMove.yDistance >= -Magic.GRAVITY_MAX / 2.0 && lastMove.yDistance <= 0.0 && yDistance >= 0.4 
                     && lastMove.touchedGround) {
@@ -2266,7 +2254,7 @@ public class SurvivalFly extends Check {
                     }
                 }
             }
-        } // (friction phase)
+        } 
 
 
         // bunnyhop-> bunnyslope-> bunnyfriction-> ground-> microjump(still bunnyfriction)-> bunnyfriction
@@ -2292,7 +2280,7 @@ public class SurvivalFly extends Check {
                 if (hDistDiff < 0.01) {
                     // Allow the move
                     hDistanceAboveLimit = 0.0;
-                    tags.add("bunnyfriction(2)");
+                    tags.add("lostfrict");
                     
                     // Remove lowjump in this hop, prevent false in next hop
                     if (data.sfLowJump) {
@@ -2308,10 +2296,9 @@ public class SurvivalFly extends Check {
         }
 
 
-        // Check hop (singular peak up to roughly two times the allowed distance).
+        // Finally, check for actual bunnyhop (singular peak up to roughly two times the allowed distance).
         // TODO: Needs better modeling.
         // TODO: Test bunny spike over all sorts of speeds + attributes.
-        // TODO: Allow slightly higher speed on lost ground?
         // TODO: LiftOffEnvelope.allowBunny ?
         final double hopTickMultiplier = ((!lastMove.toIsValid || lastMove.hDistance == 0.0 && lastMove.yDistance == 0.0) ? 1.11 : 1.314);
         final double hopTickMultiplier2 = (data.bunnyhopTick > 0 ? (data.bunnyhopTick > 2 ? 1.76 : 1.96) : 2.15);
@@ -2336,9 +2323,7 @@ public class SurvivalFly extends Check {
                     && yDistance > data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier) - Magic.GRAVITY_SPAN
                     // 1: Too short with head obstructed.
                     || thisMove.headObstructed || lastMove.toIsValid && lastMove.headObstructed && lastMove.yDistance <= 0.0
-                    // 1: Hop without y distance increase at moderate h-speed.
-                    // TODO: 2nd below: demand next move to jump. Relate to stored past moves. 
-                    // TODO: Ensure the gain can only be used once per so and so.
+                    // 1: Hop without y distance increase at moderate h-speed (Legacy, still needed?)
                     || (cc.sfGroundHop || yDistance == 0.0 && !lastMove.touchedGroundWorkaround && !lastMove.from.onGround)
                     && baseSpeed > 0.0 && hDistance / baseSpeed < 1.5 && (hDistance / lastMove.hDistance < 1.35 || hDistance / baseSpeed < 1.35)
                 )
@@ -2566,6 +2551,7 @@ public class SurvivalFly extends Check {
                               final MovingData data, final MovingConfig cc, final PlayerLocation from) {
         
         final double yDistance = thisMove.yDistance;
+        final boolean step = toOnGround && yDistance > 0.0 && yDistance <= 0.5;
         double vAllowedDistance = 0.0;
         double vDistanceAboveLimit = 0.0;
         data.sfNoLowJump = true;
@@ -2573,8 +2559,8 @@ public class SurvivalFly extends Check {
 
         // Ascend: players cannot ascend in webs
         if (yDistance >= 0.0) {
-            vAllowedDistance = (toOnGround && yDistance <= 0.5) ? yDistance : thisMove.from.onGround ? 0.1D : 0.0; 
-            if (toOnGround && yDistance <= 0.5 && yDistance > 0.0) tags.add("web_step");
+            vAllowedDistance = step ? yDistance : thisMove.from.onGround ? 0.1 : 0.0; 
+            if (step) tags.add("web_step");
             vDistanceAboveLimit = yDistance - vAllowedDistance;
         }
         // Descend
@@ -2827,7 +2813,7 @@ public class SurvivalFly extends Check {
         data.addVerticalVelocity(builder);
         //      if (data.horizontalVelocityCounter > 0 || data.horizontalFreedom >= 0.001) {
         //          builder.append("\n" + player.getName() + " horizontal freedom: " +  StringUtil.fdec3.format(data.horizontalFreedom) + " (counter=" + data.horizontalVelocityCounter +"/used="+data.horizontalVelocityUsed);
-        //      }
+        // }
         data.addHorizontalVelocity(builder);
         if (!resetFrom && !resetTo) {
             if (cc.survivalFlyAccountingV && data.vDistAcc.count() > data.vDistAcc.bucketCapacity()) {
