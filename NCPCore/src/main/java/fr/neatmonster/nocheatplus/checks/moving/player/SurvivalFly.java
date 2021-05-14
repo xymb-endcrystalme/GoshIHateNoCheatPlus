@@ -1113,12 +1113,12 @@ public class SurvivalFly extends Check {
         }
         
         // Slimeblock
-        else if (thisMove.from.onSlimeBlock) {
+        else if (thisMove.from.onSlimeBlock && thisMove.to.onSlimeBlock) {
             tags.add("hslimeblock");
             hAllowedDistance = Magic.modSlime * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             useBlockOrSneakModifier = true; 
             useBaseModifiers = true;
-            // Friction is used as is.
+            friction = 0.0;
         }
         
         // Berry bush
@@ -2210,6 +2210,7 @@ public class SurvivalFly extends Check {
                 && hDistance < 0.45) {
                 hDistanceAboveLimit = 0.0;
                 data.bunnyhopTick = 15;
+                data.sfHorizontalBuffer = Math.max(data.sfHorizontalBuffer, 0.5);
                 tags.add("bouncebunny");
             }
 
