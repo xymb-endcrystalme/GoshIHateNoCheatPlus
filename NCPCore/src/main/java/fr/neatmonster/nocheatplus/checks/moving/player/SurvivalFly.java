@@ -432,7 +432,7 @@ public class SurvivalFly extends Check {
         else if (from.isOnHoneyBlock()) {
             data.sfNoLowJump = true;
             vAllowedDistance = (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) ?
-                               1.5 : data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier);
+                               1.5 : data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier);
             vDistanceAboveLimit = thisMove.yDistance - vAllowedDistance;
             if (vDistanceAboveLimit > 0.0) tags.add("honeyasc");
         }
