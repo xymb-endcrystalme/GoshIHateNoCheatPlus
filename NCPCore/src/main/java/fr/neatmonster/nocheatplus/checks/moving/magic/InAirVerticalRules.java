@@ -37,8 +37,9 @@ import fr.neatmonster.nocheatplus.compat.BridgeMisc;
 
 
 /**
-* Vertical distance regulation for moving in air unexpectedly.
-* The actual allowed yDistance is set in survivalFly.vDistAir.
+* This class is meant to contain just about every deviation/exception from the ordinary yDistance
+* set in survivalFly.vDistAir. The allowed yDistance gets compared to these rules, if a match is found
+* the movement is allowed.
 *
 */
 public class InAirVerticalRules {
@@ -301,10 +302,6 @@ public class InAirVerticalRules {
                         // 1: Near ground small decrease.
                         lastMove.yDistance > Magic.GRAVITY_MAX && lastMove.yDistance < 3.0 * Magic.GRAVITY_MAX
                         && yDistChange > - Magic.GRAVITY_MIN && yDistChange < -Magic.GRAVITY_ODD
-                        // 1: Bounce without velocity set. TODO: wat?
-                        //|| lastMove.yDistance == 0.0 && yDistance > -GRAVITY_MIN && yDistance < GRAVITY_SPAN
-                        // 1: Bounce with carpet.
-                        //|| yDistance < 0.006
                 )
                 // 0: Jump-effect-specific
                 // TODO: Jump effect at reduced lift off envelope -> skip this?

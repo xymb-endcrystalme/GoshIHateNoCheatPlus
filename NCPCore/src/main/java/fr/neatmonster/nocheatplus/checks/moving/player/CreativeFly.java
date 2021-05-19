@@ -674,7 +674,7 @@ public class CreativeFly extends Check {
             if (f < 0.0F) {
                 // For compatibility
                 if (to.getPitch() == -90f
-                && isNear(yDistance, allwyDistance * 0.9800002, 0.01)) {
+                && isNear(yDistance, allwyDistance * Magic.FRICTION_MEDIUM_ELYTRA_AIR, 0.01)) {
                     allwHDistance += 0.01;
                 }
                 else {
@@ -691,7 +691,7 @@ public class CreativeFly extends Check {
             }
             
             // Friction
-            allwyDistance *= 0.9800002;
+            allwyDistance *= Magic.FRICTION_MEDIUM_ELYTRA_AIR;
 
             // Fireworks
             // Can't be more precise due to some problems, still have ~10% faster bypasses :(

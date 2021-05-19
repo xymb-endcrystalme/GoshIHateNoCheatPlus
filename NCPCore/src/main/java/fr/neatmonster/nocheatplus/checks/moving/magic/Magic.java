@@ -44,6 +44,7 @@ public class Magic {
     public static final double FRICTION_MEDIUM_WATER = 0.98;
     /** Friction for lava. */
     public static final double FRICTION_MEDIUM_LAVA = 0.535;
+    public static final double FRICTION_MEDIUM_ELYTRA_AIR = 0.9800002;
 
     // Horizontal speeds/modifiers. 
     public static final double WALK_SPEED           = 0.221D;
