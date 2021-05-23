@@ -135,7 +135,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     /** Multiplier at the last time sprinting. */
     public double         multSprinting = 1.30000002; 
     /** Compatibility entry for bouncing of slime blocks and the like. */
-    public SimpleEntry verticalBounce = null;
+    public SimpleEntry    verticalBounce = null;
     /** Last used block change id (BlockChangeTracker). */
     public final BlockChangeReference blockChangeRef = new BlockChangeReference();
     /** Moving half on 15/16 height block and half on water. Set in Survivalfly.check */
@@ -275,6 +275,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      */
     public int          sfHoverLoginTicks = 0;
     public int          sfOnIce = 0; // TODO: Replace by allowed speed + friction.
+    public int          sfBounceTick = 0;
     /** Fake in air flag: set with any violation, reset once on ground. */
     public boolean       sfVLInAir = false;
 
@@ -378,6 +379,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         bunnyhopDelay = 0;
         sfJumpPhase = 0;
         jumpAmplifier = 0;
+        sfOnIce = 0;
+        sfBounceTick = 0;
         setBack = null;
         sfZeroVdistRepeat = 0;
         clearAccounting();
@@ -393,6 +396,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         lastFrictionHorizontal = lastFrictionVertical = 0.0;
         verticalBounce = null;
         blockChangeRef.valid = false;
+        // More resets? (bunnyhopTick, liqtick...)
     }
 
     /**

@@ -59,6 +59,7 @@ public class Magic {
     public static final double[] modSurface         = new double [] {0.23426D / WALK_SPEED, 0.29835D / WALK_SPEED};
     public static final double modCollision         = 0.3006D / WALK_SPEED;
     public static final double modSoulSpeed         = 0.3094D / WALK_SPEED;
+    public static final double modBounce            = 0.3125D / WALK_SPEED;
     public static final double modIce               = 0.5525D / WALK_SPEED; 
     public static final double modDolphinsGrace     = 0.9945D / WALK_SPEED; // TODO: Adjust value to be more stricter and closer to actual movement speed, and use different value from in water vs above water
     public static final double[] modSwim            = new double[] {0.115D / WALK_SPEED, 0.044D / WALK_SPEED, 0.3D / WALK_SPEED}; // 0.044D for horizontal, 0.3 for vertical swimming

@@ -271,8 +271,8 @@ public class SurvivalFly extends Check {
         }
 
         // Renew the "dirty"-flag (in-air phase affected by velocity).
+        // (Reset is done after checks run.) 
         if (data.isVelocityJumpPhase() || data.resetVelocityJumpPhase(tags)) {
-            // (Reset is done after checks run.) 
             tags.add("dirty");
         }
 
@@ -317,18 +317,29 @@ public class SurvivalFly extends Check {
 
         // Jump with head obstructed and trap door on ice
         // Actually no way to detect they are about to jump!
-        if (thisMove.headObstructed && from.isOnIce() && (from.getBlockFlags() & BlockProperties.F_ATTACHED_LOW2_SNEW) != 0) {
+        // Set the tick time for jumping on ice (Will be used to determine the accelleration in setAllowedhDist)
+        if (thisMove.headObstructed && from.isOnIce() 
+            && (from.getBlockFlags() & BlockProperties.F_ATTACHED_LOW2_SNEW) != 0) {
             data.sfOnIce = 24;
             data.bunnyhopTick = 4;
         }
 
-        // Ice jump
-        if ((thisMove.from.onIce && !thisMove.to.onIce && !data.sfLowJump) 
-           // Jump with head obstructed
-           || (thisMove.headObstructed && thisMove.yDistance > 0.01 && lastMove.from.onIce)) {
+        // Set the tick time for jumping on ice (Will be used to determine the accelleration in setAllowedhDist)
+        if (thisMove.from.onIce && !thisMove.to.onIce && !data.sfLowJump
+           || (thisMove.headObstructed && thisMove.yDistance > 0.01 && lastMove.from.onIce)) { // Jump with head obstructed
             data.sfOnIce = 20;
         }
-        else if (data.sfOnIce > 0) data.sfOnIce--;
+        else if (data.sfOnIce > 0) data.sfOnIce-- ;
+        
+        // Set the tick time for bouncing (Will be used to determine the accelleration in setAllowedhDist)
+        if (((from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0) 
+            && !((to.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0)
+            && hDistance < 0.45 && hDistance > thisMove.walkSpeed && data.sfJumpPhase < 4
+            && !thisMove.from.onGround && data.liftOffEnvelope == LiftOffEnvelope.NORMAL) {
+            data.sfBounceTick = 13;
+            data.bunnyhopTick = 10;
+        }
+        else if (data.sfBounceTick > 0) data.sfBounceTick-- ;
 
         // Run through all hDistance checks if the player has actually some horizontal distance
         if (HasHorizontalDistance) {
@@ -345,7 +356,6 @@ public class SurvivalFly extends Check {
             }
 
             // The player went beyond the allowed limit, check if there might have been a reason for this
-            // TODO: Move more of the workarounds (buffer, bunny, ...) into ths method.
             if (hDistanceAboveLimit > 0.0) {
                 final double[] resultH = hDistAfterFailure(player, from, to, hAllowedDistance, hDistanceAboveLimit, 
                                                            sprinting, thisMove, lastMove, data, cc, pData, false);
@@ -368,6 +378,7 @@ public class SurvivalFly extends Check {
             if (!pData.hasPermission(Permissions.MOVING_SURVIVALFLY_WATERWALK, player)) {
                 hDistanceAboveLimit = waterWalkChecks(data, player, hDistance, yDistance, thisMove, lastMove, 
                                                      fromOnGround, hDistanceAboveLimit, toOnGround, from, to);
+                bufferUse = false;
             }
             
             // Prevent players from illegally sprinting.
@@ -1075,6 +1086,7 @@ public class SurvivalFly extends Check {
         if (thisMove.from.inWeb) {
             tags.add("hweb");
             data.sfOnIce = 0;
+            data.sfBounceTick = 0;
             hAllowedDistance = Magic.modWeb * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             // Walking through webs with slime/ice underneath slows down even more.
             // TODO: Accurate Magic.(get rid of the accell thingy)
@@ -1339,7 +1351,7 @@ public class SurvivalFly extends Check {
                 if (snowFix && data.bunnyhopTick > 5) hAllowedDistance *= 1.6;
                 tags.add("sprinthop");
             }
-            // Ground -> ground or Air -> air (Sprinting speed is already included in thisMove.walkSpeed)
+            // Ground -> ground or Air -> air (Sprinting speed is already included)
             else {
                 hAllowedDistance = thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D; 
                 tags.add("sprintwalk");              
@@ -1413,17 +1425,22 @@ public class SurvivalFly extends Check {
 
         // Account for flowing liquids (only if needed).
         // Assume: If in liquids this would be placed right here.
-        if (thisMove.downStream && thisMove.hDistance > thisMove.walkSpeed * Magic.modSwim[0] && thisMove.from.inLiquid) {
+        if (thisMove.downStream && thisMove.hDistance > thisMove.walkSpeed * Magic.modSwim[0] 
+            && thisMove.from.inLiquid) {
             hAllowedDistance *= Magic.modDownStream;
         }
 
-        // If the player is on ice, give them a higher maximum speed.
+        // Player is jumping on ice, give them a higher base speed (to account for the accelleration)
+        // Observed: This accellerates too much... (1.01 / 0.75 observed speed)
         if (data.sfOnIce > 9) {
             hAllowedDistance *= Magic.modIce;
             hAllowedDistance *= data.bunnyhopTick > 3 ? 1.25 : data.bunnyhopTick > 0 ? 1.1 : 1.0;
         }
-        else if (data.sfOnIce > 0) {
-            hAllowedDistance *= 1.0 + 0.025 * data.sfOnIce;
+        else if (data.sfOnIce > 0) hAllowedDistance *= 1.0 + 0.025 * data.sfOnIce;
+        
+        // Player is jumping/bouncing on slime, give them a higher base speed (to account for the accelleration)
+        if (data.sfBounceTick > 0) {
+            hAllowedDistance *= (data.sfBounceTick > 10) ? Magic.modBounce : (1.0 + 0.020 * data.sfBounceTick);
         }
         
         // Soul speed workaround
@@ -2169,17 +2186,6 @@ public class SurvivalFly extends Check {
                 }
             } //(friction)
 
-            // Allow sprintjumping on slime blocks
-            // TODO: Better model, using the buffer here is rough.
-            if (((from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0 || (to.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0)
-                && (data.bunnyhopDelay == 9 || data.bunnyhopTick <= 5) && !thisMove.from.onGround 
-                && hDistance < 0.45) {
-                hDistanceAboveLimit = 0.0;
-                data.bunnyhopTick = 15;
-                data.sfHorizontalBuffer = Math.max(data.sfHorizontalBuffer, 0.5);
-                tags.add("bouncebunny");
-            }
-
             // 2x horizontal speed increase detection.
             // TODO: Confine to increasing set back y ?
             // TODO: Is this one still needed?
@@ -2450,7 +2456,6 @@ public class SurvivalFly extends Check {
         // TODO: bring in in-medium accounting
         final double jumpHeight = 1.35 + (data.jumpAmplifier > 0 ? (0.6 + data.jumpAmplifier - 1.0) : 0.0);
         // TODO: ladders are ground !
-        // TODO: yDistance < 0.0 ?
         final double maxSpeed = yDistance < 0.0 ? Magic.climbSpeedDescend : Magic.climbSpeedAscend;
 
         if (Math.abs(yDistance) > maxSpeed) {
@@ -2644,6 +2649,8 @@ public class SurvivalFly extends Check {
             // TODO: Evaluate how data resetting can be done minimal (skip certain things flags)?
             data.clearAccounting();
             data.sfJumpPhase = 0;
+            data.sfOnIce = 0;
+            data.sfBounceTick = 0;
             // Cancelled by other plugin, or no cancel set by configuration.
             return null;
         }
@@ -2765,12 +2772,15 @@ public class SurvivalFly extends Check {
         final String hBuf = (data.sfHorizontalBuffer < 1.0 ? ((" hbuf=" + StringUtil.fdec3.format(data.sfHorizontalBuffer))) : "");
         final String lostSprint = (data.lostSprintCount > 0 ? (" lostSprint=" + data.lostSprintCount) : "");
         final String hVelUsed = hFreedom > 0 ? " hVelUsed=" + StringUtil.fdec3.format(hFreedom) : "";
-        builder.append("\nonground: " + (thisMove.headObstructed ? "(head obstr.) " : "") + (thisMove.touchedGroundWorkaround ? "(touched ground) " : "") + (fromOnGround ? "onground -> " : (resetFrom ? "resetcond -> " : "--- -> ")) + (toOnGround ? "onground" : (resetTo ? "resetcond" : "---")) + ", jumpphase: " + data.sfJumpPhase + ", liftoff: " + data.liftOffEnvelope.name() + "(" + data.insideMediumCount + ")");
+        builder.append("\nOnGround: " + (thisMove.headObstructed ? "(head obstr.) " : "") + (thisMove.touchedGroundWorkaround ? "(touched ground) " : "") + (fromOnGround ? "onground -> " : (resetFrom ? "resetcond -> " : "--- -> ")) + (toOnGround ? "onground" : (resetTo ? "resetcond" : "---")) + ", jumpphase: " + data.sfJumpPhase + ", liftoff: " + data.liftOffEnvelope.name() + "(" + data.insideMediumCount + ")");
         final String dHDist = lastMove.toIsValid ? " (" + StringUtil.formatDiff(hDistance, lastMove.hDistance) + ")" : "";
         final String dYDist = lastMove.toIsValid ? " (" + StringUtil.formatDiff(yDistance, lastMove.yDistance)+ ")" : "";
-        final String hopDelay = (data.bunnyhopDelay > 0 ? (" bHopDelay= " + data.bunnyhopDelay)  : "");
-        final String hopTick = (data.bunnyhopTick > 0 ? (" bHopTick= " + data.bunnyhopTick) : "");
-        builder.append(hopDelay + hopTick);
+        final String hopDelay = (data.bunnyhopDelay > 0 ? ("bHopDelay= " + data.bunnyhopDelay) + " , " : "");
+        final String hopTick = (data.bunnyhopTick > 0 ? ("bHopTick= " + data.bunnyhopTick) + " , " : "");
+        final String bounceTick = (data.sfBounceTick > 0 ? ("sfBounceTick= " + data.sfBounceTick) + " , " : "");
+        final String onIceTick = (data.sfOnIce > 0 ? ("sfOnIce= " + data.sfOnIce) + " , " : "");
+        final String frictionTick = ("keepFrictionTick= " + data.keepfrictiontick + " , ");
+        builder.append("\nTick counters: " + hopDelay + hopTick + bounceTick + onIceTick + frictionTick);
         builder.append("\n" + " hDist: " + StringUtil.fdec3.format(hDistance) + dHDist + " / Allowed: " +  StringUtil.fdec3.format(hAllowedDistance) + hBuf + lostSprint + hVelUsed + " , vDist: " + StringUtil.fdec3.format(yDistance) + dYDist + " / Allowed: " + StringUtil.fdec3.format(vAllowedDistance) + " , sby=" + (data.hasSetBack() ? (data.getSetBackY() + " (" + StringUtil.fdec3.format(to.getY() - data.getSetBackY()) + " / " + data.liftOffEnvelope.getMaxJumpHeight(data.jumpAmplifier) + ")") : "?"));
         if (lastMove.toIsValid) {
             builder.append(" , fdsq: " + StringUtil.fdec3.format(thisMove.distanceSquared / lastMove.distanceSquared));
