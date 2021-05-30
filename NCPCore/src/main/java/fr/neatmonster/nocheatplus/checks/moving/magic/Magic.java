@@ -45,6 +45,8 @@ public class Magic {
     /** Friction for lava. */
     public static final double FRICTION_MEDIUM_LAVA = 0.535;
     public static final double FRICTION_MEDIUM_ELYTRA_AIR = 0.9800002;
+    /** Divisor vs. last hDist for minimum slow down. */
+    private static final double bunnyDivFriction = 160.0; // Rather in-air, blocks would differ by friction.
 
     // Horizontal speeds/modifiers. 
     public static final double WALK_SPEED           = 0.221D;
@@ -193,6 +195,28 @@ public class Magic {
         final double frictDist = lastMove.yDistance * friction - minGravity;
         final double off = Math.abs(thisMove.yDistance - frictDist);
         return off <= maxOff && Math.abs(thisMove.yDistance - lastMove.yDistance) <= off * decreaseByOff;
+    }
+    
+    /**
+     * Test if the player is in a bunnyhop friction phase.  
+     * (not regular friction mechanics)
+     * Requires to be in a bunnyhop delay phase (data.bunnyhopDelay > 0)
+     *
+     * @param hDistDiff 
+     *           Difference from last to current hDistance (Last must be greater)
+     * @param lastHDistance
+     * @param hDistanceAboveLimit
+     * @param currentHDistance
+     * @param allowedBaseSpeed 
+     *           hAllowedDistanceBase (Without taking into account special mechanics, like bunnyhopping)
+     * @return
+     */
+    public static boolean isBunnyFrictionPhase(final double hDistDiff, final double lastHDistance, final double hDistanceAboveLimit, 
+                                               final double currentHDistance, final double allowedBaseSpeed) {
+
+        return  hDistDiff >= lastHDistance / bunnyDivFriction 
+                || hDistDiff >= hDistanceAboveLimit / 33.3 
+                || hDistDiff >= (currentHDistance - allowedBaseSpeed) * (1.0 - FRICTION_MEDIUM_AIR);
     }
 
     /**
