@@ -935,9 +935,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 mightSkipNoFall = true;
             }
         }
-
-        // Force to check survivalfly not creativefly anymore
-        // TODO: Move to Creativefly
+        
+        // Let Cf handle this one.
         if (Bridge1_13.isRiptiding(player)) {checkSf = false; checkCf = true;}
 
         /*
@@ -1641,15 +1640,15 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
     }
 
-    private static double guessFlyNoFlyVelocity(final Player player, 
-            final PlayerMoveData thisMove, final PlayerMoveData lastMove, final MovingData data, final MovingConfig cc) {
+    private static double guessFlyNoFlyVelocity(final Player player, final PlayerMoveData thisMove, final PlayerMoveData lastMove, 
+                                                final MovingData data, final MovingConfig cc) {
+
         // Default margin: Allow slightly less than the previous speed.
         final double defaultAmount = lastMove.hDistance * (1.0 + Magic.FRICTION_MEDIUM_AIR) / 2.0;
         // Test for exceptions.
         if (Bridge1_9.isWearingElytra(player) && lastMove.modelFlying != null && lastMove.modelFlying.getId().equals(MovingConfig.ID_JETPACK_ELYTRA)) {
-            data.addVerticalVelocity(new SimpleEntry(
-			    lastMove.yDistance < -0.1034 ? (lastMove.yDistance * Magic.FRICTION_MEDIUM_AIR + 0.1034) : lastMove.yDistance, cc.velocityActivationCounter
-            ));
+            data.addVerticalVelocity(new SimpleEntry(lastMove.yDistance < -0.1034 ? (lastMove.yDistance * Magic.FRICTION_MEDIUM_AIR + 0.1034) 
+                                                    : lastMove.yDistance, cc.velocityActivationCounter));
             //data.addVerticalVelocity(new SimpleEntry(0.34, 3));
             data.keepfrictiontick = -15;
             if (thisMove.hDistance > defaultAmount) {
@@ -1658,9 +1657,14 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 final PlayerMoveData secondPastMove = data.playerMoves.getSecondPastMove();
                 if (data.fireworksBoostDuration > 0 && Math.round(data.fireworksBoostTickNeedCheck / 4.5) <= data.fireworksBoostDuration) {
                     return 2.0;
-                } else if (lastMove.toIsValid && lastMove.hAllowedDistance > 0.0) return lastMove.hAllowedDistance; // This one might replace below?
+                } 
+                else if (lastMove.toIsValid && lastMove.hAllowedDistance > 0.0) return lastMove.hAllowedDistance; // This one might replace below?
                 return defaultAmount + 0.5;
             }
+        }
+        else if (lastMove.modelFlying != null && lastMove.modelFlying.getId().equals(MovingConfig.ID_EFFECT_RIPTIDING)){
+            data.addVerticalVelocity(new SimpleEntry(lastMove.yDistance * Magic.FRICTION_MEDIUM_AIR, 10)); // Not using cc.velocityActivationCounter to be less exploitable.
+            data.keepfrictiontick = -7;
         }
         return defaultAmount;
     }

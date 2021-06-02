@@ -1839,7 +1839,10 @@ public class SurvivalFly extends Check {
                 // Allow adding 0.
                 data.vDistAcc.add((float) yDistance);
             }
-            else if (thisMove.verVelUsed == null && !(isLanternUpper(to) || (lastMove.from.inLiquid && Math.abs(yDistance) < 0.31))) { // Only skip if just used.
+            else if (thisMove.verVelUsed == null // Only skip if just used.
+                    && !(isLanternUpper(to) || lastMove.from.inLiquid && Math.abs(yDistance) < 0.31
+                    || data.timeRiptiding + 1000 > now)) { // Use data.keepfrictiontick instead?
+                
                 // Here yDistance can be negative and positive.
                 data.vDistAcc.add((float) yDistance);
                 final double accAboveLimit = verticalAccounting(yDistance, data.vDistAcc, tags, "vacc" + (data.isVelocityJumpPhase() ? "dirty" : ""));

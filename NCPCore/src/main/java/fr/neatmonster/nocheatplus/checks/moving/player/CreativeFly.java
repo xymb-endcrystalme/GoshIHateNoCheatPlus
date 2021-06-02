@@ -391,9 +391,17 @@ public class CreativeFly extends Check {
             limitH = Math.max(limitH, 0.7 * fSpeed);
         }
 
-        // Special friction for levitation
+        // Special friction mechanic for levitation
         if (lastMove.toIsValid && model.getScaleLevitationEffect() && (lastMove.hDistance + 0.005) * Magic.FRICTION_MEDIUM_AIR < lastMove.hDistance) {
             limitH = Math.max((lastMove.hDistance + 0.005) * Magic.FRICTION_MEDIUM_AIR, limitH);
+        }
+
+        // Special friction mechanic for riptiding 
+        // Observed: extreme/abrupt accelleration from the last hDistance: 
+        // one time hDistance around 3.01 with friction distance being at or slightly lower than last hDistance (0.51/0.52)
+        if (lastMove.toIsValid && model.getScaleRiptidingEffect() && lastMove.hDistance * Magic.FRICTION_MEDIUM_AIR <= lastMove.hDistance
+            && thisMove.hDistance > 3.0 && thisMove.hDistance < 3.7) {
+            limitH = Math.max(thisMove.hDistance, limitH);
         }
         
         // TODO: Use last friction (as well)?
@@ -1095,9 +1103,14 @@ public class CreativeFly extends Check {
             // TODO: Levitation -> Slow_falling
             
             // Riptide -> other model
-            if (lastMove.modelFlying != null && model.getScaleRiptidingEffect()) {
+            // TODO: More testing.
+            if (lastMove.modelFlying != null && lastMove.modelFlying.getScaleRiptidingEffect() 
+                && !thisMove.modelFlying.getScaleRiptidingEffect()) {
                 final double amount = guessFlyNoFlyVelocity(player, thisMove, lastMove, data);
-                if (!thisMove.from.onGround && !thisMove.to.onGround) data.addVerticalVelocity(new SimpleEntry(amount, 8)); // Invalidation time: might be lower
+                if (!thisMove.from.onGround && !thisMove.to.onGround) {
+                    data.addVerticalVelocity(new SimpleEntry(0.0, cc.velocityActivationCounter));
+                    data.addHorizontalVelocity(new AccountEntry(amount, 2, MovingData.getHorVelValCount(amount)));
+                }
                 return;
             }
         }
