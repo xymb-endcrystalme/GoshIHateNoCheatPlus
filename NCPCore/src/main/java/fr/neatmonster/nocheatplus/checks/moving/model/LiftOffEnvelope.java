@@ -34,9 +34,10 @@ public enum LiftOffEnvelope {
     /** Like NO_JUMP, just to distinguish from being in web. */
     UNKNOWN(0.0, 0.0, 0, false),
     /** Reduced jumping envelope due to the honey block's stickiness */
+    // NOTE: Jump height: 0.3 would trigger false positives. While 0.45 is too much
     STICKY_JUMP(0.21, 0.4, 4, true), 
     /** Nearly ordinary jumping gain (meant for berry bushes)*/
-    // TEST: Jumping height is random, needs testing to be more strict.
+    // TEST: Jumping height is random (but higher than the honeyblock), needs testing to be more strict.
     BERRY_JUMP(0.35, 0.54, 5, true); 
     ;
 
@@ -54,8 +55,9 @@ public enum LiftOffEnvelope {
 
     /**
      * Minimal distance expected with lift-off.
+     * 
      * @param jumpAmplifier
-     * @return
+     * @return The minimum yDistance players can achieve for this envelope
      */
     public double getMinJumpGain(double jumpAmplifier) {
         if (jumpEffectApplies && jumpAmplifier != 0.0) {
@@ -65,7 +67,13 @@ public enum LiftOffEnvelope {
             return maxJumpGain;
         }
     }
-
+    
+    /**
+     * Maximum distance expected with lift-off.
+     * 
+     * @param jumpAmplifier
+     * @return The maximum yDistance players can achieve for this envelope
+     */
     public double getMaxJumpGain(double jumpAmplifier) {
         if (jumpEffectApplies && jumpAmplifier != 0.0) {
             return Math.max(0.0, maxJumpGain + 0.2 * jumpAmplifier);
@@ -74,7 +82,13 @@ public enum LiftOffEnvelope {
             return maxJumpGain;
         }
     }
-
+    
+    /**
+     * Maximum jump height in blocks.
+     * 
+     * @param jumpAmplifier
+     * @return The maximum jump height for this envelope
+     */
     public double getMaxJumpHeight(double jumpAmplifier) {
         if (jumpEffectApplies && jumpAmplifier > 0.0) {
             // Note: The jumpAmplifier value is one higher than the MC level.
@@ -96,7 +110,14 @@ public enum LiftOffEnvelope {
             return maxJumpHeight;
         }
     }
-
+    
+    /**
+     * Maximum jump phase (In-air counter) before players are supposed to start
+     * to lose altitude after achieving maximum jump gain.
+     * 
+     * @param jumpAmplifier
+     * @return The maximum jump phase for this envelope.
+     */
     public int getMaxJumpPhase(double jumpAmplifier) {
         if (jumpEffectApplies && jumpAmplifier > 0.0) {
             return (int) Math.round((0.5 + jumpAmplifier) * (double) maxJumpPhase);
@@ -105,7 +126,7 @@ public enum LiftOffEnvelope {
             return maxJumpPhase;
         }
     }
-
+   
     public boolean jumpEffectApplies() {
         return jumpEffectApplies;
     }

@@ -429,8 +429,7 @@ public class SurvivalFly extends Check {
         // HoneyBlock
         else if (from.isOnHoneyBlock()) {
             data.sfNoLowJump = true;
-            vAllowedDistance = (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) ? 1.5 
-                               : data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier);
+            vAllowedDistance = data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier);
             vDistanceAboveLimit = thisMove.yDistance - vAllowedDistance;
             if (vDistanceAboveLimit > 0.0) tags.add("honeyasc");
         }
@@ -1170,13 +1169,6 @@ public class SurvivalFly extends Check {
             friction = 0.0;
         }
 
-        // Riptiding
-        // TODO: Move to Creativefly
-        else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
-            tags.add("hriptide");
-            hAllowedDistance = Magic.modRiptide[data.RiptideLevel] * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
-        }
-
         // In liquid
         // Check all liquids (lava might demand even slower speed though).
         else if (thisMove.from.inLiquid && thisMove.to.inLiquid && !data.isHalfGroundHalfWater) {
@@ -1204,10 +1196,6 @@ public class SurvivalFly extends Check {
                     if (level > 1) {
                         hAllowedDistance *= 1.0 + 0.07 * level;
                     }
-                }
-
-                if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
-                   hAllowedDistance *= Magic.modRiptide[data.RiptideLevel];
                 }
 
                 if (data.liqtick < 5 && lastMove.toIsValid) {
@@ -1571,11 +1559,6 @@ public class SurvivalFly extends Check {
             }
             strictVdistRel = false;
         }
-        // TODO: Move to CreativeFly.
-        else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
-              vAllowedDistance = lastMove.yDistance * 5.0D;
-              strictVdistRel = false;
-        }
         else if (lastMove.toIsValid) {
 
             if (lastMove.yDistance >= -Math.max(Magic.GRAVITY_MAX / 2.0, 1.3 * Math.abs(yDistance)) 
@@ -1744,9 +1727,6 @@ public class SurvivalFly extends Check {
             if (yDistance < 0.05) { // Leniency
                 // Ignore falling, and let accounting deal with it.
             }
-            else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
-               // Ignore riptiding.
-            }
             else if (resetFrom) {
                 // Ignore bunny etc.
             }
@@ -1806,16 +1786,10 @@ public class SurvivalFly extends Check {
                 else {
                     // Moving upwards after falling without having touched the ground.
                     if (data.bunnyhopDelay < 9 && !((lastMove.touchedGround || lastMove.from.onGroundOrResetCond)
-                        && lastMove.yDistance == 0D) && data.getOrUseVerticalVelocity(yDistance) == null) {
-
-                        // TODO: adjust limit for bunny-hop.
-                        if ((data.timeRiptiding + 500 > now) || isLanternUpper(to)) {
-                            // Ignore.
-                        }
-                        else {
-                            vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance));
-                            tags.add("ychincfly");
-                        }
+                        && lastMove.yDistance == 0D) && data.getOrUseVerticalVelocity(yDistance) == null
+                        && !isLanternUpper(to)) {
+                        vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance));
+                        tags.add("ychincfly");
                     }
                     else tags.add("ychincair");
                 }
@@ -1865,22 +1839,16 @@ public class SurvivalFly extends Check {
                 // Allow adding 0.
                 data.vDistAcc.add((float) yDistance);
             }
-            else if (thisMove.verVelUsed == null) { // Only skip if just used.
+            else if (thisMove.verVelUsed == null && !(isLanternUpper(to) || (lastMove.from.inLiquid && Math.abs(yDistance) < 0.31))) { // Only skip if just used.
                 // Here yDistance can be negative and positive.
-                if ((data.timeRiptiding + 500 > now) 
-                    || isLanternUpper(to) 
-                    || (lastMove.from.inLiquid && Math.abs(yDistance) < 0.31)) {
-                    // Ignore
-                }
-                else {
-                    data.vDistAcc.add((float) yDistance);
-                    final double accAboveLimit = verticalAccounting(yDistance, data.vDistAcc, tags, "vacc" + (data.isVelocityJumpPhase() ? "dirty" : ""));
-                    if (accAboveLimit > vDistanceAboveLimit) {
-                        if (data.getOrUseVerticalVelocity(yDistance) == null) {
-                            vDistanceAboveLimit = accAboveLimit;
-                        }
+                data.vDistAcc.add((float) yDistance);
+                final double accAboveLimit = verticalAccounting(yDistance, data.vDistAcc, tags, "vacc" + (data.isVelocityJumpPhase() ? "dirty" : ""));
+
+                if (accAboveLimit > vDistanceAboveLimit) {
+                    if (data.getOrUseVerticalVelocity(yDistance) == null) {
+                        vDistanceAboveLimit = accAboveLimit;
                     }
-                }
+                }         
             }
             else {
                 // TODO: Just to exclude source of error, might be redundant.
@@ -2090,14 +2058,6 @@ public class SurvivalFly extends Check {
             final double amount = Math.min(data.sfHorizontalBuffer, hDistanceAboveLimit);
             hDistanceAboveLimit -= amount;
             data.sfHorizontalBuffer = Math.max(0.0, data.sfHorizontalBuffer - amount); // Ensure we never end up below zero.
-        }
-        
-        // TODO: Remove this...
-        if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
-            if (Bridge1_9.isGliding(player) && hDistanceAboveLimit < 0.5) {
-                hDistanceAboveLimit = 0.0;
-            }
-            tags.add("hriptide");
         }
 
         // Add the hspeed tag on violation.
@@ -2392,9 +2352,7 @@ public class SurvivalFly extends Check {
         // Try to use velocity for compensation.
         else if (data.getOrUseVerticalVelocity(yDistance) != null
             // TODO: Set magic speeds!
-            || (from.getBlockFlags() & BlockProperties.F_BUBBLECOLUMN) != 0
-            // TODO: Move to creativefly
-            || Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 1000 > now)) {
+            || (from.getBlockFlags() & BlockProperties.F_BUBBLECOLUMN) != 0) {
             return new double[]{yDistance, 0.0};
         }
 
@@ -2447,11 +2405,6 @@ public class SurvivalFly extends Check {
             else if (!(lastMove.from.inLiquid && Math.abs(yDistance) < Magic.swimBaseSpeedV(Bridge1_13.hasIsSwimming()))) {
                 tags.add("climbspeed");
                 vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance) - maxSpeed);
-            }
-            
-            // TODO: Move to creativefly
-            if ((Bridge1_13.isRiptiding(player) || data.timeRiptiding + 3000 > now) && vDistanceAboveLimit< 4.0) {
-                vDistanceAboveLimit = 0.0;
             }
         }
 

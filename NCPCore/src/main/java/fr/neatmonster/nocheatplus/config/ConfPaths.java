@@ -983,7 +983,7 @@ public abstract class ConfPaths {
         final List<ManyMoved> multiEntries = new LinkedList<ManyMoved>();
 
         // Add entries.
-        final List<String> cfModels = Arrays.asList("creative", "spectator", "survival", "adventure", "elytra", "levitation", "slowfalling");
+        final List<String> cfModels = Arrays.asList("creative", "spectator", "survival", "adventure", "elytra", "levitation", "slowfalling", "riptiding");
         multiEntries.add(new ManyMoved(MOVING_CREATIVEFLY_MODEL, cfModels, "horizontalspeed", SUB_HORIZONTAL_SPEED));
         multiEntries.add(new ManyMoved(MOVING_CREATIVEFLY_MODEL, cfModels, "modsprint", SUB_HORIZONTAL_MODSPRINT));
         multiEntries.add(new ManyMoved(MOVING_CREATIVEFLY_MODEL, cfModels, "maxheight", SUB_VERTICAL_MAXHEIGHT));

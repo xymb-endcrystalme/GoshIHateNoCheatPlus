@@ -68,9 +68,9 @@ public class Magic {
     public static final double modDownStream        = 0.19D / (WALK_SPEED * modSwim[0]);
     public static final double[] modRiptide         = new double[] {
             1.0,
-            4.8, //4.6 ?
-            7.2, //7.0 ?
-            10.0
+            4.6, 
+            7.0, 
+            9.9
     };
     public static final double[] modDepthStrider    = new double[] {
             1.0,

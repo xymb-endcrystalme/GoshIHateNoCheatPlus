@@ -938,7 +938,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
         // Force to check survivalfly not creativefly anymore
         // TODO: Move to Creativefly
-        if (Bridge1_13.isRiptiding(player)) {checkSf = true; checkCf = false;}
+        if (Bridge1_13.isRiptiding(player)) {checkSf = false; checkCf = true;}
 
         /*
          * Recalculate explosion velocity as PlayerVelocityEvent can't handle well on 1.13+
@@ -1586,10 +1586,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             final Check check;
             final ActionList actions;
             final double vL;
-            long now = System.currentTimeMillis();
-            if ((Bridge1_13.isRiptiding(player) || data.timeRiptiding + 4000 > now) && TrigUtil.distance(from, to)< 20) {
-            	return null;
-            }
+
             if (thisMove.flyCheck == CheckType.MOVING_SURVIVALFLY) {
                 check = survivalFly;
                 actions = cc.survivalFlyActions;

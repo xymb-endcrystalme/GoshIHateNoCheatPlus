@@ -98,6 +98,7 @@ public class MovingUtil {
                         || fromLocation.isInLiquid()
                         )
                 && (Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player)))
+                && !Bridge1_13.isRiptiding(player)
                 ;
     }
 
@@ -268,9 +269,9 @@ public class MovingUtil {
             // TODO: reset the bounding box of the player ?
             if (cc.tempKickIllegal) {
                 NCPAPIProvider.getNoCheatPlusAPI().denyLogin(player.getName(), 24L * 60L * 60L * 1000L);
-                StaticLog.logSevere("[NCP] could not restore location for " + player.getName() + ", kicking them and deny login for 24 hours");
+                StaticLog.logSevere("[NoCheatPlus] could not restore location for " + player.getName() + ", kicking them and deny login for 24 hours");
             } else {
-                StaticLog.logSevere("[NCP] could not restore location for " + player.getName() + ", kicking them.");
+                StaticLog.logSevere("[NoCheatPlus] could not restore location for " + player.getName() + ", kicking them.");
             }
             CheckUtils.kickIllegalMove(player, cc);
         }

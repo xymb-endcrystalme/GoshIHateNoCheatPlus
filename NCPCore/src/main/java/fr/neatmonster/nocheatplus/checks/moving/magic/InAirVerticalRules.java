@@ -467,10 +467,6 @@ public class InAirVerticalRules {
             // Head was blocked, thus faster decrease than expected.
             return true;
         }
-        else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
-           // Ignore riptiding -> Move to creativefly
-           return true;
-        }
         else if (Bridge1_13.hasIsSwimming() &&
                 (data.sfJumpPhase == 3 && lastMove.yDistance < -0.139 && yDistance > -0.1 && yDistance < 0.005
                 || yDistance < -0.288 && yDistance > -0.32 && lastMove.yDistance > -0.1 && lastMove.yDistance < 0.005
@@ -599,10 +595,6 @@ public class InAirVerticalRules {
             */
             return true;
         }
-        else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
-            // Ignore riptiding -> Move to creativefly
-            return true;
-        }
         else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
             // False positives when exiting a bed
             return true;
@@ -668,10 +660,6 @@ public class InAirVerticalRules {
         else if (Magic.skipPaper(thisMove, lastMove, data)) {
             // Tag already set above.
             // Teleport to in-air (PaperSpigot 1.7.10).
-            return true;
-        }
-        else if (Bridge1_13.isRiptiding(player) || (data.timeRiptiding + 3000 > now)) {
-            // Ignore riptiding for now
             return true;
         }
         else if (totalVDistViolation < 0.8 && (data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID || data.liftOffEnvelope == LiftOffEnvelope.BERRY_JUMP)) {

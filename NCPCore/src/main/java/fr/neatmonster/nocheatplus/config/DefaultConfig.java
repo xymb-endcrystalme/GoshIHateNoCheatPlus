@@ -502,16 +502,22 @@ public class DefaultConfig extends ConfigFile {
             set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "slowfalling." + ConfPaths.SUB_MODIFIERS, true, 1154);
             set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "slowfalling." + ConfPaths.SUB_GROUND, true, 785);
         }
+        if (Bridge1_13.hasIsRiptiding()) {
+            set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "riptiding." + ConfPaths.SUB_HORIZONTAL_SPEED, 800, 1154);
+            set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "riptiding." + ConfPaths.SUB_VERTICAL_ASCEND_SPEED, 750, 1154);
+            set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "riptiding." + ConfPaths.SUB_VERTICAL_MAXHEIGHT, 128, 1154);
+            set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "riptiding." + ConfPaths.SUB_MODIFIERS, false, 1154);
+    
+        }
         if (Bridge1_9.hasElytra()) {
             set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "elytra." + ConfPaths.SUB_HORIZONTAL_SPEED, 666, 1154);
-            set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "elytra." + ConfPaths.SUB_HORIZONTAL_MODSPRINT, 1.0, 785);
+            set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "elytra." + ConfPaths.SUB_HORIZONTAL_MODSPRINT, 1.0, 1154);
             set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "elytra." + ConfPaths.SUB_VERTICAL_ASCEND_SPEED, 0, 785);
             set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "elytra." + ConfPaths.SUB_VERTICAL_MAXHEIGHT, 128, 1104);
             set(ConfPaths.MOVING_CREATIVEFLY_MODEL + "elytra." + ConfPaths.SUB_MODIFIERS, false, 785);
 			set(ConfPaths.MOVING_CREATIVEFLY_EYTRA_FWRESET, false, 1154);
             set(ConfPaths.MOVING_CREATIVEFLY_EYTRA_STRICT, true, 1154);
         }
-        // TODO: Let CreativeFly handle ripditing as well, instead of SurvivalFly.
         set(ConfPaths.MOVING_CREATIVEFLY_ACTIONS,
                 "cancel log:flyfile:3:5:f"
                         + " vl>100 cancel log:creativefly:8:9:i log:flyfile:0:10:f"
