@@ -277,7 +277,7 @@ public class CreativeFly extends Check {
                 vd.setParameter(ParameterName.LOCATION_FROM, String.format(Locale.US, "%.2f, %.2f, %.2f", from.getX(), from.getY(), from.getZ()));
                 vd.setParameter(ParameterName.LOCATION_TO, String.format(Locale.US, "%.2f, %.2f, %.2f", to.getX(), to.getY(), to.getZ()));
                 vd.setParameter(ParameterName.DISTANCE, String.format(Locale.US, "%.2f", TrigUtil.distance(from,  to)));
-                vd.setParameter(ParameterName.MODEL, model == null ? null : model.getId().toString());
+                vd.setParameter(ParameterName.MODEL, model == null ? "no model" : model.getId().toString());
                 if (!tags.isEmpty()) {
                     vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
                 }
@@ -532,8 +532,10 @@ public class CreativeFly extends Check {
         
         // Riptiding right onto a bouncy block (2nd time, higher bounce distance)
         // TODO: There's probably room for more conditions but oh well.
+        // Note that the ExtremeMove subcheck is skipped during such phases.
         if (Bridge1_13.isRiptiding(from.getPlayer()) && (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0
-            && yDistance > limitV) {
+            && yDistance > limitV && (data.sfJumpPhase == 0 || data.sfJumpPhase == 1) && lastMove.yDistance < 0.0
+            && yDistance > 0.0) {
              data.addVerticalVelocity(new SimpleEntry(yDistance, 2));
         }
         

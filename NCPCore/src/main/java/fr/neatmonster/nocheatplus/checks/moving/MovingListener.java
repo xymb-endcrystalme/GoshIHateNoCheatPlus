@@ -1462,6 +1462,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                                       final MovingData data, final MovingConfig cc) {
 
         // TODO: Find out why only CreativeFly does actually trigger.
+        // TODO: Riptide+bounce. Instead of skipping the check, roughly estimate the speed gain/increase and cap the distance.
 
         final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
         final PlayerMoveData lastMove = data.playerMoves.getFirstPastMove(); 
