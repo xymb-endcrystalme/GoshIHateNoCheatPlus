@@ -311,8 +311,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
         if (!pData.isCheckActive(CheckType.MOVING, player)) return;
-	    final MovingData data = pData.getGenericInstance(MovingData.class);
-	    data.bedLeaveTime = System.currentTimeMillis();
+        final MovingData data = pData.getGenericInstance(MovingData.class);
+        data.bedLeaveTime = System.currentTimeMillis();
 
         if (pData.isCheckActive(bedLeave.getType(), player) && bedLeave.checkBed(player, pData)) {
 
@@ -351,16 +351,16 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
     // Temporary fix "stuck" on boat for 1.14 still work till now
     @EventHandler(priority = EventPriority.LOWEST)
     public void onUnknowBoatTeleport(final PlayerTeleportEvent event) {
-    	if (!Bridge1_13.hasIsSwimming()) return;
-    	if (event.getCause() == TeleportCause.UNKNOWN) {
-    		final Player player = event.getPlayer();
-    		final IPlayerData pData = DataManager.getPlayerData(player);
-    		final MovingData data = pData.getGenericInstance(MovingData.class);
-    		if (!data.waspreInVehicle && standsOnEntity(player, player.getLocation().getY())) {
-    			event.setCancelled(true);
-    			player.setSwimming(false);
-    		}
-    	}
+        if (!Bridge1_13.hasIsSwimming()) return;
+        if (event.getCause() == TeleportCause.UNKNOWN) {
+            final Player player = event.getPlayer();
+            final IPlayerData pData = DataManager.getPlayerData(player);
+            final MovingData data = pData.getGenericInstance(MovingData.class);
+            if (!data.waspreInVehicle && standsOnEntity(player, player.getLocation().getY())) {
+                event.setCancelled(true);
+                player.setSwimming(false);
+            }
+        }
     }
 
     private boolean standsOnEntity(final Entity entity, final double minY){
@@ -500,11 +500,11 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             earlyReturn = false;
             token = null;
         }
-		
+        
         // Set the riptiding time.
-		if (Bridge1_13.isRiptiding(player)) {
-        	data.timeRiptiding = System.currentTimeMillis();
-        	data.RiptideLevel = BridgeEnchant.getRiptideLevel(player);
+        if (Bridge1_13.isRiptiding(player)) {
+            data.timeRiptiding = System.currentTimeMillis();
+            data.RiptideLevel = BridgeEnchant.getRiptideLevel(player);
         }
         
         // Used in InventoryMove. Might get removed in favour of a better detection
@@ -741,14 +741,14 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         if (lastMove.to.getWorldName() != null 
             && !lastMove.to.getWorldName().equals(thisMove.from.getWorldName())) {
 
-        	if (TrigUtil.distance(pFrom, pTo) > 5.5) {
-        		newTo = data.getSetBack(from);
-        		checkNf = false;
-        		NCPAPIProvider.getNoCheatPlusAPI().getLogManager().warning(Streams.STATUS, CheckUtils.getLogMessagePrefix(player, CheckType.MOVING) + " Player move end point seems to be set wrongly.");
-        	}
+            if (TrigUtil.distance(pFrom, pTo) > 5.5) {
+                newTo = data.getSetBack(from);
+                checkNf = false;
+                NCPAPIProvider.getNoCheatPlusAPI().getLogManager().warning(Streams.STATUS, CheckUtils.getLogMessagePrefix(player, CheckType.MOVING) + " Player move end point seems to be set wrongly.");
+            }
         }
-		
-		// Proactive reset of elytraBoost (MC 1.11.2).
+        
+        // Proactive reset of elytraBoost (MC 1.11.2).
         if (data.fireworksBoostDuration > 0) {
             if (!lastMove.valid 
                 || (cc.resetFwOnground && (lastMove.flyCheck != CheckType.MOVING_CREATIVEFLY || lastMove.modelFlying != thisMove.modelFlying))
@@ -757,17 +757,17 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             }
             else data.fireworksBoostDuration --;
         }
-		
+        
         // Liquid tick time. Do set.
         if (pFrom.isInLiquid()) data.liqtick = data.liqtick < 10 ? data.liqtick + 1 : data.liqtick > 0 ? data.liqtick - 1 : 0; 
         else data.liqtick = data.liqtick > 0 ? data.liqtick - 2 : 0;
-		
+        
         // Workaround 1.14+ vehicles.
         if (data.waspreInVehicle) {
             if (is1_14) newTo = data.getSetBack(from);
             data.waspreInVehicle = false;
         }
-	    
+        
         if (checkSf || checkCf) {
             previousSetBackY = data.hasSetBack() ? data.getSetBackY() : Double.NEGATIVE_INFINITY;
             MovingUtil.checkSetBack(player, pFrom, data, pData, this); // Ensure we have a set back set.
@@ -966,7 +966,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             if (newTo == null) {
                 thisMove.flyCheck = CheckType.MOVING_CREATIVEFLY;
                 newTo = creativeFly.check(player, pFrom, pTo, data, cc, pData, time, tick, useBlockChangeTracker);
-				if (checkNf && noFall.isEnabled(player, pData)) noFall.check(player, pFrom, pTo, previousSetBackY, data, cc, pData);
+                if (checkNf && noFall.isEnabled(player, pData)) noFall.check(player, pFrom, pTo, previousSetBackY, data, cc, pData);
             }
             data.sfHoverTicks = -1;
             data.sfLowJump = false;
@@ -1388,11 +1388,11 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
      */
     private boolean checkBounceEnvelope(final Player player, final PlayerLocation from, final PlayerLocation to, 
                                         final MovingData data, final MovingConfig cc, final IPlayerData pData) {
-    	
-		// Workaround/fix for bed bouncing. getBlockY() would return an int, while a bed's maxY is 0.5625, causing this method to always return false.
-		// A better way to do this would to get the maxY through another method, just can't seem to find it :/
-		// Collect block flags at the current location as they may not already be there, and cause NullPointer errors.
-    	to.collectBlockFlags();
+        
+        // Workaround/fix for bed bouncing. getBlockY() would return an int, while a bed's maxY is 0.5625, causing this method to always return false.
+        // A better way to do this would to get the maxY through another method, just can't seem to find it :/
+        // Collect block flags at the current location as they may not already be there, and cause NullPointer errors.
+        to.collectBlockFlags();
         double blockY = ((to.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0) && ((to.getY() + 0.4375) % 1 == 0) ? to.getY() : to.getBlockY();
         return 
                 // 0: Normal envelope (forestall NoFall).
@@ -1872,7 +1872,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         //final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
         data.clearMostMovingCheckData();
         data.setSetBack(player.getLocation(useLoc)); // TODO: Monitor this change (!).
-		data.isusingitem = false;
+        data.isusingitem = false;
         // Log location.
         if (pData.isDebugActive(checkType)) debug(player, "Death: " + player.getLocation(useLoc));
         useLoc.setWorld(null);
@@ -2303,17 +2303,17 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
         data.addVelocity(player, cc, velocity.getX(), velocity.getY(), velocity.getZ());
     }
-	
+    
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void onSelfDamage(final EntityDamageByEntityEvent event) {
 
         final Entity entity = event.getEntity();
         if (!(entity instanceof Player)) return;
-		
+        
         checkSelfHit((Player) entity, event);
     }
     
-	// TODO: Move to fight listener
+    // TODO: Move to fight listener
     private void checkSelfHit(final Player player, final EntityDamageByEntityEvent event) {
 
         Entity entity = event.getDamager();
@@ -2325,15 +2325,15 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 if (p == player) {
                     final IPlayerData pData = DataManager.getPlayerData(player);
                     final MovingData data = pData.getGenericInstance(MovingData.class);
-					final FightConfig fconfig = pData.getGenericInstance(FightConfig.class);
+                    final FightConfig fconfig = pData.getGenericInstance(FightConfig.class);
                     final long now = System.currentTimeMillis();
                     if (!fconfig.selfHitExcludeprojectile && !pData.hasPermission(Permissions.FIGHT_SELFHIT, player) && data.selfhittime != 0 && data.selfhittime + 1100 > now) {
-            		    // TODO: This feature must be configurable
-            		    event.setCancelled(true);
-            		    if (fconfig.selfHitMessage) {
+                        // TODO: This feature must be configurable
+                        event.setCancelled(true);
+                        if (fconfig.selfHitMessage) {
                             player.sendMessage(ChatColor.DARK_RED + "Self-velocity is not allowed!");
                         }
-            		}
+                    }
                     data.selfhittime = now;
                 }
             }
@@ -2620,10 +2620,10 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         // Hover.
         initHover(player, data, cc, data.playerMoves.getFirstPastMove().from.onGroundOrResetCond); // isOnGroundOrResetCond
 
-        //		// Bad pitch/yaw, just in case.
-        //		if (LocUtil.needsDirectionCorrection(useLoc.getYaw(), useLoc.getPitch())) {
-        //			DataManager.getPlayerData(player).task.correctDirection();
-        //		}
+        //      // Bad pitch/yaw, just in case.
+        //      if (LocUtil.needsDirectionCorrection(useLoc.getYaw(), useLoc.getPitch())) {
+        //          DataManager.getPlayerData(player).task.correctDirection();
+        //      }
 
         // Check for vehicles.
         // TODO: Order / exclusion of items.
