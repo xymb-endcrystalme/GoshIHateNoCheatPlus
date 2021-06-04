@@ -70,7 +70,7 @@ public class ModelFlying {
     private boolean scaleSlowfallingEffect = false;
 
      /**
-     * Allow an extra amount to ascend speed, scaling with the slowfalling effect
+     * Allow an extra amount to ascend speed, scaling with the riptiding effect
      * level.
      */
     private boolean scaleRiptidingEffect = false;

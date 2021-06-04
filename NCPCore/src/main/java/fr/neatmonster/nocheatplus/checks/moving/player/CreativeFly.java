@@ -54,8 +54,9 @@ import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 
 
 /**
- * A check designed for people that are allowed to fly. The complement to the "SurvivalFly", which is for people that
- * aren't allowed to fly, and therefore have tighter rules to obey.
+ * A check designed for people that are exposed to particular effects, are flying
+ * or gliding. The complement to the "SurvivalFly" check, which is for people that
+ * aren't flying/gliding/exposed to any special effect, and therefore have tighter rules to obey.
  */
 public class CreativeFly extends Check {
 
@@ -64,7 +65,7 @@ public class CreativeFly extends Check {
     private IGenericInstanceHandle<IAttributeAccess> attributeAccess = NCPAPIProvider.getNoCheatPlusAPI().getGenericInstanceHandle(IAttributeAccess.class);
 
 
-  /**
+   /**
     * Instantiates a new creative fly check.
     */
     public CreativeFly() {
@@ -73,7 +74,7 @@ public class CreativeFly extends Check {
     }
 
 
-  /**
+   /**
     * Checks a player
     *
     * @param player
@@ -127,7 +128,7 @@ public class CreativeFly extends Check {
             data.clearNoFallData();
         } 
         
-        // Add velocity upon switching model
+        // HACK: when switching model, we need to add some velocity to harmonize the transition and not trggering fps.
         workaroundSwitchingModel(player, thisMove, lastMove, model, data, cc);
 
 
@@ -276,7 +277,7 @@ public class CreativeFly extends Check {
                 vd.setParameter(ParameterName.LOCATION_FROM, String.format(Locale.US, "%.2f, %.2f, %.2f", from.getX(), from.getY(), from.getZ()));
                 vd.setParameter(ParameterName.LOCATION_TO, String.format(Locale.US, "%.2f, %.2f, %.2f", to.getX(), to.getY(), to.getZ()));
                 vd.setParameter(ParameterName.DISTANCE, String.format(Locale.US, "%.2f", TrigUtil.distance(from,  to)));
-                vd.setParameter(ParameterName.MODEL, model.getId().toString());
+                vd.setParameter(ParameterName.MODEL, model == null ? null : model.getId().toString());
                 if (!tags.isEmpty()) {
                     vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
                 }
@@ -333,7 +334,7 @@ public class CreativeFly extends Check {
 
 
     /**
-     * 
+     * Horizontal distance checking.
      * @param player
      * @param from
      * @param to
@@ -379,7 +380,8 @@ public class CreativeFly extends Check {
         else fSpeed = 1.0;
 
         double limitH = model.getHorizontalModSpeed() / 100.0 * ModelFlying.HORIZONTAL_SPEED * fSpeed;
-
+        
+        // Do apply dolphinsgrace modifier
         if (from.isInWater() || to.isInWater()) {
             if (!Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
                 limitH *= Magic.modDolphinsGrace;
@@ -397,13 +399,14 @@ public class CreativeFly extends Check {
         }
 
         // Special friction mechanic for riptiding 
-        // Observed: extreme/abrupt accelleration from the last hDistance: 
+        // Observed: extreme/abrupt acceleration from the last hDistance: 
         // one time hDistance around 3.01 with friction distance being at or slightly lower than last hDistance (0.51/0.52)
         if (lastMove.toIsValid && model.getScaleRiptidingEffect() && lastMove.hDistance * Magic.FRICTION_MEDIUM_AIR <= lastMove.hDistance
             && thisMove.hDistance > 3.0 && thisMove.hDistance < 3.7) {
             limitH = Math.max(thisMove.hDistance, limitH);
         }
         
+        // Ordinary friction
         // TODO: Use last friction (as well)?
         // TODO: Test/adjust more.
         if (lastMove.toIsValid) {
@@ -462,7 +465,7 @@ public class CreativeFly extends Check {
 
 
    /**
-     * 
+     * Ascending (yDistance > 0.0) check.
      * @param from
      * @param to
      * @param yDistance
@@ -477,7 +480,7 @@ public class CreativeFly extends Check {
                                  final boolean flying, final PlayerMoveData thisMove, final PlayerMoveData lastMove, 
                                  final ModelFlying model, final MovingData data, final MovingConfig cc) {
 
-        double limitV = model.getVerticalAscendModSpeed() / 100.0 * ModelFlying.VERTICAL_ASCEND_SPEED; // * data.jumpAmplifier;
+        double limitV = model.getVerticalAscendModSpeed() / 100.0 * ModelFlying.VERTICAL_ASCEND_SPEED; 
         double resultV = 0.0;
         
         // Let fly speed apply with moving upwards.
@@ -526,9 +529,18 @@ public class CreativeFly extends Check {
         if (model.getVerticalAscendGliding()) {
             limitV = Math.max(limitV, limitV = hackLytra(yDistance, limitV, thisMove, lastMove, from, data));
         }
-
-        if (Bridge1_9.isGlidingWithElytra(from.getPlayer()) && data.liqtick > 1)
+        
+        // Riptiding right onto a bouncy block (2nd time, higher bounce distance)
+        // TODO: There's probably room for more conditions but oh well.
+        if (Bridge1_13.isRiptiding(from.getPlayer()) && (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0
+            && yDistance > limitV) {
+             data.addVerticalVelocity(new SimpleEntry(yDistance, 2));
+        }
+        
+        // Gliding in water
+        if (Bridge1_9.isGlidingWithElytra(from.getPlayer()) && data.liqtick > 1) {
             limitV = Math.max(limitV, 0.35);
+        }
         
         // Friction with gravity.
         if (model.getGravity()) {
@@ -581,8 +593,6 @@ public class CreativeFly extends Check {
         resultV = Math.max(0.0, yDistance - limitV);
 
         // Post-violation recovery.
-
-
         return new double[] {limitV, resultV};
     }
 
@@ -862,11 +872,7 @@ public class CreativeFly extends Check {
             return (baseV - 0.01 * levitation) / 0.8 + 0.221;
         } 
         if (f < 0.0 && !up) baseV -= lasthDistance * -Math.sin(f) * 0.128;
-
-        if (baseV < 0.0) {
-            baseV /= (1.0 - (0.1 * f4));
-        }
-
+        if (baseV < 0.0)  baseV /= (1.0 - (0.1 * f4));
         baseV -= speed * (-1.0 + f4 * 0.75);
         return baseV;
     }
@@ -997,7 +1003,7 @@ public class CreativeFly extends Check {
         double resultV = 0.0;
 
         if (model.getScaleSlowfallingEffect() && lastMove.modelFlying == thisMove.modelFlying 
-            && data.liqtick <= 0 && !Bridge1_13.isRiptiding(from.getPlayer())
+            && data.liqtick <= 0 && !Bridge1_13.isRiptiding(from.getPlayer()) 
             && !from.isOnClimbable() && !to.isOnClimbable()) {
 
             if (!thisMove.touchedGround && !to.isResetCond()) {
@@ -1006,9 +1012,7 @@ public class CreativeFly extends Check {
                 final double allowY = lastMove.toIsValid ? lastMove.yDistance : 0.0;
                 if (isCollideWithHB(from)) limitV = -0.05; 
                 else limitV = allowY * Magic.FRICTION_MEDIUM_AIR - 0.0097;// -0.0098
-
                 if (!pastmove2.toIsValid && allowY < -0.035) limitV = -0.035;
-
                 if (limitV != 0.0 && yDistance > limitV) resultV = Math.abs(limitV);
             }
         }
@@ -1047,9 +1051,7 @@ public class CreativeFly extends Check {
             if (thisMove.touchedGround || thisMove.from.onClimbable || data.liqtick > 0) {
                 // Allow normal jumping.
                 final double maxGain = LiftOffEnvelope.NORMAL.getMinJumpGain(data.jumpAmplifier) + 0.01;
-                if (maxGain > limitV) {
-                    limitV = maxGain;
-                }
+                if (maxGain > limitV) limitV = maxGain;
             }
             if (limitV <= 0.0 && lastMove.yDistance == 0.0) resultV = 0.1;
         }

@@ -315,21 +315,21 @@ public class SurvivalFly extends Check {
 
         // Jump with head obstructed and trap door on ice
         // Actually no way to detect they are about to jump!
-        // Set the tick time for jumping on ice (Will be used to determine the accelleration in setAllowedhDist)
+        // Set the tick time for jumping on ice (Will be used to determine the acceleration in setAllowedhDist)
         if (thisMove.headObstructed && from.isOnIce() 
             && (from.getBlockFlags() & BlockProperties.F_ATTACHED_LOW2_SNEW) != 0) {
             data.sfOnIce = 24;
             data.bunnyhopTick = 4;
         }
 
-        // Set the tick time for jumping on ice (Will be used to determine the accelleration in setAllowedhDist)
+        // Set the tick time for jumping on ice (Will be used to determine the acceleration in setAllowedhDist)
         if (thisMove.from.onIce && !thisMove.to.onIce && !data.sfLowJump
            || (thisMove.headObstructed && thisMove.yDistance > 0.01 && lastMove.from.onIce)) { // Jump with head obstructed
             data.sfOnIce = 20;
         }
         else if (data.sfOnIce > 0) data.sfOnIce-- ;
         
-        // Set the tick time for bouncing (Will be used to determine the accelleration in setAllowedhDist)
+        // Set the tick time for bouncing (Will be used to determine the acceleration in setAllowedhDist)
         if (((from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0) 
             && !((to.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0)
             && hDistance < 0.45 && hDistance > thisMove.walkSpeed && data.sfJumpPhase < 4
@@ -1059,7 +1059,7 @@ public class SurvivalFly extends Check {
         final double modHoneyBlock        = Magic.modSoulSand * (thisMove.to.onGround ? 0.8 : 1.75);
         final double modStairs            = isMovingBackwards ? 1.0 : thisMove.yDistance == 0.5 ? 1.85 : 1.325;
         final double modHopSprint         = (data.bunnyhopTick < 3 ? 1.15 : Magic.modSprint);
-        final double webJumpAccell        = (thisMove.yDistance > 0.0 ? 0.26 : 0.0);
+        final double webJumpAccel        = (thisMove.yDistance > 0.0 ? 0.26 : 0.0);
         final boolean sfDirty             = data.isVelocityJumpPhase(); 
         double hAllowedDistance           = 0D;
         double friction                   = data.lastFrictionHorizontal; // Friction to use with this move.
@@ -1085,8 +1085,8 @@ public class SurvivalFly extends Check {
             data.sfBounceTick = 0;
             hAllowedDistance = Magic.modWeb * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             // Walking through webs with slime/ice underneath slows down even more.
-            // TODO: Accurate Magic.(get rid of the accell thingy)
-            if (thisMove.from.onSlimeBlock || thisMove.from.onIce) hAllowedDistance *= (Magic.modSlime - Magic.modWeb) + webJumpAccell; 
+            // TODO: Accurate Magic.(get rid of the accel thingy)
+            if (thisMove.from.onSlimeBlock || thisMove.from.onIce) hAllowedDistance *= (Magic.modSlime - Magic.modWeb) + webJumpAccel; 
             useBaseModifiersSprint = false; 
             useBaseModifiers = true;
             friction = 0.0; 
@@ -1414,15 +1414,15 @@ public class SurvivalFly extends Check {
             hAllowedDistance *= Magic.modDownStream;
         }
 
-        // Player is jumping on ice, give them a higher base speed (to account for the accelleration)
-        // Observed: This accellerates too much... (1.01 / 0.75 observed speed)
+        // Player is jumping on ice, give them a higher base speed (to account for the acceleration)
+        // Observed: This accelerates too much... (1.01 / 0.75 observed speed)
         if (data.sfOnIce > 9) {
             hAllowedDistance *= Magic.modIce;
             hAllowedDistance *= data.bunnyhopTick > 3 ? 1.25 : data.bunnyhopTick > 0 ? 1.1 : 1.0;
         }
         else if (data.sfOnIce > 0) hAllowedDistance *= 1.0 + 0.025 * data.sfOnIce;
         
-        // Player is jumping/bouncing on slime, give them a higher base speed (to account for the accelleration)
+        // Player is jumping/bouncing on slime, give them a higher base speed (to account for the acceleration)
         if (data.sfBounceTick > 0) {
             hAllowedDistance *= (data.sfBounceTick > 10) ? Magic.modBounce : (1.0 + 0.020 * data.sfBounceTick);
         }
@@ -1841,7 +1841,7 @@ public class SurvivalFly extends Check {
             }
             else if (thisMove.verVelUsed == null // Only skip if just used.
                     && !(isLanternUpper(to) || lastMove.from.inLiquid && Math.abs(yDistance) < 0.31
-                    || data.timeRiptiding + 1000 > now)) { // Use data.keepfrictiontick instead?
+                         || data.timeRiptiding + 1000 > now)) { 
                 
                 // Here yDistance can be negative and positive.
                 data.vDistAcc.add((float) yDistance);
@@ -2229,7 +2229,7 @@ public class SurvivalFly extends Check {
         final double hopTickMultiplier3 = (data.bunnyhopTick > 0 ? (data.bunnyhopTick > 2 ? 1.9 : 2.1) : 2.3);
 
         if (allowHop && hDistance >= baseSpeed
-            // 0: Accelleration envelope
+            // 0: Acceleration envelope
             && (hDistance > hopTickMultiplier * baseSpeed || data.keepfrictiontick > 0) && hDistance < hopTickMultiplier2 * baseSpeed
             // 0: Horizontal distance envelope
             // TODO: Walk speed (static or not) is not a good reference, switch to need normal/base speed instead.
