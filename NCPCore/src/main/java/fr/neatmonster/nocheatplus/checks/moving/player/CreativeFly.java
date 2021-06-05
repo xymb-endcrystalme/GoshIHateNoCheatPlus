@@ -351,6 +351,13 @@ public class CreativeFly extends Check {
     private double[] hDist(final Player player, final PlayerLocation from, final PlayerLocation to, final double hDistance, 
                            final double yDistance, final boolean sprinting, final boolean flying, final PlayerMoveData thisMove, 
                            final PlayerMoveData lastMove, final long time, final ModelFlying model, final MovingData data, final MovingConfig cc) {
+        
+
+       /* Rather severe: since slowfalling is handled by the CreativeFly check, simple on ground speeds are possible since we
+        do not enforce any (legit/sane) speed likewise in survivalFly.setAllowedHDist. */
+
+
+
         // Modifiers.
         double fSpeed;
 
@@ -402,7 +409,7 @@ public class CreativeFly extends Check {
         // Observed: extreme/abrupt acceleration from the last hDistance: 
         // one time hDistance around 3.01 with friction distance being at or slightly lower than last hDistance (0.51/0.52)
         if (lastMove.toIsValid && model.getScaleRiptidingEffect() && lastMove.hDistance * Magic.FRICTION_MEDIUM_AIR <= lastMove.hDistance
-            && thisMove.hDistance > 3.0 && thisMove.hDistance < 3.7) {
+            && thisMove.hDistance > 3.0 && thisMove.hDistance < 3.7 && Bridge1_13.isRiptiding(player)) {
             limitH = Math.max(thisMove.hDistance, limitH);
         }
         
@@ -533,10 +540,11 @@ public class CreativeFly extends Check {
         // Riptiding right onto a bouncy block (2nd time, higher bounce distance)
         // TODO: There's probably room for more conditions but oh well.
         // Note that the ExtremeMove subcheck is skipped during such phases.
+        // Observed maximum speed: 5.536355205897621 (+5.993) / 5.0
         if (Bridge1_13.isRiptiding(from.getPlayer()) && (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0
             && yDistance > limitV && (data.sfJumpPhase == 0 || data.sfJumpPhase == 1) && lastMove.yDistance < 0.0
-            && yDistance > 0.0) {
-             data.addVerticalVelocity(new SimpleEntry(yDistance, 2));
+            && yDistance > 0.0 && yDistance < 6.0 && thisMove.from.onGround && lastMove.to.onGround && !thisMove.to.onGround) {
+            data.addVerticalVelocity(new SimpleEntry(yDistance, 2));
         }
         
         // Gliding in water
@@ -1106,10 +1114,10 @@ public class CreativeFly extends Check {
             }
             // TODO: Levitation -> Slow_falling
             
-            // Riptide -> other model
+            // Riptide -> Slowfalling/Levitation
             // TODO: More testing.
             if (lastMove.modelFlying != null && lastMove.modelFlying.getScaleRiptidingEffect() 
-                && !thisMove.modelFlying.getScaleRiptidingEffect()) {
+                && (thisMove.modelFlying.getScaleSlowfallingEffect() || thisMove.modelFlying.getScaleLevitationEffect())) {
                 final double amount = guessFlyNoFlyVelocity(player, thisMove, lastMove, data);
                 if (!thisMove.from.onGround && !thisMove.to.onGround) {
                     data.addVerticalVelocity(new SimpleEntry(0.0, cc.velocityActivationCounter));

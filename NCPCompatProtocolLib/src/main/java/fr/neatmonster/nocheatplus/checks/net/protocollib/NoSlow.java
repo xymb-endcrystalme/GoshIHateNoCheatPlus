@@ -44,6 +44,7 @@ import com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType;
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
+import fr.neatmonster.nocheatplus.compat.BridgeEnchant;
 import fr.neatmonster.nocheatplus.components.NoCheatPlusAPI;
 import fr.neatmonster.nocheatplus.components.registry.order.RegistrationOrder.RegisterMethodWithOrder;
 import fr.neatmonster.nocheatplus.event.mini.MiniListener;
@@ -181,6 +182,11 @@ public class NoSlow extends BaseAdapter {
                 data.offhanduse = Bridge1_9.hasGetItemInOffHand() && e.getHand() == EquipmentSlot.OFF_HAND;
                 return;
             }
+            if (BridgeEnchant.getRiptideLevel(p) != 0) {
+                data.isusingitem = true;
+                data.offhanduse = e.getHand() == EquipmentSlot.OFF_HAND;
+                return;
+            }
             if (m.name().equals("SHIELD")) {
                 data.offhanduse = e.getHand() == EquipmentSlot.OFF_HAND;
                 return;
@@ -214,8 +220,8 @@ public class NoSlow extends BaseAdapter {
 
     private static boolean hasArrow(PlayerInventory i) {
         if (Bridge1_9.hasElytra()) {
-        Material m = i.getItemInOffHand().getType();
-        return i.contains(Material.ARROW) || m.toString().endsWith("ARROW") || i.contains(Material.TIPPED_ARROW) || i.contains(Material.SPECTRAL_ARROW);
+            Material m = i.getItemInOffHand().getType();
+            return i.contains(Material.ARROW) || m.toString().endsWith("ARROW") || i.contains(Material.TIPPED_ARROW) || i.contains(Material.SPECTRAL_ARROW);
         }
         return i.contains(Material.ARROW);
     }

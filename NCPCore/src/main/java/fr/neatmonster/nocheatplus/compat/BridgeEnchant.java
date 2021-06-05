@@ -134,7 +134,7 @@ public final class BridgeEnchant {
      *         Will return 0 if not available.
      */
     public static int getFeatherFallingLevel(final Player player) {
-        // Cap at three.
+        // Cap at four.
         return Math.min(4, getMaxLevelArmor(player, FEATHER_FALLING));
     }
     
@@ -147,6 +147,17 @@ public final class BridgeEnchant {
     public static int getDepthStriderLevel(final Player player) {
         // Cap at three.
         return Math.min(3, getMaxLevelArmor(player, DEPTH_STRIDER));
+    }
+
+    /**
+     * 
+     * @param player
+     * @return Maximum level of SOUL_SPEED found on armor items, capped at 3.
+     *         Will return 0 if not available.
+     */
+    public static int getSoulSpeedLevel(final Player player) {
+        // Cap at three.
+        return Math.min(3, getMaxLevelArmor(player, SOUL_SPEED));
     }
     
     /**
@@ -166,6 +177,7 @@ public final class BridgeEnchant {
         final ItemStack mainhand = player.getInventory().getItemInMainHand();
         final ItemStack offhand = player.getInventory().getItemInOffHand();
         if (mainhand.getType().toString().equals("TRIDENT")) {
+            // Found in main hand already, return.
             return Math.max(mainhand.getEnchantmentLevel(enchantment), level);
         }
         if (offhand.getType().toString().equals("TRIDENT")) {

@@ -308,6 +308,7 @@ public class SurvivalFly extends Check {
         data.lastbunnyhopDelay -= data.lastbunnyhopDelay > 0 ? 1 : 0;
         thisMove.downStream = from.isDownStream(xDistance, zDistance); // Set flag for swimming with the flowing direction of liquid.
         double hAllowedDistance = 0.0, hDistanceAboveLimit = 0.0, hFreedom = 0.0;
+        final int jumpAmplifierTicks = (data.jumpAmplifier != 0) ? (int) Math.round(data.jumpAmplifier * 1.2) : 0;
 
         // Pass downstream for later uses
         if (!data.isdownstream) data.isdownstream = thisMove.downStream;
@@ -325,7 +326,7 @@ public class SurvivalFly extends Check {
         // Set the tick time for jumping on ice (Will be used to determine the acceleration in setAllowedhDist)
         if (thisMove.from.onIce && !thisMove.to.onIce && !data.sfLowJump
            || (thisMove.headObstructed && thisMove.yDistance > 0.01 && lastMove.from.onIce)) { // Jump with head obstructed
-            data.sfOnIce = 20;
+            data.sfOnIce = 20 + jumpAmplifierTicks; // Ensure that the whole hop period is covered by the ice ticks if a JA is present.
         }
         else if (data.sfOnIce > 0) data.sfOnIce-- ;
         
@@ -1097,6 +1098,7 @@ public class SurvivalFly extends Check {
             tags.add("hsoulsand");
             hAllowedDistance = Magic.modSoulSand * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             // SoulSpeed stuff
+            // TODO: Actually scale modifier according to enchant level?
             if (BridgeEnchant.hasSoulSpeed(player)) {
                 hAllowedDistance *= Magic.modSoulSpeed;
                 data.keepfrictiontick = 60;

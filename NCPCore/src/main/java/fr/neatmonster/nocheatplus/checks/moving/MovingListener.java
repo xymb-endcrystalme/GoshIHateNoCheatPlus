@@ -1466,12 +1466,13 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
         final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
         final PlayerMoveData lastMove = data.playerMoves.getFirstPastMove(); 
-        final boolean riptideBounce = Bridge1_13.isRiptiding(player) && data.verticalBounce != null;
+        final boolean riptideBounce = Bridge1_13.isRiptiding(player) && data.verticalBounce != null 
+                                      && yDistance < 6.0 && yDistance > Magic.EXTREME_MOVE_DIST_HORIZONTAL; // At least ensure that cheaters cannot go any higher than a legit player.
         // TODO: Latency effects.
         double violation = 0.0; // h + v violation (full move).
         // Vertical move.
         final boolean allowVerticalVelocity = false; // TODO: Configurable
-        if (Math.abs(thisMove.yDistance) > Magic.EXTREME_MOVE_DIST_VERTICAL * (Bridge1_13.isRiptiding(player) ? 1.9 : 1.0)) {
+        if (Math.abs(thisMove.yDistance) > Magic.EXTREME_MOVE_DIST_VERTICAL * (Bridge1_13.isRiptiding(player) ? 1.7 : 1.0)) {
             // Exclude valid moves first.
             // About 3.9 seems to be the positive maximum for velocity use in survival mode, regardless jump effect.
             // About -1.85 seems to be the negative maximum for velocity use in survival mode. Falling can result in slightly less than -3.
