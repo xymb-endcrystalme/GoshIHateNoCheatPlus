@@ -911,7 +911,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             if (lastMove.toIsValid && lastMove.flyCheck == CheckType.MOVING_CREATIVEFLY) {
                 final long tickhaslag = data.delayWorkaround + Math.round(200 / TickTask.getLag(200, true));
                 if (data.delayWorkaround > time || tickhaslag < time) {
-                    workaroundFlyNoFlyTransition(player, tick, debug, data, cc);
+                    workaroundFlyCheckTransition(player, tick, debug, data, cc);
                     data.delayWorkaround = time;
                 }
             }
@@ -1467,7 +1467,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
         final PlayerMoveData lastMove = data.playerMoves.getFirstPastMove(); 
         final boolean riptideBounce = Bridge1_13.isRiptiding(player) && data.verticalBounce != null 
-                                      && yDistance < 6.0 && yDistance > Magic.EXTREME_MOVE_DIST_HORIZONTAL; // At least ensure that cheaters cannot go any higher than a legit player.
+                                      && thisMove.yDistance < 6.0 && thisMove.yDistance > Magic.EXTREME_MOVE_DIST_HORIZONTAL; // At least ensure that cheaters cannot go any higher than a legit player.
+        final boolean ripglide = Bridge1_9.isGlidingWithElytra(player) && Bridge1_13.isRiptiding(player) && thisMove.yDistance > Magic.EXTREME_MOVE_DIST_VERTICAL * 1.7;
         // TODO: Latency effects.
         double violation = 0.0; // h + v violation (full move).
         // Vertical move.
@@ -1479,7 +1480,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             if (lastMove.toIsValid && Math.abs(thisMove.yDistance) < Math.abs(lastMove.yDistance)
                 && (thisMove.yDistance > 0.0 && lastMove.yDistance > 0.0 || thisMove.yDistance < 0.0 && lastMove.yDistance < 0.0) 
                 || allowVerticalVelocity && data.getOrUseVerticalVelocity(thisMove.yDistance) != null
-                || riptideBounce) {
+                || riptideBounce || ripglide) {
                 // Speed decreased or velocity is present.
             }
             else violation += thisMove.yDistance; // Could subtract lastMove.yDistance.
@@ -1546,11 +1547,11 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
      * @param tick
      * @param data
      */
-    private void workaroundFlyNoFlyTransition(final Player player, final int tick, final boolean debug, 
+    private void workaroundFlyCheckTransition(final Player player, final int tick, final boolean debug, 
                                               final MovingData data, final MovingConfig cc) {
 
         final PlayerMoveData lastMove = data.playerMoves.getFirstPastMove();
-        final double amount = guessFlyNoFlyVelocity(player, data.playerMoves.getCurrentMove(), lastMove, data, cc);
+        final double amount = guessVelocityAmount(player, data.playerMoves.getCurrentMove(), lastMove, data, cc);
         data.clearActiveHorVel(); // Clear active velocity due to adding actual speed here.
         data.bunnyhopDelay = 0; // Remove bunny hop due to add velocity 
         if (amount > 0.0) data.addHorizontalVelocity(new AccountEntry(tick, amount, cc.velocityActivationCounter, MovingData.getHorVelValCount(amount)));
@@ -1560,8 +1561,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         if (debug) debug(player, "Fly check transition: Add velocity.");
     }
 
-    private static double guessFlyNoFlyVelocity(final Player player, final PlayerMoveData thisMove, final PlayerMoveData lastMove, 
-                                                final MovingData data, final MovingConfig cc) {
+    private static double guessVelocityAmount(final Player player, final PlayerMoveData thisMove, final PlayerMoveData lastMove, 
+                                              final MovingData data, final MovingConfig cc) {
 
         // Default margin: Allow slightly less than the previous speed.
         final double defaultAmount = lastMove.hDistance * (1.0 + Magic.FRICTION_MEDIUM_AIR) / 2.0;
