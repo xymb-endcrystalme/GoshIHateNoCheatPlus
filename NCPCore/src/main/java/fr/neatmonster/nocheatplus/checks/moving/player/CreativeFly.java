@@ -129,7 +129,7 @@ public class CreativeFly extends Check {
         } 
         
         // HACK: when switching model, we need to add some velocity to harmonize the transition and not trggering fps.
-        workaroundSwitchingModel(player, thisMove, lastMove, model, data, cc);
+        workaroundSwitchingModel(player, thisMove, lastMove, model, data, cc, debug);
 
 
 
@@ -1122,13 +1122,14 @@ public class CreativeFly extends Check {
     * @author xaw3ep
     */
     private void workaroundSwitchingModel(final Player player, final PlayerMoveData thisMove, final PlayerMoveData lastMove, 
-                                          final ModelFlying model, final MovingData data, final MovingConfig cc) {
+                                          final ModelFlying model, final MovingData data, final MovingConfig cc, final boolean debug) {
 
         if (lastMove.toIsValid && lastMove.modelFlying != thisMove.modelFlying) {
             // Other modelflying -> levitation
             if (model.getScaleLevitationEffect()) {
                 final double amount = lastMove.hAllowedDistance > 0.0 ? lastMove.hAllowedDistance : lastMove.hDistance;
                 if (thisMove.touchedGround) data.addHorizontalVelocity(new AccountEntry(amount, 2, MovingData.getHorVelValCount(amount)));
+                if (debug) debug(player, lastMove.modelFlying + " -> potion.levitation: add velocity");
                 //data.addVerticalVelocity(new SimpleEntry(0.0, 2));
                 return;
             }
@@ -1136,8 +1137,14 @@ public class CreativeFly extends Check {
             // Gliding -> Other modelflying
             if (lastMove.modelFlying != null && lastMove.modelFlying.getVerticalAscendGliding()) {
                 final double amount = guessVelocityAmount(player, thisMove, lastMove, data);
-                if (thisMove.touchedGround || model.getId().equals("gamemode.creative")) data.addHorizontalVelocity(new AccountEntry(amount, 3, MovingData.getHorVelValCount(amount)));
-                if (model.getId().equals("gamemode.creative")) data.addVerticalVelocity(new SimpleEntry(0.0, 2));
+                if (thisMove.touchedGround || model.getId().equals("gamemode.creative")) {
+                    data.addHorizontalVelocity(new AccountEntry(amount, 3, MovingData.getHorVelValCount(amount)));
+                    if (debug) debug(player, "Gliding -> " + (thisMove.touchedGround ? "touch down" : "gamemode.creative") + ": add velocity");
+                }
+                if (model.getId().equals("gamemode.creative")) {
+                    data.addVerticalVelocity(new SimpleEntry(0.0, 2));
+                    if (debug) debug(player, "Gliding -> gamemode.creative: add velocity");
+                }
                 return;
             }
             // TODO: Levitation -> Slow_falling
@@ -1150,6 +1157,7 @@ public class CreativeFly extends Check {
                 if (!thisMove.from.onGround && !thisMove.to.onGround) {
                     data.addVerticalVelocity(new SimpleEntry(0.0, cc.velocityActivationCounter));
                     data.addHorizontalVelocity(new AccountEntry(amount, 2, MovingData.getHorVelValCount(amount)));
+                    if (debug) debug(player, "Effect.riptiding -> " + thisMove.modelFlying +": add velocity");
                 }
                 return;
             }
@@ -1161,6 +1169,7 @@ public class CreativeFly extends Check {
                     data.addVerticalVelocity(new SimpleEntry(thisMove.yDistance, 40));
                     data.addVerticalVelocity(new SimpleEntry(0.0, cc.velocityActivationCounter));
                     data.addHorizontalVelocity(new AccountEntry(amount, 4, MovingData.getHorVelValCount(amount)));
+                    if (debug) debug(player, "Ripglide transition: add velocity");
                 }
                 return;
             }
@@ -1171,6 +1180,7 @@ public class CreativeFly extends Check {
         // Quick change between models, reset friction, invalid
         if (secondPastMove.modelFlying != null && lastMove.modelFlying != null
             && secondPastMove.modelFlying == model && model != lastMove.modelFlying) {
+            if (debug) debug(player, "Invalidate this move on too fast model switch: " + (secondPastMove.modelFlying + " -> " + lastMove.modelFlying + " -> " + model));
             thisMove.toIsValid = false;
         }
     }
