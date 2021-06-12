@@ -143,7 +143,7 @@ public class CreativeFly extends Check {
         double[] resH = hDist(player, from, to, hDistance, yDistance, sprinting, flying, thisMove, lastMove, time, model, data, cc);
         double limitH = resH[0];
         double resultH = resH[1];
-        double[] rese = hackElytraH(player, from, to, hDistance, yDistance, thisMove, lastMove, lostGround, data, cc); // Related to the elytra
+        double[] rese = hackElytraH(player, from, to, hDistance, yDistance, thisMove, lastMove, lostGround, data, cc, debug); // Related to the elytra
         resultH = Math.max(resultH, rese[1]);
 
         // Check velocity.
@@ -210,7 +210,7 @@ public class CreativeFly extends Check {
         
         // The antilevitation subcheck
         if (lastMove.toIsValid && !player.isFlying() && model.getScaleLevitationEffect()
-            && thisMove.modelFlying == lastMove.modelFlying && !from.isInLiquid()) {
+            && thisMove.modelFlying == lastMove.modelFlying) { // InLiquid check is alread included in MovingConfig.getModelFlying()
 
             final double level = Bridge1_9.getLevitationAmplifier(player) + 1;
             final double allowY = (lastMove.yDistance + (0.05D * level - lastMove.yDistance) * 0.2D) * 0.98;
@@ -412,7 +412,8 @@ public class CreativeFly extends Check {
         }
         
         // Special friction mechanic for levitation
-        if (lastMove.toIsValid && model.getScaleLevitationEffect() && (lastMove.hDistance + 0.005) * Magic.FRICTION_MEDIUM_AIR < lastMove.hDistance) {
+        if (lastMove.toIsValid && model.getScaleLevitationEffect() 
+            && (lastMove.hDistance + 0.005) * Magic.FRICTION_MEDIUM_AIR < lastMove.hDistance) {
             limitH = Math.max((lastMove.hDistance + 0.005) * Magic.FRICTION_MEDIUM_AIR, limitH);
             tags.add("hfrictlevit");
         }
@@ -420,8 +421,10 @@ public class CreativeFly extends Check {
         // Special friction mechanic for riptiding 
         // Observed: extreme/abrupt acceleration from the last hDistance: 
         // one time hDistance around 3.01 with friction distance being at or slightly lower than last hDistance (0.51/0.52)
-        if (lastMove.toIsValid && model.getScaleRiptidingEffect() && lastMove.hDistance * Magic.FRICTION_MEDIUM_AIR <= lastMove.hDistance
-            && thisMove.hDistance > 3.0 && thisMove.hDistance < 3.8 && Bridge1_13.isRiptiding(player) && hDistance > limitH) {
+        if (lastMove.toIsValid && model.getScaleRiptidingEffect() 
+            && lastMove.hDistance * Magic.FRICTION_MEDIUM_AIR <= lastMove.hDistance
+            && thisMove.hDistance > 3.0 && thisMove.hDistance < 3.8 
+            && Bridge1_13.isRiptiding(player) && hDistance > limitH) {
             limitH = Math.max(thisMove.hDistance, limitH);
             tags.add("hfrictriptide");
         }
@@ -516,10 +519,10 @@ public class CreativeFly extends Check {
                 // (Double checked.)
                 // TODO: Perhaps do with a modifier instead, to avoid confusion.
                 limitV += 0.046 * levitation; // (It ends up like 0.5 added extra for some levels of levitation, roughly.)
-                final double jumpAmplifier = LiftOffEnvelope.NORMAL.getMinJumpGain(data.jumpAmplifier) + 0.01;
+                final double minJumpGain = LiftOffEnvelope.NORMAL.getMinJumpGain(data.jumpAmplifier) + 0.01;
                 // Bug, duplicate motion
-                if (yDistance > 0.0 && yDistance < jumpAmplifier && thisMove.touchedGround) {
-                    limitV = jumpAmplifier;
+                if (yDistance > 0.0 && yDistance < minJumpGain && thisMove.touchedGround) {
+                    limitV = minJumpGain;
                     data.addVerticalVelocity(new SimpleEntry(yDistance, 2));
                 }
                 tags.add("levitation:" + levitation);
@@ -567,7 +570,8 @@ public class CreativeFly extends Check {
         // Observed maximum speed: 5.536355205897621 (+5.993) / 5.0
         if (Bridge1_13.isRiptiding(from.getPlayer()) && (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0
             && yDistance > limitV && (data.sfJumpPhase == 0 || data.sfJumpPhase == 1) && lastMove.yDistance < -2.3
-            && yDistance > 0.0 && yDistance < 6.0 && thisMove.from.onGround && lastMove.to.onGround && !thisMove.to.onGround) {
+            && yDistance > 0.0 && yDistance < 6.0 
+            && thisMove.from.onGround && lastMove.to.onGround && !thisMove.to.onGround) {
             data.addVerticalVelocity(new SimpleEntry(yDistance, 2));
             tags.add("riptidebounce");
         }
@@ -650,7 +654,7 @@ public class CreativeFly extends Check {
      */
     private double[] hackElytraH(final Player player, final PlayerLocation from, final PlayerLocation to, final double hDistance, 
                                  final double yDistance, final PlayerMoveData thisMove, final PlayerMoveData lastMove, 
-                                 final boolean lostGround, final MovingData data, final MovingConfig cc) {
+                                 final boolean lostGround, final MovingData data, final MovingConfig cc, final boolean debug) {
 
         /* Known false positives:
          * Still have setback with taking off ?
@@ -729,6 +733,7 @@ public class CreativeFly extends Check {
                 if (Math.round(data.fireworksBoostTickNeedCheck / 4) > data.fireworksBoostDuration 
                     && hDistance < Math.sqrt(x*x + z*z)) {
                     thisMove.hAllowedDistance = Math.sqrt(x*x + z*z);
+                    if (debug) debug(player, "Set hAllowedDistance for this firework boost phase: hDistance: " + thisMove.hDistance + " / Allowed: " + thisMove.hAllowedDistance);
                     return new double[] {0.0, 0.0};
                 }
                 x *= 0.99;
@@ -741,6 +746,7 @@ public class CreativeFly extends Check {
                  */
                 if (hDistance < lastMove.hAllowedDistance * 0.994) {
                     thisMove.hAllowedDistance = lastMove.hAllowedDistance * 0.994;
+                    if (debug) debug(player, "Firework duration has ended sooner than expected, but the player is still legitimately boosting: hDistance " + thisMove.hDistance + " / Allowed: " + thisMove.hAllowedDistance);
                     return new double[] {0.0, 0.0};
                 } 
                 else allwHDistance += 0.2;
@@ -749,6 +755,7 @@ public class CreativeFly extends Check {
                 if (data.fireworksBoostDuration >= data.fireworksBoostTickNeedCheck - 4 && lastMove.hAllowedDistance > 0.0) {
                     if (hDistance < lastMove.hAllowedDistance) {
                         thisMove.hAllowedDistance = lastMove.hAllowedDistance;
+                        if (debug) debug(player, "Too much speed for this firework boost phase (MC will reduce it itself below 1.70): hDistance: " + thisMove.hDistance + " / Allowed: " + thisMove.hAllowedDistance);
                         return new double[] {0.0, 0.0};
                     }
                 }
@@ -1129,7 +1136,7 @@ public class CreativeFly extends Check {
             if (model.getScaleLevitationEffect()) {
                 final double amount = lastMove.hAllowedDistance > 0.0 ? lastMove.hAllowedDistance : lastMove.hDistance;
                 if (thisMove.touchedGround) data.addHorizontalVelocity(new AccountEntry(amount, 2, MovingData.getHorVelValCount(amount)));
-                if (debug) debug(player, lastMove.modelFlying + " -> potion.levitation: add velocity");
+                if (debug) debug(player, lastMove.modelFlying.getId().toString() + " -> potion.levitation: add velocity");
                 //data.addVerticalVelocity(new SimpleEntry(0.0, 2));
                 return;
             }
@@ -1157,7 +1164,7 @@ public class CreativeFly extends Check {
                 if (!thisMove.from.onGround && !thisMove.to.onGround) {
                     data.addVerticalVelocity(new SimpleEntry(0.0, cc.velocityActivationCounter));
                     data.addHorizontalVelocity(new AccountEntry(amount, 2, MovingData.getHorVelValCount(amount)));
-                    if (debug) debug(player, "Effect.riptiding -> " + thisMove.modelFlying +": add velocity");
+                    if (debug) debug(player, "Effect.riptiding -> " + thisMove.modelFlying.getId().toString() +": add velocity");
                 }
                 return;
             }
@@ -1180,7 +1187,7 @@ public class CreativeFly extends Check {
         // Quick change between models, reset friction, invalid
         if (secondPastMove.modelFlying != null && lastMove.modelFlying != null
             && secondPastMove.modelFlying == model && model != lastMove.modelFlying) {
-            if (debug) debug(player, "Invalidate this move on too fast model switch: " + (secondPastMove.modelFlying + " -> " + lastMove.modelFlying + " -> " + model));
+            if (debug) debug(player, "Invalidate this move on too fast model switch: " + (secondPastMove.modelFlying.getId().toString() + " -> " + lastMove.modelFlying.getId().toString() + " -> " + model.getId().toString()));
             thisMove.toIsValid = false;
         }
     }

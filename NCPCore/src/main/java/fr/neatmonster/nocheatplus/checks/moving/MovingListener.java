@@ -1469,6 +1469,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final boolean riptideBounce = Bridge1_13.isRiptiding(player) && data.verticalBounce != null 
                                       && thisMove.yDistance < 6.0 && thisMove.yDistance > Magic.EXTREME_MOVE_DIST_HORIZONTAL; // At least ensure that cheaters cannot go any higher than a legit player.
         final boolean ripglide = Bridge1_9.isGlidingWithElytra(player) && Bridge1_13.isRiptiding(player) && thisMove.yDistance > Magic.EXTREME_MOVE_DIST_VERTICAL * 1.7;
+        final boolean levitationHighLevel = !Double.isInfinite(Bridge1_9.getLevitationAmplifier(player)) && Bridge1_9.getLevitationAmplifier(player) >= 89 && Bridge1_9.getLevitationAmplifier(player) <= 127;
         // TODO: Latency effects.
         double violation = 0.0; // h + v violation (full move).
         // Vertical move.
@@ -1480,7 +1481,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             if (lastMove.toIsValid && Math.abs(thisMove.yDistance) < Math.abs(lastMove.yDistance)
                 && (thisMove.yDistance > 0.0 && lastMove.yDistance > 0.0 || thisMove.yDistance < 0.0 && lastMove.yDistance < 0.0) 
                 || allowVerticalVelocity && data.getOrUseVerticalVelocity(thisMove.yDistance) != null
-                || riptideBounce || ripglide) {
+                || riptideBounce || ripglide || levitationHighLevel) {
                 // Speed decreased or velocity is present.
             }
             else violation += thisMove.yDistance; // Could subtract lastMove.yDistance.

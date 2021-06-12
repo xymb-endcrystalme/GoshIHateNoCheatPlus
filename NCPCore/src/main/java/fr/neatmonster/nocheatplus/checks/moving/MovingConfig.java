@@ -380,10 +380,22 @@ public class MovingConfig extends ACheckConfig {
         msgKickIllegalVehicleMove = ColorUtil.replaceColors(config.getString(ConfPaths.MOVING_MESSAGE_ILLEGALVEHICLEMOVE));
     }
 
-    public ModelFlying getModelFlying(final Player player, final PlayerLocation fromLocation,
-            final MovingData data, final MovingConfig cc) {
+
+   /**
+    * Retrieve the CreativeFly model to use in thisMove (Set in the MovingListener).
+    * Note that the name is somewhat anachronistic. (Should be renamed to CreativeFlyModel/MovementModel/(...))
+    * @param player
+    * @param fromLocation
+    * @param data
+    * @param cc
+    * 
+    */
+    public ModelFlying getModelFlying(final Player player, final PlayerLocation fromLocation, final MovingData data, final MovingConfig cc) {
+
         final GameMode gameMode = player.getGameMode();
         final ModelFlying modelGameMode = flyingModelGameMode.get(gameMode);
+        final boolean isGlidingWithElytra = Bridge1_9.isGlidingWithElytra(player) && MovingUtil.isGlidingWithElytraValid(player, fromLocation, data, cc);
+        final double levitationLevel = Bridge1_9.getLevitationAmplifier(player);
         switch(gameMode) {
             case SURVIVAL:
             case ADVENTURE:
@@ -394,7 +406,6 @@ public class MovingConfig extends ACheckConfig {
                 // Default by game mode (spectator, yet unknown).
                 return modelGameMode;
         }
-        final boolean isGlidingWithElytra = Bridge1_9.isGlidingWithElytra(player) && MovingUtil.isGlidingWithElytraValid(player, fromLocation, data, cc);
         // Actual flying (ignoreAllowFlight is a legacy option for rocket boots like flying).
 
         // NOTE: Riptiding has priority over anything else 
@@ -408,16 +419,21 @@ public class MovingConfig extends ACheckConfig {
             return flyingModelElytra;
         }
         // Levitation.
-        if (gameMode != GameMode.CREATIVE && !Double.isInfinite(Bridge1_9.getLevitationAmplifier(player)) 
+        if (gameMode != GameMode.CREATIVE && !Double.isInfinite(levitationLevel) 
             && !Bridge1_13.isRiptiding(player)
-            && !fromLocation.isInLiquid()) {
+            && !fromLocation.isInLiquid()
+            // According to minecraft wiki:
+            // Levitation level over 127 = fall down at a fast or slow rate, depending on the value.
+            // Using /effect minecraft:levitation 255 makes the player fly exclusively horizontally.
+            && !(levitationLevel >= 128)) {
             return flyingModelLevitation;
         }
         // Slow Falling
         if (gameMode != GameMode.CREATIVE && !Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player)) 
-            && !Bridge1_13.isRiptiding(player)) {
+            && !Bridge1_13.isRiptiding(player)) { 
             return flyingModelSlowfalling;
         }
+        // Riptiding
         if (Bridge1_13.isRiptiding(player)) {
             return flyingModelRiptiding;
         }

@@ -138,6 +138,7 @@ public class NoSlow extends BaseAdapter {
     }
 
     private static void onItemInteract(final PlayerInteractEvent e){
+        // TODO: Add trident (Check for rain and verify if the player is exposed to it at all, might not be worth doing it...)
         if (e.getAction() != Action.RIGHT_CLICK_AIR && e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         final Player p = e.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(p);
@@ -180,11 +181,6 @@ public class NoSlow extends BaseAdapter {
             if (m.toString().equals("BOW") && hasArrow(p.getInventory())) {
                 data.isusingitem = true;
                 data.offhanduse = Bridge1_9.hasGetItemInOffHand() && e.getHand() == EquipmentSlot.OFF_HAND;
-                return;
-            }
-            if (BridgeEnchant.getRiptideLevel(p) != 0) {
-                data.isusingitem = true;
-                data.offhanduse = e.getHand() == EquipmentSlot.OFF_HAND;
                 return;
             }
             if (m.name().equals("SHIELD")) {
