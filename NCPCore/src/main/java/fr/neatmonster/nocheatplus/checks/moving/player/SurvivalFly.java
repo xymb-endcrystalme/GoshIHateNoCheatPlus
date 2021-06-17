@@ -2125,12 +2125,11 @@ public class SurvivalFly extends Check {
                     final double allowedSpeed = maxSpeed * Math.pow(0.99, bunnyHopMax - data.bunnyhopDelay);
                     tags.add("bunnyfriction");
 
-                    if (!skipFriction && (
-                        hDistance <= allowedSpeed
-                        || data.bunnyhopTick > 6 || data.isVelocityJumpPhase() 
-                        || thisMove.headObstructed && hDistance < 0.39 
-                        || data.keepfrictiontick > 0)) {
-                        tags.add("allowfrict");
+                    // Speed must decrease by "a lot" at first, then by some minimal amount per event.
+                    // TODO: Confine buffer to only be used during low jump phase !?
+                    // Normal speed
+                    if (hDistance <= allowedSpeed) {
+                        tags.add("allowbunny");
                         hDistanceAboveLimit = 0.0;
                     }
                      
