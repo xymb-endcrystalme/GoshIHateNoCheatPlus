@@ -31,6 +31,7 @@ import fr.neatmonster.nocheatplus.compat.BridgeHealth;
 import fr.neatmonster.nocheatplus.permissions.Permissions;
 import fr.neatmonster.nocheatplus.players.DataManager;
 import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
+import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.compat.Bridge1_13;
@@ -58,14 +59,15 @@ public class InspectCommand extends BaseCommand {
             }
         }
 
-        final String c1, c2, c3;
+        final String c1, c2, c3, cI;
         if (sender instanceof Player) {
             c1 = ChatColor.GRAY.toString();
             c2 = ChatColor.BOLD.toString();
             c3 = ChatColor.RED.toString();
+            cI = ChatColor.ITALIC.toString();
         } 
         else {
-            c1 = c2 = c3 = "";
+            c1 = c2 = c3 = cI = "";
         }
         
         for (int i = 1; i < args.length; i++) {
@@ -74,40 +76,49 @@ public class InspectCommand extends BaseCommand {
                 sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Not online: " + c3 +""+ args[i]);
             } 
             else {
-                sender.sendMessage(getInspectMessage(player, c1, c2, c3));
+                sender.sendMessage(getInspectMessage(player, c1, c2, c3, cI));
             }
         }
         return true;
     }
 
-    public static String getInspectMessage(final Player player, final String c1, final String c2, final String c3) {
+    public static String getInspectMessage(final Player player, final String c1, final String c2, final String c3, final String cI) {
 
         final StringBuilder builder = new StringBuilder(256);
         final IPlayerData pData = DataManager.getPlayerData(player);
         final MovingData mData = pData.getGenericInstance(MovingData.class);
         final MovingConfig mCC = pData.getGenericInstance(MovingConfig.class);
+        final PlayerMoveData thisMove = mData.playerMoves.getCurrentMove();
 
         // More spaghetti.
+        // TODO: Later through ViaVersion it might be useful to also add the client version.
         builder.append(TAG + c1 + "Status information for player: " + c3 + player.getName());
+        
+        builder.append("\n "+ c1 + "" + c2 + "•" + c1 + cI + (mData.bedrockPlayer ? " Is a Bedrock player" : " Is a Java player") + c1 + ".");
 
-        if (player.isOnline()) {
-            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is currently online.");
+        if (player.isOp()){
+            builder.append("\n "+ c1 + "" + c2 + "•"  + c1 + cI + " Is OP" + c1 + ".");
         }
-        else builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is offline.");
 
-        if (player.isValid()) {
-            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Player is valid.");
-        }
-        else builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Player is invalid.");
+        builder.append("\n "+ c1 + "" + c2 + "•" + c1 + (player.isOnline() ? " Is currently online." : " Is offline."));
+        
+        builder.append("\n "+ c1 + "" + c2 + "•" + c1 + (player.isValid() ? " Player is valid." : " Player is invalid."));
 
         builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Current health: " + f1.format(BridgeHealth.getHealth(player)) + "/" + f1.format(BridgeHealth.getMaxHealth(player)));
+
         builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Current food level: " + player.getFoodLevel());
+
         builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is in " + player.getGameMode() + " gamemode.");
 
-        if (mCC.assumeSprint) {
-            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is assumed to sprint.");
+        builder.append("\n "+ c1 + "" + c2 + "•" + c1 + (mCC.assumeSprint ? " Is assumed to be sprinting." : " Assume sprint workaround disabled."));
+
+        builder.append("\n "+ c1 + "" + c2 + "•" + c1 +" FlySpeed: " + player.getFlySpeed());
+
+        builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " WalkSpeed: " + player.getWalkSpeed());
+
+        if (thisMove.modelFlying != null) {
+            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Movement model for this move " + thisMove.modelFlying.getId().toString());
         }
-        else builder.append("\n "+ c1 + "" + c2 + "•" + c1 +  " Assume sprint workaround disabled!");
 
         if (player.getExp() > 0f) {
             builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Experience Lvl: " + f1.format(player.getExpToLevel()) + "(exp=" + f1.format(player.getExp()) + ")");
@@ -115,6 +126,10 @@ public class InspectCommand extends BaseCommand {
 
         if (Bridge1_9.isGlidingWithElytra(player)) {
             builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is gliding with elytra.");
+        }
+
+        if (Bridge1_13.isRiptiding(player)) {
+            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is riptiding." );
         }
 
         if (Bridge1_13.isSwimming(player)) {
@@ -149,24 +164,18 @@ public class InspectCommand extends BaseCommand {
             builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is currently dead.");
         }
 
-        if (player.isOp()){
-            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is Op!");
-        }
-
         if (player.isFlying()) {
-            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Currently flying.");
+            builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is currently flying.");
         }
 
         if (player.getAllowFlight()) {
             builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is allowed to fly.");
         }
-        builder.append("\n "+ c1 + "" + c2 + "•" + c1 +" FlySpeed: " + player.getFlySpeed());
-        builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " WalkSpeed: " + player.getWalkSpeed());
 
         // Potion effects.
         final Collection<PotionEffect> effects = player.getActivePotionEffects();
         if (!effects.isEmpty()) {
-            builder.append("\n "+ c1 + "" + c2 + "•" +c1+ "Effects: ");
+            builder.append("\n "+ c1 + "" + c2 + "•" +c1+ "Has the following effects: ");
             for (final PotionEffect effect : effects) {
                 builder.append(effect.getType() + " at level " + effect.getAmplifier() +", ");
             }
@@ -185,8 +194,7 @@ public class InspectCommand extends BaseCommand {
      * @see fr.neatmonster.nocheatplus.command.AbstractCommand#onTabComplete(org.bukkit.command.CommandSender, org.bukkit.command.Command, java.lang.String, java.lang.String[])
      */
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command,
-            String alias, String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         // Complete players.
         return null;
     }
