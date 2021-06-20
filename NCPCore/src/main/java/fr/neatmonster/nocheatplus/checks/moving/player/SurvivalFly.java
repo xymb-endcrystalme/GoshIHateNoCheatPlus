@@ -2126,10 +2126,8 @@ public class SurvivalFly extends Check {
                     tags.add("bunnyfriction");
 
                     // Speed must decrease by "a lot" at first, then by some minimal amount per event.
-                    // TODO: Confine buffer to only be used during low jump phase !?
-                    // Normal speed
-                    if (hDistance <= allowedSpeed) {
-                        tags.add("allowbunny");
+                    if (hDistance <= allowedSpeed && !skipFriction) {
+                        tags.add("allowfrict");
                         hDistanceAboveLimit = 0.0;
                     }
                      

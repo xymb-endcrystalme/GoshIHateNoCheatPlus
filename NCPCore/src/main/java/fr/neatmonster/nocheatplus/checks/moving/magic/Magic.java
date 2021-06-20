@@ -205,18 +205,22 @@ public class Magic {
      * @param hDistDiff 
      *           Difference from last to current hDistance (Last must be greater)
      * @param lastHDistance
+     *           hDistane before current
      * @param hDistanceAboveLimit
      * @param currentHDistance
-     * @param allowedBaseSpeed 
-     *           hAllowedDistanceBase (Without taking into account special mechanics, like bunnyhopping)
+     * @param currentAllowedBaseSpeed 
+     *           thisMove.hAllowedDistanceBase (Without taking into account special mechanics, like bunnyhopping)
      * @return
      */
     public static boolean isBunnyFrictionPhase(final double hDistDiff, final double lastHDistance, final double hDistanceAboveLimit, 
-                                               final double currentHDistance, final double allowedBaseSpeed) {
+                                               final double currentHDistance, final double currentAllowedBaseSpeed) {
 
+        if (currentHDistance > lastHDistance) {
+            return false;
+        }
         return  hDistDiff >= lastHDistance / bunnyDivFriction 
                 || hDistDiff >= hDistanceAboveLimit / 33.3 
-                || hDistDiff >= (currentHDistance - allowedBaseSpeed) * (1.0 - FRICTION_MEDIUM_AIR);
+                || hDistDiff >= (currentHDistance - currentAllowedBaseSpeed) * (1.0 - FRICTION_MEDIUM_AIR);
     }
 
     /**
