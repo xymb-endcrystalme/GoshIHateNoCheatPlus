@@ -198,9 +198,9 @@ public class Magic {
     }
     
     /**
-     * Test if the player is in a bunnyhop friction phase.  
+     * Test if the player is in a bunnyhop (air) friction phase.  
      * (not regular friction mechanics)
-     * Requires to be in a bunnyhop delay phase (data.bunnyhopDelay > 0)
+     * Call if the player is in a bunnyhop delay phase and the current speed is higher than allowed.
      *
      * @param hDistDiff 
      *           Difference from last to current hDistance (Last must be greater)

@@ -323,7 +323,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             Location target = null;
             final PlayerMoveInfo moveInfo = aux.usePlayerMoveInfo();
             moveInfo.set(player, loc, null, cc.yOnGround);
-            final boolean sfCheck = MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, data, cc, pData);
+            final boolean sfCheck = MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, moveInfo.to, data, cc, pData);
             aux.returnPlayerMoveInfo(moveInfo);
             if (sfCheck) {
                 target = MovingUtil.getApplicableSetBackLocation(player, loc.getYaw(), loc.getPitch(), 
@@ -714,7 +714,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         // Check which fly check to use.
         boolean checkCf;
         boolean checkSf;
-        if (MovingUtil.shouldCheckSurvivalFly(player, pFrom, data, cc, pData)) {
+        if (MovingUtil.shouldCheckSurvivalFly(player, pFrom, pTo, data, cc, pData)) {
             checkCf = false;
             checkSf = true;
             data.adjustWalkSpeed(player.getWalkSpeed(), tick, cc.speedGrace);
@@ -863,7 +863,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         if (Bridge1_13.isRiptiding(player)) {
             checkSf = false; 
             checkCf = true;
-            // TODO: NoFall skip?
+            checkNf = false;
         }
         
         // Recalculate explosion velocity as PlayerVelocityEvent can't handle well on 1.13+
@@ -908,9 +908,11 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             // TODO: Could further differentiate if really needed to (newTo / NoFall).
             MovingUtil.prepareFullCheck(pFrom, pTo, thisMove, Math.max(cc.noFallyOnGround, cc.yOnGround));
             // HACK: Add velocity for transitions between creativefly and survivalfly.
-            if (lastMove.toIsValid && lastMove.flyCheck == CheckType.MOVING_CREATIVEFLY) {
+            if (lastMove.toIsValid && lastMove.flyCheck == CheckType.MOVING_CREATIVEFLY
+                && Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player))) { // Prevents too easy abuse of this workaround: apply if Slowfalling is absent
+
                 final long tickhaslag = data.delayWorkaround + Math.round(200 / TickTask.getLag(200, true));
-                if (data.delayWorkaround > time || tickhaslag < time) {
+                if ((data.delayWorkaround > time || tickhaslag < time)) {
                     workaroundFlyCheckTransition(player, tick, debug, data, cc);
                     data.delayWorkaround = time;
                 }
@@ -1467,7 +1469,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
         final PlayerMoveData lastMove = data.playerMoves.getFirstPastMove(); 
         final boolean riptideBounce = Bridge1_13.isRiptiding(player) && data.verticalBounce != null 
-                                      && thisMove.yDistance < 6.0 && thisMove.yDistance > Magic.EXTREME_MOVE_DIST_HORIZONTAL; // At least ensure that cheaters cannot go any higher than a legit player.
+                                      && thisMove.yDistance < 8.0 && thisMove.yDistance > Magic.EXTREME_MOVE_DIST_HORIZONTAL; // At least ensure that cheaters cannot go any higher than a legit player.
         final boolean ripglide = Bridge1_9.isGlidingWithElytra(player) && Bridge1_13.isRiptiding(player) && thisMove.yDistance > Magic.EXTREME_MOVE_DIST_VERTICAL * 1.7;
         final boolean levitationHighLevel = !Double.isInfinite(Bridge1_9.getLevitationAmplifier(player)) && Bridge1_9.getLevitationAmplifier(player) >= 89 && Bridge1_9.getLevitationAmplifier(player) <= 127;
         // TODO: Latency effects.
@@ -2373,7 +2375,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         moveInfo.set(player, loc, null, yOnGround);
         final PlayerLocation pLoc = moveInfo.from;
         pLoc.collectBlockFlags(yOnGround);
-        if (event.isCancelled() || !MovingUtil.shouldCheckSurvivalFly(player, pLoc, data, cc, pData) 
+        if (event.isCancelled() || !MovingUtil.shouldCheckSurvivalFly(player, pLoc, moveInfo.to, data, cc, pData) 
             || !noFall.isEnabled(player, pData)) {
             data.clearNoFallData();
             useLoc.setWorld(null);
@@ -2761,7 +2763,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final Location loc = player.getLocation(useLoc);
         moveInfo.set(player, loc, null, cc.yOnGround);
         // TODO: data.isVelocityJumpPhase() might be too harsh, but prevents too easy abuse.
-        if (!MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, data, cc, pData) 
+        if (!MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, moveInfo.to, data, cc, pData) 
             || data.isVelocityJumpPhase() || BlockProperties.isOnGroundOrResetCond(player, loc, cc.yOnGround)) {
             useLoc.setWorld(null);
             aux.returnPlayerMoveInfo(moveInfo);
@@ -2924,7 +2926,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 // Re-Check if survivalfly can apply at all.
                 final PlayerMoveInfo moveInfo = aux.usePlayerMoveInfo();
                 moveInfo.set(player, loc, null, cc.yOnGround);
-                if (MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, data, cc, pData)) {
+                if (MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, moveInfo.to, data, cc, pData)) {
                     handleHoverViolation(player, moveInfo.from, cc, data, pData);
                     // Assume the player might still be hovering.
                     res = false;

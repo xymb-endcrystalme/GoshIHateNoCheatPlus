@@ -77,27 +77,44 @@ public class MovingUtil {
      * @param fromLoc
      *            The location the player is moving from or just where the
      *            player is.
+     * @param toLoc
+     *            The location the player has moved to.
      * @param data
      * @param cc
      * @return
      */
-    public static final boolean shouldCheckSurvivalFly(final Player player, final PlayerLocation fromLocation, 
-            final MovingData data, final MovingConfig cc, final IPlayerData pData) {
+    public static final boolean shouldCheckSurvivalFly(final Player player, final PlayerLocation fromLocation, final PlayerLocation toLocation, 
+                                                       final MovingData data, final MovingConfig cc, final IPlayerData pData) {
+
         final GameMode gameMode = player.getGameMode();
+        final double yDistance = data.playerMoves.getCurrentMove().yDistance;
         // (Full activation check - use permission caching for performance rather.)
-        return  pData.isCheckActive(CheckType.MOVING_SURVIVALFLY, player) 
+
+        return  
+                // Sf is active (duh..)
+                pData.isCheckActive(CheckType.MOVING_SURVIVALFLY, player) 
+                // Spectator is handled by Cf
                 && gameMode != BridgeMisc.GAME_MODE_SPECTATOR
-                && (cc.ignoreCreative || gameMode != GameMode.CREATIVE) && !player.isFlying() 
+                // Creative or ignoreCreative is off/flying - let Cf handle those.
+                && (cc.ignoreCreative || gameMode != GameMode.CREATIVE) && !player.isFlying()
+                // IgnoreAllowFlight is off or the player is allowed to fly (cf).
                 && (cc.ignoreAllowFlight || !player.getAllowFlight())
+                // Gliding is handled by cf
                 && (
-                        !Bridge1_9.isGlidingWithElytra(player) 
-                        || !isGlidingWithElytraValid(player, fromLocation, data, cc)
-                        )
+                    !Bridge1_9.isGlidingWithElytra(player) 
+                    || !isGlidingWithElytraValid(player, fromLocation, data, cc)
+                )
+                // Levitation is handled by Cf, unless the player is in liquid which is handled by Sf.
                 && (
-                        Double.isInfinite(Bridge1_9.getLevitationAmplifier(player)) 
-                        || fromLocation.isInLiquid()
-                        )
-                && (Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player)))
+                    Double.isInfinite(Bridge1_9.getLevitationAmplifier(player)) 
+                    || fromLocation.isInLiquid()
+                )
+                // Actual falling is handled by Cf.
+                && (
+                    Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player))
+                    || (fromLocation.isOnGround() || yDistance > 0.0) 
+                )
+                // Riptiding is handled by Cf.
                 && !Bridge1_13.isRiptiding(player)
                 ;
     }

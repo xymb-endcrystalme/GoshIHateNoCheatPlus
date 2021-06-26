@@ -185,7 +185,7 @@ public class CreativeFly extends Check {
         // Distinguish checking method by y-direction of the move:
         // Ascend.
         if (yDistance > 0.0) {
-            double[] res = vDistAscend(from, to, yDistance, flying, thisMove, lastMove, model, data, cc);
+            double[] res = vDistAscend(from, to, yDistance, flying, thisMove, lastMove, model, data, cc, debug);
             resultV = Math.max(resultV, res[1]);
             limitV = res[0];
         }
@@ -351,12 +351,6 @@ public class CreativeFly extends Check {
     private double[] hDist(final Player player, final PlayerLocation from, final PlayerLocation to, final double hDistance, 
                            final double yDistance, final boolean sprinting, final boolean flying, final PlayerMoveData thisMove, 
                            final PlayerMoveData lastMove, final long time, final ModelFlying model, final MovingData data, final MovingConfig cc) {
-        
-
-       /* Rather severe: since slowfalling is handled by the CreativeFly check, simple on ground speeds are possible since we
-        do not enforce any (legit/sane) speed likewise in survivalFly.setAllowedHDist. */
-
-
 
         // Modifiers.
         double fSpeed;
@@ -405,7 +399,6 @@ public class CreativeFly extends Check {
         // "Ripglide" (riptiding+gliding phase): allow some additional speed increase
         // Note that the ExtremeMove subcheck is skipped during such phases.
         // TODO: Why not simply skip CreativeFly and let ExtremeMove deal with it? 
-        // TODO: Can players increase their speed even more with firework boosts !?
         if (lastMove.toIsValid && ripglide && hDistance > limitH) {
             limitH += 9.3;
             tags.add("hripglide");
@@ -423,7 +416,7 @@ public class CreativeFly extends Check {
         // one time hDistance around 3.01 with friction distance being at or slightly lower than last hDistance (0.51/0.52)
         if (lastMove.toIsValid && model.getScaleRiptidingEffect() 
             && lastMove.hDistance * Magic.FRICTION_MEDIUM_AIR <= lastMove.hDistance
-            && thisMove.hDistance > 3.0 && thisMove.hDistance < 4.5
+            && thisMove.hDistance > 3.0 && thisMove.hDistance < 4.1
             && Bridge1_13.isRiptiding(player) && hDistance > limitH) {
             limitH = Math.max(thisMove.hDistance, limitH);
             tags.add("hfrictriptide");
@@ -502,11 +495,11 @@ public class CreativeFly extends Check {
      */
     private double[] vDistAscend(final PlayerLocation from, final PlayerLocation to, final double yDistance, 
                                  final boolean flying, final PlayerMoveData thisMove, final PlayerMoveData lastMove, 
-                                 final ModelFlying model, final MovingData data, final MovingConfig cc) {
+                                 final ModelFlying model, final MovingData data, final MovingConfig cc, final boolean debug) {
 
-        double limitV = model.getVerticalAscendModSpeed() / 100.0 * ModelFlying.VERTICAL_ASCEND_SPEED; 
         final boolean ripglide = Bridge1_13.isRiptiding(from.getPlayer()) && Bridge1_9.isGlidingWithElytra(from.getPlayer());
         final long now = System.currentTimeMillis();
+        double limitV = model.getVerticalAscendModSpeed() / 100.0 * ModelFlying.VERTICAL_ASCEND_SPEED; 
         double resultV = 0.0;
         
         // Let fly speed apply with moving upwards.
@@ -531,8 +524,8 @@ public class CreativeFly extends Check {
         }
 
         if (model.getScaleSlowfallingEffect()) {
+            
             limitV = Math.max((lastMove.toIsValid ? lastMove.yDistance : 0.0) * Magic.FRICTION_MEDIUM_AIR - Magic.GRAVITY_ODD, 0.0);
-
             if (yDistance > limitV && (thisMove.touchedGround || thisMove.from.onClimbable || data.liqtick > 0)) {
 
                 final PlayerMoveData pastmove2 = data.playerMoves.getSecondPastMove();    
@@ -567,11 +560,11 @@ public class CreativeFly extends Check {
         // Riptiding right onto a bouncy block (2nd time, higher bounce distance)
         // Note that the ExtremeMove subcheck is skipped during such phases.
         if (Bridge1_13.isRiptiding(from.getPlayer()) && (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0
-            && yDistance > limitV && (data.sfJumpPhase == 0 || data.sfJumpPhase == 1) && lastMove.yDistance < -1.3
-            && yDistance > 0.0 && yDistance < 6.0  // Cap the distance: observed maximum speed -> 5.536355205897621 (+5.993) / 5.0
-            && thisMove.from.onGround && lastMove.to.onGround && !thisMove.to.onGround) {
-            data.addVerticalVelocity(new SimpleEntry(yDistance, 2));
-            tags.add("riptidebounce");
+            && yDistance > limitV && data.sfJumpPhase <= 2
+            && yDistance > 0.0 && yDistance < 8.0  // Cap the distance: observed maximum speed -> 5.536355205897621 (+5.993) / 5.0
+            && thisMove.from.onGround && !thisMove.to.onGround) {
+            data.addVerticalVelocity(new SimpleEntry(yDistance, 4));
+            if (debug) debug(from.getPlayer(), "Riptide bounce: add velocity");
         }
         
         // Gliding in water
@@ -661,8 +654,7 @@ public class CreativeFly extends Check {
         final long now = System.currentTimeMillis();
         double resultV = 0.0;
         double resultH = 0.0;
-        if (!cc.elytraStrict || !Bridge1_9.isGlidingWithElytra(player) || player.isFlying() || Bridge1_13.isRiptiding(player) 
-            || data.timeRiptiding + 2500 > now) return new double[] {0.0, 0.0};
+        if (!cc.elytraStrict || !Bridge1_9.isGlidingWithElytra(player) || player.isFlying() || data.timeRiptiding + 2500 > now) return new double[] {0.0, 0.0};
         double allwHDistance = 0.0;
         double allwyDistance = 0.0;
         double baseV = 0.0;
@@ -672,7 +664,7 @@ public class CreativeFly extends Check {
             //data.sfJumpPhase = 0;
             tags.add("e_pre");
         } 
-        else if (!from.isResetCond() && !isCollideWithHB(from)) {
+        else if (!from.isResetCond() && !isCollideWithHB(from) && !from.isInBerryBush()) {
             thisMove.elytrafly = true;
             final double lastHdist = lastMove.toIsValid ? lastMove.hDistance : 0.0;
             final Vector lookvec = to.getLocation().getDirection();
@@ -1045,8 +1037,7 @@ public class CreativeFly extends Check {
         double resultV = 0.0;
 
         if (model.getScaleSlowfallingEffect() && lastMove.modelFlying == thisMove.modelFlying 
-            && data.liqtick <= 0 && !Bridge1_13.isRiptiding(from.getPlayer()) 
-            && !from.isOnClimbable() && !to.isOnClimbable()) {
+            && data.liqtick <= 0 && !from.isOnClimbable() && !to.isOnClimbable()) {
 
             if (!thisMove.touchedGround && !to.isResetCond()) {
 
@@ -1087,9 +1078,7 @@ public class CreativeFly extends Check {
         double limitV = 0.0;
         double resultV = 0.0;
 
-        if (model.getScaleSlowfallingEffect() && lastMove.modelFlying == thisMove.modelFlying 
-            && !to.isInWeb() && !Bridge1_13.isRiptiding(from.getPlayer())) {
-
+        if (model.getScaleSlowfallingEffect() && lastMove.modelFlying == thisMove.modelFlying && !to.isInWeb()) {
             if (thisMove.touchedGround || thisMove.from.onClimbable || data.liqtick > 0) {
                 // Allow normal jumping.
                 final double maxGain = LiftOffEnvelope.NORMAL.getMinJumpGain(data.jumpAmplifier) + 0.01;

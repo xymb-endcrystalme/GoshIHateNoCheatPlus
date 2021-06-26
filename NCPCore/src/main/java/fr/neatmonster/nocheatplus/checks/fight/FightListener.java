@@ -248,12 +248,8 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
             // Get+update the damaged players.
             // TODO: Problem with NPCs: data stays (not a big problem).
             // (This is done even if the event has already been cancelled, to keep track, if the player is on a horse.)
-            damagedTrace = DataManager.getPlayerData(damagedPlayer).getGenericInstance(
-                    MovingData.class
-                    ).getTrace(damagedPlayer);//.updateTrace(
-                     //       damagedPlayer, damagedLoc, tick, 
-                      //      damagedIsFake ? null : mcAccess.getHandle()
-                      //      );
+            damagedTrace = DataManager.getPlayerData(damagedPlayer).getGenericInstance(MovingData.class)
+                           .updateTrace(damagedPlayer, damagedLoc, tick, damagedIsFake ? null : mcAccess.getHandle()); //.getTrace(damagedPlayer);
         }
         else {
             damagedPlayer = null; // TODO: This is a temporary workaround.
@@ -434,7 +430,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
                     final PlayerMoveInfo moveInfo = auxMoving.usePlayerMoveInfo();
                     moveInfo.set(player, loc, null, mCc.yOnGround);
                     if (now <= mData.timeSprinting + mCc.sprintingGrace 
-                            && MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, mData, mCc, pData)) {
+                            && MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, moveInfo.to, mData, mCc, pData)) {
                         // Judge as "lost sprint" problem.
                         // TODO: What would mData.lostSprintCount > 0  mean here?
                         mData.lostSprintCount = 7;
