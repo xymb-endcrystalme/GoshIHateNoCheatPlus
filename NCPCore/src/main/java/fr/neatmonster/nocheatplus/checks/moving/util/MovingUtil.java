@@ -198,7 +198,8 @@ public class MovingUtil {
                  * jumping more tightly (low jump = set back, needs
                  * false-positive-free checking (...)).
                  */
-                && !loc.isOnGround(0.001) 
+                && !loc.isOnGround(0.001)
+                && !loc.isBerryBush() 
                 // Assume water is checked correctly.
                 //                && (
                 //                        !fromLocation.isInLiquid() // (Needs to check for actual block bounds).

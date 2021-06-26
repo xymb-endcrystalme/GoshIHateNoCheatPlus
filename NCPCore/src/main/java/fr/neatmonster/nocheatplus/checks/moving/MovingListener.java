@@ -907,12 +907,15 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             // Prepare from, to, thisMove for full checking.
             // TODO: Could further differentiate if really needed to (newTo / NoFall).
             MovingUtil.prepareFullCheck(pFrom, pTo, thisMove, Math.max(cc.noFallyOnGround, cc.yOnGround));
+            boolean isRiptidingWithSlowfalling = !Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player)) && data.timeRiptiding + 3000 > time;
             // HACK: Add velocity for transitions between creativefly and survivalfly.
             if (lastMove.toIsValid && lastMove.flyCheck == CheckType.MOVING_CREATIVEFLY
-                && Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player))) { // Prevents too easy abuse of this workaround: apply if Slowfalling is absent
+                // Prevents too easy abuse of this workaround: apply if Slowfalling is absent
+                // (We do still need the workaround if a riptide phase has ended and the player is still ascending) 
+                && Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player)) || isRiptidingWithSlowfalling) { 
 
                 final long tickhaslag = data.delayWorkaround + Math.round(200 / TickTask.getLag(200, true));
-                if ((data.delayWorkaround > time || tickhaslag < time)) {
+                if (data.delayWorkaround > time || tickhaslag < time) {
                     workaroundFlyCheckTransition(player, tick, debug, data, cc);
                     data.delayWorkaround = time;
                 }
