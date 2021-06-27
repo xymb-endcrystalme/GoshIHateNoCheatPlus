@@ -107,16 +107,19 @@ public class MovingUtil {
                 // Levitation is handled by Cf, unless the player is in liquid which is handled by Sf.
                 && (
                     Double.isInfinite(Bridge1_9.getLevitationAmplifier(player)) 
-                    || fromLocation.isInLiquid()
+                    || fromLocation.isInLiquid() // Can't levitate if in liquid.
+                    // Moving up or down will mess with vDistRel detection due to erratic movement (players will fast/slow fall/ascend depending on the level)
+                    // so we only check if the move is fully on ground to prevent (too simple) speeding
+                    || Bridge1_9.getLevitationAmplifier(player) >= 128 && fromLocation.isOnGround() && toLocation.isOnGround() && yDistance == 0.0
                 )
-                // Actual falling is handled by Cf.
+                // Actual slowfalling is handled by Cf. Moving up or from/to ground is handled by Sf.
                 && (
                     Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player))
-                    || (fromLocation.isOnGround() || yDistance > 0.0) 
+                    || (fromLocation.isOnGround() || yDistance > 0.0 || toLocation.isOnGround())
                 )
                 // Riptiding is handled by Cf.
                 && !Bridge1_13.isRiptiding(player)
-                ;
+            ;
     }
 
     /**
@@ -199,7 +202,7 @@ public class MovingUtil {
                  * false-positive-free checking (...)).
                  */
                 && !loc.isOnGround(0.001)
-                && !loc.isBerryBush() 
+                && !loc.isInBerryBush() 
                 // Assume water is checked correctly.
                 //                && (
                 //                        !fromLocation.isInLiquid() // (Needs to check for actual block bounds).

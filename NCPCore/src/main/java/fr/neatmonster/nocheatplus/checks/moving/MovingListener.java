@@ -907,12 +907,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             // Prepare from, to, thisMove for full checking.
             // TODO: Could further differentiate if really needed to (newTo / NoFall).
             MovingUtil.prepareFullCheck(pFrom, pTo, thisMove, Math.max(cc.noFallyOnGround, cc.yOnGround));
-            boolean isRiptidingWithSlowfalling = !Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player)) && data.timeRiptiding + 3000 > time;
             // HACK: Add velocity for transitions between creativefly and survivalfly.
-            if (lastMove.toIsValid && lastMove.flyCheck == CheckType.MOVING_CREATIVEFLY
-                // Prevents too easy abuse of this workaround: apply if Slowfalling is absent
-                // (We do still need the workaround if a riptide phase has ended and the player is still ascending) 
-                && Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player)) || isRiptidingWithSlowfalling) { 
+            if (lastMove.toIsValid && lastMove.flyCheck == CheckType.MOVING_CREATIVEFLY) { 
 
                 final long tickhaslag = data.delayWorkaround + Math.round(200 / TickTask.getLag(200, true));
                 if (data.delayWorkaround > time || tickhaslag < time) {
@@ -1576,7 +1572,6 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         if (Bridge1_9.isWearingElytra(player) && lastMove.modelFlying != null && lastMove.modelFlying.getId().equals(MovingConfig.ID_JETPACK_ELYTRA)) {
             data.addVerticalVelocity(new SimpleEntry(lastMove.yDistance < -0.1034 ? (lastMove.yDistance * Magic.FRICTION_MEDIUM_AIR + 0.1034) 
                                                     : lastMove.yDistance, cc.velocityActivationCounter));
-            //data.addVerticalVelocity(new SimpleEntry(0.34, 3));
             data.keepfrictiontick = -15;
             if (thisMove.hDistance > defaultAmount) {
                 // Allowing the same speed won't always work on elytra (still increasing, differing modeling on client side with motXYZ).

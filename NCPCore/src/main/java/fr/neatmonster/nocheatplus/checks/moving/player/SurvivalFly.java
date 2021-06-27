@@ -2099,7 +2099,6 @@ public class SurvivalFly extends Check {
         // TODO: A more state-machine like modeling (hop, slope, states, low-edge).
         boolean allowHop = true;
         boolean double_bunny = false;
-        boolean headBangBunny = false;
         boolean toOnGroundHeadObstr = false;
         final double hDistance = thisMove.hDistance;
         final double yDistance = thisMove.yDistance;
@@ -2107,11 +2106,8 @@ public class SurvivalFly extends Check {
         final double lastBaseSpeed = lastMove.hAllowedDistanceBase;
         final double speedAmplifier = mcAccess.getHandle().getFasterMovementAmplifier(player);
         final boolean skipFriction = ((speedAmplifier >= 2.0) && !Double.isInfinite(speedAmplifier));
-        final PlayerMoveData secondPastMove = data.playerMoves.getSecondPastMove();
 
 
-        // TODO: Check which conditions might need resetting at lower speed (!).
-        // Friction phase.
         // (All of this imply that a bunnyhop happened previosly (the delay is set by the bhop model))
         if (lastMove.toIsValid && data.bunnyhopDelay > 0 && hDistance > baseSpeed) {
             allowHop = false; // A bunnyhop has recently happened, do not apply the model yet.
@@ -2126,6 +2122,7 @@ public class SurvivalFly extends Check {
                     tags.add("bunnyslope");
                     hDistanceAboveLimit = 0.0;
                 }
+                // Air bunny friction phase: although it is not a bunnyhop the air friction will be higher than the allowed speed.
                 else if (Magic.isBunnyFrictionPhase(hDistDiff, lastMove.hDistance, hDistanceAboveLimit, hDistance, baseSpeed)) {
                 
                     // TODO: Confine friction by medium ?
@@ -2153,8 +2150,7 @@ public class SurvivalFly extends Check {
                 }
             } 
 
-            // 2x horizontal speed increase detection.
-            // TODO: Confine to increasing set back y ?
+            // 2x horizontal speed increase detection: right after a bunnyhop
             // TODO: Is this one still needed?
             if (!allowHop && hDistance - lastMove.hDistance >= baseSpeed * 0.5 && hopTime == 1) {
                 if (lastMove.yDistance >= -Magic.GRAVITY_MAX / 2.0 && lastMove.yDistance <= 0.0 && yDistance >= 0.4 
@@ -2167,6 +2163,8 @@ public class SurvivalFly extends Check {
             // Allow hop for special cases.
             if (!allowHop && (thisMove.from.onGround || thisMove.touchedGroundWorkaround)) {
 
+                // The player touched the ground so they can bunnyhop again in the next move, but the delay is still
+                // counting down. Allow hopping.
                 // TODO: Better reset delay in this case ?
                 // TODO: Confine further ?
                 if (data.bunnyhopDelay <= 6) {
