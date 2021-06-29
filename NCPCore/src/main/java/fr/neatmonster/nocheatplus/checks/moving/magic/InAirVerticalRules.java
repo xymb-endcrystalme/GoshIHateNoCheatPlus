@@ -595,10 +595,6 @@ public class InAirVerticalRules {
             */
             return true;
         }
-        else if (data.bedLeaveTime + 500 > now && yDistance < 0.45) {
-            // False positives when exiting a bed
-            return true;
-        }
         else if (lastMove.from.inLiquid && lastMove.from.onClimbable) {
             // Ignore moving on a climbable while being in a liquid (handled elsewhere)
             return true;

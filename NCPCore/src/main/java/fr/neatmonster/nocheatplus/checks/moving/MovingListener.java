@@ -312,8 +312,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final IPlayerData pData = DataManager.getPlayerData(player);
         if (!pData.isCheckActive(CheckType.MOVING, player)) return;
         final MovingData data = pData.getGenericInstance(MovingData.class);
-        data.bedLeaveTime = System.currentTimeMillis();
-
+    
         if (pData.isCheckActive(bedLeave.getType(), player) && bedLeave.checkBed(player, pData)) {
 
             final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
@@ -681,7 +680,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             }
             else if (time < data.timeSprinting) data.timeSprinting = 0;
         }
-        else if (time < data.timeSprinting)  data.timeSprinting = 0;
+        else if (time < data.timeSprinting) data.timeSprinting = 0;
 
         // Prepare locations for use.
         // TODO: Block flags might not be needed if neither sf nor passable get checked.
@@ -868,7 +867,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         
         // Recalculate explosion velocity as PlayerVelocityEvent can't handle well on 1.13+
         // TODO: Merge with velocity entries that were added at the same time with this one!
-        if (data.applyexplosionvel) {
+        if (data.shouldApplyExplosionVelocity) {
             data.applyexplosionvel = false;
             double xLastDistance = 0.0; double zLastDistance = 0.0; double yLastDistance = 0.0;
 
@@ -880,8 +879,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             boolean addHorizontalVelocity = true;
             
             // Process the distances after the explosion
-            final double xDistance2 = data.explosionvelX + xLastDistance;
-            final double zDistance2 = data.explosionvelZ + zLastDistance;
+            final double xDistance2 = data.explosionVelAxisX + xLastDistance;
+            final double zDistance2 = data.explosionVelAxisZ + zLastDistance;
             final double hDistance = Math.sqrt(xDistance2*xDistance2 + zDistance2*zDistance2);
 
             // Prevent duplicate entry come from PlayerVelocityEvent
@@ -889,16 +888,23 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 || data.hasQueuedHorVel() && data.useHorizontalVelocity(hDistance) < hDistance
                 || !data.hasAnyHorVel()) {
                 data.getHorizontalVelocityTracker().clear();
+                if (debug) debug(player, "Prevent velocity duplication by removing entries that are smaller than the re-calculated hDistance.");
             } 
             else addHorizontalVelocity = false;
 
-            if (addHorizontalVelocity) data.addVelocity(player, cc, xDistance2, data.explosionvelY + yLastDistance - Magic.GRAVITY_ODD, zDistance2);
-            else data.addVerticalVelocity(new SimpleEntry(data.explosionvelY + yLastDistance - Magic.GRAVITY_ODD, cc.velocityActivationCounter));
+            if (addHorizontalVelocity) {
+                data.addVelocity(player, cc, xDistance2, data.explosionVelAxisY + yLastDistance - Magic.GRAVITY_ODD, zDistance2);
+                if (debug) debug(player, "Fake use of explosion velocity (h/v).");
+            }
+            else {
+                data.addVerticalVelocity(new SimpleEntry(data.explosionVelAxisY + yLastDistance - Magic.GRAVITY_ODD, cc.velocityActivationCounter));
+                if (debug) debug(player, "Fake use vertical explosion velocity only. Horizontal velocity entries bigger than the re-calculated hDistance are present.");
+            }
             
             // Always reset once used
-            data.explosionvelX = 0.0;
-            data.explosionvelY = 0.0;
-            data.explosionvelZ = 0.0;
+            data.explosionVelAxisX = 0.0;
+            data.explosionVelAxisY = 0.0;
+            data.explosionVelAxisZ = 0.0;
         }
 
         // Flying checks.
@@ -910,8 +916,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             // HACK: Add velocity for transitions between creativefly and survivalfly.
             if (lastMove.toIsValid && lastMove.flyCheck == CheckType.MOVING_CREATIVEFLY) { 
 
-                final long tickhaslag = data.delayWorkaround + Math.round(200 / TickTask.getLag(200, true));
-                if (data.delayWorkaround > time || tickhaslag < time) {
+                final long tickHasLag = data.delayWorkaround + Math.round(200 / TickTask.getLag(200, true));
+                if (data.delayWorkaround > time || tickHasLag < time) {
                     workaroundFlyCheckTransition(player, tick, debug, data, cc);
                     data.delayWorkaround = time;
                 }
@@ -923,10 +929,12 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 thisMove.flyCheck = CheckType.MOVING_SURVIVALFLY;
                 newTo = survivalFly.check(player, pFrom, pTo, multiMoveCount, data, cc, pData, tick, time, useBlockChangeTracker);
             }
+
             // Only check NoFall, if not already vetoed.
             if (checkNf) {
                 checkNf = noFall.isEnabled(player, pData);
             }
+
             if (newTo == null) {
                 // Hover.
                 // TODO: Could reset for from-on-ground as well, for not too big moves.
@@ -2074,12 +2082,6 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         data.sfHoverTicks = -1; // Important against concurrent modification exception.
         if (cc.loadChunksOnTeleport) MovingUtil.ensureChunksLoaded(player, to, "teleport", data, cc, pData);
         aux.resetPositionsAndMediumProperties(player, to, data, cc);
-        // TODO: Decide to remove the LiftOffEnvelope thing completely.
-        //        if (TrigUtil.maxDistance(from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ())  <= 12.0) {
-        //            // TODO: Might happen with bigger distances (mainly ender pearl thrown at others).
-        //            // Keep old lift-off envelope.
-        //            data.liftOffEnvelope = oldEnv;
-        //        }
         // Reset stuff.
         Combined.resetYawRate(player, to.getYaw(), System.currentTimeMillis(), true, pData); // TODO: Not sure.
         data.resetTeleported();
@@ -2360,6 +2362,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
         final IPlayerData pData = DataManager.getPlayerData(player);
         final MovingData data = pData.getGenericInstance(MovingData.class);
+        final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
         if (!pData.isCheckActive(CheckType.MOVING, player)) return;
         if (player.isInsideVehicle()) {
             // Ignore vehicles (noFallFallDistance will be inaccurate anyway).
@@ -2387,47 +2390,38 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final double damage = BridgeHealth.getRawDamage(event); // Raw damage.
         // TODO: Account for modifiers.
         if (debug) debug(player, "Damage(FALL/PRE): " + damage + " / mc=" + player.getFallDistance() + " nf=" + data.noFallFallDistance + " yDiff=" + yDiff);
+
         // NoFall bypass checks.
+        // TODO: data.noFallSkipAirCheck is used to skip checking in
+        // general, thus move into that block or not?
+        // TODO: Could consider skipping accumulated fall distance for NoFall in general as well.
         if (!data.noFallSkipAirCheck) {
+            
             // Cheat: let Minecraft gather and deal fall damage.
-            /*
-             * TODO: data.noFallSkipAirCheck is used to skip checking in
-             * general, thus move into that block or not?
-             */
-            // TODO: Could consider skipping accumulated fall distance for NoFall in general as well.
             final float dataDist = Math.max(yDiff, data.noFallFallDistance);
             final double dataDamage = NoFall.getDamage(dataDist);
             if (damage > dataDamage + 0.5 || dataDamage <= 0.0) {
-                // TODO: Also relate past y-distance(s) to the fall distance (mc).
+
                 // Hot fix: allow fall damage in lava.
-                /*
-                 * TODO: Correctly model the half fall distance per in-lava move
-                 * and taking fall damage in lava. Should have a block flag for
-                 * this.
-                 */
+                // TODO: Correctly model the half fall distance per in-lava move and taking fall damage in lava. 
+                // TODO: Also relate past y-distance(s) to the fall distance (mc).
+                // Original issue: https://github.com/NoCheatPlus/Issues/issues/439#issuecomment-299300421
                 final PlayerMoveData firstPastMove = data.playerMoves.getFirstPastMove();
                 if (pLoc.isOnGround() && pLoc.isInLava() && firstPastMove.toIsValid && firstPastMove.yDistance < 0.0) {
-                    /*
-                     * TODO: Confine more lava height vs. past move y-distances.
-                     * Not sure this pays over implementing the halfing thing.
-                     */
-                    /*
-                     * 1. Strictly someone could attempt to accumulate fall
-                     * damage by help of fast place and pickup lava. 2. There
-                     * are other cases not ending up in lava, but having a
-                     * reduced fall distance (then bigger than nofall data).
-                     */
                     if (debug) debug(player, "NoFall/Damage: allow fall damage in lava (hotfix).");
                 } 
-                else if (moveInfo.from.isOnClimbable()) {
-                    // Fix issues when gliding down vines with elytra.
-                    // TODO: Maybe more conditions to check to see if the player was gliding?
-                    // Checking for velocity does not work since sometimes it can be applied after this check runs
-                    if (debug) debug(player, "Ignore fakefall on climbable");
+                // Fix issues when gliding down vines with elytra.
+                // Checking for velocity does not work since sometimes it can be applied after this check runs
+                // TODO: Actually find out why NoFall is running at all when still gliding, rather.
+                else if (moveInfo.from.isOnClimbable() 
+                        && (firstPastMove.modelFlying != null && firstPastMove.modelFlying.getVerticalAscendGliding()
+                        || firstPastMove.elytrafly || thisMove.modelFlying != null && thisMove.modelFlying.getVerticalAscendGliding()
+                        || thisMove.elytrafly)) {
+                    if (debug) debug(player, "Ignore fakefall on climbable on elytra move");
                 }
+                // NOTE: Double violations are possible with the in-air check below.
+                // TODO: Differing sub checks, once cancel action...
                 else if (noFallVL(player, "fakefall", data, cc)) {
-                    // NOTE: Double violations are possible with the in-air check below.
-                    // TODO: Differing sub checks, once cancel action...
                     player.setFallDistance(dataDist);
                     if (dataDamage <= 0.0) {
                         // Cancel the event.
@@ -2444,15 +2438,14 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                     }
                 }
             }
-            // Cheat: set ground to true in-air.
             // Be sure not to lose that block.
             data.noFallFallDistance += 1.0; // TODO: What is this and why is it right here?
             // TODO: Account for liquid too?
+            // Cheat: set ground to true in-air.
+            // Cancel the event and restore fall distance.
+            // NoFall data will not be reset 
             if (!pLoc.isOnGround(1.0, 0.3, 0.1) && !pLoc.isResetCond() && !pLoc.isAboveLadder() && !pLoc.isAboveStairs()) {
-                // Likely: force damage in mid-air by setting on-ground to true.
                 if (noFallVL(player, "fakeground", data, cc) && data.hasSetBack()) {
-                    // Cancel the event and restore fall distance.
-                    // NoFall data will not be reset 
                     allowReset = false;
                 }
             }
@@ -2460,7 +2453,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             // TODO: Why only reset in case of !data.noFallSkipAirCheck?
             // TODO: Also reset other properties.
             // TODO: Also reset in other cases (moved too quickly)?
-            else  data.vDistAcc.clear();
+            else data.vDistAcc.clear();
         }
         aux.returnPlayerMoveInfo(moveInfo);
         // Fall-back check (skip with jump amplifier).

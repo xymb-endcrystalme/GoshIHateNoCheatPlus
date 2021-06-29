@@ -113,17 +113,15 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     /** Used in fly/nofly transitions for velocity. */
     public long           delayWorkaround = 0;
     /** Whether or not the calculated explosion velocity should be applied. */
-    public boolean        applyexplosionvel = false;
+    public boolean        shouldApplyExplosionVelocity = false;
     /** Velocity explosion counter (X). */
-    public double         explosionvelX = 0.0;
+    public double         explosionVelAxisX = 0.0;
     /** Velocity explosion counter (Y). */
-    public double         explosionvelY = 0.0;
+    public double         explosionVelAxisY = 0.0;
     /** Velocity explosion counter (Z). */
-    public double         explosionvelZ = 0.0;
+    public double         explosionVelAxisZ = 0.0;
     /** Last time the player was actually sprinting. */
     public long           timeSprinting = 0;
-    /** Last time the player was sleeping. */
-    public long           bedLeaveTime = 0;
     /** Last time the player was riptiding */
     public long           timeRiptiding = 0;
     /** Last time the player was swimming, currently used for the invMove check. */

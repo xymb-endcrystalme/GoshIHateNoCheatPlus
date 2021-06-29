@@ -213,7 +213,7 @@ public class CreativeFly extends Check {
             && thisMove.modelFlying == lastMove.modelFlying) { // InLiquid check is alread included in MovingConfig.getModelFlying()
 
             final double level = Bridge1_9.getLevitationAmplifier(player) + 1;
-            final double allowY = (lastMove.yDistance + (0.05D * level - lastMove.yDistance) * 0.2D) * 0.98;
+            final double allowY = (lastMove.yDistance + (0.05D * level - lastMove.yDistance) * 0.2D) * Magic.FRICTION_MEDIUM_AIR;
             // TODO: Wrong friction
             if (allowY * 1.001 >= yDistance) resultV = 0.0;
 
@@ -416,7 +416,7 @@ public class CreativeFly extends Check {
         // one time hDistance around 3.01 with friction distance being at or slightly lower than last hDistance (0.51/0.52)
         if (lastMove.toIsValid && model.getScaleRiptidingEffect() 
             && lastMove.hDistance * Magic.FRICTION_MEDIUM_AIR <= lastMove.hDistance
-            && thisMove.hDistance > 3.0 && thisMove.hDistance < 4.1
+            && thisMove.hDistance > 3.0 && thisMove.hDistance < 4.0
             && Bridge1_13.isRiptiding(player) && hDistance > limitH) {
             limitH = Math.max(thisMove.hDistance, limitH);
             tags.add("hfrictriptide");
@@ -467,10 +467,6 @@ public class CreativeFly extends Check {
                     thisMove.bunnyHop = true;
                     resultH = 0.0;
                 }
-                // TODO: Flying and bunnyhop ? <- 8 blocks per second - could be a case.
-                // Try to treat it as a the "bunnyhop" problem. The bunnyhop problem is that landing and immediately jumping
-                // again leads to a player moving almost twice as far in that step.
-                // TODO: Real modeling for that kind of moving pattern (same with sf?).
                 else if (data.bunnyhopDelay <= 0) {
                     resultH = 0.0;
                     tags.add("bunnyhop");
@@ -522,7 +518,8 @@ public class CreativeFly extends Check {
                 tags.add("levitation:" + levitation);
             }
         }
-
+        
+        // TODO: Could remove this since ascending is handled by Sf...
         if (model.getScaleSlowfallingEffect()) {
             
             limitV = Math.max((lastMove.toIsValid ? lastMove.yDistance : 0.0) * Magic.FRICTION_MEDIUM_AIR - Magic.GRAVITY_ODD, 0.0);
