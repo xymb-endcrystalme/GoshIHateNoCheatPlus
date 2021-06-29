@@ -412,8 +412,8 @@ public class LostGround {
                 
                 // TODO: confine by block types ?
                 if (from.isOnGround(0.25, 0.4, 0, 0L) ) {
-                    return applyLostGround(player, from, true, thisMove, data, "ministep", tags);
                     data.sfLowJump = false;
+                    return applyLostGround(player, from, true, thisMove, data, "ministep", tags);
                 }
             }
         }

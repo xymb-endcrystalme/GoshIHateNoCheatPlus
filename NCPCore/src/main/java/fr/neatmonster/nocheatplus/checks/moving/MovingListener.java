@@ -868,7 +868,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         // Recalculate explosion velocity as PlayerVelocityEvent can't handle well on 1.13+
         // TODO: Merge with velocity entries that were added at the same time with this one!
         if (data.shouldApplyExplosionVelocity) {
-            data.applyexplosionvel = false;
+            data.shouldApplyExplosionVelocity = false;
             double xLastDistance = 0.0; double zLastDistance = 0.0; double yLastDistance = 0.0;
 
             if (lastMove.toIsValid) {
