@@ -2108,7 +2108,7 @@ public class SurvivalFly extends Check {
         final boolean skipFriction = ((speedAmplifier >= 2.0) && !Double.isInfinite(speedAmplifier));
 
 
-        // (All of this imply that a bunnyhop happened previosly (the delay is set by the bhop model))
+        // (All of this imply that a bunnyhop happened previously (the delay is set by the bhop model))
         if (lastMove.toIsValid && data.bunnyhopDelay > 0 && hDistance > baseSpeed) {
             allowHop = false; // A bunnyhop has recently happened, do not apply the model yet.
             final int hopTime = bunnyHopMax - data.bunnyhopDelay;
