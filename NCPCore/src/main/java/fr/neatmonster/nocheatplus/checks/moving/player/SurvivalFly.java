@@ -327,7 +327,7 @@ public class SurvivalFly extends Check {
         // Set the tick time for jumping on ice (Will be used to determine the acceleration in setAllowedhDist)
         if (thisMove.from.onIce && !thisMove.to.onIce && !data.sfLowJump
            || (thisMove.headObstructed && thisMove.yDistance > 0.01 && lastMove.from.onIce)) { // Jump with head obstructed
-            data.sfOnIce = 20 + jumpAmplifierTicks; // Ensure that the whole hop period is covered by the ice ticks if a JA is present.
+            data.sfOnIce = (!ServerIsAtLeast1_9 ? 24 : 20) + jumpAmplifierTicks; // Ensure that the whole hop period is covered by the ice ticks if a JA is present.
         }
         else if (data.sfOnIce > 0) data.sfOnIce-- ;
         
@@ -1329,7 +1329,7 @@ public class SurvivalFly extends Check {
             useBaseModifiers = true;
             // Landing phase
             if (!thisMove.from.onGround && thisMove.to.onGround) {
-                data.bunnyhopTick = ServerIsAtLeast1_13 ? 6 : 3;
+                data.bunnyhopTick = ServerIsAtLeast1_13 ? 6 : (thisMove.from.onIce ? 7 : 3);
                 hAllowedDistance = 1.14 * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
                 tags.add("sprintTo");
             }
@@ -2163,8 +2163,8 @@ public class SurvivalFly extends Check {
             // Allow hop for special cases.
             if (!allowHop && (thisMove.from.onGround || thisMove.touchedGroundWorkaround)) {
 
-                // The player touched the ground so they can bunnyhop again in the next move, but the delay is still
-                // counting down. Allow hopping.
+                // The player touched the ground so they can bunnyhop again in the next move
+                // and a bhop hasn't happened (too) recently (delay <= 6), allow hopping.
                 // TODO: Better reset delay in this case ?
                 // TODO: Confine further ?
                 if (data.bunnyhopDelay <= 6) {
@@ -2596,8 +2596,6 @@ public class SurvivalFly extends Check {
             // TODO: Evaluate how data resetting can be done minimal (skip certain things flags)?
             data.clearAccounting();
             data.sfJumpPhase = 0;
-            data.sfOnIce = 0;
-            data.sfBounceTick = 0;
             // Cancelled by other plugin, or no cancel set by configuration.
             return null;
         }

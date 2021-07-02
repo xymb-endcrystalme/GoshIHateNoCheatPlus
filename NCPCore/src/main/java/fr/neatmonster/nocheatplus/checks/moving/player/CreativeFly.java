@@ -863,8 +863,8 @@ public class CreativeFly extends Check {
             if (data.fireworksBoostDuration > 0) allowedElytraHDistance = Math.max(allowedElytraHDistance, 1.8);
 
             // Friction
-            if (hDistance < lastMove.hAllowedDistance * (data.liqtick < 5 ? 1.0 : 0.98)) {
-                allowedElytraHDistance = lastMove.hAllowedDistance * (data.liqtick < 5 ? 1.0 : 0.98);
+            if (hDistance < lastMove.hAllowedDistance * (data.liqtick < 5 ? 1.0 : Magic.FRICTION_MEDIUM_WATER)) {
+                allowedElytraHDistance = lastMove.hAllowedDistance * (data.liqtick < 5 ? 1.0 : Magic.FRICTION_MEDIUM_WATER);
             }
             
             // Finally, trigger a violation

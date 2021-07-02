@@ -59,34 +59,6 @@ public class PlayerLocation extends RichEntityLocation {
     }
 
     /**
-     * Checks if the player is on ice (special handling for players, much legacy
-     * code).
-     * 
-     * @return true, if the player is on ice
-     */
-    public boolean isOnIce() {
-        // TODO: Move fully to entity or bounds, other way of telling sneaking? Might have another on-ice method for boats, though.
-        if (onIce == null) {
-            // TODO: Use a box here too ?
-            // TODO: check if player is really sneaking (refactor from survivalfly to static access in Combined ?)!
-            if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_ICE) == 0) {
-                // TODO: check onGroundMinY !?
-                onIce = false;
-            } else {
-                final Material id;
-                if (player.isSneaking() || player.isBlocking()) {
-                    id = getTypeId(blockX, Location.locToBlock(minY - 0.1D), blockZ);
-                }
-                else {
-                    id = getTypeIdBelow();
-                }
-                onIce = BlockProperties.isIce(id);
-            }
-        }
-        return onIce;
-    }
-
-    /**
      * Sets the player location object. See
      * {@link #set(Location, Player, double)}.
      *
