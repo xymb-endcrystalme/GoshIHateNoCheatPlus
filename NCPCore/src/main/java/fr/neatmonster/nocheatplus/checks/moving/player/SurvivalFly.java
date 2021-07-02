@@ -1329,7 +1329,7 @@ public class SurvivalFly extends Check {
             useBaseModifiers = true;
             // Landing phase
             if (!thisMove.from.onGround && thisMove.to.onGround) {
-                data.bunnyhopTick = ServerIsAtLeast1_13 ? 6 : (thisMove.from.onIce ? 7 : 3);
+                data.bunnyhopTick = ServerIsAtLeast1_13 ? 6 : (thisMove.to.onIce ? 7 : 3);
                 hAllowedDistance = 1.14 * thisMove.walkSpeed * cc.survivalFlySprintingSpeed / 100D;
                 tags.add("sprintTo");
             }
