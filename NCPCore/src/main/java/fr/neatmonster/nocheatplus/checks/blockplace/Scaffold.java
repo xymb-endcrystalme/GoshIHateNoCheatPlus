@@ -37,7 +37,6 @@ import fr.neatmonster.nocheatplus.utilities.StringUtil;
  * If the cheat does not flag any other sub-checks, the time sub-check
  * Should enforce realistic time between block placements.
  */
-
 public class Scaffold extends Check {
 
     final static double MAX_ANGLE = Math.toRadians(90);
@@ -120,7 +119,7 @@ public class Scaffold extends Check {
         // Sprint check - Prevent players from sprinting while placing blocks below them
         long diff = data.currentTick - data.sprintTime;
         if (cc.scaffoldSprint && Math.abs(player.getLocation().getPitch()) > 70
-            && diff < 8 && yDistance < 0.1 && jumpPhase < 4) { // TODO: replace with mData.sfJumpPhase?
+            && diff < 8 && yDistance < 0.1 && jumpPhase < 4) { 
 
             cancel = violation("Sprint", 1, player, data, pData);
         }

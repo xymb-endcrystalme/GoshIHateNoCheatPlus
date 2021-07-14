@@ -54,9 +54,8 @@ import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 
 
 /**
- * A check designed for people that are exposed to particular effects, are flying
- * or gliding. The complement to the "SurvivalFly" check, which is for people that
- * aren't flying/gliding/exposed to any special effect, and therefore have tighter rules to obey.
+ * A check designed for people that are exposed to particular effects, flying
+ * or gliding. The complement to the "SurvivalFly" check, which is for ordinary gameplay.
  */
 public class CreativeFly extends Check {
 
@@ -277,7 +276,9 @@ public class CreativeFly extends Check {
                 vd.setParameter(ParameterName.LOCATION_FROM, String.format(Locale.US, "%.2f, %.2f, %.2f", from.getX(), from.getY(), from.getZ()));
                 vd.setParameter(ParameterName.LOCATION_TO, String.format(Locale.US, "%.2f, %.2f, %.2f", to.getX(), to.getY(), to.getZ()));
                 vd.setParameter(ParameterName.DISTANCE, String.format(Locale.US, "%.2f", TrigUtil.distance(from,  to)));
-                vd.setParameter(ParameterName.MODEL, model == null ? "no model" : model.getId().toString());
+                if (model != null) {
+                    vd.setParameter(ParameterName.MODEL, model.getId().toString());
+                }
                 if (!tags.isEmpty()) {
                     vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
                 }
@@ -408,7 +409,7 @@ public class CreativeFly extends Check {
         if (lastMove.toIsValid && model.getScaleLevitationEffect() 
             && (lastMove.hDistance + 0.005) * Magic.FRICTION_MEDIUM_AIR < lastMove.hDistance) {
             limitH = Math.max((lastMove.hDistance + 0.005) * Magic.FRICTION_MEDIUM_AIR, limitH);
-            tags.add("hfrictlevit");
+            tags.add("hfrict_lev");
         }
         
         // Special friction mechanic for riptiding 
@@ -418,8 +419,8 @@ public class CreativeFly extends Check {
             && lastMove.hDistance * Magic.FRICTION_MEDIUM_AIR <= lastMove.hDistance
             && thisMove.hDistance > 3.0 && thisMove.hDistance < 4.0
             && Bridge1_13.isRiptiding(player) && hDistance > limitH) {
-            limitH = Math.max(thisMove.hDistance, limitH);
-            tags.add("hfrictriptide");
+            limitH = Math.max((lastMove.hDistance + 3.0974) * Magic.FRICTION_MEDIUM_AIR, limitH);
+            tags.add("hfrict_ript");
         }
 
         // Ordinary friction
@@ -558,7 +559,7 @@ public class CreativeFly extends Check {
         // Note that the ExtremeMove subcheck is skipped during such phases.
         if (Bridge1_13.isRiptiding(from.getPlayer()) && (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0
             && yDistance > limitV && data.sfJumpPhase <= 2
-            && yDistance > 0.0 && yDistance < 8.0  // Cap the distance: observed maximum speed -> 5.536355205897621 (+5.993) / 5.0
+            && yDistance > 0.0 && yDistance < 7.5  // Cap the distance: observed maximum speed -> 5.536355205897621 (+5.993) / 5.0
             && thisMove.from.onGround && !thisMove.to.onGround) {
             data.addVerticalVelocity(new SimpleEntry(yDistance, 4));
             if (debug) debug(from.getPlayer(), "Riptide bounce: add velocity");
@@ -939,7 +940,7 @@ public class CreativeFly extends Check {
 
         // Elytra jump, let hackElytraH hande it
         if (yDistance > 0.0 && yDistance < 0.42 && thisMove.touchedGround) {
-            tags.add("e_lostground");
+            tags.add("e_jump");
             return yDistance;
         } 
         // Ignore slowfalling here
@@ -1036,6 +1037,8 @@ public class CreativeFly extends Check {
                                   final MovingData data, final MovingConfig cc) {
         double limitV = 0.0;
         double resultV = 0.0;
+        final boolean multiProtocolPluginPresent = (from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) != 0;
+        final double descendSpeed = (!lastMove.from.inBerryBush && thisMove.to.inBerryBush || thisMove.touchedGroundWorkaround) ? yDistance : Magic.bushSpeedDescend;  
 
         if (model.getScaleSlowfallingEffect() && lastMove.modelFlying == thisMove.modelFlying 
             && data.liqtick <= 0 && !from.isOnClimbable() && !to.isOnClimbable()) {
@@ -1045,6 +1048,7 @@ public class CreativeFly extends Check {
                 final PlayerMoveData pastmove2 = data.playerMoves.getSecondPastMove();
                 final double allowY = lastMove.toIsValid ? lastMove.yDistance : 0.0;
                 if (isCollideWithHB(from)) limitV = -0.05; 
+                else if (from.isInBerryBush()) limitV = multiProtocolPluginPresent ? yDistance : descendSpeed;
                 else limitV = allowY * Magic.FRICTION_MEDIUM_AIR - 0.0097;// -0.0098
                 if (!pastmove2.toIsValid && allowY < -0.035) limitV = -0.035;
                 if (limitV != 0.0 && yDistance > limitV) resultV = Math.abs(limitV);

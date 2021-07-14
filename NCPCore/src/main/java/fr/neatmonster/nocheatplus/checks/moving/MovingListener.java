@@ -805,7 +805,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                     // Prepare bounce: The center of the player must be above the block.
                     // Common pre-conditions.
                     // TODO: Check if really leads to calling the method for pistons (checkBounceEnvelope vs. push).
-                    if (!survivalFly.isReallySneaking(player) && checkBounceEnvelope(player, pFrom, pTo, data, cc, pData)) {
+                    if (!survivalFly.isReallySneaking(player) && Magic.checkBounceEnvelope(player, pFrom, pTo, data, cc, pData)) {
                         // TODO: Check other side conditions (fluids, web, max. distance to the block top (!))
                         // Classic static bounce.
                         if ((pTo.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0L) {
@@ -888,7 +888,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 || data.hasQueuedHorVel() && data.useHorizontalVelocity(hDistance) < hDistance
                 || !data.hasAnyHorVel()) {
                 data.getHorizontalVelocityTracker().clear();
-                if (debug) debug(player, "Prevent velocity duplication by removing entries that are smaller than the re-calculated hDistance.");
+                if (debug) debug(player, "Prevent velocity duplication by removing entries that are smaller than the re-calculated hDistance (explosion).");
             } 
             else addHorizontalVelocity = false;
 
@@ -898,7 +898,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             }
             else {
                 data.addVerticalVelocity(new SimpleEntry(data.explosionVelAxisY + yLastDistance - Magic.GRAVITY_ODD, cc.velocityActivationCounter));
-                if (debug) debug(player, "Fake use vertical explosion velocity only. Horizontal velocity entries bigger than the re-calculated hDistance are present.");
+                if (debug) debug(player, "Fake use of vertical explosion velocity only. Horizontal velocity entries bigger than the re-calculated hDistance are present.");
             }
             
             // Always reset once used
@@ -1382,41 +1382,6 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             return true;
         }
         return false;
-    }
-
-    /**
-     * Pre conditions: A slime block is underneath and the player isn't really
-     * sneaking. This does not account for pistons pushing (slime) blocks.<br>
-     * 
-     * @param player
-     * @param from
-     * @param to
-     * @param data
-     * @param cc
-     * @return
-     */
-    private boolean checkBounceEnvelope(final Player player, final PlayerLocation from, final PlayerLocation to, 
-                                        final MovingData data, final MovingConfig cc, final IPlayerData pData) {
-        
-        // Workaround/fix for bed bouncing. getBlockY() would return an int, while a bed's maxY is 0.5625, causing this method to always return false.
-        // A better way to do this would to get the maxY through another method, just can't seem to find it :/
-        // Collect block flags at the current location as they may not already be there, and cause NullPointer errors.
-        to.collectBlockFlags();
-        double blockY = ((to.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0) && ((to.getY() + 0.4375) % 1 == 0) ? to.getY() : to.getBlockY();
-        return 
-                // 0: Normal envelope (forestall NoFall).
-                (
-                        // 1: Ordinary.
-                        to.getY() - blockY <= Math.max(cc.yOnGround, cc.noFallyOnGround)
-                        // 1: With carpet.
-                        || BlockProperties.isCarpet(to.getTypeId()) && to.getY() - to.getBlockY() <= 0.9
-                        )
-                && MovingUtil.getRealisticFallDistance(player, from.getY(), to.getY(), data, pData) > 1.0
-                // 0: Within wobble-distance.
-                || to.getY() - blockY < 0.286 && to.getY() - from.getY() > -0.9
-                && to.getY() - from.getY() < -Magic.GRAVITY_MIN
-                && !to.isOnGround()
-                ;
     }
 
     /**
@@ -3042,26 +3007,26 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             // Note: the block flags are for normal on-ground checking, not with yOnGrond set to 0.5.
             from.collectBlockFlags(maxYOnGround);
             if (from.getBlockFlags() != 0) {
-                builder.append("\nfrom flags: " + StringUtil.join(BlockProperties.getFlagNames(from.getBlockFlags()), "+"));
+                builder.append("\nFrom flags: " + StringUtil.join(BlockProperties.getFlagNames(from.getBlockFlags()), "+"));
             }
             if (!BlockProperties.isAir(from.getTypeId())) {
-                DebugUtil.addBlockInfo(builder, from, "\nfrom");
+                DebugUtil.addBlockInfo(builder, from, "\nFrom");
             }
             if (!BlockProperties.isAir(from.getTypeIdBelow())) {
-                DebugUtil.addBlockBelowInfo(builder, from, "\nfrom");
+                DebugUtil.addBlockBelowInfo(builder, from, "\nFrom");
             }
             if (!from.isOnGround() && from.isOnGround(0.5)) {
                 builder.append(" (ground within 0.5)");
             }
             to.collectBlockFlags(maxYOnGround);
             if (to.getBlockFlags() != 0) {
-                builder.append("\nto flags: " + StringUtil.join(BlockProperties.getFlagNames(to.getBlockFlags()), "+"));
+                builder.append("\nTo flags: " + StringUtil.join(BlockProperties.getFlagNames(to.getBlockFlags()), "+"));
             }
             if (!BlockProperties.isAir(to.getTypeId())) {
-                DebugUtil.addBlockInfo(builder, to, "\nto");
+                DebugUtil.addBlockInfo(builder, to, "\nTo");
             }
             if (!BlockProperties.isAir(to.getTypeIdBelow())) {
-                DebugUtil.addBlockBelowInfo(builder, to, "\nto");
+                DebugUtil.addBlockBelowInfo(builder, to, "\nTo");
             }
             if (!to.isOnGround() && to.isOnGround(0.5)) {
                 builder.append(" (ground within 0.5)");

@@ -14,9 +14,19 @@
  */
 package fr.neatmonster.nocheatplus.checks.moving.magic;
 
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
+import fr.neatmonster.nocheatplus.players.IPlayerData;
+import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
+import fr.neatmonster.nocheatplus.checks.moving.util.MovingUtil;
+import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
 
 /**
  * Keeping some of the magic confined in here.
@@ -66,12 +76,6 @@ public class Magic {
     public static final double modDolphinsGrace     = 0.9945D / WALK_SPEED; // TODO: Adjust value to be more stricter and closer to actual movement speed, and use different value from in water vs above water
     public static final double[] modSwim            = new double[] {0.115D / WALK_SPEED, 0.044D / WALK_SPEED, 0.3D / WALK_SPEED}; // 0.044D for horizontal, 0.3 for vertical swimming
     public static final double modDownStream        = 0.19D / (WALK_SPEED * modSwim[0]);
-    public static final double[] modRiptide         = new double[] {
-            1.0,
-            4.6, 
-            7.0, 
-            9.9
-    };
     public static final double[] modDepthStrider    = new double[] {
             1.0,
             0.1645 / modSwim[0] / WALK_SPEED,
@@ -198,9 +202,9 @@ public class Magic {
     }
     
     /**
-     * Test if the player is in a bunnyhop (air) friction phase.  
-     * (not regular friction mechanics)
-     * Call if the player is in a bunnyhop delay phase and the current speed is higher than allowed.
+     *
+     * Test for the specific air friction that applies after the player has perfomed a bunnyhop.
+     * Call if the player is in a bunnyhop delay phase and the distance is higher than allowed.
      *
      * @param hDistDiff 
      *           Difference from last to current hDistance (Last must be greater)
@@ -215,12 +219,49 @@ public class Magic {
     public static boolean isBunnyFrictionPhase(final double hDistDiff, final double lastHDistance, final double hDistanceAboveLimit, 
                                                final double currentHDistance, final double currentAllowedBaseSpeed) {
 
+        // TODO: Conditions may be too loose as of now. Could be more strict.
         if (currentHDistance > lastHDistance) {
             return false;
         }
         return  hDistDiff >= lastHDistance / bunnyDivFriction 
                 || hDistDiff >= hDistanceAboveLimit / 33.3 
                 || hDistDiff >= (currentHDistance - currentAllowedBaseSpeed) * (1.0 - FRICTION_MEDIUM_AIR);
+    }
+
+    /**
+     * Pre conditions: A slime block is underneath and the player isn't really
+     * sneaking. This does not account for pistons pushing (slime) blocks.<br>
+     * 
+     * @param player
+     * @param from
+     * @param to
+     * @param data
+     * @param cc
+     * @return
+     */
+    public static boolean checkBounceEnvelope(final Player player, final PlayerLocation from, final PlayerLocation to, 
+                                              final MovingData data, final MovingConfig cc, final IPlayerData pData) {
+        
+        // Workaround/fix for bed bouncing. getBlockY() would return an int, while a bed's maxY is 0.5625, causing this method to always return false.
+        // A better way to do this would to get the maxY through another method, just can't seem to find it :/
+        // Collect block flags at the current location as they may not already be there, and cause NullPointer errors.
+        to.collectBlockFlags();
+        double blockY = ((to.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0) 
+                        && ((to.getY() + 0.4375) % 1 == 0) ? to.getY() : to.getBlockY();
+        return 
+                // 0: Normal envelope (forestall NoFall).
+                (
+                    // 1: Ordinary.
+                    to.getY() - blockY <= Math.max(cc.yOnGround, cc.noFallyOnGround)
+                    // 1: With carpet.
+                    || BlockProperties.isCarpet(to.getTypeId()) && to.getY() - to.getBlockY() <= 0.9
+                )
+                && MovingUtil.getRealisticFallDistance(player, from.getY(), to.getY(), data, pData) > 1.0
+                // 0: Within wobble-distance.
+                || to.getY() - blockY < 0.286 && to.getY() - from.getY() > -0.9
+                && to.getY() - from.getY() < -Magic.GRAVITY_MIN
+                && !to.isOnGround()
+                ;
     }
 
     /**
@@ -256,6 +297,7 @@ public class Magic {
                 && excludeStaticSpeed(thisMove) && excludeStaticSpeed(lastMove)
                 ;
     }
+
     /**
      * Fully in-air move.
      * 

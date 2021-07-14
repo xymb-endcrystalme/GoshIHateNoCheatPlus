@@ -854,7 +854,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         removeInvalidVelocity(tick  - cc.velocityActivationTicks);
 
         if (pData.isDebugActive(CheckType.MOVING)) {
-            CheckUtils.debug(player, CheckType.MOVING, "New velocity: " + vx + ", " + vy + ", " + vz);
+            CheckUtils.debug(player, CheckType.MOVING, " New velocity: " + vx + ", " + vy + ", " + vz);
         }
 
         // Always add vertical velocity.
@@ -1032,11 +1032,11 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      */
     public void addHorizontalVelocity(final StringBuilder builder) {
         if (horVel.hasActive()) {
-            builder.append("\n" + " horizontal velocity (active):");
+            builder.append("\n" + " Horizontal velocity (active):");
             horVel.addActive(builder);
         }
         if (horVel.hasQueued()) {
-            builder.append("\n" + " horizontal velocity (queued):");
+            builder.append("\n" + " Horizontal velocity (queued):");
             horVel.addQueued(builder);
         }
     }
@@ -1081,7 +1081,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      */
     public void addVerticalVelocity(final StringBuilder builder) {
         if (verVel.hasQueued()) {
-            builder.append("\n" + " vertical velocity (queued):");
+            builder.append("\n" + " Vertical velocity (queued):");
             verVel.addQueued(builder);
         }
     }
