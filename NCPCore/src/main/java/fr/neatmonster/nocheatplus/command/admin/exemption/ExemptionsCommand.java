@@ -22,6 +22,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.ChatColor;
 
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.command.BaseCommand;
@@ -37,9 +38,26 @@ public class ExemptionsCommand extends BaseCommand {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command,
-            String label, String[] args) {
-        if (args.length != 2) return false;
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+
+        final String c1, c2, c3, c4, c5, c6, c7;
+        if (sender instanceof Player) {
+            c1 = ChatColor.GRAY.toString();
+            c2 = ChatColor.BOLD.toString();
+            c3 = ChatColor.RED.toString();
+            c4 = ChatColor.ITALIC.toString();
+            c5 = ChatColor.GOLD.toString();
+            c6 = ChatColor.WHITE.toString();
+            c7 = ChatColor.YELLOW.toString();
+        } else {
+            c1 = c2 = c3 = c4 = c5 = c6 = c7 = "";
+        }
+
+        if (args.length != 2) {
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Please specify a player.");
+            return true;
+        } 
         String playerName = args[1].trim();
         Player player = DataManager.getPlayer(playerName);
         UUID id;
@@ -51,7 +69,7 @@ public class ExemptionsCommand extends BaseCommand {
         }
         final List<String> entries = new LinkedList<String>();
         if (id == null) {
-            sender.sendMessage(TAG + "Not online nor a UUID: " + playerName);
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Not online nor a UUID: " + c3 +""+ playerName + c1 + " .");
             return true;
         } else {
             for (CheckType type : CheckType.values()){
@@ -61,11 +79,11 @@ public class ExemptionsCommand extends BaseCommand {
             }
         }
         if (entries.isEmpty()) {
-            sender.sendMessage(TAG + "No exemption entries available for " + playerName +" .");
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "No exemption entries available for " + c3 +""+ playerName + c1 + " .");
         }
         else {
             // TODO: Compress entries ?
-            sender.sendMessage(TAG + "Exemptions for " + playerName + ": " + StringUtil.join(entries, ", "));
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Exemptions for " + c3 +""+  playerName + c1 + ": " + c3 +""+ StringUtil.join(entries, ", "));
         }
         return true;
     }

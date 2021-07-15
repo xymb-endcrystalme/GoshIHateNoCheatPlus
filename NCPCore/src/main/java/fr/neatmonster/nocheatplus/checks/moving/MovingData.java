@@ -113,17 +113,15 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     /** Used in fly/nofly transitions for velocity. */
     public long           delayWorkaround = 0;
     /** Whether or not the calculated explosion velocity should be applied. */
-    public boolean        applyexplosionvel = false;
+    public boolean        shouldApplyExplosionVelocity = false;
     /** Velocity explosion counter (X). */
-    public double         explosionvelX = 0.0;
+    public double         explosionVelAxisX = 0.0;
     /** Velocity explosion counter (Y). */
-    public double         explosionvelY = 0.0;
+    public double         explosionVelAxisY = 0.0;
     /** Velocity explosion counter (Z). */
-    public double         explosionvelZ = 0.0;
+    public double         explosionVelAxisZ = 0.0;
     /** Last time the player was actually sprinting. */
     public long           timeSprinting = 0;
-    /** Last time the player was sleeping. */
-    public long           bedLeaveTime = 0;
     /** Last time the player was riptiding */
     public long           timeRiptiding = 0;
     /** Last time the player was swimming, currently used for the invMove check. */
@@ -135,7 +133,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     /** Multiplier at the last time sprinting. */
     public double         multSprinting = 1.30000002; 
     /** Compatibility entry for bouncing of slime blocks and the like. */
-    public SimpleEntry verticalBounce = null;
+    public SimpleEntry    verticalBounce = null;
     /** Last used block change id (BlockChangeTracker). */
     public final BlockChangeReference blockChangeRef = new BlockChangeReference();
     /** Moving half on 15/16 height block and half on water. Set in Survivalfly.check */
@@ -275,6 +273,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      */
     public int          sfHoverLoginTicks = 0;
     public int          sfOnIce = 0; // TODO: Replace by allowed speed + friction.
+    public int          sfBounceTick = 0;
     /** Fake in air flag: set with any violation, reset once on ground. */
     public boolean       sfVLInAir = false;
 
@@ -378,6 +377,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         bunnyhopDelay = 0;
         sfJumpPhase = 0;
         jumpAmplifier = 0;
+        sfOnIce = 0;
+        sfBounceTick = 0;
         setBack = null;
         sfZeroVdistRepeat = 0;
         clearAccounting();
@@ -393,6 +394,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         lastFrictionHorizontal = lastFrictionVertical = 0.0;
         verticalBounce = null;
         blockChangeRef.valid = false;
+        // More resets? (bunnyhopTick, liqtick...)
     }
 
     /**
@@ -466,12 +468,22 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
             liftOffEnvelope = LiftOffEnvelope.NO_JUMP;
             nextFrictionHorizontal = nextFrictionVertical = 0.0;
         }
+        // Actually, here some friction may apply (Vertical)...
+        else if (loc.isInBerryBush()) {
+            liftOffEnvelope = LiftOffEnvelope.BERRY_JUMP;
+            nextFrictionHorizontal = nextFrictionVertical = 0.0;
+        }
+        else if (loc.isOnHoneyBlock()) {
+            liftOffEnvelope = LiftOffEnvelope.STICKY_JUMP;
+            nextFrictionHorizontal = nextFrictionVertical = 0.0;
+        }
         else if (loc.isInLiquid()) {
             // TODO: Distinguish strong limit.
             liftOffEnvelope = LiftOffEnvelope.LIMIT_LIQUID;
             if (loc.isInLava()) {
                 nextFrictionHorizontal = nextFrictionVertical = Magic.FRICTION_MEDIUM_LAVA;
-            } else {
+            } 
+            else {
                 nextFrictionHorizontal = nextFrictionVertical = Magic.FRICTION_MEDIUM_WATER;
             }
         }
@@ -842,7 +854,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         removeInvalidVelocity(tick  - cc.velocityActivationTicks);
 
         if (pData.isDebugActive(CheckType.MOVING)) {
-            CheckUtils.debug(player, CheckType.MOVING, "New velocity: " + vx + ", " + vy + ", " + vz);
+            CheckUtils.debug(player, CheckType.MOVING, " New velocity: " + vx + ", " + vy + ", " + vz);
         }
 
         // Always add vertical velocity.
@@ -1020,11 +1032,11 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      */
     public void addHorizontalVelocity(final StringBuilder builder) {
         if (horVel.hasActive()) {
-            builder.append("\n" + " horizontal velocity (active):");
+            builder.append("\n" + " Horizontal velocity (active):");
             horVel.addActive(builder);
         }
         if (horVel.hasQueued()) {
-            builder.append("\n" + " horizontal velocity (queued):");
+            builder.append("\n" + " Horizontal velocity (queued):");
             horVel.addQueued(builder);
         }
     }
@@ -1069,7 +1081,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      */
     public void addVerticalVelocity(final StringBuilder builder) {
         if (verVel.hasQueued()) {
-            builder.append("\n" + " vertical velocity (queued):");
+            builder.append("\n" + " Vertical velocity (queued):");
             verVel.addQueued(builder);
         }
     }

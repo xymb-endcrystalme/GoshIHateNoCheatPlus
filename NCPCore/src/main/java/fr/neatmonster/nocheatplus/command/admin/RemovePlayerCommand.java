@@ -21,6 +21,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.ChatColor;
 
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationHistory;
@@ -40,17 +41,36 @@ public class RemovePlayerCommand extends BaseCommand {
 
     @SuppressWarnings("deprecation")
     @Override
-    public boolean onCommand(CommandSender sender, Command command,
-            String label, String[] args) {
-        if (args.length < 2 || args.length > 3) return false;
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        final String c1, c2, c3, c5, c6;
+        if (sender instanceof Player) {
+            c1 = ChatColor.GRAY.toString();
+            c2 = ChatColor.BOLD.toString();
+            c3 = ChatColor.RED.toString();
+            c5 = ChatColor.GOLD.toString();
+            c6 = ChatColor.WHITE.toString();
+        } else {
+            c1 = c2 = c3 = c5 = c6 = "";
+        }
+
+        if (args.length < 2) {
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Please specify a player's data to remove.");
+            return true;
+        }
+        else if (args.length > 3) {
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Too many arguments. Command usage: /ncp removeplayer (playername) (checktype).");
+            return true;
+        }
         String playerName = args[1];
         final CheckType checkType;
+
         if (args.length == 3){
             try{
                 checkType = CheckType.valueOf(args[2].toUpperCase().replace('-', '_').replace('.', '_'));
             } catch (Exception e){
-                sender.sendMessage(TAG + "Could not interpret: " + args[2]);
-                sender.sendMessage(TAG + "Check type should be one of: " + StringUtil.join(Arrays.asList(CheckType.values()), " | "));
+                sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Could not interpret: " + args[2]);
+                sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Check type should be one of: " + StringUtil.join(Arrays.asList(CheckType.values()), c6 + ", " + c3));
                 return true;
             }
         }
@@ -58,7 +78,7 @@ public class RemovePlayerCommand extends BaseCommand {
 
         if (playerName.equals("*")){
             DataManager.clearData(checkType);
-            sender.sendMessage(TAG + "Removed all data and history: " + checkType);
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Removed all data and history: " + c3 + checkType);
             return true;
         }
 
@@ -84,10 +104,10 @@ public class RemovePlayerCommand extends BaseCommand {
         }
 
         if (somethingFound){
-            sender.sendMessage(TAG + "Issued history and data removal (" + checkType + "): " + playerName);
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Issued history and data removal (" + c3 + checkType + c1 +"): " + c3 + playerName + c1);
         }
         else
-            sender.sendMessage(TAG + "Nothing found (" + checkType + "): " + playerName + " (spelled correctly?)");
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Nothing found (" + c3 + checkType + c1 +"): " + c3 + playerName + c1 + " (spelled correctly?)");
         return true;
     }
 

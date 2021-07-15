@@ -84,10 +84,10 @@ public class Fight extends BaseAdapter{
         if (!pData.isCheckActive(CheckType.MOVING, player)) return;
         final MovingData data = pData.getGenericInstance(MovingData.class);
         // Process velocity.
-        data.applyexplosionvel = true;
-        data.explosionvelX += velX;
-        data.explosionvelY += velY;
-        data.explosionvelZ += velZ;
+        data.shouldApplyExplosionVelocity = true;
+        data.explosionVelAxisX += velX;
+        data.explosionVelAxisY += velY;
+        data.explosionVelAxisZ+= velZ;
     }
 
     //public void handleAnmationPacket(final PacketEvent event) {

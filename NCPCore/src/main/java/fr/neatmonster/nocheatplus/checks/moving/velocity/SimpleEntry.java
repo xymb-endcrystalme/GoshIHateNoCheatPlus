@@ -64,7 +64,7 @@ public class SimpleEntry {
     }
 
     public String toString() {
-        return "SimpleEntry(tick=" + tick + " value=" + value + " flags=" + flags + " activate=" + actCount + "/" + initialActCount + ")";
+        return " SimpleEntry(tick=" + tick + " value=" + value + " flags=" + flags + " activate=" + actCount + "/" + initialActCount + ")";
     }
 
 }

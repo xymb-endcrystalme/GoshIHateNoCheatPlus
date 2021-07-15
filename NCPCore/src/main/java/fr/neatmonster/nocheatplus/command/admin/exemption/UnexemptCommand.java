@@ -22,6 +22,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.ChatColor;
 
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.command.BaseCommand;
@@ -38,18 +39,38 @@ public class UnexemptCommand extends BaseCommand {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command,
-            String label, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        final String c1, c2, c3, c4, c5, c6, c7;
+        if (sender instanceof Player) {
+            c1 = ChatColor.GRAY.toString();
+            c2 = ChatColor.BOLD.toString();
+            c3 = ChatColor.RED.toString();
+            c4 = ChatColor.ITALIC.toString();
+            c5 = ChatColor.GOLD.toString();
+            c6 = ChatColor.WHITE.toString();
+            c7 = ChatColor.YELLOW.toString();
+        } else {
+            c1 = c2 = c3 = c4 = c5 = c6 = c7 = "";
+        }
+
         // TODO: Reduce copy and paste by introducing some super class.
-        if (args.length < 2 || args.length > 3) return false;
+        if (args.length < 2) {
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Please specify a player to unexempt.");
+            return true;
+        }
+        else if (args.length > 3) {
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Too many arguments. Command usage: /ncp unexempt (playername) (checktype).");
+            return true;
+        }
         String playerName = args[1];
         final CheckType checkType;
         if (args.length == 3){
             try{
                 checkType = CheckType.valueOf(args[2].toUpperCase().replace('-', '_').replace('.', '_'));
             } catch (Exception e){
-                sender.sendMessage(TAG + "Could not interpret: " + args[2]);
-                sender.sendMessage(TAG + "Check type should be one of: " + StringUtil.join(Arrays.asList(CheckType.values()), " | "));
+                sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Could not interpret: " + c3 +""+ args[2]);
+                sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Check type should be one of: " + c3 +""+ StringUtil.join(Arrays.asList(CheckType.values()), c6 + ", " + c3));
                 return true;
             }
         }
@@ -58,7 +79,7 @@ public class UnexemptCommand extends BaseCommand {
             // Unexempt all.
             // TODO: might care to find players only ?
             NCPExemptionManager.clear();
-            sender.sendMessage(TAG + "Removed exemptions for all players for checks: " + checkType);
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Removed exemptions for all players for checks: " + c3 +""+ checkType);
             return true;
         }
         // Find player.
@@ -71,10 +92,10 @@ public class UnexemptCommand extends BaseCommand {
             id = DataManager.getUUID(playerName);
         }
         if (id == null) {
-            sender.sendMessage(TAG + "Not an online player nor a UUID: " + playerName);
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Not an online player nor a UUID: " + c3 +""+ playerName);
         } else {
             NCPExemptionManager.unexempt(id, checkType);
-            sender.sendMessage(TAG + "Remove exemptions for " + playerName + " for checks: " + checkType);
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Remove exemptions for " + c3 +""+ playerName + c1 + " for checks: " + c3 +""+ checkType);
         }
         return true;
     }

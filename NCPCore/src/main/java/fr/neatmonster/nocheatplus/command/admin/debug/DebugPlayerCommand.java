@@ -25,6 +25,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.ChatColor;
 
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.command.BaseCommand;
@@ -74,7 +75,7 @@ public class DebugPlayerCommand extends BaseCommand {
 
     public DebugPlayerCommand(JavaPlugin plugin) {
         super(plugin, "player", null);
-        usage = "/ncp debug player ... online player name or UUID, (yes|no|default)[:CheckType1[:CheckType2...]] to set the default behavior - mix with player names/ids.";
+        usage = TAG + "/ncp debug player (playername/UUID) (yes|no|default)[:CheckType[:Check]]";
     }
 
     @Override
@@ -97,6 +98,24 @@ public class DebugPlayerCommand extends BaseCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
+
+        final String c1, c2, c3, c4, c5, c6, c7;
+        if (sender instanceof Player) {
+            c1 = ChatColor.GRAY.toString();
+            c2 = ChatColor.BOLD.toString();
+            c3 = ChatColor.RED.toString();
+            c4 = ChatColor.ITALIC.toString();
+            c5 = ChatColor.GOLD.toString();
+            c6 = ChatColor.WHITE.toString();
+            c7 = ChatColor.YELLOW.toString();
+        } else {
+            c1 = c2 = c3 = c4 = c5 = c6 = c7 = "";
+        }
+
+        if (args.length <= 2) {
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Bad setup. Command usage: /ncp debug player (playername) yes/no:(checktype).");
+            return true;
+        }
         // TODO: Wild cards (all players)?
         // TODO: (Allow to specify OverrideType ?)
 
@@ -111,7 +130,7 @@ public class DebugPlayerCommand extends BaseCommand {
             else {
                 UUID id = IdUtil.UUIDFromStringSafe(input);
                 if (id == null) {
-                    sender.sendMessage("Bad name or UUID: " + input);
+                    sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Bad name or UUID: " + c3 + input);
                     return true;
                 }
                 else {
@@ -119,19 +138,17 @@ public class DebugPlayerCommand extends BaseCommand {
                 }
             }
             if (player == null) {
-                sender.sendMessage("Not online: " + input);
+                sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Not online: " + c3 + input);
                 return true;
             }
-        } else if (args.length <= 2) {
-            sender.sendMessage("Bad setup!");
-            return true;
         }
+        
 
         if (args.length > 3) {
             String input = args[3];
             entry = DebugEntry.parseEntry(input);
             if (entry == null) {
-                sender.sendMessage("Bad setup: " + input);
+                sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Bad setup: " + c3 + input);
                 // Can't continue.
                 return true;
             }
@@ -152,11 +169,10 @@ public class DebugPlayerCommand extends BaseCommand {
                 data.resetDebug(checkType);
             }
             else {
-                data.overrideDebug(checkType, entry.active, 
-                        OverrideType.CUSTOM, true);
+                data.overrideDebug(checkType, entry.active, OverrideType.CUSTOM, true);
             }
         }
-        sender.sendMessage("Set debug = " + entry.active + " for player " + player.getName() + " for checks: " + StringUtil.join(checkTypes, ","));
+        sender.sendMessage(TAG + "Set debug: " +c3+ entry.active +c1+ " for player " + c3 + player.getName() +c1+ " for checks: " +c3+ StringUtil.join(checkTypes, ","));
         return true;
     }
 

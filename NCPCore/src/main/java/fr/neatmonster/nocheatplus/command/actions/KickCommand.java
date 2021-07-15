@@ -42,7 +42,10 @@ public class KickCommand extends BaseCommand {
             return true;
         }
         // Args contains "kick" as first arg.
-        if (args.length < 2) return false;
+        if (args.length < 2) {
+            StaticLog.logInfo("Please specify a player to kick (Reason is optional). ");
+            return true;
+        }
         final String name = args[1];
         final String reason;
         if (args.length > 2) reason = AbstractCommand.join(args, 2);

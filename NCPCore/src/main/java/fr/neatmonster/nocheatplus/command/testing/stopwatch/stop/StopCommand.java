@@ -25,6 +25,8 @@ import fr.neatmonster.nocheatplus.command.testing.stopwatch.StopWatchRegistry;
 
 public class StopCommand extends AbstractCommand<StopWatchRegistry>{
 
+    public static final String TAG = ChatColor.GRAY +""+ ChatColor.BOLD + "[" + ChatColor.RED + "NC+" + ChatColor.GRAY +""+ ChatColor.BOLD + "] " + ChatColor.GRAY;
+
     public StopCommand(StopWatchRegistry registry) {
         super(registry, "stop", null);
     }
@@ -34,7 +36,7 @@ public class StopCommand extends AbstractCommand<StopWatchRegistry>{
     {
         StopWatch clock = access.getClock((Player) sender);
         if (clock == null || clock.isFinished()) {
-            sender.sendMessage(ChatColor.RED + "No stopwatch active.");
+            sender.sendMessage(TAG + "No stopwatch active.");
         } else {
             clock.stop();
             clock.sendStatus();

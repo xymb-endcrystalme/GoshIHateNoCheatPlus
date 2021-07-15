@@ -52,13 +52,77 @@ public class WRPT extends SimpleWorkaroundRegistry {
     public static final String W_M_SF_SLOPE1 = "m.sf.slope1";
     public static final String W_M_SF_SLOPE2 = "m.sf.slope2";
 
-    // TODO: oddLiquid
+    // oddLiquid
+    public static final String W_M_SF_ODDLIQUID_BADFRICTION = "m.sf.oddliquid.badfriction";
+    public static final String W_M_SF_ODDLIQUID_OUT_OF_LAVA_VEL = "m.sf.oddliquid.ou_of_lava_vel";
+    public static final String W_M_SF_ODDLIQUID_ODDJUMPGAIN = "m.sf.oddliquid.oddjumpgain";
+    public static final String W_M_SF_ODDLIQUID_OUTOFWATER_1 = "m.sf.oddliquid.outofwater_1";
+    public static final String W_M_SF_ODDLIQUID_OUTOFWATER_2 = "m.sf.oddliquid.outofwater_2";
+    public static final String W_M_SF_ODDLIQUID_OUTOFWATER_3 = "m.sf.oddliquid.outofwater_3";
+    public static final String W_M_SF_ODDLIQUID_OUTOFWATER_4 = "m.sf.oddliquid.outofwater_4";
+    public static final String W_M_SF_ODDLIQUID_OUTOFWATER_5_VEL = "m.sf.oddliquid.outofwater_5_vel";
 
-    // TODO: oddGravity
+    // oddGravity
+    public static final String W_M_SF_ODDGRAVITY_1 = "m.sf.oddgravity.1";
+    public static final String W_M_SF_ODDGRAVITY_2 = "m.sf.oddgravity.2";
+    public static final String W_M_SF_ODDGRAVITY_3 = "m.sf.oddgravity.3";
+    public static final String W_M_SF_ODDGRAVITY_4 = "m.sf.oddgravity.4";
+    public static final String W_M_SF_ODDGRAVITY_5 = "m.sf.oddgravity.5";
+    public static final String W_M_SF_ODDGRAVITY_6 = "m.sf.oddgravity.6";
+    public static final String W_M_SF_ODDGRAVITY_7 = "m.sf.oddgravity.7";
+    public static final String W_M_SF_ODDGRAVITY_8 = "m.sf.oddgravity.8";
+    public static final String W_M_SF_ODDGRAVITY_VEL_1 = "m.sf.oddgravity.vel.1";
+    public static final String W_M_SF_ODDGRAVITY_VEL_2 = "m.sf.oddgravity.vel.2";
+    public static final String W_M_SF_ODDGRAVITY_VEL_3 = "m.sf.oddgravity.vel.3";
+    public static final String W_M_SF_ODDGRAVITY_VEL_4 = "m.sf.oddgravity.vel.4";
+    public static final String W_M_SF_ODDGRAVITY_VEL_5 = "m.sf.oddgravity.vel.5";
+    public static final String W_M_SF_ODDGRAVITY_VEL_6 = "m.sf.oddgravity.vel.6";
+    public static final String W_M_SF_ODDGRAVITY_SETBACK = "m.sf.oddgravity.setback";
+    public static final String W_M_SF_ODDGRAVITY_JUMPEFFECT = "m.sf.oddgravity.jumpeffect";
+    public static final String W_M_SF_ODDGRAVITY_NEAR_0 = "m.sf.oddgravity.near.0";
+    public static final String W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_1 = "m.sf.oddgravity.not.normal.envelope.1";
+    public static final String W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_2 = "m.sf.oddgravity.not.normal.envelope.2";
+    public static final String W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_3 = "m.sf.oddgravity.not.normal.envelope.3";
+    public static final String W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_4 = "m.sf.oddgravity.not.normal.envelope.4";
+    public static final String W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_5 = "m.sf.oddgravity.not.normal.envelope.5";
+    public static final String W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_6 = "m.sf.oddgravity.not.normal.envelope.6";
 
-    // TODO: oddFriction
+    // Sf-related not categorized.
+    public static final String W_M_SF_OUT_OF_ENVELOPE_NO_TOISVALID = "m.sf.out.of.envelope.no.toisvalid";
+    public static final String W_M_SF_ACCEPTED_ENV = "m.sf.accepted.env";
 
-    // (TODO: oddElytra)
+    // oddFriction
+    public static final String W_M_SF_ODDFRICTION_1 = "m.sf.oddfriction.1";
+    public static final String W_M_SF_ODDFRICTION_2 = "m.sf.oddfriction.2";
+    public static final String W_M_SF_ODDFRICTION_3 = "m.sf.oddfriction.3";
+    public static final String W_M_SF_ODDFRICTION_4 = "m.sf.oddfriction.4";
+    public static final String W_M_SF_ODDFRICTION_5 = "m.sf.oddfriction.5";
+    public static final String W_M_SF_ODDFRICTION_6 = "m.sf.oddfriction.6";
+
+    // fast falling (Sf)
+    public static final String W_M_SF_FASTFALL_1 = "m.sf.fastfall.1";
+    public static final String W_M_SF_FASTFALL_2 = "m.sf.fastfall.2";
+    public static final String W_M_SF_FASTFALL_3 = "m.sf.fastfall.3";
+    public static final String W_M_SF_FASTFALL_4 = "m.sf.fastfall.4";
+    public static final String W_M_SF_FASTFALL_5 = "m.sf.fastfall.5";
+    public static final String W_M_SF_FASTFALL_6 = "m.sf.fastfall.6";
+    public static final String W_M_SF_FASTFALL_7 = "m.sf.fastfall.7";
+
+    // Bigger move than expected yDistDiffEx > 0.0
+    public static final String W_M_SF_OUT_OF_ENVELOPE_1 = "m.sf.out.of.envelope.1";
+    public static final String W_M_SF_OUT_OF_ENVELOPE_2 = "m.sf.out.of.envelope.2";
+    public static final String W_M_SF_OUT_OF_ENVELOPE_3 = "m.sf.out.of.envelope.3";
+    public static final String W_M_SF_OUT_OF_ENVELOPE_4 = "m.sf.out.of.envelope.4";
+    public static final String W_M_SF_OUT_OF_ENVELOPE_5 = "m.sf.out.of.envelope.5";
+    public static final String W_M_SF_OUT_OF_ENVELOPE_6 = "m.sf.out.of.envelope.6";
+
+    // Short move
+    public static final String W_M_SF_SHORTMOVE_1 = "m.sf.fastfall.1";
+    public static final String W_M_SF_SHORTMOVE_2 = "m.sf.fastfall.2";
+    public static final String W_M_SF_SHORTMOVE_3 = "m.sf.fastfall.3";
+    public static final String W_M_SF_SHORTMOVE_4 = "m.sf.fastfall.4";
+
+    // TODO: LiquidWorkarounds as well?
 
     // Vehicle: oddInAirDescend
     /**
@@ -108,12 +172,77 @@ public class WRPT extends SimpleWorkaroundRegistry {
         // Just counters.
         final String[] counters = new String[] {
                 // Player
+                // vEnv
                 W_M_SF_WEB_0V1,
                 W_M_SF_WEB_0V2,
                 W_M_SF_WEB_MICROGRAVITY1,
                 W_M_SF_WEB_MICROGRAVITY2,
+                // Slope
                 W_M_SF_SLOPE1,
                 W_M_SF_SLOPE2,
+                // OddLiquid
+                W_M_SF_ODDLIQUID_BADFRICTION,
+                W_M_SF_ODDLIQUID_OUT_OF_LAVA_VEL,
+                W_M_SF_ODDLIQUID_ODDJUMPGAIN,
+                W_M_SF_ODDLIQUID_OUTOFWATER_1,
+                W_M_SF_ODDLIQUID_OUTOFWATER_2,
+                W_M_SF_ODDLIQUID_OUTOFWATER_3,
+                W_M_SF_ODDLIQUID_OUTOFWATER_4,
+                W_M_SF_ODDLIQUID_OUTOFWATER_5_VEL,
+                // OddGravity
+                W_M_SF_ODDGRAVITY_1,
+                W_M_SF_ODDGRAVITY_2,
+                W_M_SF_ODDGRAVITY_3,
+                W_M_SF_ODDGRAVITY_4,
+                W_M_SF_ODDGRAVITY_5,
+                W_M_SF_ODDGRAVITY_6,
+                W_M_SF_ODDGRAVITY_7,
+                W_M_SF_ODDGRAVITY_8,
+                W_M_SF_ODDGRAVITY_VEL_1,
+                W_M_SF_ODDGRAVITY_VEL_2,
+                W_M_SF_ODDGRAVITY_VEL_3,
+                W_M_SF_ODDGRAVITY_VEL_4,
+                W_M_SF_ODDGRAVITY_VEL_5,
+                W_M_SF_ODDGRAVITY_VEL_6,
+                W_M_SF_ODDGRAVITY_SETBACK,
+                W_M_SF_ODDGRAVITY_JUMPEFFECT,
+                W_M_SF_ODDGRAVITY_NEAR_0,
+                W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_1,
+                W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_2,
+                W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_3,
+                W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_4,
+                W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_5,
+                W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_6,
+                // oddFriction
+                W_M_SF_ODDFRICTION_1,
+                W_M_SF_ODDFRICTION_2,
+                W_M_SF_ODDFRICTION_3,
+                W_M_SF_ODDFRICTION_4,
+                W_M_SF_ODDFRICTION_5,
+                W_M_SF_ODDFRICTION_6,
+                // FastFalling
+                W_M_SF_FASTFALL_1,
+                W_M_SF_FASTFALL_2,
+                W_M_SF_FASTFALL_3,
+                W_M_SF_FASTFALL_4,
+                W_M_SF_FASTFALL_5,
+                W_M_SF_FASTFALL_6,
+                W_M_SF_FASTFALL_7,
+                // Shortmove
+                W_M_SF_SHORTMOVE_1,
+                W_M_SF_SHORTMOVE_2,
+                W_M_SF_SHORTMOVE_3,
+                W_M_SF_SHORTMOVE_4,
+                // Outofenvelope
+                W_M_SF_OUT_OF_ENVELOPE_1,
+                W_M_SF_OUT_OF_ENVELOPE_2,
+                W_M_SF_OUT_OF_ENVELOPE_3,
+                W_M_SF_OUT_OF_ENVELOPE_4,
+                W_M_SF_OUT_OF_ENVELOPE_5,
+                W_M_SF_OUT_OF_ENVELOPE_6,
+                // Misc. Sf-related
+                W_M_SF_OUT_OF_ENVELOPE_NO_TOISVALID,
+                W_M_SF_ACCEPTED_ENV,
                 // Vehicle
                 W_M_V_ENV_INWATER_BTS
         };

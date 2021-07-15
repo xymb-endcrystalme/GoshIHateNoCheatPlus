@@ -464,7 +464,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     }
 
     /**
-     * Convenience method: delegate to BlockProperties.isDoppwnStream .
+     * Convenience method: delegate to BlockProperties.isDownStream.
      *
      * @param xDistance
      *            the x distance
@@ -810,12 +810,10 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isInBerryBush() {
         if (inBerryBush == null) {
-            if (blockFlags == null || (blockFlags & BlockProperties.F_COBWEB2) != 0L ) {
-                // TODO: inset still needed / configurable?
-                final double inset = 0.001d;
-                inBerryBush = BlockProperties.collides(blockCache, minX + inset, minY + inset, minZ + inset, 
-                        maxX - inset, maxY - inset, maxZ - inset, 
-                        BlockProperties.F_COBWEB2);
+            if (blockFlags == null || (blockFlags & BlockProperties.F_COBWEB2) != 0L) {
+                // TODO: inset still needed / configurable? -> Nope :)
+                //final double inset = 0.001d;
+                inBerryBush = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockProperties.F_COBWEB2);
             }
             else {
                 inBerryBush = false;
@@ -846,21 +844,18 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     }
     
     /**
-     * Check the location is on soul sand only regarding the center. Currently
-     * demands to be on ground as well.
+     * Check the location is on soul sand.
      *
      * @return true, if is on soul sand
      */
     public boolean isOnSoulSand() {
         if (onSoulSand == null) {
-            // TODO: Use a box here too ?
-            // TODO: check if player is really sneaking (refactor from survivalfly to static access in Combined ?)!
             if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_SOULSAND) == 0) {
-                // TODO: check onGroundMinY !?
                 onSoulSand = false;
-            } else {
-                // TODO: Might skip the isOnGround part, e.g. if boats sink in slightly. Needs testing.
-                onSoulSand = isOnGround() && BlockProperties.collides(blockCache, minX, minY - yOnGround, minZ, maxX, minY, maxZ, BlockProperties.F_SOULSAND);
+            } 
+            else {
+                // In soul block, rather.
+                onSoulSand = (BlockProperties.getBlockFlags(getTypeId()) & BlockProperties.F_SOULSAND) != 0;
             }
         }
         return onSoulSand;
@@ -874,35 +869,29 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isOnSlimeBlock() {
         if (onSlimeBlock == null) {
-            // TODO: Use a box here too ?
-            // TODO: check if player is really sneaking (refactor from survivalfly to static access in Combined ?)!
             if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_SLIME) == 0) {
-                // TODO: check onGroundMinY !?
                 onSlimeBlock = false;
-            } else {
-                // TODO: Might skip the isOnGround part, e.g. if boats sink in slightly. Needs testing.
-                onSlimeBlock = isOnGround() && BlockProperties.collides(blockCache, minX, minY - yOnGround, minZ, maxX, minY, maxZ, BlockProperties.F_SLIME);
+            } 
+            else { 
+                onSlimeBlock = isOnGround() && BlockProperties.collides(blockCache, minX, minY - yOnGround, minZ, maxX, minY, maxZ, BlockProperties.F_SLIME); 
             }
         }
         return onSlimeBlock;
     }
 
     /**
-     * Check the location is on honey block only regarding the center. Currently
-     * demands to be on ground as well.
+     * Check the location is on honey block.
      *
      * @return true, if is on honey block
      */
     public boolean isOnHoneyBlock() {
         if (onHoneyBlock == null) {
-            // TODO: Use a box here too ?
-            // TODO: check if player is really sneaking (refactor from survivalfly to static access in Combined ?)!
             if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_STICKY) == 0) {
-                // TODO: check onGroundMinY !?
                 onHoneyBlock = false;
-            } else {
-                // TODO: Might skip the isOnGround part, e.g. if boats sink in slightly. Needs testing.
-                onHoneyBlock = isOnGround() && BlockProperties.collides(blockCache, minX, minY - yOnGround, minZ, maxX, minY, maxZ, BlockProperties.F_STICKY);
+            } 
+            else {
+                // Only count in actually being in the honeyblock, players can jump normally on the very edge.
+                onHoneyBlock = (BlockProperties.getBlockFlags(getTypeId()) & BlockProperties.F_STICKY) != 0;
             }
         }
         return onHoneyBlock;

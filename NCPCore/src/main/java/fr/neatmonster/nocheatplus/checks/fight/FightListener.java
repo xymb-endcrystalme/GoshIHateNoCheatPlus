@@ -175,8 +175,6 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
             final int tick, final FightData data, final IPlayerData pData,
             final IPenaltyList penaltyList) {
 
-        if (!pData.isCheckActive(CheckType.FIGHT, player)) return false;
-
         final FightConfig cc = pData.getGenericInstance(FightConfig.class);
         final MovingConfig mCc = pData.getGenericInstance(MovingConfig.class);
         final MovingData mData = pData.getGenericInstance(MovingData.class);
@@ -250,12 +248,8 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
             // Get+update the damaged players.
             // TODO: Problem with NPCs: data stays (not a big problem).
             // (This is done even if the event has already been cancelled, to keep track, if the player is on a horse.)
-            damagedTrace = DataManager.getPlayerData(damagedPlayer).getGenericInstance(
-                    MovingData.class
-                    ).getTrace(damagedPlayer);//.updateTrace(
-                     //       damagedPlayer, damagedLoc, tick, 
-                      //      damagedIsFake ? null : mcAccess.getHandle()
-                      //      );
+            damagedTrace = DataManager.getPlayerData(damagedPlayer).getGenericInstance(MovingData.class)
+                           .updateTrace(damagedPlayer, damagedLoc, tick, damagedIsFake ? null : mcAccess.getHandle()); //.getTrace(damagedPlayer);
         }
         else {
             damagedPlayer = null; // TODO: This is a temporary workaround.
@@ -436,7 +430,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
                     final PlayerMoveInfo moveInfo = auxMoving.usePlayerMoveInfo();
                     moveInfo.set(player, loc, null, mCc.yOnGround);
                     if (now <= mData.timeSprinting + mCc.sprintingGrace 
-                            && MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, mData, mCc, pData)) {
+                            && MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, moveInfo.to, mData, mCc, pData)) {
                         // Judge as "lost sprint" problem.
                         // TODO: What would mData.lostSprintCount > 0  mean here?
                         mData.lostSprintCount = 7;
@@ -579,11 +573,9 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         final boolean damagedIsDead = damaged.isDead();
         final boolean damagedIsFake = !crossPlugin.getHandle().isNativeEntity(damaged);
         IPenaltyList penaltyList = null;
+
         if (damagedPlayer != null) {
             final IPlayerData damagedPData = DataManager.getPlayerData(damagedPlayer);
-
-            if (!damagedPData.isCheckActive(CheckType.FIGHT, damagedPlayer)) return;
-
             damagedData = damagedPData.getGenericInstance(FightData.class);
             if (!damagedIsDead) {
                 // God mode check.
@@ -650,6 +642,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
             final boolean damagedIsDead, final boolean damagedIsFake, 
             final FightData damagedData, final EntityDamageByEntityEvent event,
             final IPenaltyList penaltyList) {
+
         final Entity damager = event.getDamager();
         final int tick = TickTask.getTick();
         if (damagedPlayer != null && !damagedIsDead) {
@@ -730,15 +723,14 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onEntityDamageMonitor(final EntityDamageEvent event) {
+
         final Entity damaged = event.getEntity();
         if (damaged instanceof Player) {
             final Player damagedPlayer = (Player) damaged;
             final IPlayerData damagedPData = DataManager.getPlayerData(damagedPlayer);
-
-            //if (!damagedPData.isCheckActive(CheckType.FIGHT, damagedPlayer)) return;
-
             final FightData damagedData = damagedPData.getGenericInstance(FightData.class);
             final int ndt = damagedPlayer.getNoDamageTicks();
+
             if (damagedData.lastDamageTick == TickTask.getTick() && damagedData.lastNoDamageTicks != ndt) {
                 // Plugin compatibility thing.
                 damagedData.lastNoDamageTicks = ndt;
@@ -769,6 +761,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
      */
     private void applyKnockBack(final Player attacker, final Player damagedPlayer, 
             final FightData damagedData, final IPlayerData pData) {
+
         final double level = getKnockBackLevel(attacker);
         final MovingData mdata = pData.getGenericInstance(MovingData.class);
         final MovingConfig mcc = pData.getGenericInstance(MovingConfig.class);
@@ -795,6 +788,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
      * @return
      */
     private double getKnockBackLevel(final Player player) {
+
         double level = 1.0; // 1.0 is the minimum knock-back value.
         // TODO: Get the RELEVANT item (...).
         final ItemStack stack = Bridge1_9.getItemInMainHand(player);
@@ -817,6 +811,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
      * @return velocityX, velocityY, velocityZ
      */
     private double[] calculateVelocity(final Player attacker, final Player damagedPlayer) {
+
         final Location aloc = attacker.getLocation();
         final Location dloc = damagedPlayer.getLocation();
         final double Xdiff = dloc.getX() - aloc.getX();
@@ -893,6 +888,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onEntityRegainHealthLow(final EntityRegainHealthEvent event) {
+
         final Entity entity = event.getEntity();
         if (!(entity instanceof Player)) {
             return;
@@ -919,6 +915,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityRegainHealth(final EntityRegainHealthEvent event) {
+
         final Entity entity = event.getEntity();
         if (!(entity instanceof Player)) {
             return;
@@ -955,11 +952,9 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
 
     @EventHandler(ignoreCancelled = false, priority = EventPriority.MONITOR)
     public void onItemHeld(final PlayerItemHeldEvent event) {
+        
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
-
-        if (!pData.isCheckActive(CheckType.FIGHT, player)) return;
-
         final long penalty = pData.getGenericInstance(FightConfig.class).toolChangeAttackPenalty;
         if (penalty > 0 ) {
             pData.getGenericInstance(FightData.class).attackPenalty.applyPenalty(penalty);

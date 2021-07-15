@@ -22,12 +22,14 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.World;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.moving.model.VehicleMoveData;
+import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.checks.moving.util.AuxMoving;
 import fr.neatmonster.nocheatplus.checks.moving.vehicle.VehicleSetPassengerTask;
 import fr.neatmonster.nocheatplus.checks.workaround.WRPT;
@@ -203,12 +205,15 @@ public class PassengerUtil {
     public void teleportWithPassengers(final Entity vehicle, final Player player, final Location location, 
             final boolean debug, final Entity[] originalPassengers, final boolean checkPassengers,
             final IPlayerData pData) {
+
+        final MovingData data = pData.getGenericInstance(MovingData.class);
+        final String pWorld = player.getWorld().getName();
+        final String vWorld = vehicle.getWorld().getName();
+        final boolean vWorldMatchesPWorld = vWorld.equals(pWorld);
         // TODO: Rubber band issue needs synchronizing with packet level and ignore certain incoming ones?
         // TODO: This handling could conflict with WorldGuard region flags.
         // TODO: Account for nested passengers and inconsistencies.
         // TODO: Conception: Restore the passengers at the time of setting the vehicle set back?
-
-        final MovingData data = pData.getGenericInstance(MovingData.class);
         data.isVehicleSetBack = true;
         int otherPlayers = 0;
         boolean playerIsOriginalPassenger = false;
@@ -288,8 +293,9 @@ public class PassengerUtil {
             // Add all other original passengers in a generic way, distinguish players.
             for (int i = 0; i < originalPassengers.length; i++) {
                 final Entity passenger = originalPassengers[i];
-                if (passenger.isValid() && !passenger.isDead()) {
-                    // Cross world cases?
+                if (passenger.isValid() && !passenger.isDead() && vWorldMatchesPWorld) {
+
+                    // Cross world cases? -> Seems like it :)
                     if (passenger instanceof Player) {
                         if (teleportPlayerPassenger((Player) passenger, 
                                 vehicle, location, vehicleTeleported, 
@@ -313,7 +319,11 @@ public class PassengerUtil {
                         }
                     }
                 }
+                else if (debug) { 
+                   CheckUtils.debug(player, CheckType.MOVING_VEHICLE, (!vWorldMatchesPWorld) ? "**** Prevent adding passengers to root vehicle on world change (potential exploit)" 
+                                    : "Can't add passenger to vehicle: passenger is dead.");
                 // Log skipped + failed non player entities.
+                }
             }
         }
         // TODO: else: reset flags for other players?
@@ -341,6 +351,7 @@ public class PassengerUtil {
             final boolean debug) {
         
         final boolean playerTeleported;
+
         if (player.isOnline() && !player.isDead()) {
             final MovingConfig cc = DataManager.getGenericInstance(player, MovingConfig.class);
             // Mask player teleport as a set back.
@@ -350,18 +361,19 @@ public class PassengerUtil {
             // Workarounds.
             // Allow re-use of certain workarounds. Hack/shouldbedoneelsewhere?
             data.ws.resetConditions(WRPT.G_RESET_NOTINAIR);
-            if (playerTeleported && vehicleTeleported 
-                 && player.getLocation(useLoc2).distance(vehicle.getLocation(useLoc)) < 1.5) {
+
+            if (playerTeleported && vehicleTeleported && player.getLocation(useLoc2).distance(vehicle.getLocation(useLoc)) < 1.5) {
+
                 // Still set as passenger.
                 // NOTE: VehicleEnter fires, unknown TP fires.
                 boolean scheduledelay = cc.schedulevehicleSetPassenger;
                 if (data.vehicleSetPassengerTaskId == -1) {
                     if (vehicle.getType() == EntityType.BOAT) {
-                        // Not schedule set passenger for boat due to location async
-                        // Re-add to vehicle then reject. Fix boat teleported but player didn't
                         if (!handleVehicle.getHandle().addPassenger(player, vehicle)) {
-
-                        } else vehicle.eject();
+                            // Not schedule set passenger for boat due to location async
+                            // Re-add to vehicle then reject. Fix boat teleported but player didn't
+                        } 
+                        else vehicle.eject();
                     } 
                     else if (scheduledelay) {
 
@@ -375,7 +387,9 @@ public class PassengerUtil {
                     }
 
                     if (!scheduledelay) {
-                        if (debug) CheckUtils.debug(player, CheckType.MOVING_VEHICLE, "Attempt set passenger directly");
+                        if (debug) {
+                            CheckUtils.debug(player, CheckType.MOVING_VEHICLE, "Attempt set passenger directly");
+                        }
 
                         if (!handleVehicle.getHandle().addPassenger(player, vehicle)) {
                             // TODO: What?
@@ -405,5 +419,4 @@ public class PassengerUtil {
         data.isVehicleSetBack = false;
         return playerTeleported;
     }
-
 }

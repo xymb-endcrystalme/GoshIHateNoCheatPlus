@@ -38,9 +38,11 @@ public class InfoCommand extends BaseCommand {
 	}
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label,
-			String[] args) {
-		if (args.length != 2 ) return false;
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		if (args.length != 2) {
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Please specify a player.");
+            return true;
+        }
 		handleInfoCommand(sender, args[1]);
 		return true;
 	}
@@ -55,22 +57,33 @@ public class InfoCommand extends BaseCommand {
      * @return true, if successful
      */
     private void handleInfoCommand(final CommandSender sender, String playerName) {
+
+    	final String cG, cR, cGO, bold, italicbold; 
+        if (sender instanceof Player) {
+            cG = ChatColor.GRAY.toString(); 
+            cR = ChatColor.RED.toString();
+            cGO = ChatColor.GOLD.toString();
+            bold = ChatColor.BOLD.toString();
+            italicbold = ChatColor.BOLD + "" + ChatColor.ITALIC;
+        }
+        else cG = cR = cGO = bold = italicbold = "";
+
     	final Player player = DataManager.getPlayer(playerName);
     	if (player != null) playerName = player.getName();
     	
     	final ViolationHistory history = ViolationHistory.getHistory(playerName, false);
     	final boolean known = player != null || history != null;
     	if (history == null){
-    		sender.sendMessage(TAG + "No entries for " + playerName + "'s violations... " + (known?"":"(exact spelling?)") +".");
+    		sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "No entries for " + cR + playerName + cG + "'s violations " + ( known? "" : "(exact spelling ?)") + ".");
     		return;
     	}
     	
         final DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
         final ViolationLevel[] violations = history.getViolationLevels();
         if (violations.length > 0) {
-            sender.sendMessage(TAG + "Displaying " + playerName + "'s violations...");
-            final String c = (sender instanceof Player) ? ChatColor.GRAY.toString() : ""; 
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Displaying " + cR + playerName + cG + "'s violations: ");
             for (final ViolationLevel violationLevel : violations) {
+
                 final long time = violationLevel.time;
                 final String[] parts = violationLevel.check.split("\\.");
                 final String check = parts[parts.length - 1].toLowerCase();
@@ -78,11 +91,15 @@ public class InfoCommand extends BaseCommand {
                 final long sumVL = Math.round(violationLevel.sumVL);
                 final long maxVL = Math.round(violationLevel.maxVL);
                 final long avVl  = Math.round(violationLevel.sumVL / (double) violationLevel.nVL);
-                sender.sendMessage(TAG + "[" + dateFormat.format(new Date(time)) + "] " + parent + "." + check
-                        + " VL " + sumVL + c + "  (n" + violationLevel.nVL + "a" + avVl +"m" + maxVL +")");
+                sender.sendMessage(
+                    cG + bold +"[" + cG + dateFormat.format(new Date(time)) + bold + "] " + cGO + italicbold + parent + "." + check  
+                    +cG+bold + "\n• "+ cG + "VLs Sum: " + cR + sumVL  
+                    +cG+bold + "\n• "+ cG + "VLs amount: " + cR + violationLevel.nVL 
+                    +cG+bold + "\n• "+ cG + "Average VL: " + cR + avVl 
+                    +cG+bold + "\n• "+ cG + "Max VL: " + cR + maxVL);
             }
-        } else
-            sender.sendMessage(TAG + "Displaying " + playerName + "'s violations... nothing to display.");
+        } 
+        else sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "No violations to display for player " + cR + playerName);
         
     }
 

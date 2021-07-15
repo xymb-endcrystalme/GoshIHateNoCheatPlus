@@ -44,6 +44,7 @@ import com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType;
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
+import fr.neatmonster.nocheatplus.compat.BridgeEnchant;
 import fr.neatmonster.nocheatplus.components.NoCheatPlusAPI;
 import fr.neatmonster.nocheatplus.components.registry.order.RegistrationOrder.RegisterMethodWithOrder;
 import fr.neatmonster.nocheatplus.event.mini.MiniListener;
@@ -137,6 +138,7 @@ public class NoSlow extends BaseAdapter {
     }
 
     private static void onItemInteract(final PlayerInteractEvent e){
+        // TODO: Add trident (Check for rain and verify if the player is exposed to it at all, might not be worth doing it...)
         if (e.getAction() != Action.RIGHT_CLICK_AIR && e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         final Player p = e.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(p);
@@ -214,8 +216,8 @@ public class NoSlow extends BaseAdapter {
 
     private static boolean hasArrow(PlayerInventory i) {
         if (Bridge1_9.hasElytra()) {
-        Material m = i.getItemInOffHand().getType();
-        return i.contains(Material.ARROW) || m.toString().endsWith("ARROW") || i.contains(Material.TIPPED_ARROW) || i.contains(Material.SPECTRAL_ARROW);
+            Material m = i.getItemInOffHand().getType();
+            return i.contains(Material.ARROW) || m.toString().endsWith("ARROW") || i.contains(Material.TIPPED_ARROW) || i.contains(Material.SPECTRAL_ARROW);
         }
         return i.contains(Material.ARROW);
     }

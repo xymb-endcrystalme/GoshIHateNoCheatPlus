@@ -83,7 +83,7 @@ public class TopCommand extends BaseCommand{
                 }
             }
             if (views == null) {
-                sender.sendMessage("No more history to process.");
+                sender.sendMessage(TAG + "No history to process.");
             } else {
                 // Start sorting and result processing asynchronously.
                 Bukkit.getScheduler().runTaskAsynchronously(plugin, 
@@ -113,45 +113,43 @@ public class TopCommand extends BaseCommand{
         @Override
         public void run() {
             final DecimalFormat format = new DecimalFormat("#.#");
+
+            final String c1, c2, c3, bo, it;
+            if (sender instanceof Player) {
+                c1 = ChatColor.GRAY.toString();
+                c2 = ChatColor.RED.toString();
+                c3 = ChatColor.GOLD.toString();
+                bo = ChatColor.BOLD.toString();
+                it = ChatColor.ITALIC.toString();
+            } else {
+                c1 = c2 = c3 = bo = it = "";
+            }
+            
             // Sort
             Collections.sort(views, comparator);
             // Display.
             final StringBuilder builder = new StringBuilder(100 + 32 * views.size());
-            builder.append(checkType.toString());
-            builder.append(":");
-            final String c1, c2;
-            if (sender instanceof Player) {
-                c1 = ChatColor.WHITE.toString();
-                c2 = ChatColor.GRAY.toString();
-            } else {
-                c1 = c2 = "";
-            }
+            builder.append((sender instanceof Player ? TAG : CTAG) + "Top results for check: " + c3 + bo +""+ it + checkType.toString().toLowerCase());
             int done = 0;
+
             for (final VLView view : views) {
-                builder.append(" " + c1);
-                builder.append(view.name);
-                // Details
-                builder.append(c2 + "(");
+                builder.append(c1 + "\n• "+ c1 +"Player with most results: " + c2 + view.name);
                 // sum
-                builder.append("sum=");
-                builder.append(format.format(view.sumVL));
+                builder.append(c1 + "\n• " + c1 + "VLs Sum: " + c2 + format.format(view.sumVL));
                 // n
-                builder.append("/n=");
-                builder.append(view.nVL);
+                builder.append(c1 + "\n• " + c1 + "VLs amount: " + c2 + view.nVL);
                 // avg
-                builder.append("/avg=");
-                builder.append(format.format(view.sumVL / view.nVL));
+                builder.append(c1 + "\n• " + c1 + "Average VL: " + c2 + format.format(view.sumVL / view.nVL) );
                 // max
-                builder.append("/max=");
-                builder.append(format.format(view.maxVL));
-                builder.append(")");
+                builder.append(c1 + "\n• " + c1 + "Max VL: " + c2 + format.format(view.maxVL));
+    
                 done ++;
                 if (done >= n) {
                     break;
                 }
             }
             if (views.isEmpty()) {
-                builder.append(c1 + "Nothing to display.");
+                builder.append((sender instanceof Player ? TAG : CTAG) + "Nothing to display.");
             }
             final String message = builder.toString();
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin,
@@ -170,14 +168,15 @@ public class TopCommand extends BaseCommand{
 
     public TopCommand(JavaPlugin plugin) {
         super(plugin, "top", Permissions.COMMAND_TOP);
-        this.usage = "Optional: Specify number of entries to show (once).\nObligatory: Specify check types (multiple possible).\nOptional: Specify what to sort by (multiple possible: -sumvl, -avgvl, -maxvl, -nvl, -name, -time).\nThis is a heavy operation, use with care."; // -check
+        this.usage = TAG + "Optional: Specify number of entries to show (once).\nObligatory: Specify check types (multiple possible).\nOptional: Specify what to sort by (multiple possible: -sumvl, -avgvl, -maxvl, -nvl, -name, -time).\nThis is a heavy operation, use with care."; // -check
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length < 2) {
-            return false;
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Bad setup.\nOptional: Specify number of entries to show (once).\nObligatory: Specify check types (multiple possible).\nOptional: Specify what to sort by (multiple possible: -sumvl, -avgvl, -maxvl, -nvl, -name, -time).\nThis is a heavy operation, use with care."); // -check)
+            return true;
         }
         int startIndex = 1;
         int n = 10;
@@ -186,13 +185,13 @@ public class TopCommand extends BaseCommand{
             startIndex = 2;
         } catch (NumberFormatException e) {}
         if (n <= 0) {
-            sender.sendMessage("Setting number of entries to 10");
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Setting number of entries to 10");
             n = 1;
         } else if ((sender instanceof Player) && n > 300) {
-            sender.sendMessage("Capping number of entries at 300.");
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Capping number of entries at 300.");
             n = 300;
         } else if  (n > 10000) {
-            sender.sendMessage("Capping number of entries at 10000.");
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "Capping number of entries at 10000.");
             n = 10000;
         }
         
@@ -207,7 +206,7 @@ public class TopCommand extends BaseCommand{
             }
         }
         if (checkTypes.isEmpty()) {
-            sender.sendMessage("No check types specified!");
+            sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "No check types specified.");
             return false;
         }
         
@@ -218,9 +217,7 @@ public class TopCommand extends BaseCommand{
         }
         
         // Run a worker task.
-        Bukkit.getScheduler().scheduleSyncDelayedTask(access, 
-            new PrimaryThreadWorker(sender, checkTypes, comparator, n, access));
-        
+        Bukkit.getScheduler().scheduleSyncDelayedTask(access, new PrimaryThreadWorker(sender, checkTypes, comparator, n, access));
         return true;
     }
 

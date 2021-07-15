@@ -38,6 +38,8 @@ import fr.neatmonster.nocheatplus.utilities.OnDemandTickListener;
  */
 public class StopWatchRegistry {
 
+    public static final String TAG = ChatColor.GRAY +""+ ChatColor.BOLD + "[" + ChatColor.RED + "NC+" + ChatColor.GRAY +""+ ChatColor.BOLD + "] " + ChatColor.GRAY;
+
     // TODO: Make its own plugin + no NCP dependency.
 
     /** Currently by player name. */
@@ -89,7 +91,7 @@ public class StopWatchRegistry {
 
     protected void timeBackwards(Player player) {
         removeClocks(player);
-        player.sendMessage(ChatColor.RED + "Stopwatch finished due to system time running backwards.");
+        player.sendMessage(TAG + "Stopwatch finished due to system time running backwards.");
     }
 
     /**

@@ -69,6 +69,12 @@ public class ModelFlying {
      */
     private boolean scaleSlowfallingEffect = false;
 
+     /**
+     * Allow an extra amount to ascend speed, scaling with the riptiding effect
+     * level.
+     */
+    private boolean scaleRiptidingEffect = false;
+
     // TODO: vertical ascend/descend, limit gain a/d/v, limit abs. distance a/d/v
     // TODO: possibly other friction based envelope constraints.
     // TODO: Check if needed: use fly/walk speed.
@@ -111,6 +117,7 @@ public class ModelFlying {
         ground(config.getBoolean(prefix + ConfPaths.SUB_GROUND, defaults.getGround()));
         scaleLevitationEffect(defaults.getScaleLevitationEffect()); // Config?
         scaleSlowfallingEffect(defaults.getScaleSlowfallingEffect());
+        scaleRiptidingEffect(defaults.getScaleRiptidingEffect());
     }
 
     /**
@@ -132,6 +139,7 @@ public class ModelFlying {
         ground(defaults.getGround());
         scaleLevitationEffect(defaults.getScaleLevitationEffect());
         scaleSlowfallingEffect(defaults.getScaleSlowfallingEffect());
+        scaleRiptidingEffect(defaults.getScaleRiptidingEffect());
     }
 
     /**
@@ -204,6 +212,11 @@ public class ModelFlying {
         return scaleSlowfallingEffect;
     }
 
+    public boolean getScaleRiptidingEffect() {
+        return scaleRiptidingEffect;
+    }
+
+
     public ModelFlying horizontalModSpeed(double horizontalModSpeed) {
         checkLocked();
         this.horizontalModSpeed = horizontalModSpeed;
@@ -261,6 +274,12 @@ public class ModelFlying {
     public ModelFlying scaleSlowfallingEffect(final boolean scaleSlowfallingEffect) {
         checkLocked();
         this.scaleSlowfallingEffect = scaleSlowfallingEffect;
+        return this;
+    }
+
+    public ModelFlying scaleRiptidingEffect(final boolean scaleRiptidingEffect) {
+        checkLocked();
+        this.scaleRiptidingEffect = scaleRiptidingEffect;
         return this;
     }
 }

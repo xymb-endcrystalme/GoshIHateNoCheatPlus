@@ -23,6 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import fr.neatmonster.nocheatplus.command.BaseCommand;
 import fr.neatmonster.nocheatplus.permissions.RegisteredPermission;
+import fr.neatmonster.nocheatplus.logging.StaticLog;
 
 /**
  * A command that allows to specify a delay for running.
@@ -133,6 +134,7 @@ public abstract class DelayableCommand extends BaseCommand {
     @Override
     public boolean onCommand(final CommandSender sender, final Command command, 
             final String label, final String[] args ) {
+
         if (demandConsoleCommandSender && !demandConsoleCommandSender(sender)) {
             return true;
         }
@@ -141,8 +143,10 @@ public abstract class DelayableCommand extends BaseCommand {
         String[] alteredArgs;
         if (args.length <= delayIndex){
             // No delay found, if demanded return.
-            if (mustHaveDelay) return false;
+            if (mustHaveDelay) 
+            StaticLog.logInfo("Bad setup. Command usage /ncp delay delay=(ticks) (command to delay).");
             alteredArgs = args;
+            return true;
         }
         else{
             boolean hasDef = args[delayIndex].startsWith("delay=") && delay != -1;

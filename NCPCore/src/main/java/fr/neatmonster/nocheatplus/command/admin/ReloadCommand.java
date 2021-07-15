@@ -20,6 +20,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
@@ -48,14 +49,15 @@ public class ReloadCommand extends BaseCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label,
             String[] args) {
-        if (args.length != 1) return false;
+        if (args.length != 1) 
+            return false;
         handleReloadCommand(sender);
         return true;
     }
 
     /**
      * Handle the '/nocheatplus reload' command.
-     * 
+     *
      * @param sender
      *            the sender
      * @return true, if successful
@@ -65,7 +67,7 @@ public class ReloadCommand extends BaseCommand {
         if (!sender.equals(Bukkit.getConsoleSender())) {
             sender.sendMessage(TAG + "Reloading configuration...");
         }
-        logManager.info(Streams.INIT, TAG + "Reloading configuration...");
+        logManager.info(Streams.INIT, "Reloading configuration...");
 
         // Do the actual reload.
         ConfigManager.cleanup();
@@ -94,9 +96,9 @@ public class ReloadCommand extends BaseCommand {
 
         // Log reloading done.
         if (!sender.equals(Bukkit.getConsoleSender())) {
-            sender.sendMessage(TAG + "Configuration reloaded!");
+            sender.sendMessage(TAG + "Configuration reloaded.");
         }
-        logManager.info(Streams.INIT, TAG + "Configuration reloaded.");
+        logManager.info(Streams.INIT, "Configuration reloaded.");
         logManager.info(Streams.DEFAULT_FILE, StringUtil.join(VersionCommand.getVersionInfo(), "\n")); // Queued (!).
     }
 

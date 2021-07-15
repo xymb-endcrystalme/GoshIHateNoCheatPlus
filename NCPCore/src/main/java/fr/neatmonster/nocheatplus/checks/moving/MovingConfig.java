@@ -58,6 +58,7 @@ public class MovingConfig extends ACheckConfig {
     public static final String ID_JETPACK_ELYTRA = "jetpack.elytra";
     public static final String ID_POTION_LEVITATION = "potion.levitation";
     public static final String ID_POTION_SLOWFALLING = "potion.slowfalling";
+    public static final String ID_EFFECT_RIPTIDING = "effect.riptiding";
 
     // INSTANCE
 
@@ -68,6 +69,7 @@ public class MovingConfig extends ACheckConfig {
     private final ModelFlying flyingModelElytra;
     private final ModelFlying flyingModelLevitation;
     private final ModelFlying flyingModelSlowfalling;
+    private final ModelFlying flyingModelRiptiding;
     public final ActionList creativeFlyActions;
 
     /** Assumed number of packets per second under ideal conditions. */
@@ -208,25 +210,26 @@ public class MovingConfig extends ACheckConfig {
         ignoreCreative = config.getBoolean(ConfPaths.MOVING_CREATIVEFLY_IGNORECREATIVE);
         ignoreAllowFlight = config.getBoolean(ConfPaths.MOVING_CREATIVEFLY_IGNOREALLOWFLIGHT);
 
-        final ModelFlying defaultModel = new ModelFlying("gamemode.creative", config, 
-                ConfPaths.MOVING_CREATIVEFLY_MODEL + "creative.", new ModelFlying().lock());
+        final ModelFlying defaultModel = new ModelFlying("gamemode.creative", config, ConfPaths.MOVING_CREATIVEFLY_MODEL + "creative.", new ModelFlying().lock());
         for (final GameMode gameMode : GameMode.values()) {
             flyingModelGameMode.put(gameMode, new ModelFlying("gamemode." + gameMode.name().toLowerCase(), config, 
                     ConfPaths.MOVING_CREATIVEFLY_MODEL + (gameMode.name().toLowerCase()) + ".", defaultModel).lock());
         }
-        flyingModelLevitation = new ModelFlying(ID_POTION_LEVITATION, config, 
-                ConfPaths.MOVING_CREATIVEFLY_MODEL + "levitation.", 
-                new ModelFlying(null, defaultModel).scaleLevitationEffect(true).lock());
-        flyingModelSlowfalling = new ModelFlying(ID_POTION_SLOWFALLING, config, 
-                ConfPaths.MOVING_CREATIVEFLY_MODEL + "slowfalling.", 
-                new ModelFlying(null, defaultModel).scaleSlowfallingEffect(true).lock());
-        flyingModelElytra = new ModelFlying(ID_JETPACK_ELYTRA, config, 
-                ConfPaths.MOVING_CREATIVEFLY_MODEL + "elytra.", 
-                new ModelFlying(null, defaultModel).verticalAscendGliding(true).lock());
+        flyingModelLevitation = new ModelFlying(ID_POTION_LEVITATION, config, ConfPaths.MOVING_CREATIVEFLY_MODEL + "levitation.", 
+                                                new ModelFlying(null, defaultModel).scaleLevitationEffect(true).lock());
+
+        flyingModelSlowfalling = new ModelFlying(ID_POTION_SLOWFALLING, config, ConfPaths.MOVING_CREATIVEFLY_MODEL + "slowfalling.", 
+                                                new ModelFlying(null, defaultModel).scaleSlowfallingEffect(true).lock());
+
+        flyingModelRiptiding = new ModelFlying(ID_EFFECT_RIPTIDING, config, ConfPaths.MOVING_CREATIVEFLY_MODEL + "riptiding.", 
+                                               new ModelFlying(null, defaultModel).scaleRiptidingEffect(true).lock());
+
+        flyingModelElytra = new ModelFlying(ID_JETPACK_ELYTRA, config, ConfPaths.MOVING_CREATIVEFLY_MODEL + "elytra.", 
+                                            new ModelFlying(null, defaultModel).verticalAscendGliding(true).lock());
+
         resetFwOnground = config.getBoolean(ConfPaths.MOVING_CREATIVEFLY_EYTRA_FWRESET);
         elytraStrict = config.getBoolean(ConfPaths.MOVING_CREATIVEFLY_EYTRA_STRICT);
-        creativeFlyActions = config.getOptimizedActionList(ConfPaths.MOVING_CREATIVEFLY_ACTIONS, 
-                Permissions.MOVING_CREATIVEFLY);
+        creativeFlyActions = config.getOptimizedActionList(ConfPaths.MOVING_CREATIVEFLY_ACTIONS, Permissions.MOVING_CREATIVEFLY);
 
         morePacketsEPSIdeal = config.getInt(ConfPaths.MOVING_MOREPACKETS_EPSIDEAL);
         morePacketsEPSMax = Math.max(morePacketsEPSIdeal, config.getInt(ConfPaths.MOVING_MOREPACKETS_EPSMAX));
@@ -377,10 +380,22 @@ public class MovingConfig extends ACheckConfig {
         msgKickIllegalVehicleMove = ColorUtil.replaceColors(config.getString(ConfPaths.MOVING_MESSAGE_ILLEGALVEHICLEMOVE));
     }
 
-    public ModelFlying getModelFlying(final Player player, final PlayerLocation fromLocation,
-            final MovingData data, final MovingConfig cc) {
+
+   /**
+    * Retrieve the CreativeFly model to use in thisMove (Set in the MovingListener).
+    * Note that the name is somewhat anachronistic. (Should be renamed to CreativeFlyModel/MovementModel/(...))
+    * @param player
+    * @param fromLocation
+    * @param data
+    * @param cc
+    * 
+    */
+    public ModelFlying getModelFlying(final Player player, final PlayerLocation fromLocation, final MovingData data, final MovingConfig cc) {
+
         final GameMode gameMode = player.getGameMode();
         final ModelFlying modelGameMode = flyingModelGameMode.get(gameMode);
+        final boolean isGlidingWithElytra = Bridge1_9.isGlidingWithElytra(player) && MovingUtil.isGlidingWithElytraValid(player, fromLocation, data, cc);
+        final double levitationLevel = Bridge1_9.getLevitationAmplifier(player);
         switch(gameMode) {
             case SURVIVAL:
             case ADVENTURE:
@@ -391,24 +406,36 @@ public class MovingConfig extends ACheckConfig {
                 // Default by game mode (spectator, yet unknown).
                 return modelGameMode;
         }
-        final boolean isGlidingWithElytra = Bridge1_9.isGlidingWithElytra(player)
-                && MovingUtil.isGlidingWithElytraValid(player, fromLocation, data, cc);
         // Actual flying (ignoreAllowFlight is a legacy option for rocket boots like flying).
-        if (player.isFlying() || !isGlidingWithElytra && !ignoreAllowFlight && player.getAllowFlight()) {
+
+        // NOTE: Riptiding has priority over anything else 
+        if (player.isFlying() && !Bridge1_13.isRiptiding(player) 
+            || !isGlidingWithElytra && !ignoreAllowFlight && player.getAllowFlight()
+            && !Bridge1_13.isRiptiding(player)) {
             return modelGameMode;
         }
         // Elytra.
-        if (isGlidingWithElytra) { // Defensive: don't demand isGliding.
+        if (isGlidingWithElytra && !Bridge1_13.isRiptiding(player)) { // Defensive: don't demand isGliding.
             return flyingModelElytra;
         }
         // Levitation.
-        if (gameMode != GameMode.CREATIVE && !Double.isInfinite(Bridge1_9.getLevitationAmplifier(player))
-                && !fromLocation.isInLiquid()) {
+        if (gameMode != GameMode.CREATIVE && !Double.isInfinite(levitationLevel) 
+            && !Bridge1_13.isRiptiding(player)
+            && !fromLocation.isInLiquid()
+            // According to minecraft wiki:
+            // Levitation level over 127 = fall down at a fast or slow rate, depending on the value.
+            // Using /effect minecraft:levitation 255 makes the player fly exclusively horizontally.
+            && !(levitationLevel >= 128)) {
             return flyingModelLevitation;
         }
         // Slow Falling
-        if (gameMode != GameMode.CREATIVE && !Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player))) {
-                	return flyingModelSlowfalling;
+        if (gameMode != GameMode.CREATIVE && !Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player)) 
+            && !Bridge1_13.isRiptiding(player)) { 
+            return flyingModelSlowfalling;
+        }
+        // Riptiding
+        if (Bridge1_13.isRiptiding(player)) {
+            return flyingModelRiptiding;
         }
         // Default by game mode.
         return modelGameMode;
