@@ -200,7 +200,6 @@ public class MCAccessBukkitBase implements MCAccess {
                 return 0.5f;
             case PLAYER: // FAST RETURN
             case ZOMBIE:
-            case PIG_ZOMBIE:
             case SKELETON:
             case CREEPER:
             case ENDERMAN:

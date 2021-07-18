@@ -1577,8 +1577,7 @@ public class BlockProperties {
         // Carpets.
         final BlockProps carpetProps = new BlockProps(BlockProperties.noTool, 0.1f, 
                 BlockProperties.secToMs(0.15));
-        final long carpetFlags = BlockProperties.F_GROUND | BlockProperties.F_IGN_PASSABLE 
-                | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_CARPET;
+        final long carpetFlags = BlockProperties.F_GROUND | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_CARPET;
         for (final Material mat : MaterialUtil.CARPETS) {
             BlockProperties.setBlockProps(mat, carpetProps);
             setBlockFlags(mat, carpetFlags);

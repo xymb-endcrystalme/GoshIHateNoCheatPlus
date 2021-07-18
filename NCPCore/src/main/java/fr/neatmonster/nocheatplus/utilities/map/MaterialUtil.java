@@ -154,6 +154,15 @@ public class MaterialUtil {
                     "trap", "legacy")
             );
 
+    public static final Set<Material> COPPER_BLOCKS = Collections.unmodifiableSet(addBlocks(
+            BridgeMaterial.getBySuffix("_copper", AlmostBoolean.YES), "copper_block", "waxed_copper_block"));
+
+    public static final Set<Material> ALL_CANDLES = Collections.unmodifiableSet(
+            BridgeMaterial.getBySuffix("candle", AlmostBoolean.YES));
+
+    public static final Set<Material> ALL_WALLS = Collections.unmodifiableSet(
+            BridgeMaterial.getBySuffix("_wall", AlmostBoolean.YES, "legacy"));
+
     public static final Set<Material> ALL_STAIRS = Collections.unmodifiableSet(
             BridgeMaterial.getBySuffix("_stairs", AlmostBoolean.YES, "legacy"));
 
@@ -165,6 +174,16 @@ public class MaterialUtil {
 
     public static final Set<Material> ALL_PRESSURE_PLATES = Collections.unmodifiableSet(
             BridgeMaterial.getBySuffix("_pressure_plate", AlmostBoolean.YES, "legacy"));
+
+    public static final Set<Material> RODS = Collections.unmodifiableSet(
+            BridgeMaterial.getBySuffix("_rod", AlmostBoolean.YES, "legacy"));
+
+    public static final Set<Material> AMETHYST = Collections.unmodifiableSet(addBlocks(
+            BridgeMaterial.getByPrefixAndSuffix(
+                    null, 
+                    Arrays.asList("_amethyst_bud", "_amethyst"),
+                    AlmostBoolean.YES
+                    ), "amethyst_block", "amethyst_cluster"));
 
     public static final Set<Material> BANNERS = Collections.unmodifiableSet(addBlocks(
             BridgeMaterial.getByPrefixAndSuffix(
@@ -268,7 +287,7 @@ public class MaterialUtil {
                     Arrays.asList("_leaves"),
                     AlmostBoolean.YES
                     // , ...
-                    ), "leaves", "leaves_2"));
+                    ), "leaves", "leaves_2", "azalea_leaves", "flowering_azalea_leaves"));
 
     /** LOGS. */
     public static final Set<Material> LOGS = Collections.unmodifiableSet(addBlocks(
@@ -354,7 +373,9 @@ public class MaterialUtil {
             "quartz_pillar", "bookshelf",
             "sand", "stone", "gravel", "dirt", "grass_block", "grass", "obsidian", "clay",
             "cobblestone", "mossy_cobblestone",
-            "sea_lantern", "redstone_lamp", "glowstone", "sponge", "wet_sponge"
+            "sea_lantern", "redstone_lamp", "glowstone", "sponge", "wet_sponge",
+            "budding_amethyst", "amethyst_block",
+            "calcite", "tuff", "moss_block", "rooted_dirt", "dripstone_block"
             ));
 
     public static final Set<Material> WALL_BANNERS = Collections.unmodifiableSet(addBlocks(
@@ -498,6 +519,7 @@ public class MaterialUtil {
             CONCRETE_BLOCKS,
             CONCRETE_POWDER_BLOCKS,
             CORAL_BLOCKS,
+            COPPER_BLOCKS,
             GLASS_BLOCKS,
             GLAZED_TERRACOTTA_BLOCKS,
             INFESTED_BLOCKS,

@@ -30,7 +30,7 @@ public class BlocksMC1_9 implements BlockPropertiesSetup {
 
     public BlocksMC1_9() {
         BlockInit.assertMaterialExists("END_ROD");
-        BlockInit.assertMaterialExists("GRASS_PATH");
+        //BlockInit.assertMaterialExists("GRASS_PATH");
         BlockInit.assertMaterialExists("END_GATEWAY");
     }
 
@@ -78,8 +78,8 @@ public class BlocksMC1_9 implements BlockPropertiesSetup {
         BlockInit.setInstantPassable(BridgeMaterial.BEETROOTS);
 
         // 208(GRASS_PATH / SOLID+GROUND) 
-        BlockInit.setPropsAs("GRASS_PATH", BridgeMaterial.GRASS_BLOCK);
-        BlockFlags.addFlags(Material.GRASS_PATH, 
+        BlockInit.setPropsAs(BridgeMaterial.GRASS_PATH, BridgeMaterial.GRASS_BLOCK);
+        BlockFlags.addFlags(BridgeMaterial.GRASS_PATH, 
                 BlockProperties.F_MIN_HEIGHT16_15 
                 | BlockProperties.F_XZ100
                 | BlockFlags.SOLID_GROUND

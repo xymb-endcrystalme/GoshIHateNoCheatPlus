@@ -19,7 +19,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.SeaPickle;
+import org.bukkit.util.BoundingBox;
 
+import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 
 public class BukkitSeaPickle implements BukkitShapeModel {
@@ -28,6 +30,10 @@ public class BukkitSeaPickle implements BukkitShapeModel {
     public double[] getShape(final BlockCache blockCache, 
             final World world, final int x, final int y, final int z) {
         final Block block = world.getBlockAt(x, y, z);
+        if (Bridge1_13.hasBoundingBox()) {
+            BoundingBox bd = block.getBoundingBox();
+            return new double[] {bd.getMinX()-x, bd.getMinY()-y, bd.getMinZ()-z, bd.getMaxX()-x, bd.getMaxY()-y, bd.getMaxZ()-z};
+        }
         final BlockState state = block.getState();
         final BlockData blockData = state.getBlockData();
 

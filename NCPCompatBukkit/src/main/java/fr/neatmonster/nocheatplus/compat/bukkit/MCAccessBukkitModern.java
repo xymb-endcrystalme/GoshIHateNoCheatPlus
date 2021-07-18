@@ -43,6 +43,8 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
     protected final Map<Material, BukkitShapeModel> shapeModels = new HashMap<Material, BukkitShapeModel>();
 
+    private static final BukkitShapeModel MODEL_AUTO_FETCH = new BukkitFetchableBound();
+
     // Blocks that change shape based on interaction or redstone.
     private static final BukkitShapeModel MODEL_DOOR = new BukkitDoor();
     private static final BukkitShapeModel MODEL_TRAP_DOOR = new BukkitTrapDoor();
@@ -123,15 +125,10 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
     /*
      * TODO:
-     * LADDER,
-     * CONDUIT, 
-     * CHORUS_FLOWER, CHORUS_PLANT, COCOA, 
-     * TURTLE_EGG, SEA_PICKLE, 
-     * VINE, 
+     * CONDUIT,
      * CAKE,
      */
-    // TODO: anvils, dead coral fans
-    // TODO: Liquid (all leveled).
+    // TODO: dead coral fans
 
     public MCAccessBukkitModern() {
         super();
@@ -149,7 +146,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
     @Override
     public String getMCVersion() {
-        return "1.13-1.16|?";
+        return "1.13-1.17|?";
     }
 
     @Override
@@ -197,6 +194,25 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             processedBlocks.add(mat);
         }
 
+        // Candle
+        for (Material mat : MaterialUtil.ALL_CANDLES) {
+            addModel(mat, MODEL_AUTO_FETCH);
+        }
+
+        // Amethyst
+        for (Material mat : MaterialUtil.AMETHYST) {
+            addModel(mat, MODEL_AUTO_FETCH);
+        }
+
+        // new flower, and others
+        for (Material mat : BridgeMaterial.getAllBlocks(
+                "azalea", "flowering_azalea",
+                "big_dripleaf", "sculk_sensor", "pointed_dripstone",
+                "campfire", "soul_campfire", "stonecutter"
+                )) {
+            addModel(mat, MODEL_AUTO_FETCH);
+        }
+        
         //Anvil
         for (Material mat : new Material[] {
         		Material.ANVIL,
@@ -212,8 +228,10 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         // End portal frame.
         addModel(BridgeMaterial.END_PORTAL_FRAME, MODEL_END_PORTAL_FRAME);
 
-        // End rod.
-        addModel(Material.END_ROD, MODEL_END_ROD);
+        // End Rod / Lightning Rod.
+        for (Material mat : MaterialUtil.RODS) {
+            addModel(mat, MODEL_END_ROD);
+        }
 
         // Hoppers - min height changed in 1.13+
         addModel(Material.HOPPER, MODEL_HOPPER);
@@ -260,7 +278,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
         // 16/15 height, full xz bounds.
         for (Material mat : new Material[] {
-                Material.GRASS_PATH, BridgeMaterial.FARMLAND
+                BridgeMaterial.GRASS_PATH, BridgeMaterial.FARMLAND
         }) {
             addModel(mat, MODEL_XZ100_HEIGHT16_15);
         }
@@ -430,7 +448,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
     private Object getHandle(Player player) {
         // TODO: CraftPlayer check (isAssignableFrom)?
-        if (this.reflectPlayer.obcGetHandle == null) {
+        if (this.reflectPlayer == null || this.reflectPlayer.obcGetHandle == null) {
             return null;
         }
         Object handle = ReflectionUtil.invokeMethodNoArgs(this.reflectPlayer.obcGetHandle, player);
@@ -438,7 +456,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     }
 
     private boolean canDealFallDamage() {
-        return this.reflectPlayer.nmsDamageEntity != null && this.reflectDamageSource.nmsFALL != null;
+        return this.reflectPlayer != null && this.reflectPlayer.nmsDamageEntity != null && this.reflectDamageSource.nmsFALL != null;
     }
 
     @Override
@@ -458,7 +476,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
     @Override
     public boolean resetActiveItem(Player player) {
-        if (this.reflectPlayer.nmsclearActiveItem != null) {
+        if (this.reflectPlayer != null && this.reflectPlayer.nmsclearActiveItem != null) {
              Object handle = getHandle(player);
              if (handle != null) {
                  ReflectionUtil.invokeMethodNoArgs(this.reflectPlayer.nmsclearActiveItem, handle);

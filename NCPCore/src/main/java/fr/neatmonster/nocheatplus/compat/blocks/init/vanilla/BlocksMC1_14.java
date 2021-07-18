@@ -22,53 +22,52 @@ public class BlocksMC1_14 implements BlockPropertiesSetup{
 	@Override
 	public void setupBlockProperties(WorldConfigProvider<?> worldConfigProvider) {
 		BlockFlags.addFlags("VINE", BlockProperties.F_CLIMBUPABLE);
-		final long wall = BlockProperties.F_VARIABLE | BlockProperties.F_GROUND | BlockProperties.F_HEIGHT150 | BlockProperties.F_THICK_FENCE2;
+		for (Material mat : MaterialUtil.ALL_WALLS) {
+            BlockFlags.addFlags(mat, BlockFlags.SOLID_GROUND | BlockProperties.F_VARIABLE | BlockProperties.F_HEIGHT150 | BlockProperties.F_THICK_FENCE2);
+        }
 		final BlockProperties.BlockProps instant = BlockProperties.instantType;
 		BlockInit.setPropsAs("END_STONE_BRICK_WALL", BridgeMaterial.END_STONE_BRICKS);
-		BlockFlags.addFlags("END_STONE_BRICK_WALL", wall);
 		BlockInit.setPropsAs("END_STONE_BRICK_STAIRS", BridgeMaterial.END_STONE_BRICKS);
 		BlockInit.setPropsAs("END_STONE_BRICK_SLAB", BridgeMaterial.END_STONE_BRICKS);
 		
 		BlockInit.setPropsAs("SANDSTONE_WALL", Material.SANDSTONE);
-		BlockFlags.addFlags("SANDSTONE_WALL", wall);
 		BlockInit.setPropsAs("SANDSTONE_STAIRS", Material.SANDSTONE);
 		BlockInit.setPropsAs("SMOOTH_SANDSTONE_SLAB", Material.SANDSTONE);
 		BlockInit.setPropsAs("CUT_SANDSTONE_SLAB", Material.SANDSTONE);
 		BlockInit.setPropsAs("SMOOTH_SANDSTONE_STAIRS", Material.SANDSTONE);
 		BlockInit.setPropsAs("RED_SANDSTONE_WALL", Material.SANDSTONE);
-		BlockFlags.addFlags("RED_SANDSTONE_WALL", wall);
 		BlockInit.setPropsAs("RED_SANDSTONE_STAIRS", Material.SANDSTONE);
 		BlockInit.setPropsAs("SMOOTH_RED_SANDSTONE_STAIRS", Material.SANDSTONE);
 		BlockInit.setPropsAs("SMOOTH_RED_SANDSTONE_SLAB", Material.SANDSTONE);
 		BlockInit.setPropsAs("CUT_RED_SANDSTONE_SLAB", Material.SANDSTONE);
 		
-		BlockInit.setAs("RED_NETHER_BRICK_WALL", BridgeMaterial.COBBLESTONE_WALL);
+		BlockInit.setPropsAs("RED_NETHER_BRICK_WALL", BridgeMaterial.COBBLESTONE_WALL);
 		BlockInit.setAs("RED_NETHER_BRICK_STAIRS", BridgeMaterial.STONE_BRICK_STAIRS);
 		BlockInit.setAs("RED_NETHER_BRICK_SLAB", BridgeMaterial.STONE_SLAB);
-		BlockInit.setAs("NETHER_BRICK_WALL", BridgeMaterial.COBBLESTONE_WALL);
-		BlockInit.setAs("MOSSY_STONE_BRICK_WALL", BridgeMaterial.COBBLESTONE_WALL);
+		BlockInit.setPropsAs("NETHER_BRICK_WALL", BridgeMaterial.COBBLESTONE_WALL);
+		BlockInit.setPropsAs("MOSSY_STONE_BRICK_WALL", BridgeMaterial.COBBLESTONE_WALL);
 		BlockInit.setAs("MOSSY_STONE_BRICK_STAIRS", BridgeMaterial.STONE_BRICK_STAIRS);
 		BlockInit.setAs("MOSSY_STONE_BRICK_SLAB", BridgeMaterial.STONE_SLAB);
-		BlockInit.setAs("STONE_BRICK_WALL", BridgeMaterial.COBBLESTONE_WALL);
+		BlockInit.setPropsAs("STONE_BRICK_WALL", BridgeMaterial.COBBLESTONE_WALL);
 		BlockInit.setAs("MOSSY_COBBLESTONE_STAIRS", BridgeMaterial.STONE_BRICK_STAIRS);
 		BlockInit.setAs("MOSSY_COBBLESTONE_SLAB", BridgeMaterial.STONE_SLAB);
-		BlockInit.setAs("PRISMARINE_WALL", BridgeMaterial.COBBLESTONE_WALL);
-		BlockInit.setAs("GRANITE_WALL", BridgeMaterial.COBBLESTONE_WALL);
+		BlockInit.setPropsAs("PRISMARINE_WALL", BridgeMaterial.COBBLESTONE_WALL);
+		BlockInit.setPropsAs("GRANITE_WALL", BridgeMaterial.COBBLESTONE_WALL);
 		BlockInit.setAs("GRANITE_STAIRS", BridgeMaterial.STONE_BRICK_STAIRS);
 		BlockInit.setAs("POLISHED_GRANITE_STAIRS", BridgeMaterial.STONE_BRICK_STAIRS);
 		BlockInit.setAs("GRANITE_SLAB", BridgeMaterial.STONE_SLAB);
 		BlockInit.setAs("POLISHED_GRANITE_SLAB", BridgeMaterial.STONE_SLAB);
-		BlockInit.setAs("DIORITE_WALL", BridgeMaterial.COBBLESTONE_WALL);
+		BlockInit.setPropsAs("DIORITE_WALL", BridgeMaterial.COBBLESTONE_WALL);
 		BlockInit.setAs("DIORITE_STAIRS", BridgeMaterial.STONE_BRICK_STAIRS);
 		BlockInit.setAs("POLISHED_DIORITE_STAIRS", BridgeMaterial.STONE_BRICK_STAIRS);
 		BlockInit.setAs("DIORITE_SLAB", BridgeMaterial.STONE_SLAB);
 		BlockInit.setAs("POLISHED_DIORITE_SLAB", BridgeMaterial.STONE_SLAB);
-		BlockInit.setAs("ANDESITE_WALL", BridgeMaterial.COBBLESTONE_WALL);
+		BlockInit.setPropsAs("ANDESITE_WALL", BridgeMaterial.COBBLESTONE_WALL);
 		BlockInit.setAs("ANDESITE_STAIRS", BridgeMaterial.STONE_BRICK_STAIRS);
 		BlockInit.setAs("POLISHED_ANDESITE_STAIRS", BridgeMaterial.STONE_BRICK_STAIRS);
 		BlockInit.setAs("ANDESITE_SLAB", BridgeMaterial.STONE_SLAB);
 		BlockInit.setAs("POLISHED_ANDESITE_SLAB", BridgeMaterial.STONE_SLAB);
-		BlockInit.setAs("BRICK_WALL", BridgeMaterial.COBBLESTONE_WALL);
+		BlockInit.setPropsAs("BRICK_WALL", BridgeMaterial.COBBLESTONE_WALL);
 		BlockInit.setAs("STONE_STAIRS", BridgeMaterial.STONE_BRICK_STAIRS);
 		BlockInit.setAs("SMOOTH_QUARTZ_STAIRS", BridgeMaterial.STONE_BRICK_STAIRS);
 		BlockInit.setAs("SMOOTH_STONE_SLAB", BridgeMaterial.STONE_SLAB);
@@ -95,7 +94,7 @@ public class BlocksMC1_14 implements BlockPropertiesSetup{
         BlockProperties.F_IGN_PASSABLE |  BlockProperties.F_CLIMBABLE | BlockProperties.F_GROUND | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_XZ100);
 
 		BlockProperties.setBlockProps("STONECUTTER", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 6.0f, BlockProperties.secToMs(17.0, 2.6, 1.3, 0.85, 0.65, 0.55, 0.4)));
-		BlockFlags.addFlags("STONECUTTER", BlockProperties.F_MIN_HEIGHT16_9 | BlockProperties.F_GROUND_HEIGHT | BlockFlags.SOLID_GROUND);
+		BlockFlags.addFlags("STONECUTTER", BlockFlags.SOLID_GROUND);
 
 		BlockProperties.setBlockProps("BAMBOO", new BlockProperties.BlockProps(BlockProperties.woodAxe, 1f, BlockProperties.secToMs(1.45, 0.7, 0.35, 0.2, 0.15, 0.1, 0.05)));
 		BlockProperties.setBlockProps("BAMBOO_SAPLING", new BlockProperties.BlockProps(BlockProperties.woodSword, 0.7f, BlockProperties.secToMs(1.3, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01)));
@@ -118,7 +117,7 @@ public class BlocksMC1_14 implements BlockPropertiesSetup{
 		BlockFlags.addFlags("GRINDSTONE", BlockFlags.SOLID_GROUND | BlockProperties.F_GROUND_HEIGHT);
 
 		BlockInit.setPropsAs("CAMPFIRE", Material.OAK_PLANKS);
-		BlockFlags.addFlags("CAMPFIRE", BlockFlags.SOLID_GROUND | BlockProperties.F_MIN_HEIGHT16_7 | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_XZ100);
+		BlockFlags.addFlags("CAMPFIRE", BlockFlags.SOLID_GROUND);
 
 		BlockFlags.addFlags("BELL", BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_GROUND);
 		BlockProperties.setBlockProps("BELL", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 5f, BlockProperties.secToMs(24.0, 3.7, 1.85, 1.2, 0.9, 0.8, 0.6)));
