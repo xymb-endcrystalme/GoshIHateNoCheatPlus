@@ -33,9 +33,9 @@ public enum LiftOffEnvelope {
     NO_JUMP(0.0, 0.0, 0, false),
     /** Like NO_JUMP, just to distinguish from being in web. */
     UNKNOWN(0.0, 0.0, 0, false),
-    /** Reduced jumping envelope due to the honey block's stickiness */
+    /** Halfed jump gain, meant for the honey block, rather. */
     // NOTE: Jump height: 0.3 would trigger false positives. While 0.45 is too much
-    STICKY_JUMP(0.21, 0.4, 4, true), 
+    HALF_JUMP(0.21, 0.4, 4, true), 
     /** Nearly ordinary jumping gain (meant for berry bushes)*/
     // TEST: Jumping height is random (but higher than the honeyblock), needs testing to be more strict.
     BERRY_JUMP(0.35, 0.54, 5, true); 

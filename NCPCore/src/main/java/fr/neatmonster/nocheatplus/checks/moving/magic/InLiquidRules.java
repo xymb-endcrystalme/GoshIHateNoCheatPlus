@@ -27,7 +27,7 @@ import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
  * @author asofold
  *
  */
-public class VerticalLiquidRules {
+public class InLiquidRules {
 
     /**
      * 

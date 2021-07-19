@@ -42,7 +42,7 @@ import fr.neatmonster.nocheatplus.compat.BridgeMisc;
 * the movement is allowed.
 *
 */
-public class InAirVerticalRules {
+public class InAirRules {
 
 
     /**
@@ -664,7 +664,7 @@ public class InAirVerticalRules {
             return true;
         }
         else if (yDistance > 0.0 && lastMove.yDistance < 0.0 && data.ws.use(WRPT.W_M_SF_SLIME_JP_2X0)
-                && InAirVerticalRules.oddBounce(to, yDistance, lastMove, data)) {
+                && InAirRules.oddBounce(to, yDistance, lastMove, data)) {
             // Odd slime bounce
             data.setFrictionJumpPhase();
             return true;
@@ -804,19 +804,19 @@ public class InAirVerticalRules {
                                       final MovingData data, final MovingConfig cc) {
 
         // TODO: Cleanup/reduce signature (accept thisMove.yDistance etc.).
-        if (InAirVerticalRules.oddLiquid(yDistance, yDistDiffEx, maxJumpGain, resetTo, thisMove, lastMove, data)) {
+        if (InAirRules.oddLiquid(yDistance, yDistDiffEx, maxJumpGain, resetTo, thisMove, lastMove, data)) {
             // Jump after leaving the liquid near ground.
             return true;
         }
-        if (InAirVerticalRules.oddGravity(from, to, yDistance, yDistChange, yDistDiffEx, thisMove, lastMove, data)) {
+        if (InAirRules.oddGravity(from, to, yDistance, yDistChange, yDistDiffEx, thisMove, lastMove, data)) {
             // Starting to fall / gravity effects.
             return true;
         }
-        if ((yDistDiffEx > 0.0 || yDistance >= 0.0) && InAirVerticalRules.oddSlope(to, yDistance, maxJumpGain, yDistDiffEx, lastMove, data)) {
+        if ((yDistDiffEx > 0.0 || yDistance >= 0.0) && InAirRules.oddSlope(to, yDistance, maxJumpGain, yDistDiffEx, lastMove, data)) {
             // Odd decrease after lift-off.
             return true;
         }
-        if (InAirVerticalRules.oddFriction(yDistance, yDistDiffEx, lastMove, data)) {
+        if (InAirRules.oddFriction(yDistance, yDistDiffEx, lastMove, data)) {
             // Odd behavior with moving up or (slightly) down, accounting for more than one past move.
             return true;
         }
@@ -825,7 +825,7 @@ public class InAirVerticalRules {
             // False positives when jump out berry bush but still applied bush friction
 			return true;
         }
-        //        if (Bridge1_9.isWearingElytra(from.getPlayer()) && InAirVerticalRules.oddElytra(yDistance, yDistDiffEx, lastMove, data)) {
+        //        if (Bridge1_9.isWearingElytra(from.getPlayer()) && InAirRules.oddElytra(yDistance, yDistDiffEx, lastMove, data)) {
         //            // Odd behavior with/after wearing elytra.
         //            return true;
         //        }

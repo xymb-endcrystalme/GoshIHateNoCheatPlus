@@ -882,9 +882,6 @@ public class VehicleChecks extends CheckListener {
      */
     private void onPlayerVehicleLeave(final Player player, final Entity vehicle) {
 
-        final String pWorld = player.getWorld().getName();
-        final String vWorld = vehicle.getWorld().getName();
-        final boolean vWorldMatchesPWorld = pWorld.equals(vWorld);
         final IPlayerData pData = DataManager.getPlayerData(player);
         final MovingData data = pData.getGenericInstance(MovingData.class);
         final boolean debug = pData.isDebugActive(checkType);
@@ -927,7 +924,9 @@ public class VehicleChecks extends CheckListener {
                 }
             }
             if (debug) {
-                debug(player, "Vehicle leave: " + vehicle.getType() + "@" + (vWorldMatchesPWorld ? pLoc.distance(vLoc) : "Player/Vehicle world mismatch"));
+                final String pWorld = player.getWorld().getName();
+                final String vWorld = vehicle.getWorld() != null ? vehicle.getWorld().getName() : "";
+                debug(player, "Vehicle leave: " + vehicle.getType() + "@" + (pWorld.equals(vWorld) ? pLoc.distance(vLoc) : "Player/Vehicle world mismatch"));
             }
         }
 

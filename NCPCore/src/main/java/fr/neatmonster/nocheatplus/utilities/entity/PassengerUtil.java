@@ -208,7 +208,7 @@ public class PassengerUtil {
 
         final MovingData data = pData.getGenericInstance(MovingData.class);
         final String pWorld = player.getWorld().getName();
-        final String vWorld = vehicle.getWorld().getName();
+        final String vWorld = vehicle.getWorld() != null ? vehicle.getWorld().getName() : "";
         final boolean vWorldMatchesPWorld = vWorld.equals(pWorld);
         // TODO: Rubber band issue needs synchronizing with packet level and ignore certain incoming ones?
         // TODO: This handling could conflict with WorldGuard region flags.

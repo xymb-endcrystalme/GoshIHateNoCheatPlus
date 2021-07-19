@@ -106,7 +106,7 @@ public class LocationData implements IGetLocationWithLook {
         }
         onGround = loc.isOnGround();
         onIce = loc.isOnIce();
-        resetCond = inLiquid || inWeb || onClimbable;
+        resetCond = inLiquid || inWeb || onClimbable || inBerryBush;
         onGroundOrResetCond = onGround || resetCond;
         // Set valid flag last.
         extraPropertiesValid = true;
@@ -126,6 +126,10 @@ public class LocationData implements IGetLocationWithLook {
             inWater = other.inWater;
             onGround = other.onGround;
             onIce = other.onIce;
+            onSoulSand = other.onSoulSand;
+            inBerryBush = other.inBerryBush;
+            onSlimeBlock = other.onSlimeBlock;
+            onHoneyBlock = other.onHoneyBlock;
             // Use aggregate properties 1:1, allowing for hacks.
             resetCond = other.resetCond;
             onGroundOrResetCond = other.onGroundOrResetCond;
@@ -142,6 +146,10 @@ public class LocationData implements IGetLocationWithLook {
         inLava = false;
         inWater = false;
         onGround = false;
+        onSoulSand = false;
+        onSlimeBlock = false;
+        onHoneyBlock = false;
+        inBerryBush = false;
         onIce = false;
         resetCond = false;
         onGroundOrResetCond = false;

@@ -474,7 +474,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
             nextFrictionHorizontal = nextFrictionVertical = 0.0;
         }
         else if (loc.isOnHoneyBlock()) {
-            liftOffEnvelope = LiftOffEnvelope.STICKY_JUMP;
+            liftOffEnvelope = LiftOffEnvelope.HALF_JUMP;
             nextFrictionHorizontal = nextFrictionVertical = 0.0;
         }
         else if (loc.isInLiquid()) {

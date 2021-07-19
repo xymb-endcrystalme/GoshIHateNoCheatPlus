@@ -36,8 +36,8 @@ import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.moving.magic.LostGround;
 import fr.neatmonster.nocheatplus.checks.moving.magic.Magic;
-import fr.neatmonster.nocheatplus.checks.moving.magic.InAirVerticalRules;
-import fr.neatmonster.nocheatplus.checks.moving.magic.VerticalLiquidRules;
+import fr.neatmonster.nocheatplus.checks.moving.magic.InAirRules;
+import fr.neatmonster.nocheatplus.checks.moving.magic.InLiquidRules;
 import fr.neatmonster.nocheatplus.checks.moving.model.LiftOffEnvelope;
 import fr.neatmonster.nocheatplus.checks.moving.model.LocationData;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
@@ -596,7 +596,7 @@ public class SurvivalFly extends Check {
             data.liftOffEnvelope = LiftOffEnvelope.BERRY_JUMP;
         }
         else if (thisMove.to.onHoneyBlock) {
-            data.liftOffEnvelope = LiftOffEnvelope.STICKY_JUMP;
+            data.liftOffEnvelope = LiftOffEnvelope.HALF_JUMP;
         }
         else if (resetTo) {
             // TODO: This might allow jumping on vines etc., but should do for the moment.
@@ -624,7 +624,7 @@ public class SurvivalFly extends Check {
             data.liftOffEnvelope = LiftOffEnvelope.BERRY_JUMP;
         }
         else if (thisMove.from.onHoneyBlock) {
-            data.liftOffEnvelope = LiftOffEnvelope.STICKY_JUMP;
+            data.liftOffEnvelope = LiftOffEnvelope.HALF_JUMP;
         }
         else if (resetFrom || thisMove.touchedGround) {
             // TODO: Where exactly to put noFallAssumeGround ?
@@ -1506,7 +1506,7 @@ public class SurvivalFly extends Check {
 
     /**
      * Core y-distance checks for in-air movement (may include air -> other).
-     * See InAirVerticalRules to check (most of) the exemption rules.
+     * See InAirRules to check (most of) the exemption rules.
      *
      * @return
      */
@@ -1627,11 +1627,11 @@ public class SurvivalFly extends Check {
         boolean vDistRelVL = false;
         final double yDistDiffEx          = yDistance - vAllowedDistance; 
         final boolean honeyBlockCollision = isCollideWithHB(from, to, data) && yDistance < -0.125 && yDistance > -0.128;
-        final boolean gravityEffects      = InAirVerticalRules.oddJunction(from, to, yDistance, yDistChange, yDistDiffEx, maxJumpGain, resetTo, thisMove, lastMove, data, cc);
-        final boolean outOfEnvelope       = InAirVerticalRules.outOfEnvelopeExemptions(yDistance, yDistDiffEx, lastMove, data, from, to, now, yDistChange, maxJumpGain, player, thisMove, resetTo);
-        final boolean shortMoveExemptions = InAirVerticalRules.shortMoveExemptions(yDistance, yDistDiffEx, lastMove, data, from, to, now, strictVdistRel, maxJumpGain, vAllowedDistance, player, thisMove);
-        final boolean fastFallExemptions  = InAirVerticalRules.fastFallExemptions(yDistance, yDistDiffEx, lastMove, data, from, to, now, strictVdistRel, yDistChange, resetTo, fromOnGround, toOnGround, maxJumpGain, player, thisMove, resetFrom);
-        final boolean envelopeHack        = InAirVerticalRules.venvHacks(from, to, yDistance, yDistChange, thisMove, lastMove, data) && !resetFrom && !resetTo;
+        final boolean gravityEffects      = InAirRules.oddJunction(from, to, yDistance, yDistChange, yDistDiffEx, maxJumpGain, resetTo, thisMove, lastMove, data, cc);
+        final boolean outOfEnvelope       = InAirRules.outOfEnvelopeExemptions(yDistance, yDistDiffEx, lastMove, data, from, to, now, yDistChange, maxJumpGain, player, thisMove, resetTo);
+        final boolean shortMoveExemptions = InAirRules.shortMoveExemptions(yDistance, yDistDiffEx, lastMove, data, from, to, now, strictVdistRel, maxJumpGain, vAllowedDistance, player, thisMove);
+        final boolean fastFallExemptions  = InAirRules.fastFallExemptions(yDistance, yDistDiffEx, lastMove, data, from, to, now, strictVdistRel, yDistChange, resetTo, fromOnGround, toOnGround, maxJumpGain, player, thisMove, resetFrom);
+        final boolean envelopeHack        = InAirRules.venvHacks(from, to, yDistance, yDistChange, thisMove, lastMove, data) && !resetFrom && !resetTo;
 
 
   
@@ -1714,7 +1714,7 @@ public class SurvivalFly extends Check {
             final double totalVDistViolation      = to.getY() - data.getSetBackY() - vAllowedAbsoluteDistance;
             if (totalVDistViolation > 0.0) {
         
-                if (InAirVerticalRules.vDistSBExemptions(toOnGround, thisMove, lastMove, data, cc, now, player, 
+                if (InAirRules.vDistSBExemptions(toOnGround, thisMove, lastMove, data, cc, now, player, 
                                                          totalVDistViolation, yDistance, fromOnGround)) {
                     // Skip
                 }
@@ -1793,13 +1793,23 @@ public class SurvivalFly extends Check {
                     // Only count it if the player has actually been jumping (higher than setback).
                     if (setBackYDistance > 0.0 && setBackYDistance < estimate) {
 
-                        // Low jump, further check if there might have been a reason for low jumping.
-                        if (data.playerMoves.getCurrentMove().headObstructed || yDistance <= 0.0 
-                            && lastMove.headObstructed && lastMove.yDistance >= 0.0) {
+                        // Workaround for jumping up slopes:
+                        // 1) When jumping next to a block, the player's hitbox will collide with it even though they are still asending.
+                        //    This will cause a false positive as touching the ground also means resetting/updating the setback location.
+                        //    Should rather take a look into the onGround logic, but not messing with that for now :)
+                        // 2) Stairs are a different issue: the small gap in them is regarded as ground by NCP which means the setback location
+                        //    will be reset/updated at the very top (1.0) when jumping up, instead of keeping it at the lower edge (0.5) [Note: removing the F_GROUND_HEIGHT
+                        //    fixes the issue but will cause troubles with vDistrel]
+                        // TODO: Test margins, could be more strict.
+                        if ((from.isNextToGround(0.20, 0.6) || to.isNextToGround(0.20, 0.6)) 
+                            && Math.round(from.getY()) == Math.round(data.getSetBackY())
+                            || thisMove.headObstructed 
+                            || yDistance <= 0.0 && lastMove.headObstructed && lastMove.yDistance >= 0.0) {
                             // Exempt.
-                            tags.add("nolowjump_ceil");
+                            tags.add("lowjump_skip");
                         }
                         else {
+                            // vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance));
                             tags.add("lowjump_set");
                             data.sfLowJump = true;
                         }
@@ -2256,7 +2266,7 @@ public class SurvivalFly extends Check {
                     // 1: Exceptional ground condition for hopping right after coming to ground (headobstr. Note: happens while still being in a friction phase)
                     || toOnGroundHeadObstr
                 )
-                // 0: Can't bunnyhop if in reset condition (climbable,water,web)
+                // 0: Can't bunnyhop if in reset condition (climbable,water,web,bushes)
                 && (!from.isResetCond() && !to.isResetCond() || data.isHalfGroundHalfWater) // TODO: !to.isResetCond() should be reviewed.
                 ) {
 
@@ -2346,7 +2356,7 @@ public class SurvivalFly extends Check {
         }
 
         // Workarounds for special cases.
-        final Double wRes = VerticalLiquidRules.liquidWorkarounds(from, to, baseSpeed, frictDist, lastMove, data);
+        final Double wRes = InLiquidRules.liquidWorkarounds(from, to, baseSpeed, frictDist, lastMove, data);
         if (wRes != null) {
             return new double[]{wRes, 0.0};
         }
