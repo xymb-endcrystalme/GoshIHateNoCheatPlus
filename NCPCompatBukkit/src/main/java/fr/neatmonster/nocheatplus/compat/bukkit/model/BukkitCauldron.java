@@ -15,22 +15,27 @@
 package fr.neatmonster.nocheatplus.compat.bukkit.model;
 
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.util.BoundingBox;
 
-import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 
-public class BukkitChain implements BukkitShapeModel {
+public class BukkitCauldron implements BukkitShapeModel {
+    private final double[] bounds;
+
+    public BukkitCauldron(double minY, double sideWidth, double sideHeight, double coreHeight) {
+        bounds = new double[] {
+                // Core
+                sideWidth, minY, sideWidth, 1 - sideWidth, minY + coreHeight, 1 - sideWidth,
+                // 4 side
+                0.0, minY, 0.0, 1.0, minY + sideHeight, sideWidth,
+                0.0, minY, 1.0 - sideWidth, 1.0, minY + sideHeight, 1.0,
+                0.0, minY, 0.0, sideWidth, minY + sideHeight, 1.0,
+                1.0 - sideWidth, minY, 0.0, 1.0, minY + sideHeight, 1.0
+        };
+    }
 
     @Override
     public double[] getShape(BlockCache blockCache, World world, int x, int y, int z) {
-        final Block block = world.getBlockAt(x, y, z);
-        if (Bridge1_13.hasBoundingBox()) {
-            BoundingBox bd = block.getBoundingBox();
-            return new double[] {bd.getMinX()-x, bd.getMinY()-y, bd.getMinZ()-z, bd.getMaxX()-x, bd.getMaxY()-y, bd.getMaxZ()-z};
-        }
-        return new double[] {0.0, 0.0, 0.0, 1.0, 1.0, 1.0};
+        return bounds;
     }
 
     @Override

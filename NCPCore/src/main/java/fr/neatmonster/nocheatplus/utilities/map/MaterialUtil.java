@@ -160,6 +160,9 @@ public class MaterialUtil {
     public static final Set<Material> ALL_CANDLES = Collections.unmodifiableSet(
             BridgeMaterial.getBySuffix("candle", AlmostBoolean.YES));
 
+    public static final Set<Material> ALL_CANDLE_CAKE = Collections.unmodifiableSet(
+            BridgeMaterial.getBySuffix("candle_cake", AlmostBoolean.YES));
+
     public static final Set<Material> ALL_WALLS = Collections.unmodifiableSet(
             BridgeMaterial.getBySuffix("_wall", AlmostBoolean.YES, "legacy"));
 
@@ -211,6 +214,9 @@ public class MaterialUtil {
     public static final Set<Material> CARPETS = Collections.unmodifiableSet(addBlocks(
             BridgeMaterial.getBySuffix("_carpet", AlmostBoolean.YES, "legacy"), 
             "carpet"));
+
+    public static final Set<Material> CAULDRON = Collections.unmodifiableSet(
+            BridgeMaterial.getBySuffix("cauldron", AlmostBoolean.YES, "legacy"));
 
     public static final Set<Material> CONCRETE_BLOCKS = Collections.unmodifiableSet(addBlocks(
             BridgeMaterial.getBySuffix("_concrete", AlmostBoolean.YES, "legacy"),

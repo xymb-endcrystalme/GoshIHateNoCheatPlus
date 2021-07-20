@@ -27,6 +27,7 @@ import fr.neatmonster.nocheatplus.compat.blocks.init.BlockInit;
 import fr.neatmonster.nocheatplus.compat.bukkit.model.*;
 import fr.neatmonster.nocheatplus.compat.cbreflect.reflect.ReflectBase;
 import fr.neatmonster.nocheatplus.compat.cbreflect.reflect.ReflectDamageSource;
+import fr.neatmonster.nocheatplus.compat.cbreflect.reflect.ReflectLivingEntity;
 import fr.neatmonster.nocheatplus.compat.cbreflect.reflect.ReflectPlayer;
 import fr.neatmonster.nocheatplus.config.WorldConfigProvider;
 import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
@@ -39,11 +40,29 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
     protected ReflectBase reflectBase = null;
     protected ReflectDamageSource reflectDamageSource = null;
-    protected ReflectPlayer reflectPlayer = null;
+    protected ReflectLivingEntity reflectLivingEntity = null;
 
     protected final Map<Material, BukkitShapeModel> shapeModels = new HashMap<Material, BukkitShapeModel>();
 
+    // Blocks that can automatic fetch bounding box from API
     private static final BukkitShapeModel MODEL_AUTO_FETCH = new BukkitFetchableBound();
+
+    // Blocks that form from multi-bounds
+    private static final BukkitShapeModel MODEL_BREWING_STAND = new BukkitStatic(
+            // Bottom rod
+            0.0625, 0.0, 0.0625, 0.9375, 0.125, 0.9375,
+            // Rod
+            0.4375, 0.125, 0.4375, 0.5625, 0.8749, 0.5625);
+
+    private static final BukkitShapeModel MODEL_CANDLE_CAKE = new BukkitStatic(
+            // Cake
+            0.0625, 0.0, 0.0625, 0.9375, 0.5, 0.9375,
+            // Candle
+            0.4375, 0.5, 0.4375, 0.5625, 0.875, 0.5625);
+    private static final BukkitShapeModel MODEL_HOPPER = new BukkitHopper();
+    private static final BukkitShapeModel MODEL_CAULDRON = new BukkitCauldron(0.1875, 0.125, 0.8125, 0.0625);
+    private static final BukkitShapeModel MODEL_COMPOSTER = new BukkitCauldron(0.0, 0.125, 1.0, 0.125);
+    private static final BukkitShapeModel MODEL_PISTON_HEAD = new BukkitPistonHead();
 
     // Blocks that change shape based on interaction or redstone.
     private static final BukkitShapeModel MODEL_DOOR = new BukkitDoor();
@@ -98,9 +117,6 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             0.0625, 0.875);
     private static final BukkitShapeModel MODEL_HONEY_BLOCK = new BukkitStatic(
             0.0625, 0.9375);
-    private static final BukkitShapeModel MODEL_HOPPER = new BukkitStatic(
-            0, 0.25, 0, 1, 1, 1);
-    private static final BukkitShapeModel MODEL_CHAIN = new BukkitChain();
 
     // Static blocks with full height sorted by inset.
     private static final BukkitShapeModel MODEL_INSET16_1_HEIGHT100 = new BukkitStatic(
@@ -118,8 +134,6 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             0.5625);
     private static final BukkitShapeModel MODEL_XZ100_HEIGHT4_3 = new BukkitStatic(
             0.75);
-    private static final BukkitShapeModel MODEL_XZ100_HEIGHT8_7 = new BukkitStatic(
-            0.875);
     private static final BukkitShapeModel MODEL_XZ100_HEIGHT16_15 = new BukkitStatic(
             0.9375);
 
@@ -138,7 +152,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         try {
             this.reflectBase = new ReflectBase();
             this.reflectDamageSource = new ReflectDamageSource(this.reflectBase);
-            this.reflectPlayer = new ReflectPlayer(this.reflectBase, null, this.reflectDamageSource);
+            this.reflectLivingEntity = new ReflectLivingEntity(this.reflectBase, null, this.reflectDamageSource);
         } catch(ClassNotFoundException ex) {
             
         }
@@ -167,9 +181,6 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     	// Variables for repeated flags (Temporary flags, these should be fixed later so that they are not added here)
     	final long blockFix = BlockFlags.SOLID_GROUND;
     	// Adjust flags for individual blocks.
-        BlockProperties.setBlockFlags(Material.CAULDRON, 
-                BlockFlags.SOLID_GROUND | BlockProperties.F_GROUND_HEIGHT 
-                | BlockProperties.F_MIN_HEIGHT4_1);
         BlockProperties.setBlockFlags(Material.COCOA, blockFix);
         BlockProperties.setBlockFlags(Material.TURTLE_EGG, blockFix);
         BlockProperties.setBlockFlags(Material.CHORUS_PLANT, blockFix);
@@ -182,7 +193,6 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
         // Directly keep blocks as is.
         for (final Material mat : new Material[] {
-                Material.CAULDRON,
                 BridgeMaterial.COBWEB,
                 BridgeMaterial.MOVING_PISTON,
                 Material.SNOW,
@@ -208,11 +218,19 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         for (Material mat : BridgeMaterial.getAllBlocks(
                 "azalea", "flowering_azalea",
                 "big_dripleaf", "sculk_sensor", "pointed_dripstone",
-                "campfire", "soul_campfire", "stonecutter"
+                "campfire", "soul_campfire", "stonecutter", "chain"
                 )) {
             addModel(mat, MODEL_AUTO_FETCH);
         }
-        
+
+        // Cauldron
+        for (Material mat : MaterialUtil.CAULDRON) {
+            BlockProperties.setBlockFlags(mat, 
+                    BlockFlags.SOLID_GROUND | BlockProperties.F_GROUND_HEIGHT 
+                    | BlockProperties.F_MIN_HEIGHT16_5);
+            addModel(mat, MODEL_CAULDRON);
+        }
+
         //Anvil
         for (Material mat : new Material[] {
         		Material.ANVIL,
@@ -269,11 +287,15 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             addModel(mat, MODEL_XZ100_HEIGHT4_3);
         }
 
+        for (Material mat : MaterialUtil.ALL_CANDLE_CAKE) {
+            addModel(mat, MODEL_CANDLE_CAKE);
+        }
+
         // 7/8 height.
         for (Material mat : new Material[] {
-                Material.BREWING_STAND // TODO: base is 1/8, center 0.875 - needs multi-cuboid.
+                Material.BREWING_STAND
         }) {
-            addModel(mat, MODEL_XZ100_HEIGHT8_7);
+            addModel(mat, MODEL_BREWING_STAND);
         }
 
         // 16/15 height, full xz bounds.
@@ -389,7 +411,10 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
                 )) {
             addModel(mat, MODEL_PISTON);
         }
- 
+
+        // Piston Head
+        addModel(BridgeMaterial.PISTON_HEAD, MODEL_PISTON_HEAD);
+
         // Levelled blocks
         for (Material mat : BridgeMaterial.getAllBlocks(
                 "snow", "water", "lava"
@@ -405,20 +430,22 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         // Lectern
         Material mt = BridgeMaterial.getBlock("lectern");
         if (mt != null) addModel(mt, MODEL_LECTERN);
-        
+
         // Bamboo        
         mt = BridgeMaterial.getBlock("bamboo");
         if (mt != null) addModel(mt, MODEL_BAMBOO);
-        
+
         // Bell
         mt = BridgeMaterial.getBlock("bell");
         if (mt != null) addModel(mt, MODEL_BELL);
-        
+
+        // Composter
+        mt = BridgeMaterial.getBlock("composter");
+        if (mt != null) addModel(mt, MODEL_COMPOSTER);
+
+        // Honey Block
         mt = BridgeMaterial.getBlock("honey_block");
         if (mt != null) addModel(mt, MODEL_HONEY_BLOCK);
-
-        mt = BridgeMaterial.getBlock("chain");
-        if (mt != null) addModel(mt, MODEL_CHAIN);
 
         // Sort to processed by flags.
         for (final Material mat : Material.values()) {
@@ -448,15 +475,15 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
     private Object getHandle(Player player) {
         // TODO: CraftPlayer check (isAssignableFrom)?
-        if (this.reflectPlayer == null || this.reflectPlayer.obcGetHandle == null) {
+        if (this.reflectLivingEntity == null || this.reflectLivingEntity.obcGetHandle == null) {
             return null;
         }
-        Object handle = ReflectionUtil.invokeMethodNoArgs(this.reflectPlayer.obcGetHandle, player);
+        Object handle = ReflectionUtil.invokeMethodNoArgs(this.reflectLivingEntity.obcGetHandle, player);
         return handle;
     }
 
     private boolean canDealFallDamage() {
-        return this.reflectPlayer != null && this.reflectPlayer.nmsDamageEntity != null && this.reflectDamageSource.nmsFALL != null;
+        return this.reflectLivingEntity != null && this.reflectLivingEntity.nmsDamageEntity != null && this.reflectDamageSource.nmsFALL != null;
     }
 
     @Override
@@ -470,16 +497,16 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             Object handle = getHandle(player);
 
             if (handle != null)
-            ReflectionUtil.invokeMethod(this.reflectPlayer.nmsDamageEntity, handle, this.reflectDamageSource.nmsFALL, (float) damage);
+            ReflectionUtil.invokeMethod(this.reflectLivingEntity.nmsDamageEntity, handle, this.reflectDamageSource.nmsFALL, (float) damage);
         } else BridgeHealth.damage(player, damage);
     }
 
     @Override
     public boolean resetActiveItem(Player player) {
-        if (this.reflectPlayer != null && this.reflectPlayer.nmsclearActiveItem != null) {
+        if (this.reflectLivingEntity != null && this.reflectLivingEntity.nmsclearActiveItem != null) {
              Object handle = getHandle(player);
              if (handle != null) {
-                 ReflectionUtil.invokeMethodNoArgs(this.reflectPlayer.nmsclearActiveItem, handle);
+                 ReflectionUtil.invokeMethodNoArgs(this.reflectLivingEntity.nmsclearActiveItem, handle);
                  return true;
              }
         }

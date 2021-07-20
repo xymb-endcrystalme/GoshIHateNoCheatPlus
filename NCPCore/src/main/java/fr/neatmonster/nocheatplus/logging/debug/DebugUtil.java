@@ -171,6 +171,22 @@ public class DebugUtil {
             builder.append(minHeight == bounds[4] ? minHeight : (minHeight + ".." + bounds[4]));
             builder.append(", ");
             builder.append(bounds[5]);
+            if (bounds.length > 6 && bounds.length % 6 == 0) {
+                for (int i = 2; i <= (int)bounds.length / 6; i++) {
+                    builder.append(", ");
+                    builder.append(bounds[i*6-6]);
+                    builder.append(", ");
+                    builder.append(bounds[i*6-5]);
+                    builder.append(", ");
+                    builder.append(bounds[i*6-4]);
+                    builder.append(", ");
+                    builder.append(bounds[i*6-3]);
+                    builder.append(", ");
+                    builder.append(bounds[i*6-2]);
+                    builder.append(", ");
+                    builder.append(bounds[i*6-1]);
+                }
+            }
             builder.append("]");
         }
     }

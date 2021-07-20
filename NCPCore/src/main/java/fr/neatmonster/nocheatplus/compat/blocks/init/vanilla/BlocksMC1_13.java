@@ -19,7 +19,7 @@ import org.bukkit.Material;
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 import fr.neatmonster.nocheatplus.compat.blocks.BlockPropertiesSetup;
 import fr.neatmonster.nocheatplus.compat.blocks.init.BlockInit;
-import fr.neatmonster.nocheatplus.config.WorldConfigProvider;
+import fr.neatmonster.nocheatplus.config.*;
 import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
@@ -190,14 +190,17 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         BlockProperties.setBlockProps("TURTLE_EGG", new BlockProps(
                 BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.7)));
 
-        BlockProperties.setBlockFlags(Material.HOPPER,
-                BlockProperties.F_GROUND | BlockProperties.F_SOLID | BlockProperties.F_XZ100 | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_IGN_PASSABLE);
+        BlockProperties.setBlockFlags(Material.HOPPER, BlockFlags.SOLID_GROUND);
 
         // Farm land. (Just in case not having multiversion plugin installed)
         BlockFlags.removeFlags(BridgeMaterial.FARMLAND, BlockProperties.F_HEIGHT100);
         BlockFlags.addFlags(BridgeMaterial.FARMLAND,
                 BlockProperties.F_XZ100 | BlockProperties.F_MIN_HEIGHT16_15);
 
+        BlockProperties.setBlockFlags("BREWING_STAND", BlockFlags.SOLID_GROUND);
+        BlockProperties.setBlockFlags(BridgeMaterial.PISTON_HEAD, BlockFlags.SOLID_GROUND);
+        ConfigFile config = ConfigManager.getConfigFile();
+        if (config.getBoolean(ConfPaths.BLOCKBREAK_DEBUG, config.getBoolean(ConfPaths.CHECKS_DEBUG, false)))
         StaticLog.logInfo("Added block-info for Minecraft 1.13 blocks.");
     }
 

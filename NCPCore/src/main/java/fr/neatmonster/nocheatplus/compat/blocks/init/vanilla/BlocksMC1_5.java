@@ -19,7 +19,7 @@ import org.bukkit.Material;
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 import fr.neatmonster.nocheatplus.compat.blocks.BlockPropertiesSetup;
 import fr.neatmonster.nocheatplus.compat.blocks.init.BlockInit;
-import fr.neatmonster.nocheatplus.config.WorldConfigProvider;
+import fr.neatmonster.nocheatplus.config.*;
 import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
@@ -92,7 +92,7 @@ public class BlocksMC1_5 implements BlockPropertiesSetup {
         // 154 Hopper
         BlockInit.setAs("HOPPER", Material.COAL_ORE);
         BlockFlags.addFlags("HOPPER", BlockProperties.F_GROUND_HEIGHT
-                | BlockProperties.F_MIN_HEIGHT16_11);
+                | BlockProperties.F_MIN_HEIGHT8_5);
 
         // 155 Block of Quartz
         BlockInit.setAs("QUARTZ_BLOCK", Material.SANDSTONE);
@@ -116,6 +116,8 @@ public class BlocksMC1_5 implements BlockPropertiesSetup {
         BlockFlags.addFlags("SNOW", BlockProperties.F_HEIGHT_8_INC | BlockProperties.F_XZ100 | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_GROUND);
         BlockFlags.removeFlags("SNOW", BlockProperties.F_HEIGHT_8SIM_INC);
 
+        ConfigFile config = ConfigManager.getConfigFile();
+        if (config.getBoolean(ConfPaths.BLOCKBREAK_DEBUG, config.getBoolean(ConfPaths.CHECKS_DEBUG, false)))
         StaticLog.logInfo("Added block-info for Minecraft 1.5 blocks.");
     }
 

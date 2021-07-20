@@ -813,12 +813,18 @@ public class BlockProperties {
      * Only applies with F_GROUND_HEIGHT set.
      */
     public static final long F_MIN_HEIGHT16_11              = f_flag();
-    
+
+    /**
+     * Minimum height 5/8 (0.625). <br>
+     * Only applies with F_GROUND_HEIGHT set.
+     */
+    public static final long F_MIN_HEIGHT8_5                = f_flag();
+
     /**
      * Minimum height 9/16 (0.5625). <br>
      * Only applies with F_GROUND_HEIGHT set.
      */
-    public static final long F_MIN_HEIGHT16_9              = f_flag();
+    public static final long F_MIN_HEIGHT16_9               = f_flag();
 
     /**
      * Minimum height 7/16 (0.4375). <br>
@@ -1095,7 +1101,7 @@ public class BlockProperties {
         }) {
             setFlag(mat, stepFlags);
         }
-        for (final Material mat : MaterialUtil.WOODEN_SLABS) {
+        for (final Material mat : MaterialUtil.SLABS) {
             setFlag(mat, stepFlags);
         }
         for (final Material mat : MaterialUtil.NEWLIQ) {
@@ -3224,7 +3230,7 @@ public class BlockProperties {
                 return true; // 0.0625 = 0.125 / 2
             }
         }
-        else if (id == Material.CAULDRON) {
+        else if (id == Material.CAULDRON || id == Material.HOPPER) {
             if (Math.min(fy, fy + dY * dT) >= getGroundMinHeight(
                     access, bx, by, bz, node, flags)) {
                 // Check for moving through walls or floor.
@@ -3238,7 +3244,7 @@ public class BlockProperties {
             }
             return !collidesCenter(fx, fz, dX, dZ, dT, 0.0625);
         }
-        else if (id == BridgeMaterial.PISTON_HEAD) {
+        else if (!Bridge1_13.hasBoundingBox() && id == BridgeMaterial.PISTON_HEAD) {
             if (Math.min(fy, fy + dY * dT) >= 0.625) {
                 return true;
             }
@@ -3247,14 +3253,9 @@ public class BlockProperties {
             && getGroundMinHeight(access, bx, by, bz, node, flags) <= Math.min(fy, fy + dY * dT)) {
             return true;
         } 
-        else if (id.toString().equals("BELL") && (access.getData(bx, by, bz) & 0x4) != 0) {
-        	if (Math.max(fy, fy + dY * dT) >0.39 && Math.max(fy, fy + dY * dT) < 0.9) {
-                return true;
-            }
-        } 
         else if (id.toString().equals("CHORUS_PLANT") && !collidesFence(fx, fz, dX, dZ, dT, 0.3)) {
              return true;
-         }
+        }
         else if (id.toString().equals("BAMBOO")) return true;
         // Nothing found.
         return false;
@@ -3473,6 +3474,10 @@ public class BlockProperties {
             if ((flags & F_MIN_HEIGHT16_9) != 0) {
                 // 9/16
                 return 0.5625;
+            }
+            if ((flags & F_MIN_HEIGHT8_5) != 0) {
+                // 10/16
+                return 0.625;
             }
             if ((flags & F_MIN_HEIGHT16_11) != 0) {
                 // 11/16
@@ -4179,19 +4184,46 @@ public class BlockProperties {
                 }
             }
         }
+
+        boolean collide = false;
+        boolean skip = false;
+        final boolean allowEdge = (flags & F_COLLIDE_EDGES) == 0;
+        // Still keep this primary bounds check stand alone with loop below for flags compatibility
         // Clearly outside of bounds.
         if (minX > bmaxX + x || maxX < bminX + x
                 || minY > bmaxY + y || maxY < bminY + y
                 || minZ > bmaxZ + z || maxZ < bminZ + z) {
-            return false;
+            skip = true;
         }
         // Hitting the max-edges (if allowed).
-        final boolean allowEdge = (flags & F_COLLIDE_EDGES) == 0;
-        if (minX == bmaxX + x && (bmaxX < 1.0 || allowEdge)
+        if (!skip && (minX == bmaxX + x && (bmaxX < 1.0 || allowEdge)
                 || minY == bmaxY + y && (bmaxY < 1.0 || allowEdge)
-                || minZ == bmaxZ + z && (bmaxZ < 1.0 || allowEdge)) {
-            return false;
+                || minZ == bmaxZ + z && (bmaxZ < 1.0 || allowEdge))) {
+            skip = true;
         }
+
+        if (!skip) collide = true;
+
+        if (!collide && bounds.length > 6 && bounds.length % 6 == 0) {
+            for (int i = 2; i <= (int)bounds.length / 6; i++) {
+                // Clearly outside of bounds.
+                if (minX > bounds[i*6-3] + x || maxX < bounds[i*6-6] + x
+                   || minY > bounds[i*6-2] + y || maxY < bounds[i*6-5] + y
+                   || minZ > bounds[i*6-1] + z || maxZ < bounds[i*6-4] + z) {
+                    continue;
+                }
+                // Hitting the max-edges (if allowed).
+                if (minX == bounds[i*6-3] + x && (bounds[i*6-3] < 1.0 || allowEdge)
+                   || minY == bounds[i*6-2] + y && (bounds[i*6-2] < 1.0 || allowEdge)
+                   || minZ == bounds[i*6-1] + z && (bounds[i*6-1] < 1.0 || allowEdge)) {
+                    continue;
+                }
+                collide = true;
+                break;
+            }
+        }
+        if (!collide) return false;
+
         // Collision.
         return true;
     }

@@ -16,7 +16,7 @@ package fr.neatmonster.nocheatplus.compat.blocks.init.vanilla;
 
 import fr.neatmonster.nocheatplus.compat.blocks.BlockPropertiesSetup;
 import fr.neatmonster.nocheatplus.compat.blocks.init.BlockInit;
-import fr.neatmonster.nocheatplus.config.WorldConfigProvider;
+import fr.neatmonster.nocheatplus.config.*;
 import fr.neatmonster.nocheatplus.logging.StaticLog;
 
 public class BlocksMC1_12 implements BlockPropertiesSetup {
@@ -30,6 +30,8 @@ public class BlocksMC1_12 implements BlockPropertiesSetup {
 
         // (All are done via generic setup.)
 
+        ConfigFile config = ConfigManager.getConfigFile();
+        if (config.getBoolean(ConfPaths.BLOCKBREAK_DEBUG, config.getBoolean(ConfPaths.CHECKS_DEBUG, false)))
         StaticLog.logInfo("Added block-info for Minecraft 1.12 blocks.");
     }
 

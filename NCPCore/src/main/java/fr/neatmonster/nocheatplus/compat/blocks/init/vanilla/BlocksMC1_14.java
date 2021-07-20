@@ -5,7 +5,7 @@ import org.bukkit.Material;
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 import fr.neatmonster.nocheatplus.compat.blocks.BlockPropertiesSetup;
 import fr.neatmonster.nocheatplus.compat.blocks.init.BlockInit;
-import fr.neatmonster.nocheatplus.config.WorldConfigProvider;
+import fr.neatmonster.nocheatplus.config.*;
 import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
@@ -82,7 +82,7 @@ public class BlocksMC1_14 implements BlockPropertiesSetup{
 		BlockInit.setAs("SMOKER", Material.FURNACE);
 
 		BlockProperties.setBlockProps("COMPOSTER", new BlockProperties.BlockProps(BlockProperties.woodAxe, 0.7f, BlockProperties.secToMs(0.9, 0.4, 0.2, 0.15, 0.1, 0.05, 0.05)));
-		BlockFlags.addFlags("COMPOSTER", BlockFlags.SOLID_GROUND | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_MIN_HEIGHT8_1);
+		BlockFlags.addFlags("COMPOSTER", BlockFlags.SOLID_GROUND);
 
 		BlockInit.setPropsAs("LECTERN", Material.OAK_PLANKS);
 		BlockFlags.addFlags("LECTERN", BlockProperties.F_MIN_HEIGHT8_1 | BlockProperties.F_GROUND_HEIGHT | BlockFlags.SOLID_GROUND | BlockProperties.F_XZ100);
@@ -119,14 +119,16 @@ public class BlocksMC1_14 implements BlockPropertiesSetup{
 		BlockInit.setPropsAs("CAMPFIRE", Material.OAK_PLANKS);
 		BlockFlags.addFlags("CAMPFIRE", BlockFlags.SOLID_GROUND);
 
-		BlockFlags.addFlags("BELL", BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_GROUND);
+		BlockFlags.addFlags("BELL", BlockFlags.SOLID_GROUND);
 		BlockProperties.setBlockProps("BELL", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 5f, BlockProperties.secToMs(24.0, 3.7, 1.85, 1.2, 0.9, 0.8, 0.6)));
 
 		BlockProperties.setBlockProps("LANTERN", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 6.0f, BlockProperties.secToMs(17.0, 2.6, 1.3, 0.85, 0.7, 0.55, 0.4)));
 		BlockFlags.addFlags("LANTERN", BlockProperties.F_GROUND | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_MIN_HEIGHT16_7);
 
 		BlockFlags.addFlags("SWEET_BERRY_BUSH", BlockProperties.F_COBWEB2);
-		StaticLog.logInfo("Added block-info for Minecraft 1.14 blocks.");
+        ConfigFile config = ConfigManager.getConfigFile();
+        if (config.getBoolean(ConfPaths.BLOCKBREAK_DEBUG, config.getBoolean(ConfPaths.CHECKS_DEBUG, false)))
+        StaticLog.logInfo("Added block-info for Minecraft 1.14 blocks.");
 	}
 
 }

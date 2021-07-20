@@ -5,7 +5,7 @@ import org.bukkit.Material;
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 import fr.neatmonster.nocheatplus.compat.blocks.BlockPropertiesSetup;
 import fr.neatmonster.nocheatplus.compat.blocks.init.BlockInit;
-import fr.neatmonster.nocheatplus.config.WorldConfigProvider;
+import fr.neatmonster.nocheatplus.config.*;
 import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
@@ -152,11 +152,11 @@ public class BlocksMC1_17 implements BlockPropertiesSetup {
         BlockProperties.setBlockProps("AMETHYST_BLOCK", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 1.5f, BlockProperties.secToMs(2.25, 1.15, 0.6, 0.4, 0.3, 0.25, 0.2)));
 
         // Not done
-        //Candle cakes - needs model
-        //for (Material mat : MaterialUtil.CANDLE_CAKES) {
-        //    BlockFlags.addFlags(mat, BlockProperties.F_IGN_PASSABLE | BlockProperties.F_GROUND);
-        //    BlockProperties.setBlockProps(mat, new BlockProps(BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75)));
-        //}
+        //Candle cakes
+        for (Material mat : MaterialUtil.ALL_CANDLE_CAKE) {
+            BlockFlags.addFlags(mat, BlockProperties.F_GROUND);
+            BlockProperties.setBlockProps(mat, new BlockProperties.BlockProps(BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.75)));
+        }
 
         //Other blocks
         BlockProperties.setBlockProps("CALCITE", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 0.75f, BlockProperties.secToMs(3.75, 0.6, 0.3, 0.2, 0.15, 0.15, 0.1)));
@@ -164,9 +164,9 @@ public class BlocksMC1_17 implements BlockPropertiesSetup {
         // Not done
         //BlockFlags.addFlags("POWDER_SNOW", BlockProperties.F_IGN_PASSABLE);
         //BlockProperties.setBlockProps("POWDER_SNOW", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 0.25f, BlockProperties.secToMs(0.4)));
-        BlockInit.setAs("POWDER_SNOW_CAULDRON", Material.CAULDRON);
-        BlockInit.setAs("WATER_CAULDRON", Material.CAULDRON);
-        BlockInit.setAs("LAVA_CAULDRON", Material.CAULDRON);
+        BlockInit.setPropsAs("POWDER_SNOW_CAULDRON", Material.CAULDRON);
+        BlockInit.setPropsAs("WATER_CAULDRON", Material.CAULDRON);
+        BlockInit.setPropsAs("LAVA_CAULDRON", Material.CAULDRON);
         BlockProperties.setBlockProps("MOSS_BLOCK", new BlockProperties.BlockProps(BlockProperties.woodHoe, 0.1f, BlockProperties.secToMs(0.15, 0.1, 0.05, 0.05, 0.05, 0.05, 0.05)));
         BlockFlags.addFlags("LIGHTNING_ROD", BlockFlags.SOLID_GROUND);
         BlockProperties.setBlockProps("LIGHTNING_ROD", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 3.0f, BlockProperties.secToMs(15.0, 7.5, 1.15, 0.75, 0.6, 0.5, 1.25)));
@@ -174,6 +174,8 @@ public class BlocksMC1_17 implements BlockPropertiesSetup {
         BlockFlags.addFlags("SCULK_SENSOR", BlockFlags.SOLID_GROUND);
         BlockProperties.setBlockProps("SCULK_SENSOR", new BlockProperties.BlockProps(BlockProperties.woodHoe, 1.5f, BlockProperties.secToMs(2.25, 1.15, 0.6, 0.4, 0.3, 0.25, 0.2)));
         
+        ConfigFile config = ConfigManager.getConfigFile();
+        if (config.getBoolean(ConfPaths.BLOCKBREAK_DEBUG, config.getBoolean(ConfPaths.CHECKS_DEBUG, false)))
         StaticLog.logInfo("Added block-info for Minecraft 1.17 blocks.");
     }
 }

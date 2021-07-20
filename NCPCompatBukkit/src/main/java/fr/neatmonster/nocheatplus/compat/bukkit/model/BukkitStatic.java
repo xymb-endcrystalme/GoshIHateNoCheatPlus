@@ -20,12 +20,7 @@ import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 
 public class BukkitStatic implements BukkitShapeModel {
 
-    private final double minX;
-    private final double minY;
-    private final double minZ;
-    private final double maxX;
-    private final double maxY;
-    private final double maxZ;
+    private final double[] bounds;
 
     /**
      * Initialize with the given height and with full xz-bounds.
@@ -46,21 +41,22 @@ public class BukkitStatic implements BukkitShapeModel {
         this(xzInset, 0.0, xzInset, 1.0 - xzInset, height, 1.0 - xzInset);
     }
 
-    public BukkitStatic(double minX, double minY, double minZ,
-            double maxX, double maxY, double maxZ) {
-        this.minX = minX;
-        this.minY = minY;
-        this.minZ = minZ;
-        this.maxX = maxX;
-        this.maxY = maxY;
-        this.maxZ = maxZ;
+    /**
+     * Initialize with the given bounds 
+     * 
+     */
+    public BukkitStatic(double ...bounds) {
+        if (bounds.length % 6 != 0) {
+            throw new IllegalArgumentException("The length must be a multiple of 6");
+        }
+        this.bounds = bounds;
 
     }
 
     @Override
     public double[] getShape(final BlockCache blockCache, 
             final World world, final int x, final int y, final int z) {
-        return new double[] {minX, minY, minZ, maxX, maxY, maxZ};
+        return bounds;
     }
 
     @Override

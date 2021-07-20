@@ -42,7 +42,7 @@ public class ReflectBase {
         clazz = ServerVersion.getNMSMinecraftServer().getClass();
         name = clazz.getPackage().getName();
         if (name.equals("net.minecraft.server") || name.indexOf("net.") == 0 && name.indexOf(".minecraft.") != -1 && name.indexOf(".server.") != -1) {
-            nmsPackageName = name;
+            nmsPackageName = name.contains("v1_") ? name : "net.minecraft.world.entity";
         } else {
             nmsPackageName = null;
         }
