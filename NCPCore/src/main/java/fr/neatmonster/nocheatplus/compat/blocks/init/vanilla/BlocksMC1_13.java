@@ -63,7 +63,8 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         // Dead coral parts (solid + ground already set).
         for (Material mat : MaterialUtil.DEAD_CORAL_PARTS) {
             // (Flags should be set correctly by default.)
-            BlockInit.setPropsAs(mat, Material.STONE);
+            BlockProperties.setBlockProps(mat, BlockProperties.instantType);
+            BlockProperties.setBlockFlags(mat, BlockProperties.F_IGN_PASSABLE);
         }
 
         // Kelp.

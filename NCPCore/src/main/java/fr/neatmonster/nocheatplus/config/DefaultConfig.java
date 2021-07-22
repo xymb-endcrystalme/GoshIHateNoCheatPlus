@@ -392,8 +392,6 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_REACH_ACTIONS, "cancel vl>1 cancel log:freach:8:9:i vl>5 cancel log:freach:2:6:i vl>12 cancel log:freachhighvl:1:5:if vl>35 cancel log:freachhighvl:0:5:if cmdc:kicksuspiciouscombat:2:1", 1154);
         // SelfHit, legacy
         set(ConfPaths.FIGHT_SELFHIT_CHECK, "default", 785);
-	    set(ConfPaths.FIGHT_SELFHIT_EXCLUDEPROJECTILE, false, 1154);
-	    set(ConfPaths.FIGHT_SELFHIT_MESSAGE, true, 1154);
         set(ConfPaths.FIGHT_SELFHIT_ACTIONS, "cancel log:fselfhit:0:5:icf cmdc:kickselfhit:0:5", 1154);
         // Speed
         set(ConfPaths.FIGHT_SPEED_CHECK, "default", 785);
@@ -554,6 +552,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_SURVIVALFLY_STEPHEIGHT, "default", 785);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_VACC, true, 785);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_HACC, true, 1154);
+        set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_NOSLOW, true, 1154);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_RESETITEM, true, 1154);
         set(ConfPaths.MOVING_SURVIVALFLY_LENIENCY_HBUFMAX, 1.0, 1154);
         // SurvivalFly - ViolationFrequencyHook
@@ -581,9 +580,9 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_SURVIVALFLY_HOVER_LOGINTICKS, 60, 785);
         set(ConfPaths.MOVING_SURVIVALFLY_HOVER_FALLDAMAGE, true, 785);
         set(ConfPaths.MOVING_SURVIVALFLY_HOVER_SFVIOLATION, 200, 1154); 
-        // Moving Trace
-        //set(ConfPaths.MOVING_TRACE_MAXAGE, 200, 785); // Your grandma reads code.
-        //set(ConfPaths.MOVING_TRACE_MAXSIZE, 200, 785);
+        // Moving Trace - Lag compensator
+        set(ConfPaths.MOVING_TRACE_MAXAGE, 30, 1154);
+        set(ConfPaths.MOVING_TRACE_MAXSIZE, 30, 1154);
         // Velocity.
         set(ConfPaths.MOVING_VELOCITY_ACTIVATIONCOUNTER, 20, 1154);
         set(ConfPaths.MOVING_VELOCITY_ACTIVATIONTICKS, 140, 785);
@@ -790,20 +789,7 @@ public class DefaultConfig extends ConfigFile {
                 )) {
             set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + name, "default+ign_passable+ground_height", 785);
         }
-        // TODO: Review these block models
-        for (final String DeadCoralType : Arrays.asList(
-                "DEAD_TUBE",
-                "DEAD_BRAIN",
-                "DEAD_BUBBLE",
-                "DEAD_FIRE",
-                "DEAD_HORN"
-                )) { 
-            set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + DeadCoralType + "_CORAL", "default+ign_passable+ground_height", 1154);
-            set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + DeadCoralType + "_CORAL_WALL_FAN", "default+ign_passable+ground_height", 1154);
-        }
-        set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "DEAD_TUBE_CORAL_FAN", "default+ign_passable+ground_height", 1154);
-        set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "DEAD_BRAIN_CORAL_FAN", "default+ign_passable+ground_height", 1154);
-        set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_OVERRIDEFLAGS + "." + "DEAD_BUBBLE_CORAL_FAN", "default+ign_passable+ground_height", 1154);
+        set(ConfPaths.COMPATIBILITY_BLOCKS + ConfPaths.SUB_BLOCKCACHE_WORLD_MINY, 0, 1154);
         set(ConfPaths.COMPATIBILITY_BLOCKS_CHANGETRACKER_ACTIVE, true, 1036); // With lastChangedBuildNumber.
         set(ConfPaths.COMPATIBILITY_BLOCKS_CHANGETRACKER_PISTONS, true, 785);
         set(ConfPaths.COMPATIBILITY_BLOCKS_CHANGETRACKER_MAXAGETICKS, 20, 1154);

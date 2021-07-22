@@ -57,6 +57,7 @@ import fr.neatmonster.nocheatplus.utilities.location.LocUtil;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.location.RichEntityLocation;
 import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
+import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 import fr.neatmonster.nocheatplus.workaround.IWorkaroundRegistry.WorkaroundSet;
 
 /**
@@ -604,7 +605,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      */
     public void clearNoFallData() {
         noFallFallDistance = 0;
-        noFallMaxY = 0.0;
+        noFallMaxY = BlockProperties.getMinWorldY();
         noFallSkipAirCheck = false;
     }
 
@@ -1280,7 +1281,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public void useVerticalBounce(final Player player) {
         // CHEATING: Ensure fall distance is reset.
         player.setFallDistance(0f);
-        noFallMaxY = 0.0;
+        noFallMaxY = BlockProperties.getMinWorldY();
         noFallFallDistance = 0f;
         noFallSkipAirCheck = true;
         prependVerticalVelocity(verticalBounce);

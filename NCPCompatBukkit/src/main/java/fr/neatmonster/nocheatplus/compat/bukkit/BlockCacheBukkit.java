@@ -22,6 +22,7 @@ import org.bukkit.entity.EntityType;
 
 import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
+import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 
 public class BlockCacheBukkit extends BlockCache {
 
@@ -39,6 +40,7 @@ public class BlockCacheBukkit extends BlockCache {
         this.world = world;
         if (world != null) {
             this.maxBlockY = world.getMaxHeight() - 1;
+            this.minBlockY = BlockProperties.getMinWorldY();
         }
         return this;
     }

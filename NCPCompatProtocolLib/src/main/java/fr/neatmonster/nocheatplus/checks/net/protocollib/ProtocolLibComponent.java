@@ -140,7 +140,8 @@ public class ProtocolLibComponent implements IDisableListener, INotifyReload, Jo
             }
         }
         if (ServerVersion.compareMinecraftVersion("1.8") >= 0) {
-        	register("fr.neatmonster.nocheatplus.checks.net.protocollib.NoSlow", plugin);
+        	if (ConfigManager.isTrueForAnyConfig(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_NOSLOW)) 
+        	    register("fr.neatmonster.nocheatplus.checks.net.protocollib.NoSlow", plugin);
             register("fr.neatmonster.nocheatplus.checks.net.protocollib.Fight", plugin);
         }
         if (!registeredPacketAdapters.isEmpty()) {

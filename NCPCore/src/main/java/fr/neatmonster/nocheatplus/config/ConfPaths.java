@@ -59,6 +59,7 @@ public abstract class ConfPaths {
     public static final String SUB_VERTICAL_DESCEND_SPEED                = SUB_VERTICAL_DESCEND + "." + SUB_SPEED;
     public static final String SUB_VERTICAL_MAXHEIGHT                    = SUB_VERTICAL + "." + SUB_MAXHEIGHT;
     public static final String SUB_VERTICAL_GRAVITY                      = SUB_VERTICAL + "." + SUB_GRAVITY;
+    public static final String SUB_BLOCKCACHE_WORLD_MINY                 = "blockcache.minimalworldy";
 
     // General.
     public static final String SAVEBACKCONFIG                            = "savebackconfig";
@@ -698,6 +699,7 @@ public abstract class ConfPaths {
     private static final String MOVING_SURVIVALFLY_EXTENDED                 = MOVING_SURVIVALFLY + "extended.";
     public static final String MOVING_SURVIVALFLY_EXTENDED_HACC             = MOVING_SURVIVALFLY_EXTENDED + "horizontal-accounting";
     public static final String MOVING_SURVIVALFLY_EXTENDED_VACC             = MOVING_SURVIVALFLY_EXTENDED + "vertical-accounting";
+    public static final String MOVING_SURVIVALFLY_EXTENDED_NOSLOW           = MOVING_SURVIVALFLY_EXTENDED + "noslow";
     public static final String MOVING_SURVIVALFLY_EXTENDED_RESETITEM        = MOVING_SURVIVALFLY_EXTENDED + "reset-activeitem";
     private static final String MOVING_SURVIVALFLY_LENIENCY                 = MOVING_SURVIVALFLY + "leniency.";
     public static final String  MOVING_SURVIVALFLY_LENIENCY_HBUFMAX         = MOVING_SURVIVALFLY_LENIENCY + "hbufmax";

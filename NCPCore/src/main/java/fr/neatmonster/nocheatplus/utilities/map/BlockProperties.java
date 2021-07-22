@@ -630,6 +630,9 @@ public class BlockProperties {
     /** The p loc. */
     private static PlayerLocation pLoc = null;
 
+    /** The world minimum block Y */
+    private static int minWorldY = 0;
+
     /** The Constant blockFlags. */
     protected static final Map<Material, Long> blockFlags = new HashMap<Material, Long>();
 
@@ -3703,6 +3706,7 @@ public class BlockProperties {
                 StaticLog.logInfo("Overriding block-flags was not entirely successful, all available flags: \n" + StringUtil.join(flagNameMap.values(), "|"));
             }
         }
+        minWorldY = config.getInt(pathPrefix + ConfPaths.SUB_BLOCKCACHE_WORLD_MINY, 0); 
     }
 
     /**
@@ -5135,6 +5139,10 @@ public class BlockProperties {
      */
     public static void setSpecialCaseTrapDoorAboveLadder(boolean specialCaseTrapDoorAboveLadder) {
         BlockProperties.specialCaseTrapDoorAboveLadder = specialCaseTrapDoorAboveLadder;
+    }
+
+    public static int getMinWorldY() {
+        return minWorldY;
     }
 
 }

@@ -2273,42 +2273,6 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
         data.addVelocity(player, cc, velocity.getX(), velocity.getY(), velocity.getZ());
     }
-    
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
-    public void onSelfDamage(final EntityDamageByEntityEvent event) {
-
-        final Entity entity = event.getEntity();
-        if (!(entity instanceof Player)) return;
-        
-        checkSelfHit((Player) entity, event);
-    }
-    
-    // TODO: Move to fight listener
-    private void checkSelfHit(final Player player, final EntityDamageByEntityEvent event) {
-
-        Entity entity = event.getDamager();
-        if (entity instanceof Projectile) {
-            Projectile a = (Projectile)entity;
-
-            if (a.getType().name().endsWith("ARROW") && a.getShooter() instanceof Player) {
-                Player p = (Player) a.getShooter();
-                if (p == player) {
-                    final IPlayerData pData = DataManager.getPlayerData(player);
-                    final MovingData data = pData.getGenericInstance(MovingData.class);
-                    final FightConfig fconfig = pData.getGenericInstance(FightConfig.class);
-                    final long now = System.currentTimeMillis();
-                    if (!fconfig.selfHitExcludeprojectile && !pData.hasPermission(Permissions.FIGHT_SELFHIT, player) && data.selfhittime != 0 && data.selfhittime + 1100 > now) {
-                        // TODO: This feature must be configurable
-                        event.setCancelled(true);
-                        if (fconfig.selfHitMessage) {
-                            player.sendMessage(ChatColor.DARK_RED + "Self-velocity is not allowed!");
-                        }
-                    }
-                    data.selfhittime = now;
-                }
-            }
-        }
-    }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void onEntityDamage(final EntityDamageEvent event) {

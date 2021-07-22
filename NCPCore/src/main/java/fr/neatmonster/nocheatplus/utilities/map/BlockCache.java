@@ -195,6 +195,8 @@ public abstract class BlockCache {
 
     /** The max block y. */
     protected int maxBlockY =  255;
+    /** The min block y. */
+    protected int minBlockY = 0;
 
     private final BlockCacheNode airNode = new BlockCacheNode(Material.AIR);
     // TODO: setBlockCacheConfig -> set static nodes (rather only by id).
@@ -309,7 +311,7 @@ public abstract class BlockCache {
         if (node != null) {
             return node;
         }
-        final Material id = (y < 0 || y > maxBlockY) ? Material.AIR : fetchTypeId(x, y, z);
+        final Material id = (y < minBlockY || y > maxBlockY) ? Material.AIR : fetchTypeId(x, y, z);
         // (Later: Static id-node map from config.)
         if (BlockProperties.isAir(id)) {
             return airNode;
@@ -483,6 +485,15 @@ public abstract class BlockCache {
      */
     public int getMaxBlockY() {
         return maxBlockY;
+    }
+
+    /**
+     * Get the minimal y coordinate a block can be at (non air).
+     *
+     * @return the min block y
+     */
+    public int getMinBlockY() {
+        return minBlockY;
     }
 
 }
