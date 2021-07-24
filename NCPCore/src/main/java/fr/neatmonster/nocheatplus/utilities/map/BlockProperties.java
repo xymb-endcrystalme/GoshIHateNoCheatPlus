@@ -735,6 +735,9 @@ public class BlockProperties {
     /** ICE. */
     public static final long F_ICE                          = f_flag();
 
+    /** BLUE ICE. */
+    public static final long F_BLUE_ICE                     = f_flag();
+
     /** LEAVES. */
     public static final long F_LEAVES                       = f_flag();
 
@@ -2748,6 +2751,17 @@ public class BlockProperties {
      */
     public static final boolean isIce(final Material id) {
         return (getBlockFlags(id) & F_ICE) != 0;
+    }
+
+    /**
+     * Checks if is blue ice.
+     *
+     * @param id
+     *            the id
+     * @return true, if is blue ice
+     */
+    public static final boolean isBlueIce(final Material id) {
+        return (getBlockFlags(id) & F_BLUE_ICE) != 0;
     }
 
     /**
