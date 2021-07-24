@@ -45,6 +45,7 @@ import fr.neatmonster.nocheatplus.checks.moving.util.AuxMoving;
 import fr.neatmonster.nocheatplus.checks.moving.util.MovingUtil;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.VelocityFlags;
 import fr.neatmonster.nocheatplus.checks.workaround.WRPT;
+import fr.neatmonster.nocheatplus.compat.Bridge1_17;
 import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeEnchant;
@@ -430,13 +431,34 @@ public class SurvivalFly extends Check {
 
         double vAllowedDistance = 0, vDistanceAboveLimit = 0;
         boolean onOrInMedium = from.isOnHoneyBlock() || from.isInWeb() || from.isInBerryBush() 
-                               || from.isOnClimbable() || from.isInLiquid();
+                               || from.isOnClimbable() || from.isInLiquid() || from.isInPowderSnow();
         
         // Wild-card: allow step height from ground to ground, if not on/in a medium already.
         if (yDistance >= 0.0 && yDistance <= cc.sfStepHeight && toOnGround && fromOnGround && !onOrInMedium) {
             vAllowedDistance = cc.sfStepHeight;
             thisMove.allowstep = true;
             tags.add("groundstep");
+        }
+
+        // TODO: Test, adjust.
+        else if (data.liftOffEnvelope == LiftOffEnvelope.LIMIT_POWDER_SNOW) {
+            final double yToBlock = from.getY() - from.getBlockY();
+            boolean fall = false;
+            if (yToBlock <= cc.yOnGround) {
+                vAllowedDistance = data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier, 1.5);
+            }
+            else {
+                if (Bridge1_17.hasLeatherBootsOn(player)) {
+                    vAllowedDistance = yDistance < 0 ? Magic.snowClimbSpeedDescend : Magic.snowClimbSpeedAscend;
+                } else {
+                    vAllowedDistance = -Magic.snowClimbSpeedDescend;
+                    fall = true;
+                }
+            }
+            final double yDistDiffEx = yDistance - vAllowedDistance;
+            final boolean violation = fall ? Math.abs(yDistDiffEx) > 0.05 : Math.abs(yDistance) > Math.abs(vAllowedDistance);
+            vDistanceAboveLimit = violation ? yDistance : 0;
+            if (vDistanceAboveLimit > 0.0) tags.add("powdersnow");
         }
 
         // HoneyBlock
@@ -508,14 +530,13 @@ public class SurvivalFly extends Check {
         if (debug) {
             outputDebug(player, to, data, cc, hDistance, hAllowedDistance, hFreedom, 
                         yDistance, vAllowedDistance, fromOnGround, resetFrom, toOnGround, 
-                        resetTo, thisMove);
+                        resetTo, thisMove, vDistanceAboveLimit);
             tagsLength = tags.size();
             data.ws.setJustUsedIds(null);
         }
         else {
             tagsLength = 0; // JIT vs. IDE.
         }
-
 
 
 
@@ -589,6 +610,9 @@ public class SurvivalFly extends Check {
                 data.liftOffEnvelope = LiftOffEnvelope.LIMIT_LIQUID;
             }
         }
+        else if (BlockProperties.isPowderSnow(to.getTypeId())) {
+            data.liftOffEnvelope = LiftOffEnvelope.LIMIT_POWDER_SNOW;
+        }
         else if (thisMove.to.inWeb) {
             data.liftOffEnvelope = LiftOffEnvelope.NO_JUMP; // TODO: Test.
         }
@@ -616,6 +640,9 @@ public class SurvivalFly extends Check {
                 // TODO: Distinguish strong limit.
                 data.liftOffEnvelope = LiftOffEnvelope.LIMIT_LIQUID;
             }
+        }
+        else if (BlockProperties.isPowderSnow(from.getTypeId())) {
+            data.liftOffEnvelope = LiftOffEnvelope.LIMIT_POWDER_SNOW;
         }
         else if (thisMove.from.inWeb) {
             data.liftOffEnvelope = LiftOffEnvelope.NO_JUMP; // TODO: Test.
@@ -770,6 +797,10 @@ public class SurvivalFly extends Check {
                 // 1.8.8 in-water moves with jumping near/on surface. 1.2 is max factor for one move (!).
                 limitFCMH =  ServerIsAtLeast1_10 ? 1.05 : 1.1; 
             }
+            else if (data.liftOffEnvelope == LiftOffEnvelope.LIMIT_POWDER_SNOW) {
+                limitFCMH = 1.047;
+            }
+            // TODO: half_jump, berry_jump !
             else {
                 limitFCMH = 1.0;
             }
@@ -1011,6 +1042,9 @@ public class SurvivalFly extends Check {
         if (from.inWeb || to.inWeb) {
             data.nextFrictionHorizontal = data.nextFrictionVertical = 0.0;
         }
+        if (from.inPowderSnow || to.inPowderSnow) {
+            data.nextFrictionHorizontal = data.nextFrictionVertical = 0.0;
+        }
         // No from#onClimbable check to fix vines fps casue by medium counts, probably wrong place! 
         else if (to.onClimbable) {
             // TODO: Not sure about horizontal (!).
@@ -1103,6 +1137,19 @@ public class SurvivalFly extends Check {
             useBaseModifiersSprint = false; 
             useBaseModifiers = true;
             friction = 0.0; 
+        }
+        
+        // Powder snow
+        // TODO: Scale speed according to freezing tick.
+        else if (thisMove.from.inPowderSnow) {
+            tags.add("hsnow");
+            data.sfBounceTick = 0;
+            data.sfOnIce = 0;
+            hAllowedDistance = Magic.modPowderSnow * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+            if (thisMove.yDistance > 0.0 && thisMove.from.onGround && !thisMove.to.onGround) hAllowedDistance *= 2.3;
+            friction = 0.0;
+            useBaseModifiers = true;
+            useBlockOrSneakModifier = true;
         }
         
         // Soulsand
@@ -1420,7 +1467,6 @@ public class SurvivalFly extends Check {
         // Other properties. //
         ///////////////////////
         // TODO: Reset friction on too big change of direction?
-
         // Account for flowing liquids (only if needed).
         // Assume: If in liquids this would be placed right here.
         if (thisMove.downStream && thisMove.hDistance > thisMove.walkSpeed * Magic.modSwim[0] 
@@ -1440,6 +1486,11 @@ public class SurvivalFly extends Check {
         if (data.sfBounceTick > 0) {
             hAllowedDistance *= (data.sfBounceTick > 10) ? Magic.modBounce : (1.0 + 0.020 * data.sfBounceTick);
         }
+        
+        // Entering/Exiting powder snow, scale the base speed.
+        // if (Bridge1_17.getFreezeTicks(player) > 0) {
+        //     hAllowedDistance *= 0.5 + 0.025 / Bridge1_17.getFreezeTicks(player);
+        // }
         
         // Soul speed workaround
         if (data.keepfrictiontick > 0) {
@@ -2393,45 +2444,44 @@ public class SurvivalFly extends Check {
                                   final PlayerMoveData thisMove, final PlayerMoveData lastMove, 
                                   final double yDistance, final MovingData data) {
 
+        // TODO: Might not be able to ignore vertical velocity if moving off climbable (!).
+        // TODO: bring in in-medium accounting
+        // TODO: ladders are ground !
         double vDistanceAboveLimit = 0.0;
         long now = System.currentTimeMillis();
         data.sfNoLowJump = true;
         data.clearActiveHorVel();
-        // TODO: Might not be able to ignore vertical velocity if moving off climbable (!).
-        // TODO: bring in in-medium accounting
         final double jumpHeight = 1.35 + (data.jumpAmplifier > 0 ? (0.6 + data.jumpAmplifier - 1.0) : 0.0);
-        // TODO: ladders are ground !
+        final double maxJumpGain = data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier) + 0.1;
         final double maxSpeed = yDistance < 0.0 ? Magic.climbSpeedDescend : Magic.climbSpeedAscend;
 
         if (Math.abs(yDistance) > maxSpeed) {
             if (from.isOnGround(jumpHeight, 0D, 0D, BlockProperties.F_CLIMBABLE)) {
-                if (yDistance > data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier) + 0.1) {
+                if (yDistance > maxJumpGain) {
                     tags.add("climbstep");
                     vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance) - maxSpeed);
                 }
             }
-            else if (!(lastMove.from.inLiquid && Math.abs(yDistance) < Magic.swimBaseSpeedV(Bridge1_13.hasIsSwimming()))) {
+            else if (!(lastMove.from.inLiquid 
+                    && Math.abs(yDistance) < Magic.swimBaseSpeedV(Bridge1_13.hasIsSwimming()))) {
                 tags.add("climbspeed");
                 vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance) - maxSpeed);
             }
         }
 
         if (yDistance > 0.0) {
-            if (!data.playerMoves.getCurrentMove().touchedGround) {
-                // Check if player may climb up.
-                // (This does exclude ladders.)
-                if (!from.canClimbUp(jumpHeight)) {
-                    tags.add("climbdetached");
-                    vDistanceAboveLimit = Math.max(vDistanceAboveLimit, yDistance);
-                }
+            // Can't climb up with vine not attached to a solid block.
+            if (!thisMove.touchedGround && !from.canClimbUp(jumpHeight)) {
+                tags.add("climbdetached");
+                vDistanceAboveLimit = Math.max(vDistanceAboveLimit, yDistance);
             }
         }
 
         // Do allow friction with velocity.
+        // TODO: Actual friction or limit by absolute y-distance?
+        // TODO: Looks like it's only a problem when on ground?
         if (vDistanceAboveLimit > 0.0 && thisMove.yDistance > 0.0 
             && lastMove.yDistance - (Magic.GRAVITY_MAX + Magic.GRAVITY_MIN) / 2.0 > thisMove.yDistance) {
-            // TODO: Actual friction or limit by absolute y-distance?
-            // TODO: Looks like it's only a problem when on ground?
             vDistanceAboveLimit = 0.0;
             tags.add("vfrict_climb");
         }
@@ -2701,7 +2751,7 @@ public class SurvivalFly extends Check {
                              final double yDistance, final double vAllowedDistance,
                              final boolean fromOnGround, final boolean resetFrom, 
                              final boolean toOnGround, final boolean resetTo,
-                             final PlayerMoveData thisMove) {
+                             final PlayerMoveData thisMove, double vDistanceAboveLimit) {
 
         // TODO: Show player name once (!)
         final PlayerMoveData lastMove = data.playerMoves.getFirstPastMove();
@@ -2739,7 +2789,7 @@ public class SurvivalFly extends Check {
             }
         }
         if (cc.survivalFlyAccountingH && data.combinedMediumHCount > 0) {
-            builder.append("\n hAcc: " + StringUtil.fdec3.format(data.combinedMediumHValue / (double) data.combinedMediumHCount) + "(" + data.combinedMediumHCount + ")");
+            builder.append("\n hAcc: fcmh" + StringUtil.fdec3.format(data.combinedMediumHValue / (double) data.combinedMediumHCount) + "(" + data.combinedMediumHCount + ")");
         }
         if (player.isSleeping()) {
             tags.add("sleeping");
@@ -2755,7 +2805,7 @@ public class SurvivalFly extends Check {
         if (!tags.isEmpty()) {
             builder.append("\n" + " Tags: " + StringUtil.join(tags, "+"));
         }
-        if (!justUsedWorkarounds.isEmpty()) {
+        if (!justUsedWorkarounds.isEmpty() && vDistanceAboveLimit > 0.0) {
             builder.append("\n" + " Rules/Workarounds: " + StringUtil.join(justUsedWorkarounds, " , "));
         }
         builder.append("\n");

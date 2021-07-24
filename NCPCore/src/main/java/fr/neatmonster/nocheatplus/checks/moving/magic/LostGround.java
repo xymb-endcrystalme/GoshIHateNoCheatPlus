@@ -26,6 +26,7 @@ import fr.neatmonster.nocheatplus.checks.moving.model.LiftOffEnvelope;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.checks.moving.player.Passable;
 import fr.neatmonster.nocheatplus.checks.moving.util.MovingUtil;
+import fr.neatmonster.nocheatplus.compat.Bridge1_17;
 import fr.neatmonster.nocheatplus.compat.MCAccess;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker;
 import fr.neatmonster.nocheatplus.utilities.TickTask;
@@ -233,7 +234,8 @@ public class LostGround {
      */
     private static boolean noobTowerStillCommon(final PlayerLocation to, final double yDistance) {
         // TODO: Block recently placed underneath (xz box with 0.025 down, Direction.NONE).
-        return yDistance < 0.025 && to.getY() - to.getBlockY() < 0.025 && to.isOnGround(0.025);
+        return yDistance < 0.025 && to.getY() - to.getBlockY() < 0.025
+               && to.isOnGround(0.025, Bridge1_17.hasLeatherBootsOn(to.getPlayer()) ? 0 : BlockProperties.F_POWDERSNOW);
     }
 
     /**

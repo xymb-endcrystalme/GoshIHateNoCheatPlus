@@ -664,10 +664,13 @@ public class BlockProperties {
 
     /** The Constant F_LIQUID. */
     public static final long F_LIQUID                       = f_flag();
+
     public static final long F_NEWLIQ                       = f_flag();
+
     // TODO: maybe remove F_SOLID use (unless for setting F_GROUND on init).
     /** Minecraft isSolid result. Used for setting ground flag - Subject to change / rename.*/
     public static final long F_SOLID                        = f_flag();
+
     /** Compatibility flag: regard this block as passable always. */
     public static final long F_IGN_PASSABLE                 = f_flag();
 
@@ -676,22 +679,28 @@ public class BlockProperties {
 
     /** The Constant F_LAVA. */
     public static final long F_LAVA                         = f_flag();
+
     /** Override bounding box: 1.5 blocks high, like fences.<br>
      *  NOTE: This might have relevance for passable later.
      */
     public static final long F_HEIGHT150                    = f_flag();
+
     /** The player can stand on these, sneaking or not. */
     public static final long F_GROUND                       = f_flag(); // TODO: 
     /** Override bounding box: 1 block height.<br>
      * NOTE: This should later be ignored by passable, rather.
      */
     public static final long F_HEIGHT100                    = f_flag();
+
     /** Climbable like ladder and vine (allow to land on without taking damage). */
     public static final long F_CLIMBABLE                    = f_flag();
+
     /** Allow climbable can climb up but they didn't use to like vine. */
     public static final long F_CLIMBUPABLE                  = f_flag();
+
     /** The block can change shape. This is most likely not 100% accurate... */
     public static final long F_VARIABLE                     = f_flag();
+
     //    /** The block has full bounds (0..1), inaccurate! */
     //    public static final int F_FULL   		= 0x800;
     /** Block has full xz-bounds. */
@@ -867,9 +876,14 @@ public class BlockProperties {
 
     /** Cobweb like blocks (adhesive). */
     public static final long F_COBWEB                       = f_flag();
+
     /** Berry bush-like, similar to webs but with higher speed (adhesive). */
     public static final long F_COBWEB2                      = f_flag();
+
+    /** Soul sand and the like */
     public static final long F_SOULSAND                     = f_flag();
+
+    /** Indicator flag just to be able to distinguish from beds */
     public static final long F_SLIME                        = f_flag();
 
     /**
@@ -888,8 +902,14 @@ public class BlockProperties {
 
     /** For bubble column */
     public static final long F_BUBBLECOLUMN                 = f_flag();
+
+    /* Indicator flag */
     public static final long F_ANVIL                        = f_flag();
+    
+    /** Flag used to workaround bugged block-bounds in older servers for thin fences */
     public static final long F_FAKEBOUNDS                   = f_flag();
+
+    public static final long F_POWDERSNOW                   = f_flag();
 
     // TODO: Convenience constants combining all height / minheight flags.
 
@@ -2784,6 +2804,17 @@ public class BlockProperties {
      */
     public static final boolean isCarpet(final Material id) {
         return (getBlockFlags(id) & F_CARPET) != 0;
+    }
+
+    /**
+     * Checks if is PowderSnow.
+     *
+     * @param id
+     *            the id
+     * @return true, if is leaves
+     */
+    public static final boolean isPowderSnow(final Material id) {
+        return (getBlockFlags(id) & F_POWDERSNOW) != 0;
     }
 
     /**

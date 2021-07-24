@@ -87,6 +87,7 @@ import fr.neatmonster.nocheatplus.checks.moving.velocity.SimpleEntry;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.VelocityFlags;
 import fr.neatmonster.nocheatplus.checks.net.NetData;
 import fr.neatmonster.nocheatplus.compat.Bridge1_13;
+import fr.neatmonster.nocheatplus.compat.Bridge1_17;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeEnchant;
 import fr.neatmonster.nocheatplus.compat.BridgeHealth;
@@ -687,6 +688,14 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final PlayerLocation pFrom, pTo;
         pFrom = moveInfo.from;
         pTo = moveInfo.to;
+
+        boolean hasboots = Bridge1_17.hasLeatherBootsOn(player);
+        if (pTo.isOnGround() && !hasboots && pTo.adjustOnGround(!pTo.isOnGround(cc.yOnGround, BlockProperties.F_POWDERSNOW)) && debug) {
+            debug(player, "Collide powder snow surface but not wearing boots. Adjusting To loctaion");
+        }
+        if (pFrom.isOnGround() && !hasboots && pFrom.adjustOnGround(!pFrom.isOnGround(cc.yOnGround, BlockProperties.F_POWDERSNOW)) && debug) {
+            debug(player, "Collide powder snow surface but not wearing boots. Adjusting From loctaion");
+        }
 
         // HOT FIX - for VehicleLeaveEvent missing.
         if (data.wasInVehicle) {

@@ -38,7 +38,10 @@ public enum LiftOffEnvelope {
     HALF_JUMP(0.21, 0.4, 4, true), 
     /** Nearly ordinary jumping gain (meant for berry bushes)*/
     // TEST: Jumping height is random (but higher than the honeyblock), needs testing to be more strict.
-    BERRY_JUMP(0.35, 0.54, 5, true); 
+    BERRY_JUMP(0.35, 0.54, 5, true), 
+    // TODO: jump height
+    // Powder snow is considered as reset condition so we don't care about the jump phase.
+    LIMIT_POWDER_SNOW(0.63, 0.63, 0, true) 
     ;
 
     private double maxJumpGain;
@@ -67,7 +70,22 @@ public enum LiftOffEnvelope {
             return maxJumpGain;
         }
     }
-    
+
+    /**
+     * Minimal distance expected with lift-off.
+     * @param jumpAmplifier
+     * @param factor
+     * @return
+     */
+    public double getMinJumpGain(double jumpAmplifier, double factor) {
+        if (jumpEffectApplies && jumpAmplifier != 0.0) {
+            return Math.max(0.0, maxJumpGain + 0.1 * jumpAmplifier * factor);
+        }
+        else {
+            return maxJumpGain;
+        }
+    }
+
     /**
      * Maximum distance expected with lift-off.
      * 

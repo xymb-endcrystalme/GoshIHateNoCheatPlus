@@ -36,7 +36,7 @@ public class LocationData implements IGetLocationWithLook {
     /** Must be checked before using any of the flags. */
     public boolean extraPropertiesValid = false;
     /** Basic environmental properties. */
-    public boolean onClimbable, inWeb, inLava, inWater, inLiquid, onGround, onIce, onBlueIce, onSoulSand, onSlimeBlock, inBerryBush, onHoneyBlock;
+    public boolean onClimbable, inWeb, inPowderSnow, inLava, inWater, inLiquid, onGround, onIce, onBlueIce, onSoulSand, onSlimeBlock, inBerryBush, onHoneyBlock;
     /** Aggregate properties (reset means potentially resetting fall damage). */
     public boolean resetCond, onGroundOrResetCond;
 
@@ -97,6 +97,7 @@ public class LocationData implements IGetLocationWithLook {
         inBerryBush = loc.isInBerryBush();
         onSlimeBlock = loc.isOnSlimeBlock();
         onHoneyBlock = loc.isOnHoneyBlock();
+        inPowderSnow = loc.isInPowderSnow();
         if (inLiquid) {
             inLava = loc.isInLava();
             inWater = loc.isInWater();
@@ -107,7 +108,7 @@ public class LocationData implements IGetLocationWithLook {
         onGround = loc.isOnGround();
         onIce = loc.isOnIce();
         onBlueIce = loc.isOnBlueIce();
-        resetCond = inLiquid || inWeb || onClimbable || inBerryBush;
+        resetCond = inLiquid || inWeb || onClimbable || inBerryBush || inPowderSnow;
         onGroundOrResetCond = onGround || resetCond;
         // Set valid flag last.
         extraPropertiesValid = true;
@@ -132,6 +133,7 @@ public class LocationData implements IGetLocationWithLook {
             inBerryBush = other.inBerryBush;
             onSlimeBlock = other.onSlimeBlock;
             onHoneyBlock = other.onHoneyBlock;
+            inPowderSnow = other.inPowderSnow;
             // Use aggregate properties 1:1, allowing for hacks.
             resetCond = other.resetCond;
             onGroundOrResetCond = other.onGroundOrResetCond;
@@ -152,6 +154,7 @@ public class LocationData implements IGetLocationWithLook {
         onSlimeBlock = false;
         onHoneyBlock = false;
         inBerryBush = false;
+        inPowderSnow = false;
         onIce = false;
         onBlueIce = false;
         resetCond = false;
