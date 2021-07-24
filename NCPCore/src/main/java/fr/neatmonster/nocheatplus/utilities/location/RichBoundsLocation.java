@@ -121,6 +121,9 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     /** Is the player on ice?. */
     Boolean onIce = null;
 
+    /** Is the player on blue ice?. */
+    Boolean onBlueIce = null;
+
     /** Is the player on the ground?. */
     Boolean onGround = null;
     
@@ -842,7 +845,25 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         }
         return onIce;
     }
-    
+
+    /**
+     * Check the location is on blue ice, only regarding the center. Currently
+     * demands to be on ground as well.
+     *
+     * @return true, if is on blue ice
+     */
+    public boolean isOnBlueIce() {
+        if (onBlueIce == null) {
+            if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_BLUE_ICE) == 0) {
+                onBlueIce = false;
+            } else {
+                // TODO: Might skip the isOnGround part, e.g. if boats sink in slightly. Needs testing.
+                onBlueIce = isOnGround() && BlockProperties.collides(blockCache, minX, minY - yOnGround, minZ, maxX, minY, maxZ, BlockProperties.F_BLUE_ICE);
+            }
+        }
+        return onBlueIce;
+    }
+
     /**
      * Check the location is on soul sand.
      *
@@ -1452,6 +1473,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         this.onHoneyBlock = other.isOnHoneyBlock();
         this.onSlimeBlock = other.isOnSlimeBlock();
         this.onIce = other.isOnIce();
+        this.onBlueIce = other.isOnBlueIce();
         this.onSoulSand = other.isOnSoulSand();
         this.onClimbable = other.isOnClimbable();
         // Complex checks last.
@@ -1521,7 +1543,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
 
         // Reset cached values.
         node = nodeBelow = null;
-        aboveStairs = inLava = inWater = inWaterLogged = inWeb = onIce = onSoulSand = onHoneyBlock = onSlimeBlock = inBerryBush = onGround = onClimbable = passable = passableBox = null;
+        aboveStairs = inLava = inWater = inWaterLogged = inWeb = onIce = onBlueIce = onSoulSand = onHoneyBlock = onSlimeBlock = inBerryBush = onGround = onClimbable = passable = passableBox = null;
         onGroundMinY = Double.MAX_VALUE;
         notOnGroundMaxY = Double.MIN_VALUE;
         blockFlags = null;
