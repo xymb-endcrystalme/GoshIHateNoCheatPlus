@@ -211,11 +211,17 @@ public class VehicleEnvelope extends Check {
         final Double cap = cc.vehicleEnvelopeHorizontalSpeedCap.get(type);
 
         if (cap == null) {
-            if (type == EntityType.BOAT && (thisMove.from.onIce || thisMove.to.onIce)) return 2.3;
+            if(type == EntityType.BOAT){
+                if ((thisMove.from.onBlueIce || thisMove.to.onBlueIce)) return 4.1;
+                if ((thisMove.from.onIce || thisMove.to.onIce)) return 2.3;
+            }
             return cc.vehicleEnvelopeHorizontalSpeedCap.get(null);
         }
         else {
-            if (type == EntityType.BOAT && (thisMove.from.onIce || thisMove.to.onIce)) return cap * 2.3;
+            if(type == EntityType.BOAT) {
+                if (thisMove.from.onBlueIce || thisMove.to.onBlueIce) return cap * 4.1;
+                if (thisMove.from.onIce || thisMove.to.onIce) return cap * 2.3;
+            }
             return cap;
         }
     }
@@ -325,7 +331,14 @@ public class VehicleEnvelope extends Check {
                 checkDetails.checkAscendMuch = false;
                 tags.add("step_up");
             }
-            if (thisMove.from.onIce && thisMove.to.onIce) {
+            if (thisMove.from.onBlueIce && thisMove.to.onBlueIce) {
+                // Default on-blueIce move.
+                if (debug) {
+                    debugDetails.add("blueIce-blueIce");
+                }
+                // TODO: Should still cover extreme moves here.
+            }
+            else if (thisMove.from.onIce && thisMove.to.onIce) {
                 // Default on-ice move.
                 if (debug) {
                     debugDetails.add("ice-ice");
