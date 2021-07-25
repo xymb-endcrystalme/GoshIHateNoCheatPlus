@@ -22,9 +22,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.MultipleFacing;
-import org.bukkit.util.BoundingBox;
-
-import fr.neatmonster.nocheatplus.compat.Bridge1_13;
+import org.bukkit.block.data.type.Wall;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 
 public class BukkitWall implements BukkitShapeModel {
@@ -32,15 +30,29 @@ public class BukkitWall implements BukkitShapeModel {
     private final double minXZ;
     private final double maxXZ;
     private final double height;
+    private final double sideInset;
+    private final double[] east;
+    private final double[] north;
+    private final double[] west;
+    private final double[] south;
 
     public BukkitWall(double inset, double height) {
-        this(inset, 1.0 - inset, height);
+        this(inset, 1.0 - inset, height, 0.0);
     }
 
-    public BukkitWall(double minXZ, double maxXZ, double height) {
+    public BukkitWall(double inset, double height, double sideInset) {
+        this(inset, 1.0 - inset, height, sideInset);
+    }
+
+    public BukkitWall(double minXZ, double maxXZ, double height, double sideInset) {
         this.minXZ = minXZ;
         this.maxXZ = maxXZ;
         this.height = height;
+        this.sideInset = sideInset;
+        east = new double[] {maxXZ, 0.0, sideInset, 1.0, height, 1.0 - sideInset};
+        north = new double[] {sideInset, 0.0, 0.0, 1.0 - sideInset, height, minXZ};
+        west = new double[] {0.0, 0.0, sideInset, minXZ, height, 1.0 - sideInset};
+        south = new double[] {sideInset, 0.0, maxXZ, 1.0 - sideInset, height, 1.0};
     }
 
     @Override
@@ -48,50 +60,57 @@ public class BukkitWall implements BukkitShapeModel {
             final World world, final int x, final int y, final int z) {
 
         final Block block = world.getBlockAt(x, y, z);
-        if (Bridge1_13.hasBoundingBox()) {
-            BoundingBox bd = block.getBoundingBox();
-            return new double[] {bd.getMinX()-x, bd.getMinY()-y, bd.getMinZ()-z, bd.getMaxX()-x, bd.getMaxY()-y, bd.getMaxZ()-z};
-        }
         final BlockState state = block.getState();
         final BlockData blockData = state.getBlockData();
         if (blockData instanceof MultipleFacing) {
-            // Note isPassableWorkaround for these (no voxel shapes / multi cuboid yet).
             final MultipleFacing fence = (MultipleFacing) blockData;
-            // TODO: If height > 1.0, check if it needs to be capped, provided relevant.
             double[] res = new double[] {minXZ, 0.0, minXZ, maxXZ, height, maxXZ};
+            final Set<BlockFace> a = fence.getFaces();
+            if (!a.contains(BlockFace.UP) && a.size() == 2) {
+                if (a.contains(BlockFace.SOUTH)) {
+                    return new double[] {sideInset, 0.0, 0.0, 1.0 - sideInset, height, 1.0};
+                }
+                if (a.contains(BlockFace.WEST)) {
+                    return new double[] {0.0, 0.0, sideInset, 1.0, height, 1.0 - sideInset};
+                }
+            }
             for (final BlockFace face : fence.getFaces()) {
                 switch (face) {
                     case EAST:
-                        res[3] = 1.0;
+                        res = add(res, east);
                         break;
                     case NORTH:
-                        res[2] = 0.0;
+                        res = add(res, north);
                         break;
                     case WEST:
-                        res[0] = 0.0;
+                        res = add(res, west);
                         break;
                     case SOUTH:
-                        res[5] = 1.0;
+                        res = add(res, south);
                         break;
                     default:
                         break;
-
                 }
             }
-            final Set<BlockFace> a = fence.getFaces(); 
-            if (!a.contains(BlockFace.UP) && a.size() == 2) {
-            	if (a.contains(BlockFace.SOUTH)) {
-            		res[0] = 0.33;
-            		res[3] = 1 - 0.33;
-            	}
-            	if (a.contains(BlockFace.WEST)) {
-            		res[2] = 0.33;
-            		res[5] = 1 - 0.33;
-            	}
-            }
             return res;
+        } else if (blockData instanceof Wall) {
+            final Wall wall = (Wall) blockData;
+            if (wall.isUp()) {
+                double[] res = new double[] {minXZ, 0.0, minXZ, maxXZ, height, maxXZ};
+                if (!wall.getHeight(BlockFace.WEST).equals(Wall.Height.NONE)) res = add(res, west);
+                if (!wall.getHeight(BlockFace.EAST).equals(Wall.Height.NONE)) res = add(res, east);
+                if (!wall.getHeight(BlockFace.NORTH).equals(Wall.Height.NONE)) res = add(res, north);
+                if (!wall.getHeight(BlockFace.SOUTH).equals(Wall.Height.NONE)) res = add(res, south);
+                return res;
+            } else {
+                if (!wall.getHeight(BlockFace.WEST).equals(Wall.Height.NONE) && !wall.getHeight(BlockFace.EAST).equals(Wall.Height.NONE)) {
+                    return new double[] {0.0, 0.0, sideInset, 1.0, height, 1.0 - sideInset};
+                }
+                if (!wall.getHeight(BlockFace.NORTH).equals(Wall.Height.NONE) && !wall.getHeight(BlockFace.SOUTH).equals(Wall.Height.NONE)) {
+                    return new double[] {sideInset, 0.0, 0.0, 1.0 - sideInset, height, 1.0};
+                }
+            }
         }
-
         return new double[] {0.0, 0.0, 0.0, 1.0, 1.0, 1.0};
     }
 
@@ -99,6 +118,13 @@ public class BukkitWall implements BukkitShapeModel {
     public int getFakeData(final BlockCache blockCache, 
             final World world, final int x, final int y, final int z) {
         return 0;
+    }
+
+    private double[] add(final double[] array1, final double[] array2) {
+        final double[] newArray = new double[array1.length + array2.length];
+        System.arraycopy(array1, 0, newArray, 0, array1.length);
+        System.arraycopy(array2, 0, newArray, array1.length, array2.length);
+        return newArray;
     }
 
 }

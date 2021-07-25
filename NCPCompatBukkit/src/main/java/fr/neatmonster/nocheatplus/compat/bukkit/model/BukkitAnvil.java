@@ -31,17 +31,29 @@ public class BukkitAnvil implements BukkitShapeModel {
         final Block block = world.getBlockAt(x, y, z);
         final BlockData blockData = block.getBlockData();
         if (blockData instanceof Directional) {
-        	BlockFace face = ((Directional) blockData).getFacing();
-        	switch (face) {
-        	case NORTH:
-        	case SOUTH:
-        		 return new double[] {0.124, 0.0, 0.0, 1.0 - 0.124, 1.0, 1.0};
-        	case WEST:
-        	case EAST:
-        		return new double[] {0.0, 0.0, 0.124, 1.0, 1.0, 1.0 - 0.124};
-			default:
-				break;
-        	}
+            BlockFace face = ((Directional) blockData).getFacing();
+            switch (face) {
+            case NORTH:
+            case SOUTH:
+                 return new double[] {
+                    // Bottom
+                    0.125, 0.0, 0.125, 0.875, 0.25, 0.875,
+                    // Top
+                    0.1875, 0.625, 0.0, 0.8125, 1.0, 1.0
+                    // Body... maybe not need
+                    };
+            case WEST:
+            case EAST:
+                return new double[] {
+                    // Bottom
+                    0.125, 0.0, 0.125, 0.875, 0.25, 0.875,
+                    // Top
+                    0.0, 0.625, 0.1875, 1.0, 1.0, 0.8125
+                    // Body... maybe not need
+                    };
+            default:
+                break;
+            }
         }
         return new double[] {0.0, 0.0, 0.0, 1.0, 1.0, 1.0};
     }

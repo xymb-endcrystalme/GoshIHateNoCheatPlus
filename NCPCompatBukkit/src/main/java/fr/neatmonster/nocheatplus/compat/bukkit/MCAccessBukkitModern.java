@@ -28,7 +28,6 @@ import fr.neatmonster.nocheatplus.compat.bukkit.model.*;
 import fr.neatmonster.nocheatplus.compat.cbreflect.reflect.ReflectBase;
 import fr.neatmonster.nocheatplus.compat.cbreflect.reflect.ReflectDamageSource;
 import fr.neatmonster.nocheatplus.compat.cbreflect.reflect.ReflectLivingEntity;
-import fr.neatmonster.nocheatplus.compat.cbreflect.reflect.ReflectPlayer;
 import fr.neatmonster.nocheatplus.config.WorldConfigProvider;
 import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
@@ -59,10 +58,16 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             0.0625, 0.0, 0.0625, 0.9375, 0.5, 0.9375,
             // Candle
             0.4375, 0.5, 0.4375, 0.5625, 0.875, 0.5625);
+    private static final BukkitShapeModel MODEL_LECTERN = new BukkitStatic(
+            0.0, 0.0, 0.0, 1.0, 0.125, 1.0,
+            0.25, 0.125, 0.25, 0.75, 0.875, 0.75);
+
     private static final BukkitShapeModel MODEL_HOPPER = new BukkitHopper();
     private static final BukkitShapeModel MODEL_CAULDRON = new BukkitCauldron(0.1875, 0.125, 0.8125, 0.0625);
     private static final BukkitShapeModel MODEL_COMPOSTER = new BukkitCauldron(0.0, 0.125, 1.0, 0.125);
     private static final BukkitShapeModel MODEL_PISTON_HEAD = new BukkitPistonHead();
+    private static final BukkitShapeModel MODEL_BELL = new BukkitBell();
+    private static final BukkitShapeModel MODEL_ANVIL = new BukkitAnvil();
 
     // Blocks that change shape based on interaction or redstone.
     private static final BukkitShapeModel MODEL_DOOR = new BukkitDoor();
@@ -79,6 +84,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     private static final BukkitShapeModel MODEL_TURTLE_EGG = new BukkitTurtleEgg();
 
     // Blocks that have a different shape, based on how they have been placed.
+    private static final BukkitShapeModel MODEL_CAKE = new BukkitCake();
     private static final BukkitShapeModel MODEL_SLAB = new BukkitSlab();
     private static final BukkitShapeModel MODEL_STAIRS = new BukkitStairs();
     private static final BukkitShapeModel MODEL_PISTON = new BukkitPiston();
@@ -94,16 +100,14 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     private static final BukkitShapeModel MODEL_THICK_FENCE = new BukkitFence(
             0.375, 1.5);
     private static final BukkitShapeModel MODEL_THICK_FENCE2 = new BukkitWall(
-            0.25, 1.5);
+            0.25, 1.5, 0.3125);
     // .75 .25 0 max: .25 .75 .5
     private static final BukkitShapeModel MODEL_WALL_HEAD = new BukkitWallHead();
 
 
     // Static blocks (various height and inset values).
-    private static final BukkitShapeModel MODEL_BELL = new BukkitBell();
-    private static final BukkitShapeModel MODEL_LECTERN = new BukkitStatic(0.25, 0.875);
+    private static final BukkitShapeModel MODEL_CAMPFIRE = new BukkitStatic(0.0, 0.4375);
     private static final BukkitShapeModel MODEL_BAMBOO = new BukkitBamboo();
-    private static final BukkitShapeModel MODEL_ANVIL = new BukkitAnvil();
     private static final BukkitShapeModel MODEL_LILY_PAD = new BukkitStatic(
             0.09375);
     private static final BukkitShapeModel MODEL_FLOWER_POT = new BukkitStatic(
@@ -139,10 +143,8 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
     /*
      * TODO:
-     * CONDUIT,
-     * CAKE,
+     * CONDUIT
      */
-    // TODO: dead coral fans
 
     public MCAccessBukkitModern() {
         super();
@@ -196,7 +198,6 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
                 BridgeMaterial.COBWEB,
                 BridgeMaterial.MOVING_PISTON,
                 Material.SNOW,
-                Material.CAKE,
                 Material.BEACON,
                 Material.VINE,
                 Material.CHORUS_FLOWER
@@ -218,16 +219,21 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         for (Material mat : BridgeMaterial.getAllBlocks(
                 "azalea", "flowering_azalea",
                 "big_dripleaf", "sculk_sensor", "pointed_dripstone",
-                "campfire", "soul_campfire", "stonecutter", "chain"
+                "stonecutter", "chain"
                 )) {
             addModel(mat, MODEL_AUTO_FETCH);
         }
 
+        // Camp fire
+        for (Material mat : BridgeMaterial.getAllBlocks(
+                "campfire", "soul_campfire"
+                )) {
+            addModel(mat, MODEL_CAMPFIRE);
+        }
+
         // Cauldron
         for (Material mat : MaterialUtil.CAULDRON) {
-            BlockProperties.setBlockFlags(mat, 
-                    BlockFlags.SOLID_GROUND | BlockProperties.F_GROUND_HEIGHT 
-                    | BlockProperties.F_MIN_HEIGHT16_5);
+            BlockProperties.setBlockFlags(mat, BlockFlags.SOLID_GROUND);
             addModel(mat, MODEL_CAULDRON);
         }
 
@@ -245,6 +251,9 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
         // End portal frame.
         addModel(BridgeMaterial.END_PORTAL_FRAME, MODEL_END_PORTAL_FRAME);
+
+        // Cake
+        addModel(BridgeMaterial.CAKE, MODEL_CAKE);
 
         // End Rod / Lightning Rod.
         for (Material mat : MaterialUtil.RODS) {
@@ -426,6 +435,11 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         for (final Material mat : MaterialUtil.RAILS) {
             addModel(mat, MODEL_RAIL);
         }
+        
+        // Walls
+        for (Material mat : MaterialUtil.ALL_WALLS) {
+            addModel(mat, MODEL_THICK_FENCE2);
+        }
 
         // Lectern
         Material mt = BridgeMaterial.getBlock("lectern");
@@ -463,10 +477,6 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
                 else {
                     addModel(mat, MODEL_THICK_FENCE);
                 }
-            }
-            // Walls
-            if (BlockFlags.hasAnyFlag(flags, BlockProperties.F_THICK_FENCE2)) {
-                    addModel(mat, MODEL_THICK_FENCE2);
             }
         }
 

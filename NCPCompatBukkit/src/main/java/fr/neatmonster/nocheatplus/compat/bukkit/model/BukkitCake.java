@@ -17,27 +17,29 @@ package fr.neatmonster.nocheatplus.compat.bukkit.model;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.Lantern;
+import org.bukkit.block.data.type.Cake;
+import org.bukkit.util.BoundingBox;
 
+import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 
-public class BukkitLantern implements BukkitShapeModel {
+public class BukkitCake implements BukkitShapeModel {
 
-	private double xz = 0.3125;
     @Override
     public double[] getShape(final BlockCache blockCache, 
             final World world, final int x, final int y, final int z) {
-
         final Block block = world.getBlockAt(x, y, z);
-        final BlockData blockData = block.getBlockData();
-        if (blockData instanceof Lantern) {
-        	Lantern lantern = (Lantern) blockData;
-        	if (lantern.isHanging()) return new double[] {
-        	        xz, 0.0625, xz, 1-xz, 0.5, 1-xz,
-        	        0.375, 0.5, 0.375, 0.625, 0.625, 0.625};
+        if (Bridge1_13.hasBoundingBox()) {
+            BoundingBox bd = block.getBoundingBox();
+            return new double[] {bd.getMinX()-x, bd.getMinY()-y, bd.getMinZ()-z, bd.getMaxX()-x, bd.getMaxY()-y, bd.getMaxZ()-z};
         }
-        return new double[] {xz, 0.0, xz, 1.0-xz, 0.4375, 1.0-xz,
-                             0.375, 0.4375, 0.375, 0.625, 0.5625, 0.625};
+        final BlockData blockData = block.getState().getBlockData();
+
+        if (blockData instanceof Cake) {
+            final Cake cake = (Cake) blockData;
+            return new double[] {0.0625 + cake.getBites() * 0.125, 0.0, 0.0625, 0.9375, 0.5, 0.9375};
+        }
+        return new double[] {0.0, 0.0, 0.0, 1.0, 1.0, 1.0};
     }
 
     @Override

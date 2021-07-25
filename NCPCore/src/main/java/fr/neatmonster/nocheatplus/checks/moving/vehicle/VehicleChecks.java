@@ -328,13 +328,13 @@ public class VehicleChecks extends CheckListener {
             final MovingData data, final IPlayerData pData, final boolean debug) {
         // TODO: (private or public?)
         // TODO: Might pass last position for reference.
-        if (debug) {
-            if (lastPosLook != null) {
+        //if (debug) {
+        //    if (lastPosLook != null) {
                 // Retrieve last pos.
-                lastPosLook.getHandle().getPositionAndLook(vehicle, usePos1);
-                debug(player, "Last position is reported as: " + LocUtil.simpleFormat(usePos1));
-            }
-        }
+        //        lastPosLook.getHandle().getPositionAndLook(vehicle, usePos1);
+        //        debug(player, "Last position is reported as: " + LocUtil.simpleFormat(usePos1));
+        //    }
+        //}
         checkVehicleMove(vehicle, vehicleType, null, null, player, true, data, pData, debug);
     }
 

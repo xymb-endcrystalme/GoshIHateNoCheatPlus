@@ -758,9 +758,6 @@ public class BlockProperties {
 
     /** Thick fence (default wooden fence). */
     public static final long F_THICK_FENCE                  = f_flag();
-
-    /** Thick fence (default cobblestone wall). */
-    public static final long F_THICK_FENCE2                  = f_flag();	
 	
     /** Fence gate style with 0x04 being fully passable. */
     public static final long F_PASSABLE_X4                  = f_flag();
@@ -1218,8 +1215,6 @@ public class BlockProperties {
                 Material.BREWING_STAND,
                 // Compatibility.
                 Material.LADDER, 
-                // Somewhat needed (xz-bounds vary, not critical to pass through).
-                BridgeMaterial.CAKE,
                 // Workarounds.
                 //				Material.COCOA,
         }) {
@@ -1293,14 +1288,14 @@ public class BlockProperties {
             setFlag(mat, paneFlags | F_FAKEBOUNDS);
         }
 
+        setFlag(BridgeMaterial.CAKE, F_GROUND);
+
         // Flexible ground (height):
         for (final Material mat : new Material[]{
                 // Strictly needed (multiple boxes otherwise).
                 BridgeMaterial.PISTON_HEAD,
                 Material.BREWING_STAND,
                 BridgeMaterial.END_PORTAL_FRAME,
-                // XZ-bounds issues.
-                BridgeMaterial.CAKE,
                 // Already worked around with isPassableWorkaround (kept for dev-reference).
                 //				Material.ANVIL,
                 //				Material.SKULL, Material.FLOWER_POT,
@@ -1609,7 +1604,7 @@ public class BlockProperties {
         // Carpets.
         final BlockProps carpetProps = new BlockProps(BlockProperties.noTool, 0.1f, 
                 BlockProperties.secToMs(0.15));
-        final long carpetFlags = BlockProperties.F_GROUND | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_CARPET;
+        final long carpetFlags = BlockProperties.F_GROUND | BlockProperties.F_CARPET;
         for (final Material mat : MaterialUtil.CARPETS) {
             BlockProperties.setBlockProps(mat, carpetProps);
             setBlockFlags(mat, carpetFlags);
@@ -3254,11 +3249,6 @@ public class BlockProperties {
             // (Allow checking further entries.)
             return true; 
         }
-        else if ((flags & F_THICK_FENCE2) != 0) {
-            if (!collidesFence(fx, fz, dX, dZ, dT, 0.1875)) {
-                return true;
-            }
-        }
         else if ((flags & F_THICK_FENCE) != 0) {
             if (!collidesFence(fx, fz, dX, dZ, dT, 0.125)) {
                 return true;
@@ -3271,11 +3261,6 @@ public class BlockProperties {
         } else if ((flags & F_ANVIL) != 0) {
             if (!collidesCenter(fx, fz, dX, dZ, dT, 0.1875)) {
                 return true;
-            }
-        }
-        else if (id == BridgeMaterial.CAKE) {
-            if (Math.min(fy, fy + dY * dT) >= 0.4375) {
-                return true; // 0.0625 = 0.125 / 2
             }
         }
         else if (id == Material.CAULDRON || id == Material.HOPPER) {
@@ -3479,15 +3464,12 @@ public class BlockProperties {
                 return 0.5;
             }
         }
-        else if ((flags & F_THICK_FENCE) != 0 || (flags & F_THICK_FENCE2) != 0) {
+        else if ((flags & F_THICK_FENCE) != 0) {
            return Math.min(1.0, bounds[4]);
         }
         else if (id == Material.SOUL_SAND) {
             return 0.875;
         }
-        //		else if (id == BridgeMaterial.CAKE.getId()) {
-        //			return 0.4375;
-        //		}
         else if (id == Material.CACTUS) {
             return 0.9375;
         }

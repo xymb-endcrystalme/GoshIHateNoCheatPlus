@@ -97,10 +97,7 @@ public class BlocksMC1_16 implements BlockPropertiesSetup{
         BlockProperties.setBlockProps("ANCIENT_DEBRIS", new BlockProperties.BlockProps(BlockProperties.diamondPickaxe, 30f, BlockProperties.secToMs(145, 75, 37, 25, 5.6, 5, 12.5)));
 
         // More Walls
-        BlockFlags.setFlagsAs("BLACKSTONE_WALL", BridgeMaterial.COBBLESTONE_WALL);
         BlockInit.setPropsAs("BLACKSTONE_WALL",Material.STONE);
-        BlockFlags.setFlagsAs("POLISHED_BLACKSTONE_WALL", BridgeMaterial.COBBLESTONE_WALL);
-        BlockFlags.setFlagsAs("POLISHED_BLACKSTONE_BRICK_WALL", BridgeMaterial.COBBLESTONE_WALL);
         BlockInit.setPropsAs("POLISHED_BLACKSTONE_BRICK_WALL",Material.STONE);
 
         // Climbable plants

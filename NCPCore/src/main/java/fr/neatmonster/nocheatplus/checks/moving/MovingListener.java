@@ -689,12 +689,16 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         pFrom = moveInfo.from;
         pTo = moveInfo.to;
 
-        boolean hasboots = Bridge1_17.hasLeatherBootsOn(player);
-        if (pTo.isOnGround() && !hasboots && pTo.adjustOnGround(!pTo.isOnGround(cc.yOnGround, BlockProperties.F_POWDERSNOW)) && debug) {
-            debug(player, "Collide powder snow surface but not wearing boots. Adjusting To loctaion");
-        }
-        if (pFrom.isOnGround() && !hasboots && pFrom.adjustOnGround(!pFrom.isOnGround(cc.yOnGround, BlockProperties.F_POWDERSNOW)) && debug) {
-            debug(player, "Collide powder snow surface but not wearing boots. Adjusting From loctaion");
+        if (Bridge1_17.hasIsFrozen()) {
+            boolean hasboots = Bridge1_17.hasLeatherBootsOn(player);
+            if (pTo.isOnGround() && !hasboots 
+                && pTo.adjustOnGround(!pTo.isOnGroundDueToStandingOnAnEntity() && !pTo.isOnGround(cc.yOnGround, BlockProperties.F_POWDERSNOW)) && debug) {
+                debug(player, "Collide ground surface but not acctually on ground. Adjusting To loctaion");
+            }
+            if (pFrom.isOnGround() && !hasboots 
+                && pFrom.adjustOnGround(!pFrom.isOnGroundDueToStandingOnAnEntity() && !pFrom.isOnGround(cc.yOnGround, BlockProperties.F_POWDERSNOW)) && debug) {
+                debug(player, "Collide ground surface but not acctually on ground. Adjusting From loctaion");
+            }
         }
 
         // HOT FIX - for VehicleLeaveEvent missing.

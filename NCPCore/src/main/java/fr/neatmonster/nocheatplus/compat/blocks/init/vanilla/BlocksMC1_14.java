@@ -22,9 +22,6 @@ public class BlocksMC1_14 implements BlockPropertiesSetup{
 	@Override
 	public void setupBlockProperties(WorldConfigProvider<?> worldConfigProvider) {
 		BlockFlags.addFlags("VINE", BlockProperties.F_CLIMBUPABLE);
-		for (Material mat : MaterialUtil.ALL_WALLS) {
-            BlockFlags.addFlags(mat, BlockFlags.SOLID_GROUND | BlockProperties.F_VARIABLE | BlockProperties.F_HEIGHT150 | BlockProperties.F_THICK_FENCE2);
-        }
 		final BlockProperties.BlockProps instant = BlockProperties.instantType;
 		BlockInit.setPropsAs("END_STONE_BRICK_WALL", BridgeMaterial.END_STONE_BRICKS);
 		BlockInit.setPropsAs("END_STONE_BRICK_STAIRS", BridgeMaterial.END_STONE_BRICKS);
@@ -85,7 +82,7 @@ public class BlocksMC1_14 implements BlockPropertiesSetup{
 		BlockFlags.addFlags("COMPOSTER", BlockFlags.SOLID_GROUND);
 
 		BlockInit.setPropsAs("LECTERN", Material.OAK_PLANKS);
-		BlockFlags.addFlags("LECTERN", BlockProperties.F_MIN_HEIGHT8_1 | BlockProperties.F_GROUND_HEIGHT | BlockFlags.SOLID_GROUND | BlockProperties.F_XZ100);
+		BlockProperties.setBlockFlags("LECTERN", BlockFlags.SOLID_GROUND);
 
 		BlockInit.setAs("BARREL", Material.OAK_PLANKS);
 
@@ -123,7 +120,7 @@ public class BlocksMC1_14 implements BlockPropertiesSetup{
 		BlockProperties.setBlockProps("BELL", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 5f, BlockProperties.secToMs(24.0, 3.7, 1.85, 1.2, 0.9, 0.8, 0.6)));
 
 		BlockProperties.setBlockProps("LANTERN", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 6.0f, BlockProperties.secToMs(17.0, 2.6, 1.3, 0.85, 0.7, 0.55, 0.4)));
-		BlockFlags.addFlags("LANTERN", BlockProperties.F_GROUND | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_MIN_HEIGHT16_7);
+		BlockFlags.addFlags("LANTERN", BlockProperties.F_GROUND);
 
 		BlockFlags.addFlags("SWEET_BERRY_BUSH", BlockProperties.F_COBWEB2);
         ConfigFile config = ConfigManager.getConfigFile();
