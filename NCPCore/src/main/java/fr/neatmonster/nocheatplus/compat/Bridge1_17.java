@@ -36,7 +36,7 @@ public class Bridge1_17 {
         return hasIsFrozen;
     }
 
-    public static double getFreezeTicks(final Player player) {
+    public static int getFreezeSeconds(final Player player) {
         if (!hasIsFrozen()) return 0;
         // Capped at 140ticks (=7s)
         return Math.min(7, (player.getFreezeTicks() / 20));

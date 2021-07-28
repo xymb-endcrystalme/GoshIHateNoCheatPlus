@@ -60,9 +60,9 @@ public class Magic {
 
     // Horizontal speeds/modifiers. 
     public static final double WALK_SPEED           = 0.221D;
-    public static final double modBlockSneak        = (0.13D / WALK_SPEED) - (0.1277D / WALK_SPEED); // 0,0104
+    public static final double modBlockSneak        = (0.13D / WALK_SPEED) - (0.1277D / WALK_SPEED); // 0.0104
     public static final double modWeb               = 0.09D / WALK_SPEED; 
-    public static final double modPowderSnow        = 0.1272 / WALK_SPEED;
+    public static final double modPowderSnow        = 0.1252 / WALK_SPEED;
     public static final double modBlock             = 0.1277D / WALK_SPEED;
     public static final double modSneak             = 0.13D / WALK_SPEED;
     public static final double modSlime             = 0.131D / WALK_SPEED;

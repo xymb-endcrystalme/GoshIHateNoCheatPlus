@@ -311,6 +311,9 @@ public class BlockChangeListener implements Listener {
                 if ((BlockProperties.getBlockFlags(type) | BlockProperties.F_VARIABLE_USE) != 0L) {
                     addBlockWithAttachedPotential(block, BlockProperties.F_VARIABLE_USE);
                 }
+                if (type.toString().endsWith("SHULKER_BOX")) {
+                    tracker.addBlocks(block);
+                }
             }
         }
     }
@@ -348,23 +351,25 @@ public class BlockChangeListener implements Listener {
                     return;
                 }
             }
-        } else {
-        final MaterialData materialData = block.getState().getData();
-        if (materialData instanceof Door) {
-            final Door door = (Door) materialData;
-            final Block otherBlock = block.getRelative(door.isTopHalf() ? BlockFace.DOWN : BlockFace.UP);
-            /*
-             * TODO: In case of redstone: Double doors... detect those too? Is it still more
-             * efficient than using BlockPhysics with lazy delayed updating
-             * (TickListener...). Hinge corner... possibilities?
-             */
-            if (otherBlock != null // Top of the map / special case.
-                    && (BlockProperties.getBlockFlags(otherBlock.getType()) 
-                            | relevantFlags) == 0) {
-                tracker.addBlocks(block, otherBlock);
-                return;
+        } 
+        // Legacy
+        else {
+            final MaterialData materialData = block.getState().getData();
+            if (materialData instanceof Door) {
+                final Door door = (Door) materialData;
+                final Block otherBlock = block.getRelative(door.isTopHalf() ? BlockFace.DOWN : BlockFace.UP);
+                /*
+                 * TODO: In case of redstone: Double doors... detect those too? Is it still more
+                 * efficient than using BlockPhysics with lazy delayed updating
+                 * (TickListener...). Hinge corner... possibilities?
+                 */
+                if (otherBlock != null // Top of the map / special case.
+                        && (BlockProperties.getBlockFlags(otherBlock.getType()) 
+                                | relevantFlags) == 0) {
+                    tracker.addBlocks(block, otherBlock);
+                    return;
+                }
             }
-        }
         }
         // Only add the block in question itself.
         tracker.addBlocks(block);

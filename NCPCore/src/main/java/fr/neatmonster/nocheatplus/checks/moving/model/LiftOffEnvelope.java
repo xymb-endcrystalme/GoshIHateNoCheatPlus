@@ -39,8 +39,8 @@ public enum LiftOffEnvelope {
     /** Nearly ordinary jumping gain (meant for berry bushes)*/
     // TEST: Jumping height is random (but higher than the honeyblock), needs testing to be more strict.
     BERRY_JUMP(0.35, 0.54, 5, true), 
-    // TODO: jump height
     // Powder snow is considered as reset condition so we don't care about the jump phase.
+    /** Special liftoff handling for powder snow: higher than ordinary despite not reaching actual full block height */
     LIMIT_POWDER_SNOW(0.63, 0.63, 0, true) 
     ;
 

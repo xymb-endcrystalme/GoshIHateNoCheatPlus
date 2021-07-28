@@ -81,7 +81,7 @@ public class MovingFlying extends BaseAdapter {
 
     private static PacketType[] initPacketTypes() {
         final List<PacketType> types = new LinkedList<PacketType>(Arrays.asList(
-                PacketType.Play.Client.FLYING,
+                // PacketType.Play.Client.FLYING,
                 PacketType.Play.Client.LOOK,
                 PacketType.Play.Client.POSITION,
                 PacketType.Play.Client.POSITION_LOOK

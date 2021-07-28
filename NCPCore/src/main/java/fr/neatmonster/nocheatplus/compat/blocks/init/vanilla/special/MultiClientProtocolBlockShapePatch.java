@@ -32,7 +32,7 @@ import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 
 /**
- * Multi client protocol support between 1.7.x - 1.14.x.
+ * Multi client protocol support between 1.7.x - 1.17.x.
  * 
  * @author asofold
  *
@@ -42,7 +42,7 @@ public class MultiClientProtocolBlockShapePatch extends AbstractBlockPropertiesP
 
     public MultiClientProtocolBlockShapePatch() {
         activation
-        .neutralDescription("Block shape patch for multi client protocol support around 1.7.x - 1.16.x.")
+        .neutralDescription("Block shape patch for multi client protocol support around 1.7.x - 1.17.x.")
         .advertise(true)
         .setConditionsAND()
         .notUnitTest()

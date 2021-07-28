@@ -441,27 +441,14 @@ public class SurvivalFly extends Check {
         }
 
         // TODO: Test, adjust.
+        // Powder snow (1.17+)
         else if (data.liftOffEnvelope == LiftOffEnvelope.LIMIT_POWDER_SNOW) {
-            final double yToBlock = from.getY() - from.getBlockY();
-            boolean fall = false;
-            if (yToBlock <= cc.yOnGround) {
-                vAllowedDistance = data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier, 1.5);
-            }
-            else {
-                if (Bridge1_17.hasLeatherBootsOn(player)) {
-                    vAllowedDistance = yDistance < 0 ? Magic.snowClimbSpeedDescend : Magic.snowClimbSpeedAscend;
-                } else {
-                    vAllowedDistance = -Magic.snowClimbSpeedDescend;
-                    fall = true;
-                }
-            }
-            final double yDistDiffEx = yDistance - vAllowedDistance;
-            final boolean violation = fall ? Math.abs(yDistDiffEx) > 0.05 : Math.abs(yDistance) > Math.abs(vAllowedDistance);
-            vDistanceAboveLimit = violation ? yDistance : 0;
-            if (vDistanceAboveLimit > 0.0) tags.add("powdersnow");
+            final double[] resultSnow = vDistPowderSnow(yDistance, from, to, cc, data, player);
+            vAllowedDistance = resultSnow[0];
+            vDistanceAboveLimit = resultSnow[1];
         }
 
-        // HoneyBlock
+        // HoneyBlock (1.14+)
         else if (from.isOnHoneyBlock()) {
             data.sfNoLowJump = true;
             vAllowedDistance = data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier);
@@ -477,7 +464,7 @@ public class SurvivalFly extends Check {
             vDistanceAboveLimit = resultWeb[1];
         }
         
-        // Berry bush
+        // Berry bush (1.15+)
         else if (from.isInBerryBush()){
             final double[] resultBush = vDistBush(player, thisMove, toOnGround, hDistanceAboveLimit, now, 
                                                   data, cc, from, fromOnGround);
@@ -1488,7 +1475,7 @@ public class SurvivalFly extends Check {
         }
         
         // Entering/Exiting powder snow, scale the base speed.
-        // if (Bridge1_17.getFreezeTicks(player) > 0) {
+        // if (Bridge1_17.getFreezeSeconds(player) > 0) {
         //     hAllowedDistance *= 0.5 + 0.025 / Bridge1_17.getFreezeTicks(player);
         // }
         
@@ -1852,7 +1839,7 @@ public class SurvivalFly extends Check {
                         //    will be reset/updated at the very top (1.0) when jumping up, instead of keeping it at the lower edge (0.5) [Note: removing the F_GROUND_HEIGHT
                         //    fixes the issue but will cause troubles with vDistrel]
                         // TODO: Test margins, could be more strict.
-                        if ((from.isNextToGround(0.20, 0.6) || to.isNextToGround(0.20, 0.6)) 
+                        if ((from.isNextToGround(0.15, 0.5) || to.isNextToGround(0.15, 0.5)) 
                             && Math.round(from.getY()) == Math.round(data.getSetBackY())
                             || thisMove.headObstructed 
                             || yDistance <= 0.0 && lastMove.headObstructed && lastMove.yDistance >= 0.0) {
@@ -2277,10 +2264,10 @@ public class SurvivalFly extends Check {
         // Checks for actual bunnyhop (singular peak up to roughly two times the allowed distance).
         // TODO: Needs better modeling.
         // TODO: Test bunny spike over all sorts of speeds + attributes.
-        // Using a lower multiplier for headObstructed because the speed increase given by the bump can sometimes be really negligent
+        // Using a lower multiplier for headObstructed because the speed increase given by the bump can sometimes be really negligible
         // causing the hDistance to never reach the first threshold (hopTickMultiplier * baseSpeed)
-        final double hopTickMultiplier = (thisMove.headObstructed || lastMove.headObstructed) ? 1.05 
-                                        : (!lastMove.toIsValid || lastMove.hDistance == 0.0 && lastMove.yDistance == 0.0) ? 1.11 : 1.314;
+        final double hopTickMultiplier = (thisMove.headObstructed || lastMove.headObstructed) ? 1.05 :
+                                         (!lastMove.toIsValid || lastMove.hDistance == 0.0 && lastMove.yDistance == 0.0) ? 1.11 : 1.314;
         final double hopTickMultiplier2 = data.bunnyhopTick > 0 ? (data.bunnyhopTick > 2 ? 1.76 : 1.96) : 2.15;
         final double hopTickMultiplier3 = data.bunnyhopTick > 0 ? (data.bunnyhopTick > 2 ? 1.9 : 2.1) : 2.3;
 
@@ -2535,7 +2522,7 @@ public class SurvivalFly extends Check {
         }
 
         if (vDistanceAboveLimit > 0.0) {
-            tags.add(yDistance > 0.0 ? "vweb" : "vwebdesc");
+            tags.add(yDistance >= 0.0 ? "vweb" : "vwebdesc");
             
         }
 
@@ -2544,7 +2531,7 @@ public class SurvivalFly extends Check {
 
 
     /**
-     * Berry bush vertical distance checking
+     * Berry bush vertical distance checking (1.14+)
      * @param player
      * @param from
      * @param to
@@ -2596,6 +2583,46 @@ public class SurvivalFly extends Check {
             tags.add(yDistance >= 0.0 ? "vbush" : "vbushdesc");
         }
 
+        return new double[]{vAllowedDistance, vDistanceAboveLimit};
+    }
+
+
+   /**
+    * Powder snow vertical distance checking (1.17+): behaves similarly to a climbable block; handled in a separate method
+    * because of its properties. (This block is ground with leather boots on)
+    * @param yDistance
+    * @param form
+    * @param to
+    * @param cc
+    * @param data
+    * @return vAllowedDistance, vDistanceAboveLimit
+    * 
+    */
+    private double[] vDistPowderSnow(final double yDistance, final PlayerLocation from, final PlayerLocation to, 
+                                     final MovingConfig cc, final MovingData data, final Player player) {
+            
+        boolean fall = false;
+        double vAllowedDistance, vDistanceAboveLimit;
+        final double yToBlock = from.getY() - from.getBlockY();
+
+        if (yToBlock <= cc.yOnGround) {
+            vAllowedDistance = data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier, 1.5);
+        }
+        else {
+            if (Bridge1_17.hasLeatherBootsOn(player)) {
+                vAllowedDistance = yDistance < 0 ? -Magic.snowClimbSpeedDescend : Magic.snowClimbSpeedAscend;
+            } 
+            else {
+                vAllowedDistance = -Magic.snowClimbSpeedDescend;
+                fall = true;
+            }
+        }
+        final double yDistDiffEx = yDistance - vAllowedDistance;
+        final boolean violation = fall ? Math.abs(yDistDiffEx) > 0.05 : Math.abs(yDistance) > Math.abs(vAllowedDistance);
+        vDistanceAboveLimit = violation ? yDistance : 0;
+        if (vDistanceAboveLimit > 0.0) {
+            tags.add(yDistance >= 0.0 ? "snowasc" : "snowdesc");
+        }
         return new double[]{vAllowedDistance, vDistanceAboveLimit};
     }
 
@@ -2771,7 +2798,7 @@ public class SurvivalFly extends Check {
         final String frictionTick = ("keepFrictionTick= " + data.keepfrictiontick + " , ");
         builder.append("\n Tick counters: " + hopDelay + hopTick + bounceTick + onIceTick + frictionTick);
         builder.append("\n" + " hDist: " + StringUtil.fdec3.format(hDistance) + dHDist + " / Allowed: " + StringUtil.fdec3.format(hAllowedDistance) + hBuf + lostSprint + hVelUsed +
-                       "\n" + " vDist: " + StringUtil.fdec3.format(yDistance) + dYDist + " / Expected: " + StringUtil.fdec3.format(yDistDiffEx) + " / Allowed: " + StringUtil.fdec3.format(vAllowedDistance) + " , setBackY=" + (data.hasSetBack() ? (data.getSetBackY() + " (setBackYDistance: " + StringUtil.fdec3.format(to.getY() - data.getSetBackY()) + " / MaxJumpHeight: " + data.liftOffEnvelope.getMaxJumpHeight(data.jumpAmplifier) + ")") : "?"));
+                       "\n" + " vDist: " + StringUtil.fdec3.format(yDistance) + dYDist + " / Expected diff: " + StringUtil.fdec3.format(yDistDiffEx) + " / Allowed: " + StringUtil.fdec3.format(vAllowedDistance) + " , setBackY=" + (data.hasSetBack() ? (data.getSetBackY() + " (setBackYDistance: " + StringUtil.fdec3.format(to.getY() - data.getSetBackY()) + " / MaxJumpHeight: " + data.liftOffEnvelope.getMaxJumpHeight(data.jumpAmplifier) + ")") : "?"));
         if (lastMove.toIsValid) {
             builder.append(" , fdsq: " + StringUtil.fdec3.format(thisMove.distanceSquared / lastMove.distanceSquared));
         }
