@@ -24,6 +24,7 @@ import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 public class Bridge1_13 {
     private static final PotionEffectType SLOWFALLING = PotionEffectType.getByName("SLOW_FALLING");
     private static final PotionEffectType DOLPHINSGRACE = PotionEffectType.getByName("DOLPHINS_GRACE");
+    private static final PotionEffectType CONDUIT_POWER = PotionEffectType.getByName("CONDUIT_POWER");
     private static final boolean hasIsRiptiding = ReflectionUtil.getMethodNoArgs(Player.class, "isRiptiding", boolean.class) != null;
     private static final boolean hasIsSwimming = ReflectionUtil.getMethodNoArgs(Player.class, "isSwimming", boolean.class) != null;
     private static final boolean hasBoundingBox = ReflectionUtil.getClass("org.bukkit.util.BoundingBox") != null;
@@ -34,6 +35,10 @@ public class Bridge1_13 {
 
     public static boolean hasDolphinGrace() {
         return DOLPHINSGRACE != null;
+    }
+
+    public static boolean hasConduitPower() {
+        return CONDUIT_POWER != null;
     }
 
     public static boolean hasIsRiptiding() {
@@ -79,6 +84,13 @@ public class Bridge1_13 {
             return Double.NEGATIVE_INFINITY;
         }
         return PotionUtil.getPotionEffectAmplifier(player, DOLPHINSGRACE);
+    }
+
+    public static double getConduitPowerAmplifier(final Player player) {
+        if (CONDUIT_POWER == null) {
+            return Double.NEGATIVE_INFINITY;
+        }
+        return PotionUtil.getPotionEffectAmplifier(player, CONDUIT_POWER);
     }
 
     public static boolean isRiptiding(final Player player) {

@@ -14,6 +14,7 @@ import fr.neatmonster.nocheatplus.utilities.map.MaterialUtil;
 public class BlocksMC1_17 implements BlockPropertiesSetup {
     public BlocksMC1_17() {
         BlockInit.assertMaterialExists("DEEPSLATE");
+        BlockInit.assertMaterialExists("COBBLED_DEEPSLATE");
         BlockInit.assertMaterialExists("DEEPSLATE_COAL_ORE");
         BlockInit.assertMaterialExists("DEEPSLATE_GOLD_ORE");
         BlockInit.assertMaterialExists("COPPER_BLOCK");
@@ -47,46 +48,46 @@ public class BlocksMC1_17 implements BlockPropertiesSetup {
 
         //Deepslate blocks
         BlockFlags.addFlags(Material.DEEPSLATE, BlockFlags.FULLY_SOLID_BOUNDS);
-        BlockProperties.setBlockProps(Material.DEEPSLATE, new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 3.5f, BlockProperties.secToMs(17.5, 2.65, 1.35, 0.9, 0.7, 0.6, 0.45)));
+        BlockProperties.setBlockProps(Material.DEEPSLATE, new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 3f, BlockProperties.secToMs(15.0, 2.25, 1.125, 0.75, 0.6, 0.5, 0.4)));
 
-        BlockFlags.addFlags("COBBLED_DEEPSLATE", BlockFlags.FULLY_SOLID_BOUNDS);
-        BlockInit.setPropsAs("COBBLED_DEEPSLATE", Material.DEEPSLATE);
+        BlockFlags.addFlags(Material.COBBLED_DEEPSLATE, BlockFlags.FULLY_SOLID_BOUNDS);
+        BlockProperties.setBlockProps(Material.COBBLED_DEEPSLATE, new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 3.5f, BlockProperties.secToMs(17.5, 2.65, 1.35, 0.9, 0.7, 0.6, 0.45)));
 
         BlockFlags.addFlags("POLISHED_DEEPSLATE", BlockFlags.FULLY_SOLID_BOUNDS);
-        BlockInit.setPropsAs("POLISHED_DEEPSLATE", Material.DEEPSLATE);
+        BlockInit.setPropsAs("POLISHED_DEEPSLATE", Material.COBBLED_DEEPSLATE);
 
         BlockFlags.addFlags("DEEPSLATE_BRICKS", BlockFlags.FULLY_SOLID_BOUNDS);
-        BlockInit.setPropsAs("DEEPSLATE_BRICKS", Material.DEEPSLATE);
+        BlockInit.setPropsAs("DEEPSLATE_BRICKS", Material.COBBLED_DEEPSLATE);
 
         BlockFlags.addFlags("CRACKED_DEEPSLATE_BRICKS", BlockFlags.FULLY_SOLID_BOUNDS);
-        BlockInit.setPropsAs("CRACKED_DEEPSLATE_BRICKS", Material.DEEPSLATE);
+        BlockInit.setPropsAs("CRACKED_DEEPSLATE_BRICKS", Material.COBBLED_DEEPSLATE);
 
         BlockFlags.addFlags("DEEPSLATE_TILES", BlockFlags.FULLY_SOLID_BOUNDS);
-        BlockInit.setPropsAs("DEEPSLATE_TILES", Material.DEEPSLATE);
+        BlockInit.setPropsAs("DEEPSLATE_TILES", Material.COBBLED_DEEPSLATE);
 
         BlockFlags.addFlags("CRACKED_DEEPSLATE_TILES", BlockFlags.FULLY_SOLID_BOUNDS);
-        BlockInit.setPropsAs("CRACKED_DEEPSLATE_TILES", Material.DEEPSLATE);
+        BlockInit.setPropsAs("CRACKED_DEEPSLATE_TILES", Material.COBBLED_DEEPSLATE);
 
         BlockFlags.addFlags("CHISELED_DEEPSLATE", BlockFlags.FULLY_SOLID_BOUNDS);
-        BlockInit.setPropsAs("CHISELED_DEEPSLATE", Material.DEEPSLATE);
+        BlockInit.setPropsAs("CHISELED_DEEPSLATE", Material.COBBLED_DEEPSLATE);
 
         //Deepslate walls
-        BlockInit.setPropsAs("COBBLED_DEEPSLATE_WALL", Material.DEEPSLATE);
-        BlockInit.setPropsAs("POLISHED_DEEPSLATE_WALL", Material.DEEPSLATE);
-        BlockInit.setPropsAs("DEEPSLATE_BRICK_WALL", Material.DEEPSLATE);
-        BlockInit.setPropsAs("DEEPSLATE_TILE_WALL", Material.DEEPSLATE);
+        BlockInit.setPropsAs("COBBLED_DEEPSLATE_WALL", Material.COBBLED_DEEPSLATE);
+        BlockInit.setPropsAs("POLISHED_DEEPSLATE_WALL", Material.COBBLED_DEEPSLATE);
+        BlockInit.setPropsAs("DEEPSLATE_BRICK_WALL", Material.COBBLED_DEEPSLATE);
+        BlockInit.setPropsAs("DEEPSLATE_TILE_WALL", Material.COBBLED_DEEPSLATE);
 
         //Deepslate stairs
-        BlockInit.setPropsAs("COBBLED_DEEPSLATE_STAIRS", Material.DEEPSLATE);
-        BlockInit.setPropsAs("POLISHED_DEEPSLATE_STAIRS", Material.DEEPSLATE);
-        BlockInit.setPropsAs("DEEPSLATE_BRICK_STAIRS", Material.DEEPSLATE);
-        BlockInit.setPropsAs("DEEPSLATE_TILE_STAIRS", Material.DEEPSLATE);
+        BlockInit.setPropsAs("COBBLED_DEEPSLATE_STAIRS", Material.COBBLED_DEEPSLATE);
+        BlockInit.setPropsAs("POLISHED_DEEPSLATE_STAIRS", Material.COBBLED_DEEPSLATE);
+        BlockInit.setPropsAs("DEEPSLATE_BRICK_STAIRS", Material.COBBLED_DEEPSLATE);
+        BlockInit.setPropsAs("DEEPSLATE_TILE_STAIRS", Material.COBBLED_DEEPSLATE);
 
         //Deepslate slabs
-        BlockInit.setPropsAs("COBBLED_DEEPSLATE_SLAB", Material.DEEPSLATE);
-        BlockInit.setPropsAs("POLISHED_DEEPSLATE_SLAB", Material.DEEPSLATE);
-        BlockInit.setPropsAs("DEEPSLATE_BRICK_SLAB", Material.DEEPSLATE);
-        BlockInit.setPropsAs("DEEPSLATE_TILE_SLAB", Material.DEEPSLATE);
+        BlockInit.setPropsAs("COBBLED_DEEPSLATE_SLAB", Material.COBBLED_DEEPSLATE);
+        BlockInit.setPropsAs("POLISHED_DEEPSLATE_SLAB", Material.COBBLED_DEEPSLATE);
+        BlockInit.setPropsAs("DEEPSLATE_BRICK_SLAB", Material.COBBLED_DEEPSLATE);
+        BlockInit.setPropsAs("DEEPSLATE_TILE_SLAB", Material.COBBLED_DEEPSLATE);
 
         // Copper Blocks
         for (Material mat : MaterialUtil.COPPER_BLOCKS) {
