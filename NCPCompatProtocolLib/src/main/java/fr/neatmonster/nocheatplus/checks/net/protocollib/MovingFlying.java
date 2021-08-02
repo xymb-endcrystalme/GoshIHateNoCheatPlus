@@ -44,6 +44,7 @@ import fr.neatmonster.nocheatplus.checks.net.model.DataPacketFlying.PACKET_CONTE
 import fr.neatmonster.nocheatplus.checks.net.model.TeleportQueue.AckReference;
 import fr.neatmonster.nocheatplus.compat.AlmostBoolean;
 import fr.neatmonster.nocheatplus.compat.BridgeMisc;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.logging.Streams;
 import fr.neatmonster.nocheatplus.players.DataManager;
@@ -81,11 +82,14 @@ public class MovingFlying extends BaseAdapter {
 
     private static PacketType[] initPacketTypes() {
         final List<PacketType> types = new LinkedList<PacketType>(Arrays.asList(
-                // PacketType.Play.Client.FLYING,
                 PacketType.Play.Client.LOOK,
                 PacketType.Play.Client.POSITION,
                 PacketType.Play.Client.POSITION_LOOK
                 ));
+        if (ServerVersion.compareMinecraftVersion("1.17") < 0) {
+            types.add(PacketType.Play.Client.FLYING);
+            StaticLog.logInfo("Add listener for legacy PlayInFlying packet.");
+        }
         // Add confirm teleport.
         // PacketPlayInTeleportAccept
         PacketType confirmType = ProtocolLibComponent.findPacketTypeByName(Protocol.PLAY, Sender.CLIENT, "TeleportAccept");

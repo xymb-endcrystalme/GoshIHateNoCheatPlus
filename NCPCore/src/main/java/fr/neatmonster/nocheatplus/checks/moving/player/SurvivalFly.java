@@ -1696,6 +1696,9 @@ public class SurvivalFly extends Check {
             else if (lastMove.toIsValid && (outOfEnvelope || gravityEffects || honeyBlockCollision || isLanternUpper(to))) {
                 // Several types of movements that do not follow the ordinary allowed distance but are legit.
             }
+            else if (to.isHeadObstructed() && yDistance > 0.0 && yDistance < 1.2 && from.getTypeId().toString().endsWith("SHULKER_BOX")) {
+                // Before 1.17 bugs
+            }
             else vDistRelVL = true;
         } 
         // Smaller move than expected (yDistDiffEx <= 0.0 && yDistance >= 0.0)

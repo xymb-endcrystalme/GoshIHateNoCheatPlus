@@ -434,6 +434,7 @@ public class MovingConfig extends ACheckConfig {
             return flyingModelSlowfalling;
         }
         // Riptiding
+        // TODO: Put on top priority, add data.timeRiptiding too, remove redundant
         if (Bridge1_13.isRiptiding(player)) {
             return flyingModelRiptiding;
         }

@@ -311,9 +311,6 @@ public class BlockChangeListener implements Listener {
                 if ((BlockProperties.getBlockFlags(type) | BlockProperties.F_VARIABLE_USE) != 0L) {
                     addBlockWithAttachedPotential(block, BlockProperties.F_VARIABLE_USE);
                 }
-                if (type.toString().endsWith("SHULKER_BOX")) {
-                    tracker.addBlocks(block);
-                }
             }
         }
     }

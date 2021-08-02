@@ -870,13 +870,6 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             // Check if to skip the nofall check.
             if (newTo != null) mightSkipNoFall = true;
         }
-
-        // Let Cf handle this one.
-        if (Bridge1_13.isRiptiding(player)) {
-            checkSf = false; 
-            checkCf = true;
-            checkNf = false;
-        }
         
         // Recalculate explosion velocity as PlayerVelocityEvent can't handle well on 1.13+
         // TODO: Merge with velocity entries that were added at the same time with this one!
@@ -1556,19 +1549,22 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final double defaultAmount = lastMove.hDistance * (1.0 + Magic.FRICTION_MEDIUM_AIR) / 2.0;
         // Test for exceptions.
         if (Bridge1_9.isWearingElytra(player) && lastMove.modelFlying != null && lastMove.modelFlying.getId().equals(MovingConfig.ID_JETPACK_ELYTRA)) {
-            data.addVerticalVelocity(new SimpleEntry(lastMove.yDistance < -0.1034 ? (lastMove.yDistance * Magic.FRICTION_MEDIUM_AIR + 0.1034) 
-                                                    : lastMove.yDistance, cc.velocityActivationCounter));
+            // Still elytra move, not forcing CreativeFly check, just pass the res to velocity
+            final double[] res = CreativeFly.guessElytraVelocityAmount(player, thisMove, lastMove, data);
+            //data.addVerticalVelocity(new SimpleEntry(lastMove.yDistance < -0.1034 ? (lastMove.yDistance * Magic.FRICTION_MEDIUM_AIR + 0.1034) 
+            //                                        : lastMove.yDistance, cc.velocityActivationCounter));
             data.keepfrictiontick = -15;
-            if (thisMove.hDistance > defaultAmount) {
+            data.addVerticalVelocity(new SimpleEntry(res[1], cc.velocityActivationCounter));
+            return res[0];
+            //if (thisMove.hDistance > defaultAmount) {
                 // Allowing the same speed won't always work on elytra (still increasing, differing modeling on client side with motXYZ).
                 // (Doesn't seem to be overly effective.)
-                final PlayerMoveData secondPastMove = data.playerMoves.getSecondPastMove();
-                if (data.fireworksBoostDuration > 0 && Math.round(data.fireworksBoostTickNeedCheck / 4.5) <= data.fireworksBoostDuration) {
-                    return 2.0;
-                } 
-                else if (lastMove.toIsValid && lastMove.hAllowedDistance > 0.0) return lastMove.hAllowedDistance; // This one might replace below?
-                return defaultAmount + 0.5;
-            }
+            //    if (data.fireworksBoostDuration > 0) {
+            //        return 2.0;
+            //    } 
+            //    else if (lastMove.toIsValid && lastMove.hAllowedDistance > 0.0) return lastMove.hAllowedDistance; // This one might replace below?
+            //    return defaultAmount + 0.5;
+            //}
         }
         else if (lastMove.modelFlying != null && lastMove.modelFlying.getId().equals(MovingConfig.ID_EFFECT_RIPTIDING)){
             data.addVerticalVelocity(new SimpleEntry(0.0, 10)); // Not using cc.velocityActivationCounter to be less exploitable.
