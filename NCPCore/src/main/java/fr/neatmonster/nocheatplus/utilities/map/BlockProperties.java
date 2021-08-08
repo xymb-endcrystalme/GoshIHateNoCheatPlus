@@ -280,8 +280,11 @@ public class BlockProperties {
             this.hardness = hardness;
             breakingTimes = new long[7];
             breakingTimes[0] = (long) (1000f * 5f * hardness);
+            boolean notool = tool.materialBase == null || tool.toolType == null
+                    || tool.toolType == ToolType.NONE;//|| tool.materialBase == MaterialBase.NONE;
+            if (notool) breakingTimes[0] *= 0.3;
             for (int i = 1; i < 7; i++) {
-                if (tool.materialBase == null) {
+                if (notool) {
                     breakingTimes[i] = breakingTimes[0];
                 } else if (hardness > 0.0) {
                     float speed = MaterialBase.getById(i).breakMultiplier;
@@ -289,7 +292,7 @@ public class BlockProperties {
                     damage /= isRightToolMaterial(null, tool.materialBase, MaterialBase.getById(i), true) ? 30f : 100f;
                     breakingTimes[i] = damage >= 1 ? 0 : (int) (1 / damage) * 50;
                 } else {
-                    breakingTimes[i] = breakingTimes[0];
+                    breakingTimes[i] = 0;
                 }
             }
             this.efficiencyMod = efficiencyMod;
@@ -698,7 +701,9 @@ public class BlockProperties {
     /** Allow climbable can climb up but they didn't use to like vine. */
     public static final long F_CLIMBUPABLE                  = f_flag();
 
-    /** The block can change shape. This is most likely not 100% accurate... */
+    /** The block can change shape. This is most likely not 100% accurate...<br>
+     * More likely to indicate block change shape when stacking up
+     * */
     public static final long F_VARIABLE                     = f_flag();
 
     //    /** The block has full bounds (0..1), inaccurate! */

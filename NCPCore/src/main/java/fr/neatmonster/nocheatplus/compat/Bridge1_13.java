@@ -15,7 +15,6 @@
 package fr.neatmonster.nocheatplus.compat;
 
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import fr.neatmonster.nocheatplus.utilities.PotionUtil;
@@ -25,8 +24,8 @@ public class Bridge1_13 {
     private static final PotionEffectType SLOWFALLING = PotionEffectType.getByName("SLOW_FALLING");
     private static final PotionEffectType DOLPHINSGRACE = PotionEffectType.getByName("DOLPHINS_GRACE");
     private static final PotionEffectType CONDUIT_POWER = PotionEffectType.getByName("CONDUIT_POWER");
-    private static final boolean hasIsRiptiding = ReflectionUtil.getMethodNoArgs(Player.class, "isRiptiding", boolean.class) != null;
-    private static final boolean hasIsSwimming = ReflectionUtil.getMethodNoArgs(Player.class, "isSwimming", boolean.class) != null;
+    private static final boolean hasIsRiptiding = ReflectionUtil.getMethodNoArgs(LivingEntity.class, "isRiptiding", boolean.class) != null;
+    private static final boolean hasIsSwimming = ReflectionUtil.getMethodNoArgs(LivingEntity.class, "isSwimming", boolean.class) != null;
     private static final boolean hasBoundingBox = ReflectionUtil.getClass("org.bukkit.util.BoundingBox") != null;
 
     public static boolean hasSlowfalling() {
@@ -56,19 +55,6 @@ public class Bridge1_13 {
     /**
      * Test for the 'slowfalling' potion effect.
      * 
-     * @param player
-     * @return Double.NEGATIVE_INFINITY if not present.
-     */
-    public static double getSlowfallingAmplifier(final Player player) {
-        if (SLOWFALLING == null) {
-            return Double.NEGATIVE_INFINITY;
-        }
-        return PotionUtil.getPotionEffectAmplifier(player, SLOWFALLING);
-    }
-
-    /**
-     * Test for the 'slowfalling' potion effect.
-     * 
      * @param LivingEntity
      * @return Double.NEGATIVE_INFINITY if not present.
      */
@@ -79,25 +65,25 @@ public class Bridge1_13 {
         return PotionUtil.getPotionEffectAmplifier(entity, SLOWFALLING);
     }
 
-    public static double getDolphinGraceAmplifier(final Player player) {
+    public static double getDolphinGraceAmplifier(final LivingEntity entity) {
         if (DOLPHINSGRACE == null) {
             return Double.NEGATIVE_INFINITY;
         }
-        return PotionUtil.getPotionEffectAmplifier(player, DOLPHINSGRACE);
+        return PotionUtil.getPotionEffectAmplifier(entity, DOLPHINSGRACE);
     }
 
-    public static double getConduitPowerAmplifier(final Player player) {
+    public static double getConduitPowerAmplifier(final LivingEntity entity) {
         if (CONDUIT_POWER == null) {
             return Double.NEGATIVE_INFINITY;
         }
-        return PotionUtil.getPotionEffectAmplifier(player, CONDUIT_POWER);
+        return PotionUtil.getPotionEffectAmplifier(entity, CONDUIT_POWER);
     }
 
-    public static boolean isRiptiding(final Player player) {
-        return hasIsRiptiding ? player.isRiptiding() : false;
+    public static boolean isRiptiding(final LivingEntity entity) {
+        return hasIsRiptiding ? entity.isRiptiding() : false;
     }
 
-    public static boolean isSwimming(final Player player) {
-        return hasIsSwimming ? player.isSwimming() : false;
+    public static boolean isSwimming(final LivingEntity entity) {
+        return hasIsSwimming ? entity.isSwimming() : false;
     }
 }

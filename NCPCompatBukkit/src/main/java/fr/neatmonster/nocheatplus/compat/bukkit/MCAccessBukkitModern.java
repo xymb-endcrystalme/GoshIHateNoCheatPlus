@@ -76,6 +76,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             0.375, 1.5);
     private static final BukkitShapeModel MODEL_SHULKER_BOX = new BukkitShulkerBox();
     private static final BukkitShapeModel MODEL_CHORUS_PLANT = new BukkitChorusPlant();
+    private static final BukkitShapeModel MODEL_DRIP_LEAF = new BukkitDripLeaf();
 
     // Blocks with different heights based on whatever.
     private static final BukkitShapeModel MODEL_END_PORTAL_FRAME = new BukkitEndPortalFrame();
@@ -218,7 +219,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         // new flower, and others
         for (Material mat : BridgeMaterial.getAllBlocks(
                 "azalea", "flowering_azalea",
-                "big_dripleaf", "sculk_sensor", "pointed_dripstone",
+                "sculk_sensor", "pointed_dripstone",
                 "stonecutter", "chain"
                 )) {
             addModel(mat, MODEL_AUTO_FETCH);
@@ -460,6 +461,10 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         // Honey Block
         mt = BridgeMaterial.getBlock("honey_block");
         if (mt != null) addModel(mt, MODEL_HONEY_BLOCK);
+
+        // Big DripLeaf
+        mt = BridgeMaterial.getBlock("big_dripleaf");
+        if (mt != null) addModel(mt, MODEL_DRIP_LEAF);
 
         // Sort to processed by flags.
         for (final Material mat : Material.values()) {

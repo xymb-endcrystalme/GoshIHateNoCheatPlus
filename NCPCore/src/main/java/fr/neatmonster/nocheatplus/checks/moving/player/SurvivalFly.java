@@ -2735,12 +2735,12 @@ public class SurvivalFly extends Check {
     */
     private boolean isCollideWithHB(PlayerLocation from, PlayerLocation to, MovingData data) {
 
-        final boolean isFlagCollected = (from.getBlockFlags() & BlockProperties.F_STICKY) != 0
-                                        ||(to.getBlockFlags() & BlockProperties.F_STICKY) != 0;
+        final boolean isFlagCollected = (to.getBlockFlags() & BlockProperties.F_STICKY) != 0;
         // Moving on side block, remove nofall data
-        if (isFlagCollected && BlockProperties.collides(to.getBlockCache(), to.getMinX() - 0.1, to.getMinY(), 
-                                                        to.getMinZ() - 0.1, to.getMaxX() + 0.1, to.getMaxY(), 
-                                                        to.getMaxZ() + 0.1, BlockProperties.F_STICKY)
+        if (isFlagCollected && !to.isOnGround() && BlockProperties.collides(to.getBlockCache(),
+                                                        to.getMinX() - 0.01, to.getMinY(), to.getMinZ() - 0.01, 
+                                                        to.getMaxX() + 0.01, to.getMaxY(), to.getMaxZ() + 0.01, 
+                                                        BlockProperties.F_STICKY)
             ) {
             data.clearNoFallData();
         }
@@ -2748,6 +2748,9 @@ public class SurvivalFly extends Check {
     }
 
     // ... Is this still needed? (Actually better question would be: is the lantern modeled correctly?)
+    // Model now correct but still flags
+    // Reproduce : hanging lantern with 2 block space below, spam jump
+    // TODO: Soul lantern too; research this magic thing
     private boolean isLanternUpper(PlayerLocation from) {
         World w = from.getWorld();
         final int x = from.getBlockX();

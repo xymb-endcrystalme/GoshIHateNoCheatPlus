@@ -27,8 +27,6 @@ import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
 import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
-import fr.neatmonster.nocheatplus.compat.Bridge1_13;
-import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.collision.Axis;
@@ -164,10 +162,8 @@ public class Passable extends Check {
         }
         //rayTracing.setCutOppositeDirectionMargin(true);
         rayTracing.loop();
-        rayTracing.setIgnoreInitiallyColliding(false);
         //rayTracing.setCutOppositeDirectionMargin(false);
-        //getEyeHeight() is a way to check isSwimming but not in water
-        if (rayTracing.collides() && !Bridge1_13.isSwimming(player) && !Bridge1_9.isGliding(player) && !(player.getEyeHeight()<0.45)) {
+        if (rayTracing.collides()) {
             tags = "raytracing_collide_";
         }
         else if (rayTracing.getStepsDone() >= rayTracing.getMaxSteps()) {

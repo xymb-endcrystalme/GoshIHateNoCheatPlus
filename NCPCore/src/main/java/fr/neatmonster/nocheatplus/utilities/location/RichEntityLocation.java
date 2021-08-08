@@ -19,10 +19,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import fr.neatmonster.nocheatplus.compat.MCAccess;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import fr.neatmonster.nocheatplus.components.registry.event.IHandle;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
-import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
+import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -33,7 +34,7 @@ import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
  */
 public class RichEntityLocation extends RichBoundsLocation {
 
-    private final boolean is1_14Above = BridgeMaterial.getBlock("lectern") != null;
+    private final boolean is1_13Above = ServerVersion.compareMinecraftVersion("1.13") >= 0;
     
     /*
      * TODO: HumanEntity default with + height (1.11.2): elytra 0.6/0.6,
@@ -372,9 +373,11 @@ public class RichEntityLocation extends RichBoundsLocation {
             isLiving = true;
             final LivingEntity living = (LivingEntity) entity;
             eyeHeight = living.getEyeHeight();
-            //Sneaking in Minecraft 1.14 and possibility later version will have lower height
+            // Sneaking in Minecraft 1.14 and possibility later version will have lower height
+            // But allow changing height in 1.13 too for on ground swimming
             // 0.179999?
-            fullHeight = is1_14Above ? eyeHeight + 0.179 : Math.max(Math.max(fullHeight, eyeHeight), living.getEyeHeight(true));
+            fullHeight = is1_13Above || Bridge1_9.isGliding(living) ? 
+                    eyeHeight + 0.179 : Math.max(Math.max(fullHeight, eyeHeight), living.getEyeHeight(true));
         }
         else {
             isLiving = false;

@@ -35,6 +35,7 @@ import com.comphenix.protocol.reflect.StructureModifier;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.checks.CheckType;
+import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.net.FlyingFrequency;
 import fr.neatmonster.nocheatplus.checks.net.NetConfig;
@@ -89,11 +90,11 @@ public class MovingFlying extends BaseAdapter {
         if (ServerVersion.compareMinecraftVersion("1.17") < 0) {
             types.add(PacketType.Play.Client.FLYING);
             StaticLog.logInfo("Add listener for legacy PlayInFlying packet.");
-        }
+        } else types.add(PacketType.Play.Client.GROUND);
         // Add confirm teleport.
         // PacketPlayInTeleportAccept
         PacketType confirmType = ProtocolLibComponent.findPacketTypeByName(Protocol.PLAY, Sender.CLIENT, "TeleportAccept");
-        if (confirmType != null) {
+        if (confirmType != null && ServerVersion.compareMinecraftVersion("1.9") >= 0) {
             StaticLog.logInfo("Confirm teleport packet available (via name): " + confirmType);
             types.add(confirmType);
         }
@@ -262,21 +263,29 @@ public class MovingFlying extends BaseAdapter {
                 }
                 if (data.diffpacketVLs > 15) {
                     // Player might be freezed by canceling, set back might turn it to normal
-
                     data.diffpacketVLs = 0.0;
                     int task = -1;
-                    task = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, 
-                           (Runnable)new Runnable() {
-                                @Override
-                                public void run() {
-                                    // Mask player teleport as a set back.
-                                    Mdata.prepareSetBack(loc1);
-                                    player.teleport(LocUtil.clone(loc1), 
-                                            BridgeMisc.TELEPORT_CAUSE_CORRECTION_OF_POSITION);
-                                }
-                            });
+                    task = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                        final Location newTo = 
+                            Mdata.hasSetBack() ? Mdata.getSetBack(loc1) :
+                            Mdata.hasMorePacketsSetBack() ? Mdata.getMorePacketsSetBack() :
+                            // Unsafe position! Null world or world not updated
+                            loc1;
+                            //null;
+                        if (newTo == null) {
+                            StaticLog.logSevere("[NoCheatPlus] could not restore location for " + player.getName() + ", kicking them.");
+                            CheckUtils.kickIllegalMove(player, pData.getGenericInstance(MovingConfig.class));
+                        } else {
+                            // Mask player teleport as a set back.
+                            Mdata.prepareSetBack(newTo);
+                            player.teleport(LocUtil.clone(newTo), 
+                                    BridgeMisc.TELEPORT_CAUSE_CORRECTION_OF_POSITION);
+                            if (pData.isDebugActive(this.checkType)) 
+                                debug(player, "Set back player: " + player.getName() + ":" + LocUtil.simpleFormat(newTo));
+                        }
+                    });
                     if (task == -1) {
-                        NCPAPIProvider.getNoCheatPlusAPI().getLogManager().warning(Streams.STATUS, "Failed to schedule set back task. Player: " + player.getName() + " , set back: " + loc1);
+                        StaticLog.logWarning("Failed to schedule task. Player: " + player.getName());
                     }
                     Mdata.resetTeleported(); // Cleanup, just in case.
                 }

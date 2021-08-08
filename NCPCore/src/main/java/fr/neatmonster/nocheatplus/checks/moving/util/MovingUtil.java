@@ -88,6 +88,7 @@ public class MovingUtil {
 
         final GameMode gameMode = player.getGameMode();
         final double yDistance = data.playerMoves.getCurrentMove().yDistance;
+        final boolean toOnground = toLocation != null && toLocation.getWorld() != null && toLocation.isOnGround();
         // (Full activation check - use permission caching for performance rather.)
 
         return  
@@ -110,12 +111,12 @@ public class MovingUtil {
                     || fromLocation.isInLiquid() // Can't levitate if in liquid.
                     // Moving up or down will mess with vDistRel detection due to erratic movement (players will fast/slow fall/ascend depending on the level)
                     // so we only check if the move is fully on ground to prevent (too simple) speeding
-                    || Bridge1_9.getLevitationAmplifier(player) >= 128 && fromLocation.isOnGround() && toLocation.isOnGround() && yDistance == 0.0
+                    || Bridge1_9.getLevitationAmplifier(player) >= 128 && fromLocation.isOnGround() && toOnground && yDistance == 0.0
                 )
                 // Actual slowfalling is handled by Cf. Moving up or from/to ground is handled by Sf.
                 && (
                     Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player))
-                    || (fromLocation.isOnGround() || yDistance > 0.0 || toLocation.isOnGround())
+                    || (fromLocation.isOnGround() || yDistance > 0.0 || toOnground)
                 )
                 // Riptiding is handled by Cf.
                 && !Bridge1_13.isRiptiding(player)
