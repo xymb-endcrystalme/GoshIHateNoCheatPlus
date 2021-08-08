@@ -776,7 +776,12 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         
         // Workaround 1.14+ vehicles.
         if (data.waspreInVehicle) {
-            if (is1_14) newTo = data.getSetBack(from);
+            data.setSetBack(from);
+            if (thisMove.hDistance <= 1.1 && thisMove.yDistance <= 0.8) {
+                data.addHorizontalVelocity(new AccountEntry(thisMove.hDistance, 1, 1));
+                data.addVerticalVelocity(new SimpleEntry(thisMove.yDistance, 1));
+                data.addVerticalVelocity(new SimpleEntry(-0.16, 2));
+            }
             data.waspreInVehicle = false;
         }
         
