@@ -131,6 +131,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int            RiptideLevel = 0;
     /** Represents how long a vehicle has been tossed up by a bubble column */
     public long           timeVehicletoss = 0;
+    /** Used as a workaround for boats leaving ice while still having velocity from ice */
+    public int boatIceVelocityTicks = 0;
     /** Multiplier at the last time sprinting. */
     public double         multSprinting = 1.30000002; 
     /** Compatibility entry for bouncing of slime blocks and the like. */
