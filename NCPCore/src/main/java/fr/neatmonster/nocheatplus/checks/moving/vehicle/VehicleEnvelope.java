@@ -214,7 +214,7 @@ public class VehicleEnvelope extends Check {
             return globalcap;
         }
         else {
-            if(type != EntityType.BOAT) {
+            if(type == EntityType.BOAT) {
                 return getHDistCapBoats(thisMove,data,cap, globalcap);
             }
             return cap;
