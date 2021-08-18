@@ -207,6 +207,8 @@ permissions:
                         description: Allow the player to bypass the NoSwing check.
                     nocheatplus.checks.blockplace.reach:
                         description: Allow the player to bypass the Reach check.
+                    nocheatplus.checks.blockplace.scaffold:
+                        description: Allow the player to bypass the Scaffold check.
                     nocheatplus.checks.blockplace.speed:
                         description: Allow the player to bypass the Speed check.
             nocheatplus.checks.chat:
@@ -267,6 +269,10 @@ permissions:
                         description: Allow to bypass the Gutenberg check.
                     nocheatplus.checks.inventory.instantbow:
                         description: Allow the player to bypass the InstantBow check.
+                    nocheatplus.checks.inventory.inventorymove:
+                        description: Allow the player to bypass the InventoryMove check.
+                    nocheatplus.checks.inventory.moreinventory:
+                        description: Allow the player to bypass the MoreInventory check.
                     nocheatplus.checks.inventory.instanteat:
                         description: Allow the player to bypass the InstantEat check.
                     nocheatplus.checks.inventory.items:
@@ -302,7 +308,9 @@ permissions:
                             nocheatplus.checks.moving.survivalfly.sprinting:
                                 description: Allow the player to sprint backwards.
                             nocheatplus.checks.moving.survivalfly.step:
-                                description: Allow the player to use the 'step' functionality of his client.
+                                description: Allow the player to use the 'step' functionality of their client.
+                            nocheatplus.checks.moving.survivalfly.waterwalk:
+                                description: Allow the player to use the 'waterwalk' functionality of their client.
                     nocheatplus.checks.moving.vehicle:
                         description: Allow bypassing all checks for players moving as passengers of vehicles/other.
                         children:
@@ -323,80 +331,7 @@ permissions:
                   description: Bypass the PacketFrequency check (overall packet spam).
                 nocheatplus.checks.net.wrongturn:
                   description: Allow the player to bypass the WrongTurn check.
-    
-    nocheatplus.mods:
-        description: Allow the player to use all the client mods.
-        children:
-            nocheatplus.mods.cjb:
-                description: Allow the player to use the CJB mod.
-                children:
-                    nocheatplus.mods.cjb.fly:
-                        description: Allow the player to use CJB's fly mod.
-                    nocheatplus.mods.cjb.radar:
-                        description: Allow the player to use CJB's radar.
-                    nocheatplus.mods.cjb.xray:
-                        description: Allow the player to use CJB's xray.
-            nocheatplus.mods.journey:
-                description: Allow players too use mapping features of the JourneyMap mod (Same codes as VoxelMap).
-                children:
-                    nocheatplus.mods.journey.radar:
-                        description: Radar features (JourneyMap, VoxelMap).
-                    nocheatplus.mods.journey.cavemap:
-                        description: Cave map features (JourneyMap, VoxelMap).
-            nocheatplus.mods.minecraftautomap:
-                description: Allow the player to use the Minecraft AutoMap mod.
-                children:
-                    nocheatplus.mods.minecraftautomap.cave:
-                        description: Allow the player to use Minecraft AutoMap's cave mode.
-                    nocheatplus.mods.minecraftautomap.ores:
-                        description: Allow the player to use Minecraft AutoMap's ores detector.
-                    nocheatplus.mods.minecraftautomap.radar:
-                        description: Allow the player to use Minecraft AutoMap's radar.
-            nocheatplus.mods.rei:
-                description: Allow the player to use the Rei's Minimap mod.
-                children:
-                    nocheatplus.mods.rei.cave:
-                        description: Allow the player to use Rei's Minimap cave mode.
-                    nocheatplus.mods.rei.radar:
-                        description: Allow the player to use Rei's Minimap radar.
-                        children:
-                            nocheatplus.mods.rei.radar.player:
-                                description: Allow the player to use Rei's Minimap player radar
-                            nocheatplus.mods.rei.radar.animal:
-                                description: Allow the player to use Rei's Minimap animal radar
-                            nocheatplus.mods.rei.radar.mob:
-                                description: Allow the player to use Rei's Minimap mob radar
-                            nocheatplus.mods.rei.radar.slime:
-                                description: Allow the player to use Rei's Minimap slime radar
-                            nocheatplus.mods.rei.radar.squid:
-                                description: Allow the player to use Rei's Minimap squid radar
-                            nocheatplus.mods.rei.radar.other:
-                                description: Allow the player to use Rei's Minimap other radar
-            nocheatplus.mods.smartmoving:
-                description: Allow the player to use the Smart Moving mod.
-                children:
-                    nocheatplus.mods.smartmoving.climbing:
-                        description: Allow the player to use Smart Moving's climbing movement.
-                    nocheatplus.mods.smartmoving.crawling:
-                        description: Allow the player to use Smart Moving's crawling movement.
-                    nocheatplus.mods.smartmoving.flying:
-                        description: Allow the player to use Smart Moving's flying movement.
-                    nocheatplus.mods.smartmoving.jumping:
-                        description: Allow the player to use Smart Moving's jumping movement.
-                    nocheatplus.mods.smartmoving.sliding:
-                        description: Allow the player to use Smart Moving's sliding movement.
-                    nocheatplus.mods.smartmoving.swimming:
-                        description: Allow the player to use Smart Moving's swimming movement.
-            nocheatplus.mods.zombe:
-                description: Allow the player to use the Zombe mod.
-                children:                        
-                    nocheatplus.mods.zombe.cheat:
-                        description: Allow the player to use Zombe's cheat.
-                    nocheatplus.mods.zombe.fly:
-                        description: Allow the player to use Zombe's fly mod.
-                    nocheatplus.mods.zombe.noclip:
-                        description: Allow the player to use Zombe's noclip.
-    
+                  
     nocheatplus.notify:
         description: Receive notifications about violations in-game.
     

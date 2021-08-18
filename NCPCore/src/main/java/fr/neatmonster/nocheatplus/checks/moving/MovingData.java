@@ -29,6 +29,7 @@ import fr.neatmonster.nocheatplus.checks.moving.location.setback.DefaultSetBackS
 import fr.neatmonster.nocheatplus.checks.moving.location.tracking.LocationTrace;
 import fr.neatmonster.nocheatplus.checks.moving.location.tracking.LocationTrace.TraceEntryPool;
 import fr.neatmonster.nocheatplus.checks.moving.magic.Magic;
+import fr.neatmonster.nocheatplus.checks.moving.model.LocationData;
 import fr.neatmonster.nocheatplus.checks.moving.model.LiftOffEnvelope;
 import fr.neatmonster.nocheatplus.checks.moving.model.MoveConsistency;
 import fr.neatmonster.nocheatplus.checks.moving.model.MoveTrace;
@@ -65,156 +66,198 @@ import fr.neatmonster.nocheatplus.workaround.IWorkaroundRegistry.WorkaroundSet;
  */
 public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData, IDataOnReload, IDataOnWorldUnload {
 
-    // Check specific.
+    //private static final long IGNORE_SETBACK_Y = BlockProperties.F_SOLID | BlockProperties.F_GROUND | BlockProperties.F_CLIMBABLE | BlockProperties.F_LIQUID;
 
-    /**
-     * Default lift-off envelope, used after resetting. <br>
-     * TODO: Test, might be better ground.
-     */
-    private static final LiftOffEnvelope defaultLiftOffEnvelope = LiftOffEnvelope.UNKNOWN;
-
-    public static final int              vehicleMorePacketsBufferDefault = 50;
-
-    /** Tolerance value for using vertical velocity (the client sends different values than received with fight damage). */
-    private static final double TOL_VVEL = 0.0625;
-
-    //  private static final long IGNORE_SETBACK_Y = BlockProperties.F_SOLID | BlockProperties.F_GROUND | BlockProperties.F_CLIMBABLE | BlockProperties.F_LIQUID;
-
-    /////////////////
-    // Not static.
-    /////////////////
-
-    // Violation levels -----
-    public double         creativeFlyVL            = 0.0;
-    public double         morePacketsVL            = 0.0;
-    public double         noFallVL                 = 0.0;
-    public double         survivalFlyVL            = 0.0;
-    public double         vehicleMorePacketsVL     = 0.0;
-    public double         vehicleEnvelopeVL        = 0.0;
-    public double         passableVL               = 0.0;
+    //////////////////////////////////////////////
+    // Violation levels                         //
+    //////////////////////////////////////////////
+    public double creativeFlyVL = 0.0;
+    public double morePacketsVL = 0.0;
+    public double noFallVL = 0.0;
+    public double survivalFlyVL = 0.0;
+    public double vehicleMorePacketsVL = 0.0;
+    public double vehicleEnvelopeVL = 0.0;
+    public double passableVL = 0.0;
 
 
-    // Data shared between the fly checks -----
-    public long           selfhittime = 0;
-    /** Tick counter for how long a player has been in water 0= out of water, 10=fully in water. */
-    public int            liqtick = 0;
-    /** (0 = no checking, 1 = check when leaving a liquid block until touching the ground) */
-    public int            watermovect = 0;
-    /** Temporary snow fix flag */
-    public boolean        snowFix = false;
-    /** Whether or not this horizontal movement is leading downstream */
-    public boolean        isdownstream = false;
-	/** Tick counter used to workaround certain transitions with repeated or high motion */
-    public int            keepfrictiontick = 0;
-    /** Countdown for the next bunnyhop (sprintjump(10) -> countdown -> ground(0) -> sprintjump (...)) */
-    public int            bunnyhopDelay;
-    public int            lastbunnyhopDelay = 0;
-    public int            bunnyhopTick = 0;
-    public double         jumpAmplifier = 0;
-    /** Used in fly/nofly transitions for velocity. */
-    public long           delayWorkaround = 0;
-    /** Whether or not the calculated explosion velocity should be applied. */
-    public boolean        shouldApplyExplosionVelocity = false;
-    /** Velocity explosion counter (X). */
-    public double         explosionVelAxisX = 0.0;
-    /** Velocity explosion counter (Y). */
-    public double         explosionVelAxisY = 0.0;
-    /** Velocity explosion counter (Z). */
-    public double         explosionVelAxisZ = 0.0;
-    /** Last time the player was actually sprinting. */
-    public long           timeSprinting = 0;
-    /** Last time the player was riptiding */
-    public long           timeRiptiding = 0;
-    /** Last time the player was swimming, currently used for the invMove check. */
-    public long           timeSwimming = 0;
-    /** The riptide level. */
-    public int            RiptideLevel = 0;
-    /** Represents how long a vehicle has been tossed up by a bubble column */
-    public long           timeVehicletoss = 0;
-    /** Multiplier at the last time sprinting. */
-    public double         multSprinting = 1.30000002; 
-    /** Compatibility entry for bouncing of slime blocks and the like. */
-    public SimpleEntry    verticalBounce = null;
-    /** Last used block change id (BlockChangeTracker). */
-    public final BlockChangeReference blockChangeRef = new BlockChangeReference();
-    /** Moving half on 15/16 height block and half on water. Set in Survivalfly.check */
-    public boolean        isHalfGroundHalfWater = false;
-    /** If is Bedrock Player (no feature for now - just for compatibility) */
-    public boolean        bedrockPlayer = false;
 
-    /** Tick at which walk/fly speeds got changed last time. */
-    public int speedTick = 0;
-    public float walkSpeed = 0.0f;
-    public float flySpeed = 0.0f;
 
-    /** No Slow */
-    public boolean isusingitem = false;
-    public boolean offhanduse = false;
-    public int olditemslot = 0;
-    public boolean changeslot = false;
-    public long time_rl_item = 0;
-    public boolean isHackingRI = false;
-    public int noslowhop = 0;
 
+    //////////////////////////////////////////////
+    // Data shared between the moving checks    //
+    //////////////////////////////////////////////
+    /** Tick counter for how long a player has been in water 0= out of water, 10= fully in water. */
+    public int liqtick = 0;
+    /** (0 = no checking, 1 = check when leaving a liquid block until touching the ground). */
+    public int watermovect = 0;
+    /** Tick counter used to workaround certain transitions with repeated or high motion (e.g.: gliding->normal, riptiding->normal). */
+    // TODO: Rename -> motionTransitionTick/(...)
+    public int keepfrictiontick = 0;
+    /** Countdown for the next bunnyhop. 10(maximum) represents a just performed bunnyhop. */
+    public int bunnyhopDelay;
+    /** bunnyHopDelay phase before applying a LostGround case (set in SurvivalFly.bunnyHop()) */ 
+    public int lastbunnyhopDelay = 0;
+    /** Ticks after landing on ground (InAir->Ground). Mainly used in SurvivalFly. */
+    public int bunnyhopTick = 0;
     /** Count set back (re-) setting. */
     private int playerMoveCount = 0;
-    /** playerMoveCount at the time of the last sf violation. */
-    public int sfVLTime = 0;
-    /**
-     * setBackResetCount (incremented) at the time of (re-) setting the ordinary
-     * set back.
-     */
+    /** setBackResetCount (incremented) at the time of (re-) setting the ordinary set back. */
     private int setBackResetTime = 0;
-    /**
-     * setBackResetCount (incremented) at the time of (re-) setting the
-     * morepackets set back.
-     */
+    /** setBackResetCount (incremented) at the time of (re-) setting the morepackets set back. */
     private int morePacketsSetBackResetTime = 0;
+    /** Tick at which walk/fly speeds got changed last time. */
+    public int speedTick = 0;
+    /** Walk speed */
+    public float walkSpeed = 0.0f;
+    /** Fly speed */
+    public float flySpeed = 0.0f;
+    /** Keep track of the amplifier given by the jump potion. */
+    public double jumpAmplifier = 0;
+    /** Multiplier at the last time sprinting. */
+    public double multSprinting = 1.30000002; 
+    /** Used in workaroundFlyCheckTransition() in the MovingListener for velocity. */
+    public long delayWorkaround = 0;
+    /** Last time the player was actually sprinting. */
+    public long timeSprinting = 0;
+    /** Last time the player was riptiding */
+    public long timeRiptiding = 0;
+    /** Last time the player was swimming, currently used for the invMove check only. */
+    public long timeSwimming = 0;
+    /** Represents how long a vehicle has been tossed up by a bubble column */
+    // TODO: Deprecate and use the blockChangeTracker, rather.
+    public long timeVehicletoss = 0;
+    /** Moving half on 15/16 height block and half on water. Set in Survivalfly.check. */
+    public boolean isHalfGroundHalfWater = false;
+    /** If is Bedrock Player. This is set if CompatNoCheatPlus is present. */
+    public boolean bedrockPlayer = false;
+    /** Temporary snow fix flag */
+    // TODO: remove.
+    public boolean snowFix = false;
+    /** Whether or not this horizontal movement is leading downstream. */
+    public boolean isdownstream = false;
+    /** Last used block change id (BlockChangeTracker). */
+    public final BlockChangeReference blockChangeRef = new BlockChangeReference();
+    
+    // *----------Friction (hor/ver)----------*
+    /** Rough friction factor estimate, 0.0 is the reset value (maximum with lift-off/burst speed is used). */
+    public double lastFrictionHorizontal = 0.0;
+    /** Rough friction factor estimate, 0.0 is the reset value (maximum with lift-off/burst speed is used). */
+    public double lastFrictionVertical = 0.0;
+    /** Used during processing, no resetting necessary.*/
+    public double nextFrictionHorizontal = 0.0;
+    /** Used during processing, no resetting necessary.*/
+    public double nextFrictionVertical = 0.0;
+    
+    // *----------No slowdown related data----------*
+    /** Whether the player is using an item */
+    public boolean isusingitem = false;
+    /** TODO: */
+    public boolean offhanduse = false;
+    /** TODO: */
+    public int olditemslot = 0;
+    /** TODO: */
+    public boolean changeslot = false;
+    /** TODO: */
+    public long time_rl_item = 0;
+    /** Detection: the player is cheating for sure */
+    public boolean isHackingRI = false;
+    /** Keep track of hopping while using items */
+    public int noslowhop = 0;
 
-    /**
-     * Position teleported from into another world. Only used for certain
-     * contexts for workarounds.
-     */
-    public IPositionWithLook crossWorldFrom = null;
-
-    /** Keep track of currently processed (if) and past moves for player moving. */
+    // *----------Move / Vehicle move tracking----------*
+    /** Keep track of currently processed (if) and past moves for player moving. Stored moves can be altered by modifying the int. */
     public final MoveTrace <PlayerMoveData> playerMoves = new MoveTrace<PlayerMoveData>(new Callable<PlayerMoveData>() {
         @Override
         public PlayerMoveData call() throws Exception {
             return new PlayerMoveData();
         }
-    }, 2);
-
-    /** Keep track of currently processed (if) and past moves for vehicle moving. */
+    }, 4); // Too many moves, perhaps... :p 
+    /** Keep track of currently processed (if) and past moves for vehicle moving. Stored moves can be altered by modifying the int. */
     // TODO: There may be need to store such data with vehicles, or detect tandem abuse in a different way.
     public final MoveTrace <VehicleMoveData> vehicleMoves = new MoveTrace<VehicleMoveData>(new Callable<VehicleMoveData>() {
         @Override
         public VehicleMoveData call() throws Exception {
             return new VehicleMoveData();
         }
-    }, 2);
+    }, 4);
 
-    // Velocity handling.
+    // *----------Velocity handling----------* 
+    /** Tolerance value for using vertical velocity (the client sends different values than received with fight damage). */
+    private static final double TOL_VVEL = 0.0625;
     /** Vertical velocity modeled as an axis (positive and negative possible) */
     private final SimpleAxisVelocity verVel = new SimpleAxisVelocity();
-
     /** Horizontal velocity modeled as an axis (always positive) */
     private final FrictionAxisVelocity horVel = new FrictionAxisVelocity();
+    /** Whether or not the calculated explosion velocity should be applied. */
+    public boolean shouldApplyExplosionVelocity = false;
+    /** Velocity explosion counter (X). */
+    public double explosionVelAxisX = 0.0;
+    /** Velocity explosion counter (Y). */
+    public double explosionVelAxisY = 0.0;
+    /** Velocity explosion counter (Z). */
+    public double explosionVelAxisZ = 0.0;
+    /** Compatibility entry for bouncing off of slime blocks and the like. */
+    public SimpleEntry verticalBounce = null;
 
-    /** Duration of the boost effect in ticks. */
+    // *----------Coordinates----------*
+    /** Moving trace (to-positions, use ms as time). This is initialized on "playerJoins, i.e. MONITOR, and set to null on playerLeaves." */
+    private final LocationTrace trace;
+    /** Setback location, shared between fly checks */
+    private Location setBack = null;
+    /** Telepot location, shared between fly checks */
+    private Location teleported = null;
+
+
+
+
+
+    //////////////////////////////////////////////
+    // Check specific data                      //
+    //////////////////////////////////////////////
+    // *----------Data of the CreativeFly check----------*
+    /** Duration of the boost effect in ticks. Set in the BlockInteractListener. */
     public int fireworksBoostDuration = 0;
+    /** This firework boost tick needs to be checked. Aimed at solving vanilla bugs when boosting with elytra. */
     public int fireworksBoostTickNeedCheck = 0;
-    /**
-     * Expire at this tick.
-     */
+    /** Expire at this tick. */
     public int fireworksBoostTickExpire = 0;
 
-    // Coordinates.
-    /** Moving trace (to-positions, use tick as time). This is initialized on "playerJoins, i.e. MONITOR, and set to null on playerLeaves." */
-    private final LocationTrace trace;
+    // *----------Data of the MorePackets check----------*
+    /** Packet frequency count. */
+    public final ActionFrequency morePacketsFreq;
+    /** Burst count. */
+    public final ActionFrequency morePacketsBurstFreq;
+    /** Setback for MP. */
+    private Location morePacketsSetback = null;
 
-    // sf rather
-    /** Basic envelope constraints for switching into air. */
+    // *----------Data of the NoFall check----------*
+    /** Our calculated fall distance */
+    public float noFallFallDistance = 0;
+    /** Last y coordinate from when the player was on ground. */
+    public double noFallMaxY = 0;
+    /** Indicate that NoFall is not to use next damage event for checking on-ground properties. */ 
+    public boolean noFallSkipAirCheck = false;
+
+    // *----------Data of the SurvivalFly check----------*
+    /** Default lift-off envelope, used after resetting. <br> TODO: Test, might be better ground. */
+    private static final LiftOffEnvelope defaultLiftOffEnvelope = LiftOffEnvelope.UNKNOWN;
+    /** playerMoveCount at the time of the last sf violation. */
+    public int sfVLTime = 0;
+    /** The current horizontal buffer value. Horizontal moving VLs get compensated with emptying the buffer. */
+    public double sfHorizontalBuffer = 0.0;
+    /** Event-counter to cover up for sprinting resetting server side only. Set in the FighListener. */
+    public int lostSprintCount = 0;
+    /** Count how long the player has been in the air, resets when landing on ground. */
+    public int sfJumpPhase = 0;
+    /** Count how many times in a row yDistance has been zero, only for in-air moves, updated on not cancelled moves (aimed at in-air workarounds) */
+    public int sfZeroVdistRepeat = 0;
+    /** "Dirty" flag, for receiving velocity and similar while in air. */
+    private boolean sfDirty = false;
+    /** Indicate low jumping descending phase (likely cheating). */
+    public boolean sfLowJump = false;
+    /** Hacky way to indicate that this movement cannot be a lowjump. */
+    public boolean sfNoLowJump = false; 
+    /** Basic envelope constraints for lifting off ground. */
     public LiftOffEnvelope liftOffEnvelope = defaultLiftOffEnvelope;
     /** Count how many moves have been made inside a medium (other than air). */
     public int insideMediumCount = 0;
@@ -223,134 +266,74 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int combinedMediumHCount = 0;
     /** Sum of actual speed / base speed for horizontal moving within air + certain medium. */
     public double combinedMediumHValue = 0.0;
-
-    // Locations shared between all checks.
-    private Location    setBack = null;
-    private Location    teleported = null;
-
-    // Check specific data -----
-
-    // Data of the more packets check.
-    /** Packet frequency count. */
-    public final ActionFrequency    morePacketsFreq;
-    /** Burst count. */
-    public final ActionFrequency    morePacketsBurstFreq;
-    private Location                morePacketsSetback = null;
-
-    // Data of the no fall check.
-    public float            noFallFallDistance = 0;
-    /** Last y coordinate from when the player was on ground. */
-    public double           noFallMaxY = 0;
-    /** Indicate that NoFall is not to use next damage event for checking on-ground properties. */ 
-    public boolean          noFallSkipAirCheck = false;
-    // Data of the survival fly check.
-    public double       sfHorizontalBuffer = 0.0; // ineffective: SurvivalFly.hBufMax / 2.0;
-    /** Event-counter to cover up for sprinting resetting server side only. Set in the FighListener. */
-    public int          lostSprintCount = 0;
-    /** Count how long the player has been in the air, resets when landing on ground */
-    public int          sfJumpPhase = 0;
-    /**
-     * Count how many times in a row v-dist has been zero, only for in-air
-     * moves, updated on not cancelled moves (aimed at in-air workarounds).
-     */
-    public int          sfZeroVdistRepeat = 0;
-    /** Only used during processing, to keep track of sub-checks using velocity. Reset in velocityTick, before checks run. */
-
-    /** "Dirty" flag, for receiving velocity and similar while in air. */
-    private boolean     sfDirty = false;
-    /** Indicate low jumping descending phase (likely cheating). */
-    public boolean sfLowJump = false;
-    /** Hacky way to indicate that this movement cannot be a lowjump */
-    public boolean sfNoLowJump = false; // Hacks.
-
-    /**
-     * Counting while the player is not on ground and not moving. A value <0
-     * means not hovering at all.
-     */
-    public int          sfHoverTicks = -1;
-    /**
-     * First count these down before incrementing sfHoverTicks. Set on join, if
-     * configured so.
-     */
-    public int          sfHoverLoginTicks = 0;
-    public int          sfOnIce = 0; // TODO: Replace by allowed speed + friction.
-    public int          sfBounceTick = 0;
+    /** Counting while the player is not on ground and not moving. A value < 0 means not hovering at all. */
+    public int sfHoverTicks = -1;
+    /** First count these down before incrementing sfHoverTicks. Set on join, if configured so. */
+    public int sfHoverLoginTicks = 0;
+    /** Ticks influenced by ice friction after sptintjumping, used in survivalFly.setAllowedHDist(). */
+    public int sfOnIce = 0; 
+    /** Ticks influenced by bounce friction after sprintjumping, used in survivalFly.setAllowedHDist(). */
+    public int sfBounceTick = 0;
     /** Fake in air flag: set with any violation, reset once on ground. */
-    public boolean       sfVLInAir = false;
-
-
-    // Accounting info.
+    public boolean  sfVLInAir = false;
+    /** Vertical accounting info */
     public final ActionAccumulator vDistAcc = new ActionAccumulator(3, 3);
-    /**
-     * Rough friction factor estimate, 0.0 is the reset value (maximum with
-     * lift-off/burst speed is used).
-     */
-    public double lastFrictionHorizontal = 0.0;
-    /**
-     * Rough friction factor estimate, 0.0 is the reset value (maximum with
-     * lift-off/burst speed is used).
-     */
-    public double lastFrictionVertical = 0.0;
-    /** Used during processing, no resetting necessary.*/
-    public double nextFrictionHorizontal = 0.0;
-    /** Used during processing, no resetting necessary.*/
-    public double nextFrictionVertical= 0.0;
-    /** Workarounds */
+    /** Workarounds (InAirRules,LiquidWorkarounds). */
     public final WorkaroundSet ws;
 
-    // HOT FIX / WORKAROUND
-    /**
-     * Set to true after login/respawn, only if the set back is reset there.
-     * Reset in MovingListener after handling PlayerMoveEvent
-     */
-    public boolean joinOrRespawn = false;
-    /**
-     * Number of (player/vehicle) move events since set.back. Update after
-     * running standard checks on that EventPriority level (not MONITOR).
-     */
-    public int timeSinceSetBack = 0;
-    /**
-     * Location hash value of the last (player/vehicle) set back, for checking
-     * independently of which set back location had been used.
-     */
-    public int lastSetBackHash = 0;
-
-    // Vehicles.
-    /**
-     * Inconsistency-flag. Set on moving inside of vehicles, reset on exiting
-     * properly. Workaround for VehicleLeaveEvent missing.
-     */
-    public boolean wasInVehicle = false; // Workaround
-    public boolean waspreInVehicle = false;
-    /**
-     * Set to indicate that events happen during a vehicle set back. Allows
-     * skipping some resetting.
-     */
-    public boolean isVehicleSetBack = false; // Workaround
-    public MoveConsistency vehicleConsistency = MoveConsistency.INCONSISTENT; // Workaround
-    public final DefaultSetBackStorage vehicleSetBacks = new DefaultSetBackStorage();
-    // Data of the more packets vehicle check.
-    public int              vehicleMorePacketsBuffer = vehicleMorePacketsBufferDefault;
-    public long             vehicleMorePacketsLastTime;
+    // *----------Data of the vehicles checks----------*
+    /** Default value for the VehicleMP buffer. */
+    public static final int vehicleMorePacketsBufferDefault = 50;
+    /** The buffer used for VehicleMP violations. */
+    public int vehicleMorePacketsBuffer = vehicleMorePacketsBufferDefault;
+    /** TODO: */
+    public long vehicleMorePacketsLastTime;
     /** Task id of the vehicle set back task. */ 
-    public int              vehicleSetBackTaskId = -1;
+    public int vehicleSetBackTaskId = -1;
     /** Task id of the passenger set back task. */ 
-    public int              vehicleSetPassengerTaskId = -1;
+    public int vehicleSetPassengerTaskId = -1;
+    
+
+
+
+
+    //////////////////////////////////////////////
+    // HOT FIX / WORKAROUNDS                    //
+    //////////////////////////////////////////////
+    /** Set to true after login/respawn, only if the set back is reset there. Reset in MovingListener after handling PlayerMoveEvent */
+    public boolean joinOrRespawn = false;
+    /** Number of (player/vehicle) move events since set.back. Update after running standard checks on that EventPriority level (not MONITOR). */
+    public int timeSinceSetBack = 0;
+    /** Location hash value of the last (player/vehicle) set back, for checking independently of which set back location had been used. */
+    public int lastSetBackHash = 0;
+    /** Position teleported from into another world. Only used for certain contexts for workarounds. */
+    public IPositionWithLook crossWorldFrom = null;
+
+    // *----------Vehicles----------*
+    /** Inconsistency-flag. Set on moving inside of vehicles, reset on exiting properly. Workaround for VehicleLeaveEvent missing. */
+    public boolean wasInVehicle = false; 
+    /** TODO: */
+    public boolean waspreInVehicle = false;
+    /** Set to indicate that events happen during a vehicle set back. Allows skipping some resetting. */
+    public boolean isVehicleSetBack = false;
+    /** TODO: Movement consistency */
+    public MoveConsistency vehicleConsistency = MoveConsistency.INCONSISTENT;
+    /** TODO: */
+    public final DefaultSetBackStorage vehicleSetBacks = new DefaultSetBackStorage();
+
 
     private final IPlayerData pData;
-
     public MovingData(final MovingConfig config, final IPlayerData pData) {
         this.pData = pData;
         morePacketsFreq = new ActionFrequency(config.morePacketsEPSBuckets, 500);
         morePacketsBurstFreq = new ActionFrequency(12, 5000);
-
         // Location trace.
         trace = new LocationTrace(config.traceMaxAge, config.traceMaxSize, NCPAPIProvider.getNoCheatPlusAPI().getGenericInstance(TraceEntryPool.class));
-
         // A new set of workaround conters.
         ws = NCPAPIProvider.getNoCheatPlusAPI().getGenericInstance(WRPT.class).getWorkaroundSet(WRPT.WS_MOVING);
 
     }
+
 
     /**
      * Clear fly and more packets check data for both vehicles and players.
@@ -361,6 +344,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         clearAllMorePacketsData();
     }
 
+
     /**
      * Clear vehicle related data, except more packets.
      */
@@ -369,6 +353,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         vehicleMoves.invalidate();
         vehicleSetBacks.invalidateAll();
     }
+
 
     /**
      * Clear the data of the fly checks (not more-packets).
@@ -395,8 +380,13 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         lastFrictionHorizontal = lastFrictionVertical = 0.0;
         verticalBounce = null;
         blockChangeRef.valid = false;
+        bunnyhopTick = 0;
+        liqtick = 0;
+        combinedMediumHCount = 0;
+        combinedMediumHValue = 0.0;
         // More resets? (bunnyhopTick, liqtick...)
     }
+
 
     /**
      * On confirming a set back (teleport monitor / move start point): Mildly
@@ -439,6 +429,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         // vehicleSetBacks.resetAllLazily(setBack); // Not good: Overrides older set back locations.
     }
 
+
     /**
      * Move event: Mildly reset some data, prepare setting a new to-Location.
      */
@@ -453,6 +444,58 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         setTeleported(loc);
         // TODO: sfHoverTicks ?
     }
+
+
+    /**
+     * Set data.nextFriction according to media.
+     * @param from
+     * @param to
+     * @param data
+     * @param cc
+     */
+    public void setNextFriction(final PlayerMoveData thisMove, final MovingConfig cc) {
+
+        // NOTE: Other methods might still override nextFriction to 1.0 due to burst/lift-off envelope.
+        // TODO: Other media / medium transitions / friction by block.
+        final LocationData from = thisMove.from;
+        final LocationData to = thisMove.to;
+
+        if (from.inWeb || to.inWeb) {
+            nextFrictionHorizontal = nextFrictionVertical = 0.0;
+        }
+        else if (from.inPowderSnow || to.inPowderSnow) {
+            nextFrictionHorizontal = nextFrictionVertical = 0.0;
+        }
+        // No from#onClimbable check to fix vines fps casue by medium counts, probably wrong place! 
+        else if (to.onClimbable) {
+            // TODO: Not sure about horizontal (!).
+            nextFrictionHorizontal = nextFrictionVertical = 0.0;
+        }
+        else if (to.onHoneyBlock || to.onHoneyBlock) {
+            nextFrictionHorizontal = nextFrictionVertical = 0.0;
+        }
+        else if (from.inBerryBush || to.inBerryBush) {
+            nextFrictionHorizontal = nextFrictionVertical = 0.0;
+        }
+        else if (from.inLiquid) {
+            // TODO: Exact conditions ?!
+            if (from.inLava) {
+                nextFrictionHorizontal = nextFrictionVertical = Magic.FRICTION_MEDIUM_LAVA;
+            }
+            else {
+                nextFrictionHorizontal = nextFrictionVertical = Magic.FRICTION_MEDIUM_WATER;
+            }
+        }
+        // TODO: consider setting minimum friction last (air), do add ground friction.
+        else if (!from.onGround && !to.onGround) {
+            nextFrictionHorizontal = nextFrictionVertical = Magic.FRICTION_MEDIUM_AIR;
+        }
+        else {
+            nextFrictionHorizontal = 0.0; // TODO: Friction for walking on blocks (!).
+            nextFrictionVertical = Magic.FRICTION_MEDIUM_AIR;
+        }
+    }
+
 
     /**
      * Adjust properties that relate to the medium, called on set back and
@@ -511,6 +554,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         bedrockPlayer = false;
     }
 
+
     /**
      * Invalidate all past player moves data and set last position if not null.
      * 
@@ -524,6 +568,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
             lastMove.setWithExtraProperties(loc);
         }
     }
+
 
     /**
      * Invalidate all past moves data (player).
@@ -541,6 +586,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         // TODO: other buffers ?
         // No reset of vehicleConsistency.
     }
+
 
     /**
      * Invalidate all past vehicle moves data and set last position if not null.
@@ -560,12 +606,14 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         }
     }
 
+
     /**
      * Clear accounting data.
      */
     public void clearAccounting() {
         vDistAcc.clear();
     }
+
 
     /**
      * Clear the data of the more packets checks, both for players and vehicles.
@@ -575,6 +623,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         clearVehicleMorePacketsData();
     }
 
+
     public void clearPlayerMorePacketsData() {
         morePacketsSetback = null;
         final long now = System.currentTimeMillis();
@@ -582,6 +631,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         morePacketsBurstFreq.clear(now);
         // TODO: Also reset other data ?
     }
+
 
     /**
      * Reduce the morepackets frequency counters by the given amount, capped at
@@ -593,12 +643,14 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         ActionFrequency.reduce(System.currentTimeMillis(), amount, morePacketsFreq, morePacketsBurstFreq);
     }
 
+
     public void clearVehicleMorePacketsData() {
         vehicleMorePacketsLastTime = 0;
         vehicleMorePacketsBuffer = vehicleMorePacketsBufferDefault;
         vehicleSetBacks.getMidTermEntry().setValid(false); // TODO: Will have other resetting conditions later on.
         // TODO: Also reset other data ?
     }
+
 
     /**
      * Clear the data of the new fall check.
@@ -609,6 +661,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         noFallSkipAirCheck = false;
     }
 
+
     /**
      * Set the set back location, this will also adjust the y-coordinate for some block types (at least air).
      * @param loc
@@ -617,12 +670,13 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         if (setBack == null) {
             setBack = loc.getLocation();
         }
-        else{
+        else {
             LocUtil.set(setBack, loc);
         }
         // TODO: Consider adjusting the set back-y here. Problem: Need to take into account for bounding box (collect max-ground-height needed).
         setBackResetTime = playerMoveCount;
     }
+
 
     /**
      * Convenience method.
@@ -633,11 +687,12 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         if (setBack == null) {
             setBack = LocUtil.clone(loc);
         }
-        else{
+        else {
             LocUtil.set(setBack, loc);
         }
         setBackResetTime = playerMoveCount;
     }
+
 
     /**
      * Get the set back location with yaw and pitch set form ref.
@@ -649,6 +704,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return LocUtil.clone(setBack, ref);
     }
 
+
     /**
      * Get the set back location with yaw and pitch set from ref.
      * 
@@ -658,6 +714,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public Location getSetBack(final PlayerLocation ref) {
         return LocUtil.clone(setBack, ref);
     }
+
 
     /**
      * Get the set back location with yaw and pitch set from the given
@@ -671,9 +728,11 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return LocUtil.clone(setBack, yaw, pitch);
     }
 
+
     public boolean hasSetBack() {
         return setBack != null;
     }
+
 
     public boolean hasSetBackWorldChanged(final Location loc) {
         if (setBack == null) {
@@ -689,18 +748,22 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return setBack.getX();
     }
 
+
     public double getSetBackY() {
         return hasSetBack() ? setBack.getY() : 0.0;
     }
+
 
     public double getSetBackZ() {
         return setBack.getZ();
     }
 
+
     public void setSetBackY(final double y) {
         setBack.setY(y);
         // (Skip setting/increasing the reset count.)
     }
+
 
     /**
      * Test, if the 'teleported' location is set, e.g. on a scheduled set back.
@@ -711,6 +774,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return teleported != null;
     }
 
+
     /**
      * Return a copy of the teleported-to Location.
      * @return
@@ -719,6 +783,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         // TODO: here a reference might do.
         return teleported == null ? teleported : LocUtil.clone(teleported);
     }
+
 
     /**
      * Check if the given location equals to the 'teleported' (set back)
@@ -731,6 +796,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public boolean isTeleported(final Location loc) {
         return loc != null && teleported != null && teleported.equals(loc);
     }
+
 
     /**
      * Check if the given location has the same coordinates like the
@@ -746,6 +812,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return loc != null && teleported != null && TrigUtil.isSamePos(teleported, loc);
     }
 
+
     /**
      * Check if the given location has the same coordinates like the
      * 'teleported' (set back) location. This is more light-weight and more
@@ -760,6 +827,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return pos != null && teleported != null && TrigUtil.isSamePos(pos, teleported);
     }
 
+
     /**
      * Set teleport-to location to recognize NCP set backs. This copies the coordinates and world.
      * @param loc
@@ -768,9 +836,11 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         teleported = LocUtil.clone(loc); // Always overwrite.
     }
 
+
     public boolean hasMorePacketsSetBack() {
         return morePacketsSetback != null;
     }
+
 
     /**
      * Test if the morepackets set back is older than the ordinary set back.
@@ -782,9 +852,11 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return morePacketsSetBackResetTime < setBackResetTime;
     }
 
+
     public void setMorePacketsSetBackFromSurvivalfly() {
         setMorePacketsSetBack(setBack);
     }
+
 
     public final void setMorePacketsSetBack(final PlayerLocation loc) {
         if (morePacketsSetback == null) {
@@ -796,6 +868,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         morePacketsSetBackResetTime = playerMoveCount;
     }
 
+
     public final void setMorePacketsSetBack(final Location loc) {
         if (morePacketsSetback == null) {
             morePacketsSetback = LocUtil.clone(loc);
@@ -806,13 +879,16 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         morePacketsSetBackResetTime = playerMoveCount;
     }
 
+
     public Location getMorePacketsSetBack() {
         return LocUtil.clone(morePacketsSetback);
     }
 
+
     public final void resetTeleported() {
         teleported = null;
     }
+
 
     /**
      * Set set back location to null.
@@ -820,6 +896,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public final void resetSetBack() {
         setBack = null;
     }
+
 
     /**
      * Add velocity to internal book-keeping.
@@ -836,6 +913,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         addVelocity(player, cc, vx, vy, vz, 0L);
     }
 
+
     /**
      * Add velocity to internal book-keeping.
      * 
@@ -848,8 +926,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      * @param flags
      *            Flags to use with velocity entries.
      */
-    public void addVelocity(final Player player, final MovingConfig cc, 
-            final double vx, final double vy, final double vz, final long flags) {
+    public void addVelocity(final Player player, final MovingConfig cc, final double vx, final double vy, final double vz, final long flags) {
         final int tick = TickTask.getTick();
         // TODO: Slightly odd to call this each time, might switch to a counter-strategy (move - remove). 
         removeInvalidVelocity(tick  - cc.velocityActivationTicks);
@@ -873,6 +950,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
 
     }
 
+
     /**
      * Std. value counter for horizontal velocity, based on the vlaue.
      * 
@@ -884,9 +962,11 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return Math.max(30, 1 + (int) Math.round(velocity * 10.0));
     }
 
+
     public void prependVerticalVelocity(final SimpleEntry entry) {
         verVel.addToFront(entry);
     }
+
 
     /**
      * Get the first element without using it.
@@ -899,9 +979,11 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return verVel.peek(amount, minActCount, maxActCount, TOL_VVEL);
     }
 
+
     public void addVerticalVelocity(final SimpleEntry entry) {
         verVel.add(entry);
     }
+
 
     /**
      * Add horizontal velocity directly to horizontal-only bookkeeping.
@@ -912,6 +994,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public void addHorizontalVelocity(final AccountEntry vel) {
         horVel.add(vel);
     }
+
 
     /**
      * Remove/reset all speed modifier tracking, like vertical and horizontal
@@ -927,6 +1010,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         sfHorizontalBuffer = 0.0;
     }
 
+
     /**
      * Reset velocity tracking (h+v).
      */
@@ -935,6 +1019,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         verVel.clear();
         sfDirty = false;
     }
+
 
     /**
      * Remove all velocity entries that are invalid. Checks both active and queued.
@@ -946,6 +1031,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         verVel.removeInvalid(tick);
     }
 
+
     /**
      * Clear only active horizontal velocity.
      */
@@ -953,13 +1039,16 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         horVel.clearActive();
     }
 
+
     public boolean hasActiveHorVel() {
         return horVel.hasActive();
     }
 
+
     public boolean hasQueuedHorVel() {
         return horVel.hasQueued();
     }
+
 
     /**
      * Active or queued.
@@ -968,6 +1057,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public boolean hasAnyHorVel() {
         return horVel.hasAny();
     }
+
 
     /**
      * Queued velocity only.
@@ -984,6 +1074,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     //    public boolean hasQueuedVerVel() {
     //        return verVel.hasQueued();
     //    }
+
 
     /**
      * Called for moving events. Remove invalid entries, increase age of velocity, decrease amounts, check which entries are invalid. Both horizontal and vertical.
@@ -1003,6 +1094,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         }
     }
 
+
     /**
      * Get effective amount of all used velocity. Non-destructive.
      * @return
@@ -1010,6 +1102,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public double getHorizontalFreedom() {
         return horVel.getFreedom();
     }
+
 
     /**
      * Use all queued velocity until at least amount is matched.
@@ -1027,6 +1120,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return available;
     }
 
+
     /**
      * Debugging.
      * @param builder
@@ -1041,6 +1135,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
             horVel.addQueued(builder);
         }
     }
+
 
     /**
      * Get the first matching velocity entry (invalidate others). Sets
@@ -1059,6 +1154,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return available;
     }
 
+
     /**
      * Use the verVelUsed field, if it matches. Otherwise call
      * useVerticalVelocity(amount).
@@ -1076,6 +1172,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return useVerticalVelocity(amount);
     }
 
+
     /**
      * Debugging.
      * @param builder
@@ -1086,6 +1183,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
             verVel.addQueued(builder);
         }
     }
+
 
     /**
      * Test if the location is the same, ignoring pitch and yaw.
@@ -1102,33 +1200,40 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return loc.getX() == setBack.getX() && loc.getY() == setBack.getY() && loc.getZ() == setBack.getZ();
     }
 
+
     public void adjustWalkSpeed(final float walkSpeed, final int tick, final int speedGrace) {
         if (walkSpeed > this.walkSpeed) {
             this.walkSpeed = walkSpeed;
             this.speedTick = tick;
-        } else if (walkSpeed < this.walkSpeed) {
+        } 
+        else if (walkSpeed < this.walkSpeed) {
             if (tick - this.speedTick > speedGrace) {
                 this.walkSpeed = walkSpeed;
                 this.speedTick = tick;
             }
-        } else {
+        } 
+        else {
             this.speedTick = tick;
         }
     }
+
 
     public void adjustFlySpeed(final float flySpeed, final int tick, final int speedGrace) {
         if (flySpeed > this.flySpeed) {
             this.flySpeed = flySpeed;
             this.speedTick = tick;
-        } else if (flySpeed < this.flySpeed) {
+        } 
+        else if (flySpeed < this.flySpeed) {
             if (tick - this.speedTick > speedGrace) {
                 this.flySpeed = flySpeed;
                 this.speedTick = tick;
             }
-        } else {
+        } 
+        else {
             this.speedTick = tick;
         }
     }
+
 
     /**
      * This tests for a LocationTrace instance being set at all, not for locations having been added.
@@ -1138,6 +1243,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return trace != null;
     }
 
+
     /**
      * Convenience: Access method to simplify coding, being aware of some plugins using Player implementations as NPCs, leading to traces not being present.
      * @return
@@ -1145,6 +1251,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public LocationTrace getTrace(final Player player) {
         return trace;
     }
+
 
     /**
      * Ensure to have a LocationTrace instance with the given parameters.
@@ -1161,6 +1268,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return trace;
     }
 
+
     /**
      * Convenience method to add a location to the trace, creates the trace if
      * necessary.
@@ -1173,8 +1281,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      * @return Updated LocationTrace instance, for convenient use, without
      *         sticking too much to MovingData.
      */
-    public LocationTrace updateTrace(final Player player, final Location loc, final long time, 
-            final IEntityAccessDimensions iead) {
+    public LocationTrace updateTrace(final Player player, final Location loc, final long time, final IEntityAccessDimensions iead) {
         final LocationTrace trace = getTrace(player);
         if (iead == null) {
             // TODO: 0.3 from bukkit based default heights (needs extra registered classes).
@@ -1186,16 +1293,17 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return trace;
     }
 
+
     /**
      * Convenience.
      * @param loc
      * @param time
      * @param cc
      */
-    public void resetTrace(final Player player, final Location loc, final long time, 
-            final IEntityAccessDimensions iead, final MovingConfig cc) {
+    public void resetTrace(final Player player, final Location loc, final long time, final IEntityAccessDimensions iead, final MovingConfig cc) {
         resetTrace(player, loc, time, cc.traceMaxAge, cc.traceMaxSize, iead);
     }
+
 
     /**
      * Convenience: Create or just reset the trace, add the current location.
@@ -1204,14 +1312,14 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      * @param mergeDist
      * @param traceMergeDist 
      */
-    public void resetTrace(final Player player, final Location loc, final long time, 
-            final int maxAge, final int maxSize, final IEntityAccessDimensions iead) {
+    public void resetTrace(final Player player, final Location loc, final long time, final int maxAge, final int maxSize, final IEntityAccessDimensions iead) {
         if (trace != null) {
             trace.reset();
         }
         getTrace(maxAge, maxSize).addEntry(time, loc.getX(), loc.getY(), loc.getZ(), 
                 iead.getWidth(player) / 2.0, Math.max(player.getEyeHeight(), iead.getHeight(player)));
     }
+
 
     /**
      * Test if velocity has affected the in-air jumping phase. Keeps set until
@@ -1225,6 +1333,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return sfDirty;
     }
 
+
     /**
      * Refactoring stage: Test which value sfDirty should have and set
      * accordingly. This should only be called, if the player reached ground.
@@ -1235,6 +1344,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return resetVelocityJumpPhase(null);
     }
 
+
     /**
      * See {@link #resetVelocityJumpPhase()}.
      * @param tags
@@ -1242,7 +1352,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      */
     public boolean resetVelocityJumpPhase(final Collection<String> tags) {
         if (horVel.hasActive() || horVel.hasQueued() 
-                || sfDirty && shouldRetainSFDirty(tags)) {
+            || sfDirty && shouldRetainSFDirty(tags)) {
             // TODO: What with vertical ?
             return sfDirty = true;
         }
@@ -1251,14 +1361,17 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         }
     }
 
+
     private final boolean shouldRetainSFDirty(final Collection<String> tags) {
         final PlayerMoveData thisMove = playerMoves.getLatestValidMove();
+
         if (thisMove == null || !thisMove.toIsValid || thisMove.yDistance >= 0.0) {
-            final SimpleEntry entry = verVel.peek(
-                    thisMove == null ? 0.05 : thisMove.yDistance, 0, 4, 0.0);
+
+            final SimpleEntry entry = verVel.peek(thisMove == null ? 0.05 : thisMove.yDistance, 0, 4, 0.0);
             if (entry != null && entry.hasFlag(VelocityFlags.ORIGIN_BLOCK_BOUNCE)
-                    || thisMove != null && thisMove.verVelUsed != null 
-                    && thisMove.verVelUsed.hasFlag(VelocityFlags.ORIGIN_BLOCK_BOUNCE)) {
+                || thisMove != null && thisMove.verVelUsed != null 
+                && thisMove.verVelUsed.hasFlag(VelocityFlags.ORIGIN_BLOCK_BOUNCE)) {
+
                 // TODO: Strictly, pastground_from/to should rather be skipped instead of this.
                 if (tags != null) {
                     tags.add("retain_dirty_bounce"); // +- block/push
@@ -1269,6 +1382,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return false;
     }
 
+
     /**
      * Force set the move to be affected by previous speed. Currently
      * implemented as setting velocity jump phase.
@@ -1277,6 +1391,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         // TODO: Better and more reliable modeling.
         sfDirty = true;
     }
+
 
     public void useVerticalBounce(final Player player) {
         // CHEATING: Ensure fall distance is reset.
@@ -1288,6 +1403,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         verticalBounce = null;
     }
 
+
     public void handleTimeRanBackwards() {
         final long time = System.currentTimeMillis();
         timeSprinting = Math.min(timeSprinting, time);
@@ -1296,6 +1412,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         removeAllPlayerSpeedModifiers(); // TODO: This likely leads to problems.
         // (ActionFrequency can handle this.)
     }
+
 
     /**
      * Get the y-axis velocity tracker. Rather for testing purposes.
@@ -1306,6 +1423,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return verVel;
     }
 
+
     /**
      * Get the xz-axis velocity tracker. Rather for testing purposes.
      * 
@@ -1315,6 +1433,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return horVel;
     }
 
+
     /**
      * The number of move events received.
      * 
@@ -1323,6 +1442,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int getPlayerMoveCount() {
         return playerMoveCount;
     }
+
 
     /**
      * Called with player move events.
@@ -1337,6 +1457,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         }
     }
 
+
     /**
      * Age in move events.
      * @return
@@ -1345,6 +1466,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return playerMoveCount - morePacketsSetBackResetTime;
     }
 
+
     /**
      * Remove from start while the flag is present.
      * @param originBlockBounce
@@ -1352,6 +1474,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public void removeLeadingQueuedVerticalVelocityByFlag(final long flag) {
         verVel.removeLeadingQueuedVerticalVelocityByFlag(flag);
     }
+
 
     @Override
     public boolean dataOnRemoveSubCheckData(Collection<CheckType> checkTypes) {
@@ -1413,9 +1536,9 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         return false;
     }
 
+
     @Override
-    public boolean dataOnWorldUnload(final World world, 
-            final IGetGenericInstance dataAccess) {
+    public boolean dataOnWorldUnload(final World world, final IGetGenericInstance dataAccess) {
         // TODO: Unlink world references.
         final String worldName = world.getName();
         if (teleported != null && worldName.equalsIgnoreCase(teleported.getWorld().getName())) {
@@ -1432,6 +1555,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         vehicleSetBacks.resetByWorldName(worldName);
         return false;
     }
+
 
     @Override
     public boolean dataOnReload(final IGetGenericInstance dataAccess) {

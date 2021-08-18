@@ -142,12 +142,6 @@ public abstract class ConfPaths {
     public static final  String PERMISSIONS_POLICY_RULES                  = PERMISSIONS_POLICY + "rules";
 
     private static final String PROTECT                                  = "protection.";
-    // Clients settings.
-    private static final String PROTECT_CLIENTS                          = PROTECT + "clients.";
-    @GlobalConfig
-    private static final String PROTECT_CLIENTS_MOTD                     = PROTECT_CLIENTS + "motd.";
-    public static final String  PROTECT_CLIENTS_MOTD_ACTIVE              = PROTECT_CLIENTS_MOTD + SUB_ACTIVE;
-    public static final String  PROTECT_CLIENTS_MOTD_ALLOWALL            = PROTECT_CLIENTS_MOTD + "allowall";
     // Other commands settings
     @GlobalConfig
     private static final String PROTECT_COMMANDS                         = PROTECT + "commands.";
@@ -447,10 +441,6 @@ public abstract class ConfPaths {
     private static final String COMBINED_IMPROBABLE                      = COMBINED + "improbable.";
     public static final String  COMBINED_IMPROBABLE_CHECK                = COMBINED_IMPROBABLE + SUB_ACTIVE;
     public static final String  COMBINED_IMPROBABLE_LEVEL                = COMBINED_IMPROBABLE + "level";
-
-    //    private static final String COMBINED_IMPROBABLE_CHECKS               = COMBINED_IMPROBABLE + "options.";               
-    //    public static final String  COMBINED_IMPROBABLE_FASTBREAK_CHECK      = COMBINED_IMPROBABLE_CHECKS + "fastbreak";
-
     public static final String  COMBINED_IMPROBABLE_ACTIONS              = COMBINED_IMPROBABLE + "actions";
 
     private static final String COMBINED_INVULNERABLE                       = COMBINED + "invulnerable.";
@@ -879,8 +869,6 @@ public abstract class ConfPaths {
     public static final String  LOGGING_INGAMECHAT                       = "logging.ingamechat";
     @Moved(newPath = PROTECT_PLUGINS_HIDE_ACTIVE)
     public static final String  MISCELLANEOUS_PROTECTPLUGINS             = "miscellaneous.protectplugins";
-    @Moved(newPath = PROTECT_CLIENTS_MOTD_ALLOWALL)
-    public static final String  MISCELLANEOUS_ALLOWCLIENTMODS            = "miscellaneous.allowclientmods";
     @Moved(newPath = PROTECT_PLUGINS_HIDE_NOCOMMAND_MSG)
     public static  final String PROTECT_PLUGINS_HIDE_MSG_NOCOMMAND       = "protection.plugins.hide.messages.unknowncommand";
     @Moved(newPath = PROTECT_PLUGINS_HIDE_NOPERMISSION_MSG)
@@ -912,6 +900,15 @@ public abstract class ConfPaths {
     @Moved(newPath=MOVING_SURVIVALFLY_LENIENCY_HBUFMAX)
     public static final String MOVING_SURVIVALFLY_HBUFMAX                = "checks.moving.survivalfly.hbufmax";
     // Deprecated paths (just removed).
+    // Clients settings
+    @Deprecated
+    private static final String PROTECT_CLIENTS                          = PROTECT + "clients.";
+    @Deprecated
+    private static final String PROTECT_CLIENTS_MOTD                     = PROTECT_CLIENTS + "motd.";
+    @Deprecated
+    public static final String  PROTECT_CLIENTS_MOTD_ACTIVE              = PROTECT_CLIENTS_MOTD + SUB_ACTIVE;
+    @Deprecated
+    public static final String  PROTECT_CLIENTS_MOTD_ALLOWALL            = PROTECT_CLIENTS_MOTD + "allowall";
     @Deprecated
     public static final String  MISCELLANEOUS_REPORTTOMETRICS            = "miscellaneous.reporttometrics";
     @Deprecated

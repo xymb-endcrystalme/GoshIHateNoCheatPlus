@@ -106,10 +106,6 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.PROTECT_COMMANDS_CONSOLEONLY_ACTIVE, false, 785);
         set(ConfPaths.PROTECT_COMMANDS_CONSOLEONLY_MSG, "&cI'm sorry, but this command can't be executed in chat. Use the console instead!", 785);
         set(ConfPaths.PROTECT_COMMANDS_CONSOLEONLY_CMDS, Arrays.asList("op", "deop"), 785);
-        // Client motd.
-        //set(ConfPaths.PROTECT_CLIENTS_MOTD_ACTIVE, true, 785);
-        //set(ConfPaths.PROTECT_CLIENTS_MOTD_ALLOWALL, false, 785);
-
 
         /* Checks! */
         set(ConfPaths.CHECKS_ACTIVE, true, 1144);
@@ -523,13 +519,13 @@ public class DefaultConfig extends ConfigFile {
                         , 1154);
         // MorePackets
         set(ConfPaths.MOVING_MOREPACKETS_CHECK, "default", 785);
-        set(ConfPaths.MOVING_MOREPACKETS_SECONDS, 6, 785);
+        set(ConfPaths.MOVING_MOREPACKETS_SECONDS, 4, 785);
         set(ConfPaths.MOVING_MOREPACKETS_EPSIDEAL, 20, 785);
-        set(ConfPaths.MOVING_MOREPACKETS_EPSMAX, 22, 785);
-        set(ConfPaths.MOVING_MOREPACKETS_BURST_PACKETS, 40, 785);
-        set(ConfPaths.MOVING_MOREPACKETS_BURST_DIRECT, 60, 785);
-        set(ConfPaths.MOVING_MOREPACKETS_BURST_EPM, 120, 1154);
-        set(ConfPaths.MOVING_MOREPACKETS_SETBACKAGE, 70, 1154); // 40
+        set(ConfPaths.MOVING_MOREPACKETS_EPSMAX, 22, 785); // 21?
+        set(ConfPaths.MOVING_MOREPACKETS_BURST_PACKETS, 35, 785);
+        set(ConfPaths.MOVING_MOREPACKETS_BURST_DIRECT, 55, 785);
+        set(ConfPaths.MOVING_MOREPACKETS_BURST_EPM, 100, 1154);
+        set(ConfPaths.MOVING_MOREPACKETS_SETBACKAGE, 150, 1154); // Quite harsh. 
         set(ConfPaths.MOVING_MOREPACKETS_ACTIONS, "cancel vl>2 cancel log:morepackets:10:9:i vl>100 cancel log:morepackets:0:2:ifc cmdc:kickpackets:0:10", 1154);
         // NoFall
         set(ConfPaths.MOVING_NOFALL_CHECK, "default", 785);

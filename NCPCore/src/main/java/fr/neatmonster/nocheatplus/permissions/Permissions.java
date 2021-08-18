@@ -180,46 +180,6 @@ public class Permissions {
     public static final RegisteredPermission  MOVING_VEHICLE_MOREPACKETS   = add(MOVING_VEHICLE + ".morepackets");
     public static final RegisteredPermission  MOVING_VEHICLE_ENVELOPE      = add(MOVING_VEHICLE + ".envelope");
 
-    // Permissions for the individual client mods.
-    private static final String MODS                         = NOCHEATPLUS + ".mods";
-
-    private static final String CJB                          = MODS + ".cjb";
-    public static final RegisteredPermission  CJB_FLY                      = add(CJB + ".fly");
-    public static final RegisteredPermission  CJB_RADAR                    = add(CJB + ".radar");
-    public static final RegisteredPermission  CJB_XRAY                     = add(CJB + ".xray");
-
-    private static final String MINECRAFTAUTOMAP             = MODS + ".minecraftautomap";
-    public static final RegisteredPermission  MINECRAFTAUTOMAP_CAVE        = add(MINECRAFTAUTOMAP + ".cave");
-    public static final RegisteredPermission  MINECRAFTAUTOMAP_ORES        = add(MINECRAFTAUTOMAP + ".ores");
-    public static final RegisteredPermission  MINECRAFTAUTOMAP_RADAR       = add(MINECRAFTAUTOMAP + ".radar");
-
-    private static final String REI                          = MODS + ".rei";
-    public static final RegisteredPermission  REI_CAVE                     = add(REI + ".cave");
-    public static final RegisteredPermission  REI_RADAR                    = add(REI + ".radar");
-    public static final RegisteredPermission  REI_RADAR_ANIMAL             = add(REI_RADAR + ".animal");
-    public static final RegisteredPermission  REI_RADAR_PLAYER             = add(REI_RADAR + ".player");
-    public static final RegisteredPermission  REI_RADAR_MOB                = add(REI_RADAR + ".mob");
-    public static final RegisteredPermission  REI_RADAR_OTHER              = add(REI_RADAR + ".other");
-    public static final RegisteredPermission  REI_RADAR_SLIME              = add(REI_RADAR + ".slime");
-    public static final RegisteredPermission  REI_RADAR_SQUID              = add(REI_RADAR + ".squid");
-
-    private static final String SMARTMOVING                  = MODS + ".smartmoving";
-    public static final RegisteredPermission  SMARTMOVING_CLIMBING         = add(SMARTMOVING + ".climbing");
-    public static final RegisteredPermission  SMARTMOVING_CRAWLING         = add(SMARTMOVING + ".crawling");
-    public static final RegisteredPermission  SMARTMOVING_FLYING           = add(SMARTMOVING + ".flying");
-    public static final RegisteredPermission  SMARTMOVING_JUMPING          = add(SMARTMOVING + ".jumping");
-    public static final RegisteredPermission  SMARTMOVING_SLIDING          = add(SMARTMOVING + ".sliding");
-    public static final RegisteredPermission  SMARTMOVING_SWIMMING         = add(SMARTMOVING + ".swimming");
-
-    private static final String ZOMBE                        = MODS + ".zombe";
-    public static final RegisteredPermission  ZOMBE_CHEAT                  = add(ZOMBE + ".cheat");
-    public static final RegisteredPermission  ZOMBE_FLY                    = add(ZOMBE + ".fly");
-    public static final RegisteredPermission  ZOMBE_NOCLIP                 = add(ZOMBE + ".noclip");
-
-    private static final String JOURNEY                      = MODS + ".journey";
-    public static final RegisteredPermission  JOURNEY_RADAR                = add(JOURNEY + ".radar");
-    public static final RegisteredPermission  JOURNEY_CAVE                 = add(JOURNEY + ".cavemap");
-
     /**
      * Get a new list with all permissions that have been added up to now. (As
      * long as CheckType is static/final, CheckType initialization will add to

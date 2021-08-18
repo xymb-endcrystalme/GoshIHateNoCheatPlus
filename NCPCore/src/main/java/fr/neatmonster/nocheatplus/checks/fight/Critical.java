@@ -85,7 +85,6 @@ public class Critical extends Check {
                     + " toGround: " + thisMove.to.onGround + " fromGround: " + thisMove.from.onGround);
             }
         
-
             // Detect silent jumping (might be redundant with the mismatch check below)
             if (fallDistDiff > cc.criticalFallDistLeniency 
                 && mcFallDistance <= cc.criticalFallDistance 
@@ -98,20 +97,7 @@ public class Critical extends Check {
             // Detect lowjumping
             else if (mData.sfLowJump) {
                 tags.add("low_jump");
-                // False positives with lowJump when the player jumps on/off a block while attacking an entity
-                if (fallDistDiff < cc.criticalFallDistLeniency) {
-                    if (mcFallDistance > cc.criticalFallDistance) {
-                        if (!thisMove.to.onGround || !thisMove.from.onGround) {
-                            violation = false;
-                        }
-                    }
-                }
-                else if (!thisMove.to.onGround || !thisMove.from.onGround) {
-                    if (fallDistDiff > cc.criticalFallDistLeniency) {
-                        violation = false;
-                    }
-                }
-                else violation = true;
+                violation = true;
             }
             // As a last resort, ensure that Minecraft's fall distance is on par with our fall distance if the move is fully grounded.
             else if (mData.noFallFallDistance != mcFallDistance && thisMove.from.onGround && thisMove.to.onGround) {
@@ -128,7 +114,8 @@ public class Critical extends Check {
 
                 // False positives with medium counts reset all nofall data when nearby boat
                 // TODO: Fix isOnGroundDueToStandingOnAnEntity() to work on entity not nearby
-                if (MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, moveInfo.to, mData, mcc, pData) && !moveInfo.from.isOnGroundDueToStandingOnAnEntity()) {
+                if (MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, moveInfo.to, mData, mcc, pData) 
+                    && !moveInfo.from.isOnGroundDueToStandingOnAnEntity()) {
                     moveInfo.from.collectBlockFlags(0.4);
                     
                     // TODO: maybe these require a fix/modification with NoFall? For now, exempt the player.
@@ -136,13 +123,15 @@ public class Critical extends Check {
                     if (thisMove.from.onClimbable || thisMove.to.onClimbable) {
                         // Ignore climbables
                     } 
-                    else if ((thisMove.from.inLiquid | thisMove.to.inLiquid) && thisMove.from.onGround && thisMove.to.onGround) {
+                    else if ((thisMove.from.inLiquid | thisMove.to.inLiquid) 
+                            && thisMove.from.onGround && thisMove.to.onGround) {
                         // Ignore liquids
                     } 
                     else if ((thisMove.from.inWeb | thisMove.to.inWeb) & !thisMove.to.onGround) {
                         // Ignore webs
                     } 
-                    else if ((moveInfo.from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0 && !thisMove.from.onGround && !thisMove.to.onGround) {
+                    else if ((moveInfo.from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0 
+                            && !thisMove.from.onGround && !thisMove.to.onGround) {
                         // Slime blocks
                     }   
                     else {

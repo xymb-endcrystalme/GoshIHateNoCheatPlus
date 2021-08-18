@@ -88,7 +88,7 @@ public class MoveTrace <MD extends MoveData> {
      * @return
      */
     public MD getFirstPastMove() {
-        return pastMoves.getFirst();
+        return pastMoves.getFirst(); // 0
     }
 
     /**
@@ -99,6 +99,16 @@ public class MoveTrace <MD extends MoveData> {
      */
     public MD getSecondPastMove() {
         return pastMoves.get(1);
+    }
+
+    /**
+     * Get the third stored past move (third latest past move, the current
+     * move is not considered).
+     * 
+     * @return
+     */
+    public MD getThirdPastMove() {
+        return pastMoves.get(2);
     }
 
     /**
