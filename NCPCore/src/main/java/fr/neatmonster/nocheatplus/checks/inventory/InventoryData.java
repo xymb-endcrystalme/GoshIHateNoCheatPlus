@@ -36,7 +36,6 @@ public class InventoryData extends ACheckData {
     // General.
     public long     lastClickTime = 0;
     public long     chestOpenTime = 0;
-    public long     lastMoveEvent = 0;
 
     // Data of the drop check.
     public int      dropCount;
@@ -58,5 +57,10 @@ public class InventoryData extends ACheckData {
     // Data of the instant eat check.
     public Material instantEatFood;
     public long     instantEatInteract;
+    
+    // Data of the InventoryMove check.
+    public boolean inventoryAttack = false;
+    public long     lastAttackEvent = 0;
+    public long     lastMoveEvent = 0;
 
 }

@@ -28,6 +28,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -614,6 +616,22 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         }
     }
     
+    // TODO: Maybe simply move the flag to the FightListener.
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onEntityDamage(final EntityDamageByEntityEvent event) {
+        final Entity damager = event.getDamager();
+        final Player player = damager instanceof Player ? (Player) damager : null;
+        final IPlayerData pData = player == null ? null : DataManager.getPlayerData(player);
+        if (pData == null) return;
+        if (!pData.isCheckActive(CheckType.INVENTORY, player)) return;
+        final InventoryData data = pData.getGenericInstance(InventoryData.class);
+        if (event.getDamager() instanceof Player 
+            && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+            data.inventoryAttack = true;
+            data.lastAttackEvent = System.currentTimeMillis();
+        }
+    }
+    
     @EventHandler(priority = EventPriority.LOWEST)
     public void onMove(final PlayerMoveEvent event) {
 
@@ -642,12 +660,10 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                 }
             }
         }
-
         // TODO: Let's check for certain conditions here, to see if the player is
         // Actually moving and not just moving from other events (Ice, falling, velocity)
         // TODO: Other concept of InventoryMove , merge MoreInventory, confine more(close inv on jump) ?
         iData.lastMoveEvent = System.currentTimeMillis();
-
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

@@ -72,7 +72,7 @@ public class InventoryConfig extends ACheckConfig {
     
     public final boolean    invMoveDisableCreative;
     public final double     invMoveHdistLeniency;
-    public final double     invMoveHdistMin;
+    public final double     invMoveHdistDivisor;
     public final ActionList invMoveActionList;
 
     // Hot fixes.
@@ -140,7 +140,7 @@ public class InventoryConfig extends ACheckConfig {
         
 	    invMoveDisableCreative = data.getBoolean(ConfPaths.INVENTORY_INVENTORYMOVE_DISABLECREATIVE);
 	    invMoveHdistLeniency = data.getDouble(ConfPaths.INVENTORY_INVENTORYMOVE_HDISTLENIENCY);
-	    invMoveHdistMin = data.getDouble(ConfPaths.INVENTORY_INVENTORYMOVE_HDISTMIN);
+	    invMoveHdistDivisor = data.getDouble(ConfPaths.INVENTORY_INVENTORYMOVE_HDISTDIVISOR);
         invMoveActionList = data.getOptimizedActionList(ConfPaths.INVENTORY_INVENTORYMOVE_ACTIONS, Permissions.INVENTORY_INVENTORYMOVE);
 
         hotFixFallingBlockEndPortalActive = data.getBoolean(ConfPaths.INVENTORY_HOTFIX_DUPE_FALLINGBLOCKENDPORTAL);

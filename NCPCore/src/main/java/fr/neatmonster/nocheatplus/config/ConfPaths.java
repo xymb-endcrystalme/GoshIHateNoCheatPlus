@@ -618,7 +618,7 @@ public abstract class ConfPaths {
     public static final  String INVENTORY_INVENTORYMOVE_CHECK            = INVENTORY_INVENTORYMOVE + SUB_ACTIVE;
     public static final  String INVENTORY_INVENTORYMOVE_DISABLECREATIVE  = INVENTORY_INVENTORYMOVE + "disable_creative";
     public static final  String INVENTORY_INVENTORYMOVE_HDISTLENIENCY    = INVENTORY_INVENTORYMOVE + "hdist_leniency";
-    public static final  String INVENTORY_INVENTORYMOVE_HDISTMIN         = INVENTORY_INVENTORYMOVE + "hdist_min";
+    public static final  String INVENTORY_INVENTORYMOVE_HDISTDIVISOR     = INVENTORY_INVENTORYMOVE + "hdistdivisor";
     public static final  String INVENTORY_INVENTORYMOVE_ACTIONS          = INVENTORY_INVENTORYMOVE + "actions";
 
     // Inventory hot-fix.
@@ -900,8 +900,9 @@ public abstract class ConfPaths {
     @Moved(newPath=MOVING_SURVIVALFLY_LENIENCY_HBUFMAX)
     public static final String MOVING_SURVIVALFLY_HBUFMAX                = "checks.moving.survivalfly.hbufmax";
     // Deprecated paths (just removed).
-    // Clients settings
     @Deprecated
+    public static final  String INVENTORY_INVENTORYMOVE_HDISTMIN         = "checks.inventory.inventorymove.hdist_min";
+    // Clients settings
     private static final String PROTECT_CLIENTS                          = PROTECT + "clients.";
     @Deprecated
     private static final String PROTECT_CLIENTS_MOTD                     = PROTECT_CLIENTS + "motd.";
