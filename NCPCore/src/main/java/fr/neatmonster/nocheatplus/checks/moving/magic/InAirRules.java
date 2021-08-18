@@ -37,11 +37,11 @@ import fr.neatmonster.nocheatplus.compat.BridgeMisc;
 
 
 /**
-* This class is meant to contain just about every deviation/exception from the ordinary yDistance
-* set in survivalFly.vDistAir. The allowed yDistance gets compared to these rules, if a match is found
-* the movement is allowed.
-*
-*/
+ * This class is meant to contain just about every deviation/exception from the ordinary yDistance
+ * set in survivalFly.vDistAir. The allowed yDistance gets compared to these rules, if a match is found
+ * the movement is allowed.
+ *
+ */
 public class InAirRules {
 
 
@@ -356,15 +356,17 @@ public class InAirRules {
                         && lastMove.yDistance > -10.0 * Magic.GRAVITY_ODD / 2.0 && lastMove.yDistance < 10.0 * Magic.GRAVITY_ODD
                         && yDistance < lastMove.yDistance - Magic.GRAVITY_MIN / 2.0 && yDistance > lastMove.yDistance - Magic.GRAVITY_MAX
                         && data.ws.use(WRPT.W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_1)
-                        // 1: 
+                        // 1: Not documented (!)
                         || !data.liftOffEnvelope.name().startsWith("LIMIT") && lastMove.yDistance < Magic.GRAVITY_MAX + Magic.GRAVITY_SPAN 
                         && lastMove.yDistance > Magic.GRAVITY_ODD
                         && yDistance > 0.4 * Magic.GRAVITY_ODD && yDistance - lastMove.yDistance < -Magic.GRAVITY_ODD / 2.0
                         && data.ws.use(WRPT.W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_2)
-                        // 1: (damaged in liquid) ?
+                        // 1: Not documented (!)
+                        // (damaged in liquid) ? -> Why would vDistAir run in liquid tho.
                         || lastMove.yDistance < 0.2 && lastMove.yDistance >= 0.0 && yDistance > -0.2 && yDistance < 2.0 * Magic.GRAVITY_MIN
                         && data.ws.use(WRPT.W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_3)
-                        // 1: Reset condition?
+                        // 1: Not documented (!)
+                        // (Reset condition?)
                         || lastMove.yDistance > 0.4 * Magic.GRAVITY_ODD && lastMove.yDistance < Magic.GRAVITY_MIN && yDistance == 0.0
                         && data.ws.use(WRPT.W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_4)
                         // 1: Too small decrease, right after lift off.
@@ -464,15 +466,27 @@ public class InAirRules {
 
 
     /**
-     * Odd vertical movements with yDistance being negative (too fast fall)
-     * Used in SurvivalFly.vDistAir
+     * Odd vertical movements with negative yDistance.
+     * Used in SurvivalFly.vDistAir. 
+     * Call if yDistDiffEx is <= 0.0; doesn't require lastMove's data.
      * 
-     *
      * @param yDistance
-     * @param yDistDiffEx
+     * @param yDistDiffEx Difference from actual yDistance to vAllowedDistance
      * @param lastMove
      * @param data
-     * @return 
+     * @param from
+     * @param to
+     * @param now
+     * @param strictVdistRel
+     * @param yDistChange Change seen from last yDistance. Double.MAX_VALUE if lastMove is not valid.
+     * @param resetTo
+     * @param fromOnGround
+     * @param toOnGround
+     * @param maxJumpGain
+     * @param player
+     * @param thisMove
+     * @param resetFrom
+     * @return  
      */
     public static boolean fastFallExemptions(final double yDistance, final double yDistDiffEx, 
                                              final PlayerMoveData lastMove, final MovingData data,
@@ -480,79 +494,69 @@ public class InAirRules {
                                              final long now, final boolean strictVdistRel, final double yDistChange,
                                              final boolean resetTo, final boolean fromOnGround, final boolean toOnGround,
                                              final double maxJumpGain, final Player player, 
-                                             final PlayerMoveData thisMove, final boolean resetFrom){
+                                             final PlayerMoveData thisMove, final boolean resetFrom) {
 
-        if (yDistance < -3.0 && lastMove.yDistance < -3.0 
-            && Math.abs(yDistDiffEx) < 5.0 * Magic.GRAVITY_MAX 
-            && data.ws.use(WRPT.W_M_SF_FASTFALL_1)) {
-            // Disregard not falling faster at some point (our constants don't match 100%).
+        if (data.fireworksBoostDuration > 0 && data.keepfrictiontick < 0 
+            && lastMove.toIsValid && yDistance - lastMove.yDistance > -0.7) {
+            data.keepfrictiontick = 0;
             return true;
+            // Early return: transition from CreativeFly to SurvivalFly having been in a gliding phase.
         }
-        else if ((resetTo && (yDistDiffEx > -Magic.GRAVITY_SPAN || !fromOnGround && !thisMove.touchedGround && yDistChange >= 0.0))
-                && data.ws.use(WRPT.W_M_SF_FASTFALL_2)) {
-            // Moving onto ground allows a shorter move.
-            return true;
-        }
-        else if (yDistance > lastMove.yDistance - Magic.GRAVITY_MAX - Magic.GRAVITY_SPAN && (resetTo || thisMove.touchedGround)
-                && data.ws.use(WRPT.W_M_SF_FASTFALL_3)) {
-            // Mirrored case for yDistance > yAllowedDistance, hitting ground.
-            // TODO: Needs more efficient structure.
-            return true;
-        }
-        else if ((resetFrom && yDistance >= -0.5 && (yDistance > -0.31 || (resetTo || to.isAboveStairs()) && (lastMove.yDistance < 0.0)))
-                && data.ws.use(WRPT.W_M_SF_FASTFALL_4)) {
-            // Stairs and other cases moving off ground or ground-to-ground.
-            // TODO: Margins !?
-            return true;
-        }
-        else if (data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID 
+            
+        return 
+                // 0: Disregard not falling faster at some point (our constants don't match 100%).
+                yDistance < -3.0 && lastMove.yDistance < -3.0 
+                && Math.abs(yDistDiffEx) < 5.0 * Magic.GRAVITY_MAX 
+                && data.ws.use(WRPT.W_M_SF_FASTFALL_1)
+                // 0: Moving onto ground allows a shorter move.
+                || (resetTo && (yDistDiffEx > -Magic.GRAVITY_SPAN || !fromOnGround && !thisMove.touchedGround && yDistChange >= 0.0))
+                && data.ws.use(WRPT.W_M_SF_FASTFALL_2)
+                // 0: Mirrored case for yDistance > vAllowedDistance, hitting ground.
+                // TODO: Needs more efficient structure.
+                || yDistance > lastMove.yDistance - Magic.GRAVITY_MAX - Magic.GRAVITY_SPAN && (resetTo || thisMove.touchedGround)
+                && data.ws.use(WRPT.W_M_SF_FASTFALL_3)
+                // 0: Stairs and other cases moving off ground or ground-to-ground.
+                // TODO: Margins !?
+                || (resetFrom && yDistance >= -0.5 && (yDistance > -0.31 || (resetTo || to.isAboveStairs()) && (lastMove.yDistance < 0.0)))
+                && data.ws.use(WRPT.W_M_SF_FASTFALL_4)
+                // 0: LIMIT_LIQUID, vDist inversion (!). (liquid->air move, presumably.)
+                || data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID 
                 && data.sfJumpPhase == 1 && lastMove.toIsValid
                 && lastMove.from.inLiquid && !(lastMove.to.extraPropertiesValid && lastMove.to.inLiquid)
                 && !resetFrom && resetTo // TODO: There might be other cases (possibly wrong bounding box).
                 && lastMove.yDistance > 0.0 && lastMove.yDistance < 0.5 * Magic.GRAVITY_ODD
                 && yDistance < 0.0 && Math.abs(Math.abs(yDistance) - lastMove.yDistance) < Magic.GRAVITY_SPAN / 2.0
                 && data.ws.use(WRPT.W_M_SF_FASTFALL_5)
-                ) {
-            // LIMIT_LIQUID, vDist inversion (!).
-            return true;
-        }
-        else if (yDistance <= 0.0 && yDistance > -Magic.GRAVITY_MAX - Magic.GRAVITY_SPAN 
+                // 0: Head was blocked, thus faster decrease than expected.
+                || yDistance <= 0.0 && yDistance > -Magic.GRAVITY_MAX - Magic.GRAVITY_SPAN 
                 && (thisMove.headObstructed || lastMove.toIsValid && lastMove.headObstructed && lastMove.yDistance >= 0.0)
-                && data.ws.use(WRPT.W_M_SF_FASTFALL_6)) {
-            // Head was blocked, thus faster decrease than expected.
-            return true;
-        }
-        else if (Bridge1_13.hasIsSwimming() &&
-                (data.sfJumpPhase == 3 && lastMove.yDistance < -0.139 && yDistance > -0.1 && yDistance < 0.005
-                || yDistance < -0.288 && yDistance > -0.32 && lastMove.yDistance > -0.1 && lastMove.yDistance < 0.005) 
-                && data.ws.use(WRPT.W_M_SF_FASTFALL_7)) {
-            // False positives when breaking a block below too fast. Seems newly appeared in recent versions
-            return true;
-        }
-        else if (data.fireworksBoostDuration > 0 && data.keepfrictiontick < 0 
-                && lastMove.toIsValid && yDistance - lastMove.yDistance > -0.7) {
-            // Elytra
-            data.keepfrictiontick = 0;
-            return true;
-        }
-        return false;
+                && data.ws.use(WRPT.W_M_SF_FASTFALL_6)
+                // 1.13+ specific: breaking a block below too fast.
+                || Bridge1_13.hasIsSwimming() 
+                && (data.sfJumpPhase == 3 && lastMove.yDistance < -0.139 && yDistance > -0.1 && yDistance < 0.005
+                   || yDistance < -0.288 && yDistance > -0.32 && lastMove.yDistance > -0.1 && lastMove.yDistance < 0.005) 
+                && data.ws.use(WRPT.W_M_SF_FASTFALL_7)
+        ;
     }
 
 
     /**
-     * Odd vertical movements with yDistDiffEx having returned a negative value (shorter move than allowed)
+     * Odd vertical movements yDistance >= 0.0.
      * Used in SurvivalFly.vDistAir.
-     *
-     * Requires yDistance to be positive.
-     *
+     * Call if yDistDiffEx is <= 0.0; doesn't require lastMove's data.
+     * 
      * @param yDistance
-     * @param yDistDiffEx Difference from actual yDistance to vAllowedDistance (negative)
+     * @param yDistDiffEx Difference from actual yDistance to vAllowedDistance
      * @param lastMove
      * @param data
      * @param from
      * @param to
      * @param now
-     * @param strictVdistRel Allowed yDistance
+     * @param strictVdistRel 
+     * @param maxJumpGain
+     * @param vAllowedDistance
+     * @param player
+     * @param thisMove
      * @return 
      */
     public static boolean shortMoveExemptions(final double yDistance, final double yDistDiffEx, 
@@ -560,59 +564,57 @@ public class InAirRules {
                                               final PlayerLocation from, final PlayerLocation to,
                                               final long now, final boolean strictVdistRel,
                                               final double maxJumpGain, double vAllowedDistance, 
-                                              final Player player, final PlayerMoveData thisMove){
+                                              final Player player, final PlayerMoveData thisMove) {
 
-        if ((!strictVdistRel || Math.abs(yDistDiffEx) <= Magic.GRAVITY_SPAN || vAllowedDistance <= 0.2)
-            && data.ws.use(WRPT.W_M_SF_SHORTMOVE_1)) {
-            // Allow jumping less high unless within "strict envelope".
-            // TODO: Extreme anti-jump effects, perhaps.
+        if (data.fireworksBoostDuration > 0 
+            && data.keepfrictiontick < 0 && lastMove.toIsValid) {
+            data.keepfrictiontick = 0;
             return true;
+            // Early return: transition from CreativeFly to SurvivalFly having been in a gliding phase.
         }
-        else if (yDistance > 0.0 && lastMove.toIsValid && lastMove.yDistance > yDistance
+
+        return 
+                // 0: Allow jumping less high, unless within "strict envelope".
+                // TODO: Extreme anti-jump effects, perhaps.
+                (!strictVdistRel || Math.abs(yDistDiffEx) <= Magic.GRAVITY_SPAN || vAllowedDistance <= 0.2)
+                && data.ws.use(WRPT.W_M_SF_SHORTMOVE_1)
+                // 0: Too strong decrease with velocity.
+                // TODO: Observed when moving off water, might be confined by that.
+                || yDistance > 0.0 && lastMove.toIsValid && lastMove.yDistance > yDistance
                 && lastMove.yDistance - yDistance <= lastMove.yDistance / (lastMove.from.inLiquid ? 1.76 : 4.0)
                 && data.isVelocityJumpPhase()
-                && data.ws.use(WRPT.W_M_SF_SHORTMOVE_2)) {
-            // Too strong decrease with velocity.
-            // TODO: Observed when moving off water, might be confined by that.
-            return true;
-        }
-        else if ((thisMove.headObstructed || lastMove.toIsValid && lastMove.headObstructed && lastMove.yDistance >= 0.0)
-                && data.ws.use(WRPT.W_M_SF_SHORTMOVE_3)) {
-            // Head is blocked, thus a shorter move.
-            return true;
-        }
-        else if (thisMove.yDistance < 1.0 && thisMove.yDistance > 0.9 
+                && data.ws.use(WRPT.W_M_SF_SHORTMOVE_2)
+                // 0: Head is blocked, thus a shorter move.
+                || (thisMove.headObstructed || lastMove.toIsValid && lastMove.headObstructed && lastMove.yDistance >= 0.0)
+                && data.ws.use(WRPT.W_M_SF_SHORTMOVE_3)
+                // 0: Allow too strong decrease
+                || thisMove.yDistance < 1.0 && thisMove.yDistance > 0.9 
                 && lastMove.yDistance >= 1.5 && data.sfJumpPhase <= 2
                 && lastMove.verVelUsed != null 
                 && (lastMove.verVelUsed.flags & (VelocityFlags.ORIGIN_BLOCK_MOVE | VelocityFlags.ORIGIN_BLOCK_BOUNCE)) != 0
-                && data.ws.use(WRPT.W_M_SF_SHORTMOVE_4)) {
-            // Allow too strong decrease.
-            return true;
-        }
-        else if (data.fireworksBoostDuration > 0 && data.keepfrictiontick < 0 && lastMove.toIsValid) {
-            // Elytra
-            data.keepfrictiontick = 0;
-            return true;
-        }
-        return false;
+                && data.ws.use(WRPT.W_M_SF_SHORTMOVE_4)
+        ;
         
     }
 
 
     /**
-     * Odd vertical movements with yDistDiffEx having returned a positive value (bigger move than allowed)
+     * Odd vertical movements with yDistDiffEx having returned a positive value (yDistance is bigger than expected.)
      * Used in SurvivalFly.vDistAir.
-     *
-     * Needs last move's data.
-     *
+     * Needs lastMove's data.
+     * 
      * @param yDistance
-     * @param yDistDiffEx Difference from actual yDistance to vAllowedDistance (positive)
+     * @param yDistDiffEx Difference from actual yDistance to vAllowedDistance
      * @param lastMove
      * @param data
      * @param from
      * @param to
      * @param now
-     * @param yDistChange Change seen from the last yDistance
+     * @param yDistChange Change seen from the last yDistance. Double.MAX_VALUE if lastMove is not valid.
+     * @param maxJumpGain
+     * @param player
+     * @param thisMove
+     * @param resetTo
      * @return 
      */
     public static boolean outOfEnvelopeExemptions(final double yDistance, final double yDistDiffEx, 
@@ -620,65 +622,17 @@ public class InAirRules {
                                                   final PlayerLocation from, final PlayerLocation to,
                                                   final long now, final double yDistChange, 
                                                   final double maxJumpGain, final Player player,
-                                                  final PlayerMoveData thisMove, final boolean resetTo){
-    
-        if ((yDistance < 0.0 && lastMove.yDistance < 0.0 && yDistChange > -Magic.GRAVITY_MAX
-            && (from.isOnGround(Math.abs(yDistance) + 0.001) || BlockProperties.isLiquid(to.getTypeId(to.getBlockX(), 
-                                                                    Location.locToBlock(to.getY() - 0.5), to.getBlockZ())))
-            ) && data.ws.use(WRPT.W_M_SF_OUT_OF_ENVELOPE_1)) {
-            // Pretty coarse workaround, should instead do a proper modeling for from.getDistanceToGround.
-            // (OR loc... needs different model, distanceToGround, proper set back, moveHitGround)
-            // TODO: Slightly too short move onto the same level as snow (0.75), but into air (yDistance > -0.5).
-            // TODO: Better on-ground model (adapt to actual client code).
-            return true;
-        }
-        else if (yDistDiffEx < Magic.GRAVITY_MIN / 2.0 && data.sfJumpPhase == 1 
-                && to.getY() - data.getSetBackY() <= data.liftOffEnvelope.getMaxJumpHeight(data.jumpAmplifier)
-                && lastMove.yDistance <= maxJumpGain && yDistance > -Magic.GRAVITY_MAX  && yDistance < lastMove.yDistance
-                && lastMove.yDistance - yDistance > Magic.GRAVITY_ODD / 3.0
-                && data.ws.use(WRPT.W_M_SF_OUT_OF_ENVELOPE_2)) {
-            // Special jump (water/edges/assume-ground), too small decrease.   
-            return true; 
-        }
-        else if (yDistDiffEx < Magic.GRAVITY_MIN && data.sfJumpPhase == 1 
-                && data.liftOffEnvelope != LiftOffEnvelope.NORMAL 
-                && lastMove.from.extraPropertiesValid && lastMove.from.inLiquid
-                && lastMove.yDistance < -Magic.GRAVITY_ODD / 2.0 && lastMove.yDistance > -Magic.GRAVITY_MAX - Magic.GRAVITY_SPAN
-                && yDistance < lastMove.yDistance - 0.001
-                && data.ws.use(WRPT.W_M_SF_OUT_OF_ENVELOPE_3)) {
-            // Odd decrease with water. 
-            return true;            
-        }
-        else if (yDistDiffEx < 0.025 && Magic.noobJumpsOffTower(yDistance, maxJumpGain, thisMove, lastMove, data)
-                && data.ws.use(WRPT.W_M_SF_OUT_OF_ENVELOPE_4)) {
-            /*
-            * On (noob) tower up, the second move has a higher distance
-            * than expected, because the first had been starting
-            * slightly above the top.
-            */
-            return true;
-        }
-        else if (lastMove.from.inLiquid && lastMove.from.onClimbable
-                && data.ws.use(WRPT.W_M_SF_OUT_OF_ENVELOPE_5)) {
-            // Ignore moving on a climbable while being in a liquid (handled elsewhere)
-            return true;
-        }
-        else if (yDistance > 0.0 && lastMove.yDistance < 0.0 && data.ws.use(WRPT.W_M_SF_SLIME_JP_2X0)
-                && InAirRules.oddBounce(to, yDistance, lastMove, data)) {
-            // Odd slime bounce
+                                                  final PlayerMoveData thisMove, final boolean resetTo) {
+
+        if (yDistance > 0.0 && lastMove.yDistance < 0.0 
+            && data.ws.use(WRPT.W_M_SF_SLIME_JP_2X0)
+            && InAirRules.oddBounce(to, yDistance, lastMove, data)) {
             data.setFrictionJumpPhase();
             return true;
+            // Odd slime bounce: set friction and return.
         }
-        else if ((Bridge1_13.hasIsSwimming() && 
-            (data.sfJumpPhase == 7 && yDistance < -0.02 && yDistance > -0.2
-            || data.sfJumpPhase == 3 && lastMove.yDistance < -0.139 && yDistance > -0.1 && yDistance < 0.005
-            || yDistance < -0.288 && yDistance > -0.32 && lastMove.yDistance > -0.1 && lastMove.yDistance < 0.005)
-            ) && data.ws.use(WRPT.W_M_SF_OUT_OF_ENVELOPE_6)) {
-            // False positives when breaking blocks below too fast. Seems newly appeared in recent versions 
-            return true;
-        }
-        else if (data.keepfrictiontick < 0) {
 
+        if (data.keepfrictiontick < 0) {
             if (lastMove.toIsValid) {
                 if (yDistance < 0.4 && lastMove.yDistance == yDistance) {
                     data.keepfrictiontick = 0;
@@ -686,11 +640,53 @@ public class InAirRules {
                 }
             } 
             else data.keepfrictiontick = 0;
-            // False positives when transitioning from a CreativeFly move to SurvivalFly (normal)
             return true;
+            // Early return: transition from CreativeFly to SurvivalFly having been in a gliding phase.
         }
-        return false;
-        
+
+        return
+                
+                // 0: Pretty coarse workaround, should instead do a proper modeling for from.getDistanceToGround.
+                // (OR loc... needs different model, distanceToGround, proper set back, moveHitGround)
+                // TODO: Slightly too short move onto the same level as snow (0.75), but into air (yDistance > -0.5).
+                // TODO: Better on-ground model (adapt to actual client code).
+                yDistance < 0.0 && lastMove.yDistance < 0.0 && yDistChange > -Magic.GRAVITY_MAX
+                && (from.isOnGround(Math.abs(yDistance) + 0.001) 
+                    || BlockProperties.isLiquid(to.getTypeId(to.getBlockX(), Location.locToBlock(to.getY() - 0.5), to.getBlockZ()))
+                )
+                && data.ws.use(WRPT.W_M_SF_OUT_OF_ENVELOPE_1)
+                // 0: Special jump (water/edges/assume-ground), too small decrease.
+                || yDistDiffEx < Magic.GRAVITY_MIN / 2.0 && data.sfJumpPhase == 1 
+                && to.getY() - data.getSetBackY() <= data.liftOffEnvelope.getMaxJumpHeight(data.jumpAmplifier)
+                && lastMove.yDistance <= maxJumpGain && yDistance > -Magic.GRAVITY_MAX  && yDistance < lastMove.yDistance
+                && lastMove.yDistance - yDistance > Magic.GRAVITY_ODD / 3.0
+                && data.ws.use(WRPT.W_M_SF_OUT_OF_ENVELOPE_2) 
+                // 0: Odd decrease with having been in water.
+                || yDistDiffEx < Magic.GRAVITY_MIN && data.sfJumpPhase == 1 
+                && data.liftOffEnvelope != LiftOffEnvelope.NORMAL 
+                && lastMove.from.extraPropertiesValid && lastMove.from.inLiquid
+                && lastMove.yDistance < -Magic.GRAVITY_ODD / 2.0 && lastMove.yDistance > -Magic.GRAVITY_MAX - Magic.GRAVITY_SPAN
+                && yDistance < lastMove.yDistance - 0.001
+                && data.ws.use(WRPT.W_M_SF_OUT_OF_ENVELOPE_3)
+                // 0: On (noob) tower up, the second move has a higher distance
+                // than expected, because the first had been starting
+                // slightly above the top.
+                || yDistDiffEx < 0.025 && Magic.noobJumpsOffTower(yDistance, maxJumpGain, thisMove, lastMove, data)
+                && data.ws.use(WRPT.W_M_SF_OUT_OF_ENVELOPE_4)
+                // 0: Not documented -> What is this why is it even here?
+                // (Leaving a climbable having been through water -> next move in air?)
+                || lastMove.from.inLiquid && lastMove.from.onClimbable
+                && data.ws.use(WRPT.W_M_SF_OUT_OF_ENVELOPE_5)
+                // 0: 1.13+ specific: breaking a block below too fast.
+                || Bridge1_13.hasIsSwimming() 
+                && (data.sfJumpPhase == 7 && yDistance < -0.02 && yDistance > -0.2
+                   || data.sfJumpPhase == 3 
+                   && lastMove.yDistance < -0.139 && yDistance > -0.1 && yDistance < 0.005
+                   || yDistance < -0.288 && yDistance > -0.32 
+                   && lastMove.yDistance > -0.1 && lastMove.yDistance < 0.005
+                )
+               && data.ws.use(WRPT.W_M_SF_OUT_OF_ENVELOPE_6)
+        ;
     }
     
 
@@ -712,23 +708,48 @@ public class InAirRules {
                                             final MovingData data, final MovingConfig cc, final long now, final Player player, 
                                             double totalVDistViolation, final double yDistance, final boolean fromOnGround) {
 
-        if ((fromOnGround || thisMove.touchedGroundWorkaround || lastMove.touchedGround) 
-            && toOnGround && yDistance <= cc.sfStepHeight) {
-            // Ignore: Legitimate step.
-            return true;
-        }
-        else if (Magic.skipPaper(thisMove, lastMove, data)) {
-            // Tag already set above.
-            // Teleport to in-air (PaperSpigot 1.7.10).
-            return true;
-        }
-        else if (totalVDistViolation < 0.8 && (data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID || data.liftOffEnvelope == LiftOffEnvelope.BERRY_JUMP)) {
-            // Ignore water logged blocks / berry bushes
-            return true;
-        }
-        return false;
-        
+        return 
+               // 0: Ignore: Legitimate step.
+               (fromOnGround || thisMove.touchedGroundWorkaround || lastMove.touchedGround
+               && toOnGround && yDistance <= cc.sfStepHeight)
+               // 0: Teleport to in-air (PaperSpigot 1.7.10).
+               // TODO: Legacy, could drop it at this point...
+               || Magic.skipPaper(thisMove, lastMove, data)
+               // 0: Ignore water logged blocks / berry bushes (for older clients jumping in berry bushes)
+               // TODO: Better workaround/fix. This is really coarse.
+               || totalVDistViolation < 0.8 
+               && (data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID || data.liftOffEnvelope == LiftOffEnvelope.BERRY_JUMP)
+        ;
     }
+    
+
+    /**
+     * Odd vertical movements with yDistDiffEx having returned a positive value (yDistance is bigger than expected.)
+     * Used in SurvivalFly.vDistAir.
+     * Does not require lastMove's data.
+     * 
+     * @param yDistance
+     * @param from
+     * @param to
+     * @param thisMove
+     * @param resetTo
+     * @return 
+     */
+    public static boolean outOfEnvelopeNoData(final double yDistance, final PlayerLocation from, final PlayerLocation to, 
+                                              final PlayerMoveData thisMove, final boolean resetTo, final MovingData data) {
+
+        return  
+                // 0: Allow falling shorter than expected, if onto ground.
+                // Note resetFrom should usually mean that allowed dist is > 0 ?
+                yDistance <= 0.0 && (resetTo || thisMove.touchedGround) 
+                && data.ws.use(WRPT.W_M_SF_OUT_OF_ENVELOPE_NODATA1)
+                // 0: Pre 1.17 bug.
+                || to.isHeadObstructed() && yDistance > 0.0 && yDistance < 1.2 
+                && from.getTypeId().toString().endsWith("SHULKER_BOX")
+                && data.ws.use(WRPT.W_M_SF_OUT_OF_ENVELOPE_NODATA2)
+        ;
+
+   }
 
 
     /**

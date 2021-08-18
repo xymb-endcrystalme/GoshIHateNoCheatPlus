@@ -88,7 +88,8 @@ public class WRPT extends SimpleWorkaroundRegistry {
     public static final String W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_6 = "m.sf.oddgravity.not.normal.envelope.6";
 
     // Sf-related not categorized.
-    public static final String W_M_SF_OUT_OF_ENVELOPE_NO_TOISVALID = "m.sf.out.of.envelope.no.toisvalid";
+    public static final String W_M_SF_OUT_OF_ENVELOPE_NODATA1 = "m.sf.out.of.envelope.nodata1";
+    public static final String W_M_SF_OUT_OF_ENVELOPE_NODATA2 = "m.sf.out.of.envelope.nodata2";
     public static final String W_M_SF_ACCEPTED_ENV = "m.sf.accepted.env";
 
     // oddFriction
@@ -117,10 +118,10 @@ public class WRPT extends SimpleWorkaroundRegistry {
     public static final String W_M_SF_OUT_OF_ENVELOPE_6 = "m.sf.out.of.envelope.6";
 
     // Short move
-    public static final String W_M_SF_SHORTMOVE_1 = "m.sf.fastfall.1";
-    public static final String W_M_SF_SHORTMOVE_2 = "m.sf.fastfall.2";
-    public static final String W_M_SF_SHORTMOVE_3 = "m.sf.fastfall.3";
-    public static final String W_M_SF_SHORTMOVE_4 = "m.sf.fastfall.4";
+    public static final String W_M_SF_SHORTMOVE_1 = "m.sf.shortmove.1";
+    public static final String W_M_SF_SHORTMOVE_2 = "m.sf.shortmove.2";
+    public static final String W_M_SF_SHORTMOVE_3 = "m.sf.shortmove.3";
+    public static final String W_M_SF_SHORTMOVE_4 = "m.sf.shortmove.4";
 
     // TODO: LiquidWorkarounds as well?
 
@@ -241,7 +242,8 @@ public class WRPT extends SimpleWorkaroundRegistry {
                 W_M_SF_OUT_OF_ENVELOPE_5,
                 W_M_SF_OUT_OF_ENVELOPE_6,
                 // Misc. Sf-related
-                W_M_SF_OUT_OF_ENVELOPE_NO_TOISVALID,
+                W_M_SF_OUT_OF_ENVELOPE_NODATA1,
+                W_M_SF_OUT_OF_ENVELOPE_NODATA2,
                 W_M_SF_ACCEPTED_ENV,
                 // Vehicle
                 W_M_V_ENV_INWATER_BTS

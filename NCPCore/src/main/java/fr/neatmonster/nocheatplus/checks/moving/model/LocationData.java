@@ -36,7 +36,7 @@ public class LocationData implements IGetLocationWithLook {
     /** Must be checked before using any of the flags. */
     public boolean extraPropertiesValid = false;
     /** Basic environmental properties. */
-    public boolean onClimbable, inWeb, inPowderSnow, inLava, inWater, inLiquid, onGround, onIce, onBlueIce, onSoulSand, onSlimeBlock, inBerryBush, onHoneyBlock;
+    public boolean aboveStairs, onClimbable, inWeb, inPowderSnow, inLava, inWater, inLiquid, onGround, onIce, onBlueIce, onSoulSand, onSlimeBlock, inBerryBush, onHoneyBlock;
     /** Aggregate properties (reset means potentially resetting fall damage). */
     public boolean resetCond, onGroundOrResetCond;
 
@@ -90,6 +90,7 @@ public class LocationData implements IGetLocationWithLook {
      */
     public void setExtraProperties(final RichBoundsLocation loc) {
         loc.collectBlockFlags(); // Just ensure.
+        aboveStairs = loc.isAboveStairs();
         onClimbable = loc.isOnClimbable();
         inWeb = loc.isInWeb();
         onSoulSand = loc.isOnSoulSand();
@@ -121,6 +122,7 @@ public class LocationData implements IGetLocationWithLook {
      */
     public void setExtraProperties(final LocationData other) {
         if (other.extraPropertiesValid) {
+            aboveStairs = other.aboveStairs;
             onClimbable = other.onClimbable;
             inWeb = other.inWeb;
             inLiquid = other.inLiquid;
@@ -144,6 +146,7 @@ public class LocationData implements IGetLocationWithLook {
 
     public void resetExtraProperties() {
         extraPropertiesValid = false;
+        aboveStairs = false;
         onClimbable = false;
         inWeb = false;
         inLiquid = false;

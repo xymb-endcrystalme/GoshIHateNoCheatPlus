@@ -326,8 +326,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             final boolean sfCheck = MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, moveInfo.to, data, cc, pData);
             aux.returnPlayerMoveInfo(moveInfo);
             if (sfCheck) {
-                target = MovingUtil.getApplicableSetBackLocation(player, loc.getYaw(), loc.getPitch(), 
-                                                                 moveInfo.from, data, cc);
+                target = MovingUtil.getApplicableSetBackLocation(player, loc.getYaw(), loc.getPitch(), moveInfo.from, data, cc);
             }
              // TODO: Add something to guess the best set back location (possibly data.guessSetBack(Location)).
             if (target == null) target = LocUtil.clone(loc);
@@ -461,6 +460,14 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             to.setYaw(LocUtil.correctYaw2(to.getYaw()));
             to.setPitch(LocUtil.correctPitch(to.getPitch()));
         }
+        // Set the riptiding time.
+        if (Bridge1_13.isRiptiding(player)) {
+            data.timeRiptiding = System.currentTimeMillis();
+        }
+        // Used in InventoryMove. Might get removed in favour of a better detection
+        if (Bridge1_13.isSwimming(player)){
+           data.timeSwimming = System.currentTimeMillis();
+        }
 
         // TODO: Check illegal moves here anyway (!).
         // TODO: Check if vehicle move logs correctly (fake).
@@ -500,17 +507,6 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             earlyReturn = false;
             token = null;
         }
-        
-        // Set the riptiding time.
-        if (Bridge1_13.isRiptiding(player)) {
-            data.timeRiptiding = System.currentTimeMillis();
-            data.RiptideLevel = BridgeEnchant.getRiptideLevel(player);
-        }
-        
-        // Used in InventoryMove. Might get removed in favour of a better detection
-        if (Bridge1_13.isSwimming(player)){
-           data.timeSwimming = System.currentTimeMillis();
-        }
 
         // TODO: Might log base parts here (+extras).
         if (earlyReturn) {
@@ -533,6 +529,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             data.joinOrRespawn = false;
             return;
         }
+
         // newTo should be null here.
         // Fire one or two moves here.
         final PlayerMoveInfo moveInfo = aux.usePlayerMoveInfo();
@@ -651,12 +648,14 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         if (debug) {
             outputMoveDebug(player, moveInfo.from, moveInfo.to, Math.max(cc.noFallyOnGround, cc.yOnGround), mcAccess.getHandle());
         }
+
         // Check for illegal move and bounding box etc.
         if ((moveInfo.from.hasIllegalCoords() || moveInfo.to.hasIllegalCoords()) ||
             !cc.ignoreStance && (moveInfo.from.hasIllegalStance() || moveInfo.to.hasIllegalStance())) {
             MovingUtil.handleIllegalMove(event, player, data, cc);
             return true;
         }
+
         // Check for location consistency.
         if (cc.enforceLocation && playersEnforce.contains(playerName)) {
             // NOTE: The setback should not be set before this, even if not yet set.
@@ -665,6 +664,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             // TODO: Remove anyway ? 
             playersEnforce.remove(playerName);
         }
+
         // Check for sprinting (assumeSprint)
         if (player.isSprinting() || cc.assumeSprint) {
             // TODO: Collect all these properties within a context object (abstraction + avoid re-fetching). 
@@ -688,16 +688,17 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final PlayerLocation pFrom, pTo;
         pFrom = moveInfo.from;
         pTo = moveInfo.to;
-
+        
+        // Powder snow handling 1.17+
         if (Bridge1_17.hasIsFrozen()) {
             boolean hasboots = Bridge1_17.hasLeatherBootsOn(player);
             if (pTo.isOnGround() && !hasboots 
                 && pTo.adjustOnGround(!pTo.isOnGroundDueToStandingOnAnEntity() && !pTo.isOnGround(cc.yOnGround, BlockProperties.F_POWDERSNOW)) && debug) {
-                debug(player, "Collide ground surface but not acctually on ground. Adjusting To loctaion");
+                debug(player, "Collide ground surface but not actually on ground. Adjusting To location.");
             }
             if (pFrom.isOnGround() && !hasboots 
                 && pFrom.adjustOnGround(!pFrom.isOnGroundDueToStandingOnAnEntity() && !pFrom.isOnGround(cc.yOnGround, BlockProperties.F_POWDERSNOW)) && debug) {
-                debug(player, "Collide ground surface but not acctually on ground. Adjusting From loctaion");
+                debug(player, "Collide ground surface but not actually on ground. Adjusting From location");
             }
         }
 
@@ -803,8 +804,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
             // Extreme move check (sf or cf is precondition, should have their own config/actions later).
             if (newTo == null && 
-                ((Math.abs(thisMove.yDistance) > Magic.EXTREME_MOVE_DIST_VERTICAL) 
-                || thisMove.hDistance > Magic.EXTREME_MOVE_DIST_HORIZONTAL)) {
+                ((Math.abs(thisMove.yDistance) > Magic.EXTREME_MOVE_DIST_VERTICAL) || thisMove.hDistance > Magic.EXTREME_MOVE_DIST_HORIZONTAL)) {
                 // Test for friction and velocity.
                 newTo = checkExtremeMove(player, pFrom, pTo, data, cc);
                 if (newTo != null) thisMove.flyCheck = checkSf ? CheckType.MOVING_SURVIVALFLY : CheckType.MOVING_CREATIVEFLY;

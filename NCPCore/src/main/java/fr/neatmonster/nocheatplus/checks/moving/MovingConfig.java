@@ -396,6 +396,8 @@ public class MovingConfig extends ACheckConfig {
         final ModelFlying modelGameMode = flyingModelGameMode.get(gameMode);
         final boolean isGlidingWithElytra = Bridge1_9.isGlidingWithElytra(player) && MovingUtil.isGlidingWithElytraValid(player, fromLocation, data, cc);
         final double levitationLevel = Bridge1_9.getLevitationAmplifier(player);
+        final long now = System.currentTimeMillis();
+        final boolean RiptidePhase = Bridge1_13.isRiptiding(player) || data.timeRiptiding + 1500 > now;
         switch(gameMode) {
             case SURVIVAL:
             case ADVENTURE:
@@ -409,18 +411,18 @@ public class MovingConfig extends ACheckConfig {
         // Actual flying (ignoreAllowFlight is a legacy option for rocket boots like flying).
 
         // NOTE: Riptiding has priority over anything else 
-        if (player.isFlying() && !Bridge1_13.isRiptiding(player) 
+        if (player.isFlying() && !RiptidePhase 
             || !isGlidingWithElytra && !ignoreAllowFlight && player.getAllowFlight()
-            && !Bridge1_13.isRiptiding(player)) {
+            && !RiptidePhase) {
             return modelGameMode;
         }
         // Elytra.
-        if (isGlidingWithElytra && !Bridge1_13.isRiptiding(player)) { // Defensive: don't demand isGliding.
+        if (isGlidingWithElytra && !RiptidePhase) { // Defensive: don't demand isGliding.
             return flyingModelElytra;
         }
         // Levitation.
         if (gameMode != GameMode.CREATIVE && !Double.isInfinite(levitationLevel) 
-            && !Bridge1_13.isRiptiding(player)
+            && !RiptidePhase
             && !fromLocation.isInLiquid()
             // According to minecraft wiki:
             // Levitation level over 127 = fall down at a fast or slow rate, depending on the value.
@@ -430,12 +432,12 @@ public class MovingConfig extends ACheckConfig {
         }
         // Slow Falling
         if (gameMode != GameMode.CREATIVE && !Double.isInfinite(Bridge1_13.getSlowfallingAmplifier(player)) 
-            && !Bridge1_13.isRiptiding(player)) { 
+            && !RiptidePhase) { 
             return flyingModelSlowfalling;
         }
         // Riptiding
         // TODO: Put on top priority, add data.timeRiptiding too, remove redundant
-        if (Bridge1_13.isRiptiding(player)) {
+        if (RiptidePhase) {
             return flyingModelRiptiding;
         }
         // Default by game mode.
