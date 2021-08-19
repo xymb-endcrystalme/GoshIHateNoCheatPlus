@@ -22,6 +22,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
 
@@ -92,8 +93,7 @@ public class CombinedListener extends CheckListener {
      * @param event
      *            the event
      */
-    @EventHandler(
-            priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(final PlayerJoinEvent event) {
 
         // TODO: EventPriority
@@ -121,6 +121,17 @@ public class CombinedListener extends CheckListener {
         }
     }
 
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerLeave(final PlayerQuitEvent event) {
+        final Player player = event.getPlayer();
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        if (!pData.isCheckActive(CheckType.COMBINED, player)) return;
+        final CombinedData data = pData.getGenericInstance(CombinedData.class);
+        // Don't keep Improbable's data
+        data.improbableCount.clear(System.currentTimeMillis());
+    }
+
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onEntityDamage(final EntityDamageEvent event){
         final Entity entity = event.getEntity();
@@ -146,12 +157,7 @@ public class CombinedListener extends CheckListener {
         counters.addPrimaryThread(idFakeInvulnerable, 1);
     }
 
-    /**
-     * A workaround for cancelled PlayerToggleSprintEvents.
-     * 
-     * @param event
-     *            the event
-     */
+    // TODO: Why do we need to feed improable for toggle sprinting exactly?
     @EventHandler(priority = EventPriority.MONITOR) // HIGHEST)
     public void onPlayerToggleSprintHighest(final PlayerToggleSprintEvent event) {
         //    	// TODO: Check the un-cancelling.
@@ -162,7 +168,8 @@ public class CombinedListener extends CheckListener {
         // Feed the improbable.
         Improbable.feed(event.getPlayer(), 0.35f, System.currentTimeMillis());
     }
-
+    
+    // TODO: Why do we need to feed improable for toggle sneaking exactly?
     @EventHandler(priority=EventPriority.MONITOR)
     public void onPlayerToggleSneak(final PlayerToggleSneakEvent event){
         // Check also in case of cancelled events.

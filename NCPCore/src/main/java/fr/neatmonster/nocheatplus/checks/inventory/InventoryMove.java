@@ -30,6 +30,7 @@ import fr.neatmonster.nocheatplus.actions.ParameterName;
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
+import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveInfo;
 import fr.neatmonster.nocheatplus.checks.moving.magic.Magic;
@@ -45,8 +46,8 @@ import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 
 
 /**
- * 
- * A check to prevent players from interacting with their inventory if they shouldn't be allowed to.
+ * InventoryMove listens for clicks in inventory happening at the same time of certain actions.
+ * (No packet is sent for players opening their inventory)
  */
 public class InventoryMove extends Check {
 
@@ -75,17 +76,14 @@ public class InventoryMove extends Check {
         boolean cancel = false;
         boolean violation = false;
         List<String> tags = new LinkedList<String>();
-
-       /* 
-        * Important: MC allows players to swim (and keep the status) when on ground, but this is not *consistently* reflected back to the server 
-        * (while still allowing them to move at swimming speed) instead, isSprinting() will return. Observed in both Spigot and PaperMC around MC 1.13/14
-        * -> Seems fixed in latest versions (opening an inventory will end the swimming phase, if on ground)
-        * TODO: Keep the workaround for server <1.17? ... 
-        *
-        */
+        // NOTES: 1) NoCheatPlus provides a base speed at which players can move without taking into account any mechanic:
+        //        the idea is that if the hAllowedDistanceBase != hAllowedDistance then the player is being moved by friction or other means.
+        //        2) Important: MC allows players to swim (and keep the status) when on ground, but this is not *consistently* reflected back to the server 
+        //        (while still allowing them to move at swimming speed) instead, isSprinting() will return. Observed in both Spigot and PaperMC around MC 1.13/14
+        //        -> Seems fixed in latest versions (opening an inventory will end the swimming phase, if on ground)
+        // TODO: Keep the workaround for server <1.17? ... 
         // TODO: Ascending in liquid (friction envelope)
         // TODO: Click and jump. Not sure.
-        // TODO: Improbable check, frequency of unlikely inventory clicks(...)
         // F.p.: Friction after stopping to move and immediately opening the inv and clicking in it:
         //       the current implementation is better than before but it still is afflicted. Too tedious to fix now...
         
@@ -99,7 +97,6 @@ public class InventoryMove extends Check {
         final boolean fullLiquidMove = thisMove.from.inLiquid && thisMove.to.inLiquid;
         final long currentEvent = System.currentTimeMillis();
         final boolean isCollidingWithEntities = CollisionUtil.isCollidingWithEntities(player, true) && ServerVersion.compareMinecraftVersion("1.9") >= 0;
-        final boolean swimming = (Bridge1_13.isSwimming(player) || mData.timeSwimming + 1000 > currentEvent) || player.isSprinting(); 
         final double minHDistance = thisMove.hAllowedDistanceBase / cc.invMoveHdistDivisor;
         final boolean creative = player.getGameMode() == GameMode.CREATIVE && ((type == SlotType.QUICKBAR) || cc.invMoveDisableCreative);
         final boolean isMerchant = (player.getOpenInventory().getTopInventory().getType() == InventoryType.MERCHANT); 
@@ -124,11 +121,21 @@ public class InventoryMove extends Check {
         }
 
         // ... Clicking in inv open during an attack
-        // TODO: feed Improbable here (context: killauras but also auto-soups that quickly swap bowls from
-        // hotbar to inventory)
         else if (data.inventoryAttack && currentEvent - data.lastAttackEvent < 500) {
             violation = true;
             tags.add("clickattack");
+
+            // This costs a lot in combat, be sure to feed Improbable.
+            // (Simplistic for now. Should further elaborate Improbable feeding/statistcs later on).
+            if (cc.invMoveImprobableWeight > 0.0f) {
+
+                if (cc.invMoveImprobableFeedOnly) {
+                    Improbable.feed(player, cc.invMoveImprobableWeight, System.currentTimeMillis());
+                } 
+                else if (Improbable.check(player, cc.invMoveImprobableWeight, System.currentTimeMillis(), "inventory.invmove.attackclick", pData)) {
+                    cancel = true;
+               }
+            }
             // Reset once used, important as then subsequent clicks will still be flagged.
             data.inventoryAttack = false;
         }
@@ -185,8 +192,8 @@ public class InventoryMove extends Check {
                 ){ 
                 tags.add("moving");
                 
-                // Walking on ground or on ground in a liquid 
-                if (thisMove.touchedGround 
+                // Walking on ground 
+                if (thisMove.touchedGround && !fullLiquidMove
                     // No changes in speed during the 2 last movements
                     && thisMove.hAllowedDistanceBase == lastMove.hAllowedDistance) {
                     violation = true; 
@@ -199,8 +206,8 @@ public class InventoryMove extends Check {
                         && pastMove3.hAllowedDistanceBase == pastMove2.hAllowedDistance) { 
                     violation = true;
                 }
-                // Moving inside liquid (but not on ground)
-                else if (fullLiquidMove && !thisMove.touchedGround
+                // Moving inside liquid
+                else if (fullLiquidMove 
                         // No changes in speed during the 4 last movements
                         && thisMove.hAllowedDistanceBase == lastMove.hAllowedDistance
                         && pastMove2.hAllowedDistanceBase == lastMove.hAllowedDistance

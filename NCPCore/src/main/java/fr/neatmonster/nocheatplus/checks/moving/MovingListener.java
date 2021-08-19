@@ -464,10 +464,6 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         if (Bridge1_13.isRiptiding(player)) {
             data.timeRiptiding = System.currentTimeMillis();
         }
-        // Used in InventoryMove. Might get removed in favour of a better detection
-        if (Bridge1_13.isSwimming(player)){
-           data.timeSwimming = System.currentTimeMillis();
-        }
 
         // TODO: Check illegal moves here anyway (!).
         // TODO: Check if vehicle move logs correctly (fake).

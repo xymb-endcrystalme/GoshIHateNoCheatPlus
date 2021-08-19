@@ -121,8 +121,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public long timeSprinting = 0;
     /** Last time the player was riptiding */
     public long timeRiptiding = 0;
-    /** Last time the player was swimming, currently used for the invMove check only. */
-    public long timeSwimming = 0;
     /** Represents how long a vehicle has been tossed up by a bubble column */
     // TODO: Deprecate and use the blockChangeTracker, rather.
     public long timeVehicletoss = 0;

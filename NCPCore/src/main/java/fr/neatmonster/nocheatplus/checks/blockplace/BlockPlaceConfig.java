@@ -59,6 +59,8 @@ public class BlockPlaceConfig extends ACheckConfig {
     public final boolean scaffoldRotate;
     public final int     scaffoldRotateDiff;
     public final boolean scaffoldToolSwitch;
+    public final boolean scaffoldImprobableFeedOnly;
+    public final float   scaffoldImprobableWeight;
 
     public final long       speedInterval;
     public final boolean    speedImprobableFeedOnly;
@@ -98,7 +100,6 @@ public class BlockPlaceConfig extends ACheckConfig {
 
         reachActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_REACH_ACTIONS, Permissions.BLOCKPLACE_REACH);
 
-        scaffoldActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, Permissions.BLOCKPLACE_REACH);
         scaffoldAngle = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_ANGLE);
         scaffoldTime = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_ACTIVE);
         scaffoldTimeAvg = config.getInt(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_AVG);
@@ -106,6 +107,9 @@ public class BlockPlaceConfig extends ACheckConfig {
         scaffoldRotate = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_ACTIVE);
         scaffoldRotateDiff = config.getInt(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_DIFFERENCE);
         scaffoldToolSwitch = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_TOOLSWITCH);
+        scaffoldImprobableFeedOnly = config.getBoolean(ConfPaths.BLOCKPLACE_SCAFFOLD_IMPROBABLE_FEEDONLY);
+        scaffoldImprobableWeight = (float) config.getDouble(ConfPaths.BLOCKPLACE_SCAFFOLD_IMPROBABLE_WEIGHT);
+        scaffoldActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, Permissions.BLOCKPLACE_SCAFFOLD);
 
         speedInterval = config.getLong(ConfPaths.BLOCKPLACE_SPEED_INTERVAL);
         speedImprobableFeedOnly = config.getBoolean(ConfPaths.BLOCKPLACE_SPEED_IMPROBABLE_FEEDONLY);

@@ -292,6 +292,9 @@ public abstract class ConfPaths {
     public static final String  BLOCKPLACE_SCAFFOLD_ROTATE_ACTIVE        = BLOCKPLACE_SCAFFOLD_ROTATE + "active";
     public static final String  BLOCKPLACE_SCAFFOLD_ROTATE_DIFFERENCE    = BLOCKPLACE_SCAFFOLD_ROTATE + "difference";
     public static final String  BLOCKPLACE_SCAFFOLD_TOOLSWITCH           = BLOCKPLACE_SCAFFOLD + "toolswitch";
+    private static final String BLOCKPLACE_SCAFFOLD_IMPROBABLE           = BLOCKPLACE_SCAFFOLD + "improbable.";
+    public static final String  BLOCKPLACE_SCAFFOLD_IMPROBABLE_FEEDONLY  = BLOCKPLACE_SCAFFOLD_IMPROBABLE +"feedonly";
+    public static final String  BLOCKPLACE_SCAFFOLD_IMPROBABLE_WEIGHT    = BLOCKPLACE_SCAFFOLD_IMPROBABLE +"weight";
     public static final String  BLOCKPLACE_SCAFFOLD_ACTIONS              = BLOCKPLACE_SCAFFOLD + "actions";
 
     private static final String BLOCKPLACE_SPEED                         = BLOCKPLACE + "speed.";
@@ -405,7 +408,6 @@ public abstract class ConfPaths {
     public static final String  CHAT_WARNING_MESSAGE                     = CHAT_WARNING + "message";
     public static final String  CHAT_WARNING_TIMEOUT                     = CHAT_WARNING + "timeout";
 
-    // NOT YET IN USE
     private static final String CHAT_LOGINS                              = CHAT + "logins.";
     public static final String  CHAT_LOGINS_CHECK                        = CHAT_LOGINS + SUB_ACTIVE;
     public static final String  CHAT_LOGINS_PERWORLDCOUNT                = CHAT_LOGINS + "perworldcount";
@@ -617,8 +619,10 @@ public abstract class ConfPaths {
     public static final  String INVENTORY_INVENTORYMOVE                  = INVENTORY + "inventorymove.";
     public static final  String INVENTORY_INVENTORYMOVE_CHECK            = INVENTORY_INVENTORYMOVE + SUB_ACTIVE;
     public static final  String INVENTORY_INVENTORYMOVE_DISABLECREATIVE  = INVENTORY_INVENTORYMOVE + "disable_creative";
-    public static final  String INVENTORY_INVENTORYMOVE_HDISTLENIENCY    = INVENTORY_INVENTORYMOVE + "hdist_leniency";
     public static final  String INVENTORY_INVENTORYMOVE_HDISTDIVISOR     = INVENTORY_INVENTORYMOVE + "hdistdivisor";
+    public static final  String INVENTORY_INVENTORYMOVE_IMPROBABLE       = INVENTORY_INVENTORYMOVE + "improbable.";
+    public static final  String INVENTORY_INVENTORYMOVE_IMPROBABLE_FEEDONLY = INVENTORY_INVENTORYMOVE_IMPROBABLE + "feedonly";
+    public static final  String INVENTORY_INVENTORYMOVE_IMPROBABLE_WEIGHT= INVENTORY_INVENTORYMOVE_IMPROBABLE + "weight";
     public static final  String INVENTORY_INVENTORYMOVE_ACTIONS          = INVENTORY_INVENTORYMOVE + "actions";
 
     // Inventory hot-fix.
@@ -900,6 +904,8 @@ public abstract class ConfPaths {
     @Moved(newPath=MOVING_SURVIVALFLY_LENIENCY_HBUFMAX)
     public static final String MOVING_SURVIVALFLY_HBUFMAX                = "checks.moving.survivalfly.hbufmax";
     // Deprecated paths (just removed).
+    @Deprecated
+    public static final  String INVENTORY_INVENTORYMOVE_HDISTLENIENCY    = "checks.inventory.inventorymove.hdist_leniency";
     @Deprecated
     public static final  String INVENTORY_INVENTORYMOVE_HDISTMIN         = "checks.inventory.inventorymove.hdist_min";
     // Clients settings

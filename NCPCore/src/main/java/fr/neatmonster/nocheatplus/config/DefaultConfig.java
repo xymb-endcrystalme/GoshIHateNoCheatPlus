@@ -196,11 +196,13 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_ANGLE, true, 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_SPRINT, true, 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_ACTIVE, true, 1154);
-        set(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_AVG, 3, 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_TIME_AVG, 2, 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_ACTIVE, true, 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_ROTATE_DIFFERENCE, 90, 1154);
         set(ConfPaths.BLOCKPLACE_SCAFFOLD_TOOLSWITCH, true, 1154);
-        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, "vl>1 cancel vl>15 cancel log:scaffold:3:7:if vl>70 cancel log:scaffold:0:5:if cmd:clearscaffold:0:1 cmdc:kickscaffold:0:1", 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_IMPROBABLE_FEEDONLY, false, 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_IMPROBABLE_WEIGHT, 0.9, 1154);
+        set(ConfPaths.BLOCKPLACE_SCAFFOLD_ACTIONS, "cancel vl>10 cancel log:scaffold:3:7:if vl>70 cancel log:scaffold:0:5:if cmd:clearscaffold:0:1 cmdc:kickscaffold:0:1", 1154);
         // Speed
         set(ConfPaths.BLOCKPLACE_SPEED_CHECK, "default", 785);
         set(ConfPaths.BLOCKPLACE_SPEED_INTERVAL, 35L, 1154); // Old limit: 45L < FPs with throwable potions.
@@ -434,9 +436,10 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.INVENTORY_FASTCONSUME_ACTIONS, "cancel vl>2 log:fastconsume:2:5:if cancel vl>35 cancel log:fastconsume:0:5:if cmdc:kickfastconsume:0:5", 1154);
         // InvMove
         set(ConfPaths.INVENTORY_INVENTORYMOVE_CHECK, "default", 1153);
-        set(ConfPaths.INVENTORY_INVENTORYMOVE_DISABLECREATIVE, true, 1153);
-        set(ConfPaths.INVENTORY_INVENTORYMOVE_HDISTLENIENCY, 0.09, 1154); 
+        set(ConfPaths.INVENTORY_INVENTORYMOVE_DISABLECREATIVE, true, 1153); 
         set(ConfPaths.INVENTORY_INVENTORYMOVE_HDISTDIVISOR, 4, 1154);
+        set(ConfPaths.INVENTORY_INVENTORYMOVE_IMPROBABLE_FEEDONLY, false, 1154);
+        set(ConfPaths.INVENTORY_INVENTORYMOVE_IMPROBABLE_WEIGHT, 10, 1154);
         set(ConfPaths.INVENTORY_INVENTORYMOVE_ACTIONS, "cancel vl> 5 log:inventorymove:4:5:i cancel", 1154);
         // Gutenberg
         set(ConfPaths.INVENTORY_GUTENBERG_CHECK, "default", 785);
@@ -519,7 +522,7 @@ public class DefaultConfig extends ConfigFile {
                         , 1154);
         // MorePackets
         set(ConfPaths.MOVING_MOREPACKETS_CHECK, "default", 785);
-        set(ConfPaths.MOVING_MOREPACKETS_SECONDS, 4, 785);
+        set(ConfPaths.MOVING_MOREPACKETS_SECONDS, 6, 785);
         set(ConfPaths.MOVING_MOREPACKETS_EPSIDEAL, 20, 785);
         set(ConfPaths.MOVING_MOREPACKETS_EPSMAX, 22, 785); // 21?
         set(ConfPaths.MOVING_MOREPACKETS_BURST_PACKETS, 35, 785);

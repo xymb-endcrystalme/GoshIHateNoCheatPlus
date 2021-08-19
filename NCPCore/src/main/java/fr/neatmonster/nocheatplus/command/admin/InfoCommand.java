@@ -93,10 +93,10 @@ public class InfoCommand extends BaseCommand {
                 final long avVl  = Math.round(violationLevel.sumVL / (double) violationLevel.nVL);
                 sender.sendMessage(
                     cG + bold +"[" + cG + dateFormat.format(new Date(time)) + bold + "] " + cGO + italicbold + parent + "." + check  
-                    +cG+bold + "\n• "+ cG + "VLs Sum: " + cR + sumVL  
-                    +cG+bold + "\n• "+ cG + "VLs amount: " + cR + violationLevel.nVL 
-                    +cG+bold + "\n• "+ cG + "Average VL: " + cR + avVl 
-                    +cG+bold + "\n• "+ cG + "Max VL: " + cR + maxVL);
+                    +cG+bold + "\n• "+ cG + "Sum: " + cR + sumVL  + cG + " VLs."
+                    +cG+bold + "\n• "+ cG + "Triggered: " + cR + violationLevel.nVL + cG + " times."
+                    +cG+bold + "\n• "+ cG + "Average: " + cR + avVl + cG + " VL."
+                    +cG+bold + "\n• "+ cG + "Max: " + cR + maxVL + cG + " VL.");
             }
         } 
         else sender.sendMessage((sender instanceof Player ? TAG : CTAG) + "No violations to display for player " + cR + playerName);

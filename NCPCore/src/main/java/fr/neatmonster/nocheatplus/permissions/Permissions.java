@@ -120,6 +120,8 @@ public class Permissions {
     public static final RegisteredPermission  BLOCKPLACE_NOSWING           = add(BLOCKPLACE + ".noswing");
     public static final RegisteredPermission  BLOCKPLACE_REACH             = add(BLOCKPLACE + ".reach");
     public static final RegisteredPermission  BLOCKPLACE_SPEED             = add(BLOCKPLACE + ".speed");
+    public static final RegisteredPermission  BLOCKPLACE_SCAFFOLD          = add(BLOCKPLACE + ".scaffold");
+
 
     public static final RegisteredPermission  CHAT                         = add(CHECKS + ".chat");
     public static final RegisteredPermission  CHAT_CAPTCHA                 = add(CHAT + ".captcha");
