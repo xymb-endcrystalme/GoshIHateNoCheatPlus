@@ -263,16 +263,21 @@ public class BlockPlaceListener extends CheckListener {
         // Scaffold Check
         // Null check because I guess it can return null sometimes?
         if (Scaffold.isEnabled(player, pData) && placedFace != null) {
-            final MovingData mData = pData.getGenericInstance(MovingData.class);
 
+            final long now = System.currentTimeMillis();
+            final Location loc = player.getLocation(useLoc);
+            final MovingData mData = pData.getGenericInstance(MovingData.class);
+            // Further restrict Scaffold cheats by also checking the yaw speed rate.
+            if (Combined.checkYawRate(player, loc.getYaw(), now, loc.getWorld().getName(), pData)) {
+                cancelled = true;
+            }
             if (faces.contains(placedFace) 
                 && player.getLocation().getY() - blockPlaced.getY() < 2.0
                 && player.getLocation().getY() - blockPlaced.getY() >= 1.0
                 && blockPlaced.getType().isSolid() && distance < 2.0) {
 
                 cancelled = data.cancelNextPlace && (Math.abs(data.currentTick - TickTask.getTick()) < 10)
-                            || Scaffold.check(player, placedFace, pData, data, cc, event.isCancelled(), 
-                                              mData.playerMoves.getCurrentMove().yDistance, mData.sfJumpPhase);
+                            || Scaffold.check(player, placedFace, pData, data, cc, event.isCancelled(), mData.playerMoves.getCurrentMove().yDistance, mData.sfJumpPhase);
                 if (!cancelled) data.scaffoldVL *= 0.98;
             }
             else if (cc.scaffoldImprobableWeight > 0.0f) {
@@ -283,8 +288,10 @@ public class BlockPlaceListener extends CheckListener {
                 else if (Improbable.check(player, cc.scaffoldImprobableWeight, System.currentTimeMillis(), "blockplace.scaffold", pData)) {
                     cancelled = true;
                 }
-            } 
+            }
+            // Cleanup
             data.cancelNextPlace = false;
+            useLoc.setWorld(null);
         }
 
         final FlyingQueueHandle flyingHandle = new FlyingQueueHandle(pData);
