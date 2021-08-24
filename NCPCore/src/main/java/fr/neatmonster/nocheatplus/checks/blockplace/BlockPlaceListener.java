@@ -14,7 +14,6 @@
  */
 package fr.neatmonster.nocheatplus.checks.blockplace;
 
-import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -44,6 +43,7 @@ import fr.neatmonster.nocheatplus.checks.combined.Combined;
 import fr.neatmonster.nocheatplus.checks.combined.CombinedConfig;
 import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
+import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.moving.util.MovingUtil;
 import fr.neatmonster.nocheatplus.checks.net.FlyingQueueHandle;
 import fr.neatmonster.nocheatplus.checks.net.model.DataPacketFlying;
@@ -242,7 +242,7 @@ public class BlockPlaceListener extends CheckListener {
             if (fastPlace.check(player, block, tick, data, cc, pData)) {
                 cancelled = true;
             }
-            else if (cc.fastPlaceImprobableWeight > 0.0f) {
+            else if (cc.fastPlaceImprobableWeight > 0.0f && data.fastPlaceVL > 10) {
 
                 if (cc.fastPlaceImprobableFeedOnly) {
                     Improbable.feed(player, cc.fastPlaceImprobableWeight, System.currentTimeMillis());
@@ -267,27 +267,31 @@ public class BlockPlaceListener extends CheckListener {
             final long now = System.currentTimeMillis();
             final Location loc = player.getLocation(useLoc);
             final MovingData mData = pData.getGenericInstance(MovingData.class);
-            // Further restrict Scaffold cheats by also checking the yaw speed rate.
-            if (Combined.checkYawRate(player, loc.getYaw(), now, loc.getWorld().getName(), pData)) {
-                cancelled = true;
-            }
             if (faces.contains(placedFace) 
                 && player.getLocation().getY() - blockPlaced.getY() < 2.0
                 && player.getLocation().getY() - blockPlaced.getY() >= 1.0
                 && blockPlaced.getType().isSolid() && distance < 2.0) {
 
-                cancelled = data.cancelNextPlace && (Math.abs(data.currentTick - TickTask.getTick()) < 10)
-                            || Scaffold.check(player, placedFace, pData, data, cc, event.isCancelled(), mData.playerMoves.getCurrentMove().yDistance, mData.sfJumpPhase);
-                if (!cancelled) data.scaffoldVL *= 0.98;
-            }
-            else if (cc.scaffoldImprobableWeight > 0.0f) {
-
-                if (cc.scaffoldImprobableFeedOnly) {
-                    Improbable.feed(player, cc.scaffoldImprobableWeight, System.currentTimeMillis());
-                } 
-                else if (Improbable.check(player, cc.scaffoldImprobableWeight, System.currentTimeMillis(), "blockplace.scaffold", pData)) {
+                // Monitor yawrate before feeding Improbable or checking for Scaffold
+                if (Combined.checkYawRate(player, loc.getYaw(), now, loc.getWorld().getName(), pData)) {
                     cancelled = true;
                 }
+                // Scaffold-like placement: check 
+                if (data.cancelNextPlace && (Math.abs(data.currentTick - TickTask.getTick()) < 10)
+                    || Scaffold.check(player, placedFace, pData, data, cc, event.isCancelled(), mData.playerMoves.getCurrentMove().yDistance, mData.sfJumpPhase)) {
+                    cancelled = true;
+                }
+                // Still a scaffold-like placement, feed the Improbable.
+                else if (cc.scaffoldImprobableWeight > 0.0f) {
+
+                    if (cc.scaffoldImprobableFeedOnly) {
+                        Improbable.feed(player, cc.scaffoldImprobableWeight, System.currentTimeMillis());
+                    } 
+                    else if (Improbable.check(player, cc.scaffoldImprobableWeight, System.currentTimeMillis(), "blockplace.scaffold", pData)) {
+                        cancelled = true;
+                    }
+                }
+                if (!cancelled) data.scaffoldVL *= 0.98;
             }
             // Cleanup
             data.cancelNextPlace = false;

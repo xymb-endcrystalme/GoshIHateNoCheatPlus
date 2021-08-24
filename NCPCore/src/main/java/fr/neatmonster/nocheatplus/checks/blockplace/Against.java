@@ -83,13 +83,14 @@ public class Against extends Check {
                 debug(player, "Cancel due to block having been consumed by this check.");
             }
         }
-        else if (BlockProperties.isActuallyAir(matAgainst)) {
+        else if (BlockProperties.isAir(matAgainst)) { // Holds true for null blocks.
             if (isInteractBlock && !BlockProperties.isAir(matAgainst) && !BlockProperties.isLiquid(matAgainst)) {
                 // Block was placed against something (e.g. cactus), allow it.
             }
             else if (!pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_AIR, player)
                     && placedMat != BridgeMaterial.LILY_PAD) {
                 violation = true;
+                // Attempted to place a block against a null one (air)
             }
         }
         else if (BlockProperties.isLiquid(matAgainst)) {

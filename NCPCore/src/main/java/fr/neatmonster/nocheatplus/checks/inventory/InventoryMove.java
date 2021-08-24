@@ -82,7 +82,7 @@ public class InventoryMove extends Check {
         //        (while still allowing them to move at swimming speed) instead, isSprinting() will return. Observed in both Spigot and PaperMC around MC 1.13/14
         //        -> Seems fixed in latest versions (opening an inventory will end the swimming phase, if on ground)
         // TODO: Keep the workaround for server <1.17? ... 
-        // TODO: Ascending in liquid (friction envelope)
+        // TODO: Detect ascending in liquid (friction envelope, might just set a flag in SurvivalFly.vDistLiquid)
         // TODO: Click and jump. Not sure.
         // F.p.: Friction after stopping to move and immediately opening the inv and clicking in it:
         //       the current implementation is better than before but it still is afflicted. Too tedious to fix now...
@@ -97,7 +97,7 @@ public class InventoryMove extends Check {
         final boolean fullLiquidMove = thisMove.from.inLiquid && thisMove.to.inLiquid;
         final long currentEvent = System.currentTimeMillis();
         final boolean isCollidingWithEntities = CollisionUtil.isCollidingWithEntities(player, true) && ServerVersion.compareMinecraftVersion("1.9") >= 0;
-        final double minHDistance = thisMove.hAllowedDistanceBase / cc.invMoveHdistDivisor;
+        final double minHDistance = thisMove.hAllowedDistanceBase / Math.max(1.1, cc.invMoveHdistDivisor); // Just in case admins input a too low value.
         final boolean creative = player.getGameMode() == GameMode.CREATIVE && ((type == SlotType.QUICKBAR) || cc.invMoveDisableCreative);
         final boolean isMerchant = (player.getOpenInventory().getTopInventory().getType() == InventoryType.MERCHANT); 
         final boolean movingOnSurface = (thisMove.from.inLiquid && !thisMove.to.inLiquid || mData.watermovect == 1) && mData.liftOffEnvelope.name().startsWith("LIMIT");
@@ -115,6 +115,7 @@ public class InventoryMove extends Check {
         }
         
         // Clicking while using/consuming an item
+        // Note: Why was player#isBlocking removed again? Can't remember...
         if (mData.isusingitem && !isMerchant) { 
             tags.add("usingitem");
             violation = true;
@@ -140,7 +141,7 @@ public class InventoryMove extends Check {
             data.inventoryAttack = false;
         }
 
-        // ... while swimming (in water, not on ground. Players are forced to stop swimming if they open an inventory)
+        // ... while swimming
         else if (Bridge1_13.isSwimming(player) && !thisMove.touchedGround) {
             violation = true;
             tags.add("isSwimming");
@@ -181,14 +182,13 @@ public class InventoryMove extends Check {
         // Last resort, check if the player is actively moving while clicking in their inventory
         else {
             
-            if (thisMove.hDistance > minHDistance * (player.isSneaking() && Bridge1_13.hasIsSwimming() ? Magic.modSneak : 1.0)
-                && ((currentEvent - data.lastMoveEvent) < 65)
+            if (thisMove.hDistance > minHDistance && ((currentEvent - data.lastMoveEvent) < 65)
                 // Skipping conditions 
                 && !mData.isVelocityJumpPhase()
                 && !isCollidingWithEntities
                 && !player.isInsideVehicle() 
                 && !thisMove.downStream
-                && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))
+                && !Bridge1_13.isRiptiding(player)
                 ){ 
                 tags.add("moving");
                 
@@ -203,7 +203,9 @@ public class InventoryMove extends Check {
                         // No changes in speed during the 5 last movements
                         && thisMove.hAllowedDistanceBase == lastMove.hAllowedDistance
                         && pastMove2.hAllowedDistanceBase == lastMove.hAllowedDistance
-                        && pastMove3.hAllowedDistanceBase == pastMove2.hAllowedDistance) { 
+                        && pastMove3.hAllowedDistanceBase == pastMove2.hAllowedDistance
+                        // Ignore for now, too much friction
+                        && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) { 
                     violation = true;
                 }
                 // Moving inside liquid
@@ -211,7 +213,9 @@ public class InventoryMove extends Check {
                         // No changes in speed during the 4 last movements
                         && thisMove.hAllowedDistanceBase == lastMove.hAllowedDistance
                         && pastMove2.hAllowedDistanceBase == lastMove.hAllowedDistance
-                        && pastMove3.hAllowedDistanceBase == pastMove2.hAllowedDistance) {
+                        && pastMove3.hAllowedDistanceBase == pastMove2.hAllowedDistance
+                        // Ignore for now, too much friction
+                        && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
                     violation = true;
                 } 
             }

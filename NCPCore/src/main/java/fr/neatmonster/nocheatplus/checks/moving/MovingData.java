@@ -1558,7 +1558,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     @Override
     public boolean dataOnReload(final IGetGenericInstance dataAccess) {
         final MovingConfig cc = dataAccess.getGenericInstance(MovingConfig.class);
-        trace.adjustSettings(cc.traceMaxAge, cc.traceMaxSize, TickTask.getTick());
+        trace.adjustSettings(cc.traceMaxAge, cc.traceMaxSize, System.currentTimeMillis());
         return false;
     }
 
