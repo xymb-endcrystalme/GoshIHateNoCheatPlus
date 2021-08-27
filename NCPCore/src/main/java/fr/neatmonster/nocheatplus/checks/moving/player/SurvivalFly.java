@@ -1910,10 +1910,9 @@ public class SurvivalFly extends Check {
 
         // TODO: Still not entirely sure about this checking order.
         // TODO: Would quick returns make sense for hDistanceAfterFailure == 0.0?
-        final long now = System.currentTimeMillis();
         // Strictly speaking, bunnyhopping backwards is not possible, so we should reset the bhop model in such case.
         // However, we'd need a better "ismovingbackwards" model first tho, as the current one in TrigUtil is unreliable.
-        final boolean bunnyHopResetCond = (from.isAboveStairs() && to.isAboveStairs() && to.isOnGround()); 
+        // final boolean bunnyHopResetCond = from.isAboveStairs() && to.isAboveStairs() && to.isOnGround() && thisMove.yDistance == 0.5; // Testing... Later 
 
         // 1: Attempt to reset item on NoSlow Violation, if set so in the configuration.
         if (cc.survivalFlyResetItem && hDistanceAboveLimit > 0.0 && data.sfHorizontalBuffer <= 0.5 && tags.contains("usingitem")) {
@@ -1967,9 +1966,9 @@ public class SurvivalFly extends Check {
         }
 
         // 2: Test bunny early, because it applies often and destroys as little as possible.
-        if (!bunnyHopResetCond) {
+        //if (!bunnyHopResetCond) {
             hDistanceAboveLimit = bunnyHop(from, to, player, hAllowedDistance, hDistanceAboveLimit, sprinting, thisMove, lastMove, data, cc);
-        }
+        //}
        
         // 3: Check being moved by blocks.
         // 1.025 is a Magic value
@@ -2018,7 +2017,7 @@ public class SurvivalFly extends Check {
         }
 
         // 5: Re-check for bunnyhopping if the hDistance is still above limit (2nd).
-        if (hDistanceAboveLimit > 0.0 && !bunnyHopResetCond) {
+        if (hDistanceAboveLimit > 0.0) { // && !bunnyHopResetCond
             hDistanceAboveLimit = bunnyHop(from, to, player, hAllowedDistance, hDistanceAboveLimit, sprinting, thisMove, lastMove, data, cc);
         }
 
