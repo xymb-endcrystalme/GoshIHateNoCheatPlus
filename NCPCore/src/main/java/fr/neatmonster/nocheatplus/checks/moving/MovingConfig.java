@@ -339,8 +339,8 @@ public class MovingConfig extends ACheckConfig {
             this.playerSetBackMethod = PlayerSetBackMethod.MODERN;
         }
 
-        traceMaxAge = config.getInt(ConfPaths.MOVING_TRACE_MAXAGE, 200);
-        traceMaxSize = config.getInt(ConfPaths.MOVING_TRACE_MAXSIZE, 200);
+        traceMaxAge = config.getInt(ConfPaths.MOVING_TRACE_MAXAGE, 30);
+        traceMaxSize = config.getInt(ConfPaths.MOVING_TRACE_MAXSIZE, 30);
 
         ref = config.getAlmostBoolean(ConfPaths.MOVING_VEHICLE_ENFORCELOCATION, AlmostBoolean.MAYBE);
         vehicleEnforceLocation = ref.decideOptimistically(); // Currently rather enabled.

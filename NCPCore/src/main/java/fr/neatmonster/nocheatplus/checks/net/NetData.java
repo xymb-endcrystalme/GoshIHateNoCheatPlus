@@ -63,7 +63,14 @@ public class NetData extends ACheckData {
 	
 	// Wrong Turn
     public double wrongTurnVL = 0;
-
+    
+    // Wrongpacket
+    public double wrongPacketVL = 0;
+    /** A flying packet was sent by the client */
+    public boolean clientSentAbilityPacket = false;
+    public long timeFlying = 0;
+    public boolean isIllegalPacket = false;
+    
     // Shared.
     /**
      * Last time some action was received (keep alive/flying/interaction). Also
@@ -168,6 +175,8 @@ public class NetData extends ACheckData {
      * @return
      */
     public DataPacketFlying peekFlyingQueue() {
+        // NOTE: Assuming this is the latest *past* packet (likewise lastMove/thisMove), could this be used 
+        // to fix https://github.com/Updated-NoCheatPlus/NoCheatPlus/issues/150 ?
         lock.lock();
         final DataPacketFlying latest = flyingQueue.isEmpty() ? null : flyingQueue.getFirst();
         lock.unlock();

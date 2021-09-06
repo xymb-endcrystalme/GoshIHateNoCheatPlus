@@ -150,7 +150,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.BLOCKINTERACT_ACTIVE, "default", 1144);
         // Direction
         set(ConfPaths.BLOCKINTERACT_DIRECTION_CHECK, "default", 785);
-        set(ConfPaths.BLOCKINTERACT_DIRECTION_ACTIONS, "vl>1 cancel vl>15 cancel log:bdirection:4:8:i vl>200 cancel log:bdirection:1:5:if cmdc:kickillegalblockinteract:1:5", 1154);
+        set(ConfPaths.BLOCKINTERACT_DIRECTION_ACTIONS, "cancel vl>15 cancel log:bdirection:4:8:i vl>200 cancel log:bdirection:1:5:if cmdc:kickillegalblockinteract:1:5", 1154);
         // Reach
         set(ConfPaths.BLOCKINTERACT_REACH_CHECK, "default", 785);
         set(ConfPaths.BLOCKINTERACT_REACH_ACTIONS, "cancel log:breach:5:6:i", 1154);
@@ -307,7 +307,7 @@ public class DefaultConfig extends ConfigFile {
         // Improbable
         set(ConfPaths.COMBINED_IMPROBABLE_CHECK , "default", 785);
         set(ConfPaths.COMBINED_IMPROBABLE_LEVEL, 250, 1154);
-        set(ConfPaths.COMBINED_IMPROBABLE_ACTIONS, "cancel vl>10 log:improbable:8:9:if cancel vl>1500 cancel log:improbable:0:10:if cmd:clearimprobable:0:10 cmdc:kickimprobable:0:5", 1154);
+        set(ConfPaths.COMBINED_IMPROBABLE_ACTIONS, "cancel vl>20 log:improbable:8:9:if cancel vl>1500 cancel log:improbable:0:10:if cmdc:kickimprobable:0:5", 1154);
         // Invulnerable
         set(ConfPaths.COMBINED_INVULNERABLE_CHECK, true, 785); // Not a check type yet.
         set(ConfPaths.COMBINED_INVULNERABLE_TRIGGERS_ALWAYS, false, 785);
@@ -348,7 +348,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_CRITICAL_CHECK, "default", 785);
         set(ConfPaths.FIGHT_CRITICAL_FALLDISTANCE, 0.075, 1154); 
         set(ConfPaths.FIGHT_CRITICAL_FALLDISTLENIENCY, 0.0009, 1154);
-        set(ConfPaths.FIGHT_CRITICAL_ACTIONS, "vl>2 cancel vl>5 cancel log:critical:6:10:i vl>60 cancel log:critical:0:5:icf cmd:clearcritical:0:5 cmdc:kickcritical:0:2", 1154);
+        set(ConfPaths.FIGHT_CRITICAL_ACTIONS, "cancel vl>5 cancel log:critical:6:10:i vl>60 cancel log:critical:0:5:icf cmd:clearcritical:0:5 cmdc:kickcritical:0:2", 1154);
         // Direction
         set(ConfPaths.FIGHT_DIRECTION_CHECK, "default", 785);
         set(ConfPaths.FIGHT_DIRECTION_STRICT, true, 1154);
@@ -365,18 +365,14 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_GODMODE_LAGMINAGE, 1100, 785); // TODO: ndt/2 => 500-600.
         set(ConfPaths.FIGHT_GODMODE_LAGMAXAGE, 5000, 785);
         set(ConfPaths.FIGHT_GODMODE_ACTIONS, "cancel log:godmode:0:5:icf cmdc:kickgod:0:5", 1154);
+        // ImpHit
+        set(ConfPaths.FIGHT_IMPOSSIBLEHIT_CHECK, "default", 785);
+        set(ConfPaths.FIGHT_IMPOSSIBLEHIT_IMPROBABLE_FEEDONLY, false, 1154);
+        set(ConfPaths.FIGHT_IMPOSSIBLEHIT_IMPROBABLE_WEIGHT, 3.0, 1154);
+        set(ConfPaths.FIGHT_IMPOSSIBLEHIT_ACTIONS, "cancel vl>3 cancel log:impossiblehit:0:5:if", 1154);
         // NoSwing
         set(ConfPaths.FIGHT_NOSWING_CHECK, "default", 785);
         set(ConfPaths.FIGHT_NOSWING_ACTIONS, "vl>2 cancel vl>10 log:noswing:2:5:i cancel", 1154);
-        // PitchPattern
-        // TODO: Merge @CaptainObvious' pitchpattern check in this fork.
-        //set(ConfPaths.FIGHT_PITCHPATTERN_CHECK, "default", 1153);
-        //set(ConfPaths.FIGHT_PITCHPATTERN_ALWAYSACTIVE, false, 1154); // <- Cinematic/Zoom-like mods issue.
-        //set(ConfPaths.FIGHT_PITCHPATTERN_LIMIT, 10F, 1153);
-        //set(ConfPaths.FIGHT_PITCHPATTERN_SAMPLE, 35, 1154);
-        //set(ConfPaths.FIGHT_PITCHPATTERN_DIFF, 0.001D, 1153);
-        //set(ConfPaths.FIGHT_PITCHPATTERN_DELTAGCD, 0.00001F, 1153);
-        //set(ConfPaths.FIGHT_PITCHPATTERN_ACTIONS, "vl>2 cancel vl>10 cancel log:pitchpattern:5:6:i vl>100 cancel log:pitchpattern:0:10:icf cmdc:kickillegalrotations:3:10", 1154);
         // Reach
         set(ConfPaths.FIGHT_REACH_CHECK, "default", 785);
         set(ConfPaths.FIGHT_REACH_SURVIVALDISTANCE, 4.02, 1154); 
@@ -432,15 +428,15 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.INVENTORY_FASTCONSUME_CHECK, "default", 785);
         set(ConfPaths.INVENTORY_FASTCONSUME_DURATION, 1.4, 1154); // The actual consumption time needed would be 1.5s. Set to 1.4 for leniency
         set(ConfPaths.INVENTORY_FASTCONSUME_WHITELIST, false, 785);
-        set(ConfPaths.INVENTORY_FASTCONSUME_ITEMS, Bridge1_13.hasIsSwimming() ? Arrays.asList("DRIED_KELP") : new LinkedList<String>(), 1154); // Quick way to check if the server is 1.13+
+        set(ConfPaths.INVENTORY_FASTCONSUME_ITEMS, new LinkedList<String>(), 1154);
         set(ConfPaths.INVENTORY_FASTCONSUME_ACTIONS, "cancel vl>2 log:fastconsume:2:5:if cancel vl>35 cancel log:fastconsume:0:5:if cmdc:kickfastconsume:0:5", 1154);
         // InvMove
         set(ConfPaths.INVENTORY_INVENTORYMOVE_CHECK, "default", 1153);
         set(ConfPaths.INVENTORY_INVENTORYMOVE_DISABLECREATIVE, true, 1153); 
         set(ConfPaths.INVENTORY_INVENTORYMOVE_HDISTDIVISOR, 4, 1154);
         set(ConfPaths.INVENTORY_INVENTORYMOVE_IMPROBABLE_FEEDONLY, false, 1154);
-        set(ConfPaths.INVENTORY_INVENTORYMOVE_IMPROBABLE_WEIGHT, 10, 1154);
-        set(ConfPaths.INVENTORY_INVENTORYMOVE_ACTIONS, "cancel vl> 5 log:inventorymove:4:5:i cancel", 1154);
+        set(ConfPaths.INVENTORY_INVENTORYMOVE_IMPROBABLE_WEIGHT, 2.0, 1154);
+        set(ConfPaths.INVENTORY_INVENTORYMOVE_ACTIONS, "cancel vl>10 log:inventorymove:7:8:i cancel", 1154);
         // Gutenberg
         set(ConfPaths.INVENTORY_GUTENBERG_CHECK, "default", 785);
         set(ConfPaths.INVENTORY_GUTENBERG_PAGELIMIT, 50, 1154);
@@ -524,7 +520,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_MOREPACKETS_CHECK, "default", 785);
         set(ConfPaths.MOVING_MOREPACKETS_SECONDS, 6, 785);
         set(ConfPaths.MOVING_MOREPACKETS_EPSIDEAL, 20, 785);
-        set(ConfPaths.MOVING_MOREPACKETS_EPSMAX, 22, 785); // 21?
+        set(ConfPaths.MOVING_MOREPACKETS_EPSMAX, 22, 785); 
         set(ConfPaths.MOVING_MOREPACKETS_BURST_PACKETS, 35, 785);
         set(ConfPaths.MOVING_MOREPACKETS_BURST_DIRECT, 55, 785);
         set(ConfPaths.MOVING_MOREPACKETS_BURST_EPM, 100, 1154);
@@ -657,6 +653,9 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.NET_SOUNDDISTANCE_MAXDISTANCE, 320, 785);
         // Superseded
         set(ConfPaths.NET_SUPERSEDED_FLYING_CANCELWAITING, true, 1090);
+        // Wrongpacket
+        set(ConfPaths.NET_WRONGPACKET_ACTIVE, "default", 1154);
+        set(ConfPaths.NET_WRONGPACKET_ACTIONS, "cancel cmdc:kickimprobable:0:10 log:wrongpacket:0:15:i", 1154);
         // WrongTurn
         set(ConfPaths.NET_WRONGTURN_ACTIVE, "default", 1154);
         set(ConfPaths.NET_WRONGTURN_ACTIONS, "cancel log:wrongturn:0:15:icf cmdc:kickillegalrotations:0:10", 1154);
@@ -677,14 +676,14 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".bedleave", start + "tried to send fake bed leave packets (was not in/near a bed)" + end, 1154);
         set(ConfPaths.STRINGS + ".bpspeed", start + "tried to throw projectiles too quickly" + end, 1154);
         set(ConfPaths.STRINGS + ".breach", start + "tried to interact with a block too far away" + end, 1154);
-        set(ConfPaths.STRINGS + ".bspeed", start + "is interacting with blocks beyond legit speeds" + end, 1154);
+        set(ConfPaths.STRINGS + ".bspeed", start + "tried to interact with blocks beyond legit speeds" + end, 1154);
         set(ConfPaths.STRINGS + ".bvisible", start + "tried to interact with a block through a solid obstacle" + end, 1154);
         set(ConfPaths.STRINGS + ".bwrong", start + "tried to break another block than interacted with last" + end, 1154);
         set(ConfPaths.STRINGS + ".captcha", "[player] failed captcha repeatedly" + end, 785);
         set(ConfPaths.STRINGS + ".chatfast", start + "acted like spamming (message deleted) (IP: &6[ip]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".chatnormal", start + "seems to be spamming the server chat" + end, 1154);
         set(ConfPaths.STRINGS + ".commands", start + "issued too many commands too quickly" + end, 785);
-        set(ConfPaths.STRINGS + ".creativefly", start + "performed a move that deviates from the model (Model: &6[model]&7, Tags: &6[tags]&7)" + end, 1154);
+        set(ConfPaths.STRINGS + ".creativefly", start + "tried to perform a move that deviates from the model (Model: &6[model]&7, Tags: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".critical", start + "tried to perform an illegal critical hit (Tags: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".drop", start + "tried to drop more items than allowed" + end, 785);
         set(ConfPaths.STRINGS + ".dropkick", kick + "Dropping items too fast.", 1154);
@@ -699,13 +698,14 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".flyingfrequency", start + "is manipulating packets sent to the server to gain an unfair advantage" + end, 1154);
         set(ConfPaths.STRINGS + ".freach", start + "tried to hit an entity from a suspicious distance (Reach: &6[reachdistance]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".fselfhit", start + "tried to hit themselves" + end, 1154);
-        set(ConfPaths.STRINGS + ".fspeed", start + "clicked [violations] times over the established [limit] CPS limit" + end, 1154);
+        set(ConfPaths.STRINGS + ".fspeed", start + "tried to click [violations] times over the established [limit] CPS limit" + end, 1154);
         set(ConfPaths.STRINGS + ".godmode", start + "tried to ignore inflicted damage (Health: &7[health]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".gutenberg", start + "created a book with too many pages" + end, 785);
+        set(ConfPaths.STRINGS + ".impossiblehit", start + "tried to hit an entity while performing another action (Tags: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".improbable", start + "is exhibiting an erratic behaviour (Check: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".instantbow", start + "tried to shoot an arrow too fast" + end, 1154);
         set(ConfPaths.STRINGS + ".instanteat", start + "tried to consume an item too quickly (Food: &6[food]&7)" + end, 1154);
-        set(ConfPaths.STRINGS + ".inventorymove", start + "tried to click in their inventory while simultaneously performing another action (Tags: &6[tags]&7)" + end, 1154);
+        set(ConfPaths.STRINGS + ".inventorymove", start + "tried to click in their inventory while performing another action (Tags: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".keepalive", start + "is spamming keep-alive packets to the server" + end, 1154);
         set(ConfPaths.STRINGS + ".kickagainst", kick + "Invalid block placements.", 1154);
         set(ConfPaths.STRINGS + ".kickalive", kick + "Too many keep-alive packets.", 1154);
@@ -747,7 +747,6 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".nofall", start + "tried to alter fall damage or fall distance (Tags: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".noswing", start + "didn't swing arm before performing their action" + end, 1154);
         set(ConfPaths.STRINGS + ".passable", start + "tried to move into a block (bugged player of phase cheat)" + end, 1154);
-        set(ConfPaths.STRINGS + ".pitchpattern", start + "has pitch rotation patterns that are often associated with cheats" + end, 1154);
         set(ConfPaths.STRINGS + ".relog", start + "tried to relog too fast" + end, 1154);
         set(ConfPaths.STRINGS + ".scaffold", start + "tried to place a block in an unnatural way (Tags: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".survivalfly", start + "tried to move unexpectedly" + end, 1154);
@@ -756,9 +755,9 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".tempkick1", "ncp tempkick [player] 1  &c&l(!)&7 You have to wait 1 minute before joining this server again.", 1154);
         set(ConfPaths.STRINGS + ".tempkick5", "ncp tempkick [player] 5  &c&l(!)&7 You have to wait 5 minutes before joining this server again.", 1154);
         set(ConfPaths.STRINGS + ".vehicleenvelope", start + "tried to move a vehicle unexpectedly (Tags/Vehicle: &6[tags]&7)" + end, 1154);
-        set(ConfPaths.STRINGS + ".wrongturn", start + "sent an impossible pitch rotation (&6>90 &7or&6 <-90&7)" + end, 1154);
+        set(ConfPaths.STRINGS + ".wrongpacket", start + "tried to send a fly packet (is not allowed to fly)" + end, 1154);
+        set(ConfPaths.STRINGS + ".wrongturn", start + "tried to send an impossible pitch rotation (&6>90 &7or&6 <-90&7)" + end, 1154);
         // Clear a check data  
-        set(ConfPaths.STRINGS + ".clearimprobable", clear + "COMBINED_IMPROBABLE", 1154);
         set(ConfPaths.STRINGS + ".clearcritical", clear + "FIGHT_CRITICAL", 1154);
         set(ConfPaths.STRINGS + ".clearsf", clear + "MOVING_SURVIVALFLY", 1154);
         set(ConfPaths.STRINGS + ".clearcf", clear + "MOVING_CREATIVEFLY", 1154);

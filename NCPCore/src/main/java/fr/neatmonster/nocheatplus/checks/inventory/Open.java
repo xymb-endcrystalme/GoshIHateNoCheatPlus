@@ -80,6 +80,8 @@ public class Open extends Check implements IDisableListener{
                 exeSet.getHandle().isRegardedAsNpc(player)
                 || !isEnabled(player) 
                 || !InventoryUtil.hasInventoryOpen(player)
+                // Workaround, Open would disallow players from opening the container if standing on top
+                // of the shulker. Is it considered as a player teleport?
                 || isShulkerBox) {
             return false;
         }

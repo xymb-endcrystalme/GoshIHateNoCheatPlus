@@ -100,6 +100,8 @@ permissions:
         default: false
     nocheatplus.checks.fight.godmode.silent:
         default: false
+    nocheatplus.checks.net.impossiblehit.silent:
+        default: false
     nocheatplus.checks.fight.noswing.silent:
         default: false
     nocheatplus.checks.fight.reach.silent:
@@ -147,6 +149,8 @@ permissions:
     nocheatplus.checks.net.keepalivefrequency.silent:
         default: false
     nocheatplus.checks.net.packetfrequency.silent:
+        default: false
+    nocheatplus.checks.net.wrongpacket.silent:
         default: false
     nocheatplus.checks.net.wrongturn.silent:
         default: false
@@ -248,6 +252,8 @@ permissions:
                         description: Allow the player to bypass the FastHeal check.
                     nocheatplus.checks.fight.godmode:
                         description: Allow the player to bypass the GodMode check.
+                    nocheatplus.checks.fight.impossiblehit:
+                        description: Allow the player to bypass the ImpossibleHit check.
                     nocheatplus.checks.fight.noswing:
                         description: Allow the player to bypass the NoSwing check.
                     nocheatplus.checks.fight.reach:
@@ -329,6 +335,8 @@ permissions:
                   description: Bypass the KeepAliveFrequency check (keep alive packet spam).
                 nocheatplus.checks.net.packetfrequency:
                   description: Bypass the PacketFrequency check (overall packet spam).
+                nocheatplus.checks.net.wrongpacket:
+                  description: Allow the player to bypass the WrongPacket check.
                 nocheatplus.checks.net.wrongturn:
                   description: Allow the player to bypass the WrongTurn check.
                   

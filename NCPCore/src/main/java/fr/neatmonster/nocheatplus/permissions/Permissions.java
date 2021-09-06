@@ -142,6 +142,7 @@ public class Permissions {
     public static final RegisteredPermission  FIGHT_DIRECTION              = add(FIGHT + ".direction");
     public static final RegisteredPermission  FIGHT_FASTHEAL               = add(FIGHT + ".fastheal");
     public static final RegisteredPermission  FIGHT_GODMODE                = add(FIGHT + ".godmode");
+    public static final RegisteredPermission  FIGHT_IMPOSSIBLEHIT          = add(FIGHT + ".impossiblehit");
     public static final RegisteredPermission  FIGHT_NOSWING                = add(FIGHT + ".noswing");
     public static final RegisteredPermission  FIGHT_REACH                  = add(FIGHT + ".reach");
     public static final RegisteredPermission  FIGHT_SELFHIT                = add(FIGHT + ".selfhit");
@@ -164,6 +165,7 @@ public class Permissions {
     public static final RegisteredPermission  NET_FLYINGFREQUENCY          = add(NET + ".flyingfrequency");
     public static final RegisteredPermission  NET_KEEPALIVEFREQUENCY       = add(NET + ".keepalivefrequency");
     public static final RegisteredPermission  NET_PACKETFREQUENCY          = add(NET + ".packetfrequency");
+    public static final RegisteredPermission  NET_WRONGPACKET              = add(NET + ".wrongpacket");
 	public static final RegisteredPermission  NET_WRONGTURN                = add(NET + ".wrongturn");
 
     public static final RegisteredPermission  MOVING                       = add(CHECKS + ".moving");

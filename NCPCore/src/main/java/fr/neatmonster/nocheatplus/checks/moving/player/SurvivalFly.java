@@ -693,6 +693,7 @@ public class SurvivalFly extends Check {
         if (debug && tags.size() > tagsLength) {
             logPostViolationTags(player);
         }
+        // Nothing to do, newTo (MovingListener) stays null
         return null;
     }
     
@@ -710,7 +711,7 @@ public class SurvivalFly extends Check {
     * 
     * @return hDistanceAboveLimit
     */
-    private double horizontalAccounting(final MovingData data, double hDistance, double hDistanceAboveLimit, final PlayerMoveData thisMove){
+    private double horizontalAccounting(final MovingData data, double hDistance, double hDistanceAboveLimit, final PlayerMoveData thisMove) {
         
         final double fcmhv = Math.max(1.0, Math.min(10.0, thisMove.hDistance / thisMove.hAllowedDistanceBase));
         data.combinedMediumHCount ++;
@@ -766,7 +767,7 @@ public class SurvivalFly extends Check {
     private double waterWalkChecks(final MovingData data, final Player player, double hDistance, double yDistance, 
                                    final PlayerMoveData thisMove, final PlayerMoveData lastMove,
                                    final boolean fromOnGround, double hDistanceAboveLimit,
-                                   final boolean toOnGround, final PlayerLocation from, final PlayerLocation to){
+                                   final boolean toOnGround, final PlayerLocation from, final PlayerLocation to) {
 
         Material blockUnder = from.getTypeId(from.getBlockX(), Location.locToBlock(from.getY() - 0.3), from.getBlockZ());
         Material blockAbove = from.getTypeId(from.getBlockX(), Location.locToBlock(from.getY() + 0.1), from.getBlockZ());
@@ -1595,7 +1596,9 @@ public class SurvivalFly extends Check {
             
             // Allow falling.
             if (thisMove.yDistance > -(Magic.GRAVITY_MAX + Magic.GRAVITY_SPAN) && yDistance < 0.0) {
-                vAllowedDistance = yDistance;
+                vAllowedDistance = yDistance; 
+                // TODO: Test code below: would be best to not allow arbitrary distance. At least enforce fricton.
+                // vAllowedDistance = lastMove.yDistance * data.lastFrictionVertical - Magic.GRAVITY_MIN;
             }
             // Allow jumping.
             else if (thisMove.from.onGround || (lastMove.valid && lastMove.to.onGround)) {
@@ -1621,7 +1624,9 @@ public class SurvivalFly extends Check {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Compare yDistance to expected and search for an existing rule. Use velocity on violations, if nothing has been found. //
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /** Relative vertical distance */
         boolean vDistRelVL = false;
+        /** Expected difference from current to allowed */       
         final double yDistDiffEx          = yDistance - vAllowedDistance; 
         final boolean honeyBlockCollision = isCollideWithHB(from, to, data) && yDistance < -0.125 && yDistance > -0.128;
         final boolean GravityEffects      = lastMove.toIsValid && InAirRules.oddJunction(from, to, yDistance, yDistChange, yDistDiffEx, maxJumpGain, resetTo, thisMove, lastMove, data, cc);
@@ -1633,7 +1638,8 @@ public class SurvivalFly extends Check {
 
         // Quick invalidation for too much water envelope
         if (!from.isInLiquid() && strictVdistRel && data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID
-            && yDistance > 0.3 && yDistance > vAllowedDistance && data.getOrUseVerticalVelocity(yDistance) == null){
+            && yDistance > 0.3 && yDistance > vAllowedDistance 
+            && data.getOrUseVerticalVelocity(yDistance) == null) {
             thisMove.invalidate();
         }
 
@@ -1778,6 +1784,7 @@ public class SurvivalFly extends Check {
                         //    will be reset/updated at the very top (1.0) when jumping up, instead of keeping it at the lower edge (0.5) [Note: removing the F_GROUND_HEIGHT
                         //    fixes the issue but will cause troubles with vDistrel]
                         // TODO: Test margins, could be more strict.
+                        // TODO: Actual fix for stairs, then let's actually punish players for lowjumping (un-comment code below)
                         if ((from.isNextToGround(0.15, 0.5) || to.isNextToGround(0.15, 0.5)) 
                             && Math.round(from.getY()) == Math.round(data.getSetBackY())
                             || thisMove.headObstructed 
@@ -2256,7 +2263,7 @@ public class SurvivalFly extends Check {
                 // TODO: Expected minimum gain depends on last speed (!).
                 // TODO: Speed effect affects hDistanceAboveLimit?
                 data.bunnyhopDelay = bunnyHopMax;
-                hDistanceAboveLimit = 0D;
+                hDistanceAboveLimit = 0.0;
                 thisMove.bunnyHop = true;
                 tags.add("bunnyhop");
             }

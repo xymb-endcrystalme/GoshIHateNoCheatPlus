@@ -76,11 +76,11 @@ public enum CheckType {
     FIGHT_DIRECTION(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_DIRECTION),
     FIGHT_FASTHEAL(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_FASTHEAL),
     FIGHT_GODMODE(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_GODMODE),
+    FIGHT_IMPOSSIBLEHIT(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_IMPOSSIBLEHIT),
     FIGHT_NOSWING(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_NOSWING),
     FIGHT_REACH(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_REACH),
     FIGHT_SELFHIT(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_SELFHIT),
     FIGHT_SPEED(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_SPEED),
-    FIGHT_WRONGTURN(CheckTypeType.CHECK, FIGHT, null),
 
     INVENTORY(CheckTypeType.GROUP, CheckType.ALL, Permissions.INVENTORY),
     INVENTORY_DROP(CheckTypeType.CHECK, INVENTORY, Permissions.INVENTORY_DROP),
@@ -110,7 +110,8 @@ public enum CheckType {
     NET_KEEPALIVEFREQUENCY(CheckTypeType.CHECK, NET, Permissions.NET_KEEPALIVEFREQUENCY),
     NET_PACKETFREQUENCY(CheckTypeType.CHECK, NET, Permissions.NET_PACKETFREQUENCY),
     NET_SOUNDDISTANCE(CheckTypeType.CHECK, NET), // Can not exempt players from this one.
-	NET_WRONGTURN(CheckTypeType.CHECK, NET, Permissions.NET_WRONGTURN),
+    NET_WRONGTURN(CheckTypeType.CHECK, NET, Permissions.NET_WRONGTURN),
+    NET_WRONGPACKET(CheckTypeType.CHECK, NET, Permissions.NET_WRONGPACKET),
 
     ;
 

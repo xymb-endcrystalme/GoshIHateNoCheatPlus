@@ -519,6 +519,13 @@ public abstract class ConfPaths {
     public static final String  FIGHT_NOSWING_CHECK                      = FIGHT_NOSWING + SUB_ACTIVE;
     public static final String  FIGHT_NOSWING_ACTIONS                    = FIGHT_NOSWING + "actions";
 
+    private static final String FIGHT_IMPOSSIBLEHIT                      = FIGHT + "impossiblehit.";
+    public static final String  FIGHT_IMPOSSIBLEHIT_CHECK                = FIGHT_IMPOSSIBLEHIT + SUB_ACTIVE;
+    private static final String FIGHT_IMPOSSIBLEHIT_IMPROBABLE           = FIGHT_IMPOSSIBLEHIT + "improbable.";
+    public static final String  FIGHT_IMPOSSIBLEHIT_IMPROBABLE_FEEDONLY  = FIGHT_IMPOSSIBLEHIT_IMPROBABLE + "feedonly";
+    public static final String  FIGHT_IMPOSSIBLEHIT_IMPROBABLE_WEIGHT    = FIGHT_IMPOSSIBLEHIT_IMPROBABLE + "weight";
+    public static final String  FIGHT_IMPOSSIBLEHIT_ACTIONS              = FIGHT_IMPOSSIBLEHIT + "actions";
+
     private static final String FIGHT_REACH                              = FIGHT + "reach.";
     public static final String  FIGHT_REACH_CHECK                        = FIGHT_REACH + SUB_ACTIVE;
     public static final String  FIGHT_REACH_SURVIVALDISTANCE             = FIGHT_REACH + "survivaldistance";
@@ -778,7 +785,7 @@ public abstract class ConfPaths {
     public static final String  NET_ATTACKFREQUENCY_ACTIVE                  = NET_ATTACKFREQUENCY + SUB_ACTIVE;
     // TODO: Generic config for seconds.
     public static final String  NET_ATTACKFREQUENCY_SECONDS                 = NET_ATTACKFREQUENCY + "limitforseconds.";
-    public static final String  NET_ATTACKFREQUENCY_SECONDS_HALF             = NET_ATTACKFREQUENCY_SECONDS + "half";
+    public static final String  NET_ATTACKFREQUENCY_SECONDS_HALF            = NET_ATTACKFREQUENCY_SECONDS + "half";
     public static final String  NET_ATTACKFREQUENCY_SECONDS_ONE             = NET_ATTACKFREQUENCY_SECONDS + "one";
     public static final String  NET_ATTACKFREQUENCY_SECONDS_TWO             = NET_ATTACKFREQUENCY_SECONDS + "two";
     public static final String  NET_ATTACKFREQUENCY_SECONDS_FOUR            = NET_ATTACKFREQUENCY_SECONDS + "four";
@@ -820,6 +827,10 @@ public abstract class ConfPaths {
     private static final String NET_SUPERSEDED                              = NET + "superseded.";
     private static final String NET_SUPERSEDED_FLYING                       = NET_SUPERSEDED + "flying.";
     public static final String  NET_SUPERSEDED_FLYING_CANCELWAITING         = NET_SUPERSEDED_FLYING + "cancelwaiting";
+
+    private static final String NET_WRONGPACKET                             = NET + "wrongpacket.";
+    public static final String  NET_WRONGPACKET_ACTIVE                      = NET_WRONGPACKET + SUB_ACTIVE;
+    public static final String  NET_WRONGPACKET_ACTIONS                     = NET_WRONGPACKET + "actions";
     
     private static final String NET_WRONGTURN                               = NET + "wrongturn.";
     public static final String  NET_WRONGTURN_ACTIVE                        = NET_WRONGTURN + SUB_ACTIVE;

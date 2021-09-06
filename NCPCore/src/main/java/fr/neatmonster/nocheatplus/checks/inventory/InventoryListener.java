@@ -23,13 +23,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -38,12 +38,14 @@ import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.InventoryType.SlotType;
+import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
@@ -148,6 +150,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                 .addToGroups(CheckType.INVENTORY, true, IData.class, ICheckData.class)
                 .context() //
                 );
+        // Move to BridgeMisc?
         hasInventoryAction = ReflectionUtil.getClass("org.bukkit.event.inventory.InventoryAction") != null;
     }
 
@@ -250,6 +253,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         }
         if (slot == InventoryView.OUTSIDE || slot < 0) {
             data.lastClickTime = now;
+            data.lastKnownInvActivityTime = now;
             return;
         }
 
@@ -312,24 +316,36 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
             }
         }
         
-        
         data.lastClickTime = now;
+        data.lastKnownInvActivityTime = now;
         if (cancel || keepCancel) {
             event.setCancelled(true);
         }
     }
     
-    /** 
+   /** 
     * Listens for when a player closes a chest.
     * We do this to keep canceling the attempt to click within the chest if
-    * fastClickChest is true. 
+    * fastClickChest is true.
+    * Also resets lastKnownInvActivityTime.
     */
     @EventHandler(priority = EventPriority.MONITOR)
-    public void closeChest(InventoryCloseEvent event) {
+    public void onPlayerInventoryClose(final InventoryCloseEvent event) {
+        
+        final HumanEntity entity = event.getPlayer();
+        if (entity instanceof Player) {
+
+            final Player player = (Player) entity;
+            if (player != null) {
+                final IPlayerData pData = DataManager.getPlayerData(player);
+                final InventoryData data = pData.getGenericInstance(InventoryData.class);
+                data.lastKnownInvActivityTime = 0;
+            }
+        }
         keepCancel = false;
     }
     
-    /** 
+   /** 
     * Listens for when a player opens a chest.
     * We do this to compare the times between opening a chest and
     * interacting with it.
@@ -455,8 +471,6 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                 event.setCancelled(true);
             }
         }
-
-
     }
 
     /**
@@ -550,15 +564,31 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
             return;
         }
     }
-
+    
+     /**
+     * We listen to InventoryOpen events because we want to force-close
+     * containers if a movement setback is scheduled. Also to updated the
+     * last inventory activity.
+     * 
+     * @param event
+     *            the event
+     */
     @EventHandler(ignoreCancelled = false, priority = EventPriority.LOWEST)
     public final void onPlayerInventoryOpen(final InventoryOpenEvent event) {
 
         // Possibly already prevented by block + entity interaction.
+        final long now = System.currentTimeMillis();
         final HumanEntity entity = event.getPlayer();
         if (entity instanceof Player) {
-            if (MovingUtil.hasScheduledPlayerSetBack((Player) entity)) {
-                event.setCancelled(true);
+
+            final Player player = (Player) entity;
+            if (player != null) {
+                final IPlayerData pData = DataManager.getPlayerData(player);
+                final InventoryData data = pData.getGenericInstance(InventoryData.class);
+                data.lastKnownInvActivityTime = now;
+                if (MovingUtil.hasScheduledPlayerSetBack(player)) {
+                    event.setCancelled(true);
+                }
             }
         }
     }
@@ -584,20 +614,98 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         Items.checkIllegalEnchantments(player, inv.getItem(event.getNewSlot()), pData);
         Items.checkIllegalEnchantments(player, inv.getItem(event.getPreviousSlot()), pData);
     }
-
+    
+    /**
+     * We listen to PlayetChangeWorld events because we want to reset
+     * the activity time.
+     * 
+     * @param event
+     *            the event
+     */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerChangedWorld(final PlayerChangedWorldEvent event) {
 
+        final Player player = event.getPlayer();
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        final InventoryData data = pData.getGenericInstance(InventoryData.class);
         open.check(event.getPlayer());
+        data.lastKnownInvActivityTime = 0;
     }
-
+    
+    /**
+     * We listen to PlayerPortal events because of the Open check.
+     * 
+     * @param event
+     *            the event
+     */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerPortal(final PlayerPortalEvent event) {
 
         // Note: ignore cancelother setting.
         open.check(event.getPlayer());
     }
+    
+    /**
+     * We listen to PlayerRespawn events because we want to reset
+     * the activity time.
+     * 
+     * @param event
+     *            the event
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerRespawn(final PlayerRespawnEvent event) {
 
+        final Player player = event.getPlayer();
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        final InventoryData data = pData.getGenericInstance(InventoryData.class);
+        data.lastKnownInvActivityTime = 0;
+    }
+    
+    /**
+     * We listen to EntityDeath events because we want to reset
+     * the activity time.
+     * 
+     * @param event
+     *            the event
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerDeath(final EntityDeathEvent event) {
+
+        final LivingEntity entity = event.getEntity();
+        if (entity instanceof Player) {
+
+            final Player player = (Player) entity;
+            if (player != null) {
+                final IPlayerData pData = DataManager.getPlayerData(player);
+                final InventoryData data = pData.getGenericInstance(InventoryData.class);
+                data.lastKnownInvActivityTime = 0;
+            }
+        }
+    }
+    
+    /**
+     * We listen to PlayerBedEnter events because we want to reset
+     * the activity time.
+     * 
+     * @param event
+     *            the event
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerSleep(final PlayerBedEnterEvent event) {
+
+        final Player player = event.getPlayer();
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        final InventoryData data = pData.getGenericInstance(InventoryData.class);
+        data.lastKnownInvActivityTime = 0;
+    }
+
+    /**
+     * We listen to PortalEnter events for the Open check and to reset
+     * the last activity time.
+     * 
+     * @param event
+     *            the event
+     */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onEntityPortal(final EntityPortalEnterEvent event) {
 
@@ -616,22 +724,13 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         }
     }
     
-    // TODO: Maybe simply move the flag to the FightListener.
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onEntityDamage(final EntityDamageByEntityEvent event) {
-        final Entity damager = event.getDamager();
-        final Player player = damager instanceof Player ? (Player) damager : null;
-        final IPlayerData pData = player == null ? null : DataManager.getPlayerData(player);
-        if (pData == null) return;
-        if (!pData.isCheckActive(CheckType.INVENTORY, player)) return;
-        final InventoryData data = pData.getGenericInstance(InventoryData.class);
-        if (event.getDamager() instanceof Player 
-            && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
-            data.inventoryAttack = true;
-            data.lastAttackEvent = System.currentTimeMillis();
-        }
-    }
-    
+    /**
+     * We listen to PlayerMoveEvents because we want to make sure
+     * players cannot move and click/interact with their own inventory at the same time.
+     * 
+     * @param event
+     *            the event
+     */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onMove(final PlayerMoveEvent event) {
 
@@ -665,20 +764,39 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         // TODO: Other concept of InventoryMove , merge MoreInventory, confine more(close inv on jump) ?
         iData.lastMoveEvent = System.currentTimeMillis();
     }
-
+    
+    /**
+     * We listen to PlayerTeleport events for the Open check and to reset
+     * the last activity time.
+     * 
+     * @param event
+     *            the event
+     */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerTeleport(final PlayerTeleportEvent event) {
         // Note: ignore cancelother setting.
         open.check(event.getPlayer());
+        final Player player = event.getPlayer();
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        final InventoryData data = pData.getGenericInstance(InventoryData.class);
+        data.lastKnownInvActivityTime = 0;
     }
 
     @Override
     public void playerJoins(Player player) {
-        // Ignore
+        
+        // Just to be sure...
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        final InventoryData data = pData.getGenericInstance(InventoryData.class);
+        data.lastKnownInvActivityTime = 0;
     }
 
     @Override
     public void playerLeaves(Player player) {
+
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        final InventoryData data = pData.getGenericInstance(InventoryData.class);
+        data.lastKnownInvActivityTime = 0;
         open.check(player);
     }
 

@@ -26,11 +26,14 @@ import org.bukkit.inventory.ItemStack;
 
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.players.DataManager;
+import fr.neatmonster.nocheatplus.players.IPlayerData;
+import fr.neatmonster.nocheatplus.checks.inventory.InventoryData;
 
 // TODO: Auto-generated Javadoc
 /**
  * Auxiliary/convenience methods for inventories.
- * @author mc_dev
+ * @author asofold
  *
  */
 public class InventoryUtil {
@@ -155,7 +158,7 @@ public class InventoryUtil {
      * @return If closed.
      */
     public static boolean closeOpenInventory(final Player player) {
-        if (hasInventoryOpen(player)) {
+        if (hasInventoryOpen(player) || couldHaveInventoryOpen(player)) {
             player.closeInventory();
             return true;
         } else {
@@ -174,6 +177,36 @@ public class InventoryUtil {
     public static boolean hasInventoryOpen(final Player player) {
         final InventoryView view = player.getOpenInventory();
         return view != null && view.getType() != InventoryType.CRAFTING;
+    }
+
+   /**
+    * Test if players may have an open inventory (not necessarly their own):
+    * An inventory click was registered and we didn't receive an InventoryCloseEvent
+    * or other events that would force-close the inventory.
+    * 
+    * @param player
+    *
+    */
+    public static boolean couldHaveInventoryOpen(final Player player) {
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        final InventoryData iData = pData.getGenericInstance(InventoryData.class);
+        return iData.lastKnownInvActivityTime != 0;
+    }
+    
+   /**
+    * Test if players have recently opened their own inventory
+    * 
+    * @param player
+    * @param maxTimeAge Maximum time in milliseconds to be considered as 'recent activity'
+    *                   Ergo, higher times equals less leniency. (Included)
+    * @param minTimeAge Minimum time in milliseconds to be considered as 'recent activity'. (Excluded)
+    * @return True if the player has had recent inventory activity, false if they've been in their own inventory for some time.
+    */
+    public static boolean hasOpenedInvRecently(final Player player, final long maxTimeAge, final long minTimeAge) {
+        final long now = System.currentTimeMillis();
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        final InventoryData iData = pData.getGenericInstance(InventoryData.class);
+        return now - iData.lastKnownInvActivityTime <= maxTimeAge || now - iData.lastKnownInvActivityTime > minTimeAge; 
     }
 
     /**

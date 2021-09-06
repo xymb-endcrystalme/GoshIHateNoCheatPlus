@@ -84,8 +84,6 @@ public class InventoryMove extends Check {
         // TODO: Keep the workaround for server <1.17? ... 
         // TODO: Detect ascending in liquid (friction envelope, might just set a flag in SurvivalFly.vDistLiquid)
         // TODO: Click and jump. Not sure.
-        // F.p.: Friction after stopping to move and immediately opening the inv and clicking in it:
-        //       the current implementation is better than before but it still is afflicted. Too tedious to fix now...
         
         // Shortcuts:
         final MovingData mData = pData.getGenericInstance(MovingData.class);
@@ -113,32 +111,13 @@ public class InventoryMove extends Check {
                 + "\nmovingOnSurface=" + movingOnSurface + " fullLiquidMove= " + fullLiquidMove
             );
         }
-        
+    
+    
         // Clicking while using/consuming an item
         // Note: Why was player#isBlocking removed again? Can't remember...
         if (mData.isusingitem && !isMerchant) { 
             tags.add("usingitem");
             violation = true;
-        }
-
-        // ... Clicking in inv open during an attack
-        else if (data.inventoryAttack && currentEvent - data.lastAttackEvent < 500) {
-            violation = true;
-            tags.add("clickattack");
-
-            // This costs a lot in combat, be sure to feed Improbable.
-            // (Simplistic for now. Should further elaborate Improbable feeding/statistcs later on).
-            if (cc.invMoveImprobableWeight > 0.0f) {
-
-                if (cc.invMoveImprobableFeedOnly) {
-                    Improbable.feed(player, cc.invMoveImprobableWeight, System.currentTimeMillis());
-                } 
-                else if (Improbable.check(player, cc.invMoveImprobableWeight, System.currentTimeMillis(), "inventory.invmove.attackclick", pData)) {
-                    cancel = true;
-               }
-            }
-            // Reset once used, important as then subsequent clicks will still be flagged.
-            data.inventoryAttack = false;
         }
 
         // ... while swimming
@@ -155,6 +134,18 @@ public class InventoryMove extends Check {
 
         // ...  while sprinting
         else if (player.isSprinting() && !player.isFlying() && !(fullLiquidMove || movingOnSurface)) { // In case the player is bugged and instead of isSwimming, isSprinting returns
+
+            // Feed Improbable only for actual improbable clicking (Sprinting and clicking is impossible in all cases.)
+            // Later, once all known false positives are fixed, we can feed improbable for all cases (InventoryListener)
+            if (cc.invMoveImprobableWeight > 0.0f) {
+
+                if (cc.invMoveImprobableFeedOnly) {
+                    Improbable.feed(player, cc.invMoveImprobableWeight, System.currentTimeMillis());
+                } 
+                else if (Improbable.check(player, cc.invMoveImprobableWeight, System.currentTimeMillis(), "inventory.invmove.sprinting", pData)) {
+                    cancel = true;
+               }
+            }
             tags.add("isSprinting");
             violation = true;
         }
@@ -172,9 +163,10 @@ public class InventoryMove extends Check {
         }
         
         // ...while climbing a block (one would need to click and press space bar at the same time to ascend)
-        else if (thisMove.from.onClimbable && thisMove.yDistance >= 0.117
+        else if (thisMove.from.onClimbable && thisMove.yDistance == Magic.climbSpeedAscend
                 // If hit on a climbable, skip. 
-                && mData.getOrUseVerticalVelocity(thisMove.yDistance) == null) {
+                && mData.getOrUseVerticalVelocity(thisMove.yDistance) == null
+                && InventoryUtil.couldHaveInventoryOpen(player)) {
             violation = true;
             tags.add("climbclick");
         }
@@ -189,7 +181,8 @@ public class InventoryMove extends Check {
                 && !player.isInsideVehicle() 
                 && !thisMove.downStream
                 && !Bridge1_13.isRiptiding(player)
-                ){ 
+                && InventoryUtil.couldHaveInventoryOpen(player)
+                ) { 
                 tags.add("moving");
                 
                 // Walking on ground 
@@ -205,7 +198,8 @@ public class InventoryMove extends Check {
                         && pastMove2.hAllowedDistanceBase == lastMove.hAllowedDistance
                         && pastMove3.hAllowedDistanceBase == pastMove2.hAllowedDistance
                         // Ignore for now, too much friction
-                        && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) { 
+                        && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))
+                        && player.getNoDamageTicks() == 0) { 
                     violation = true;
                 }
                 // Moving inside liquid
@@ -215,7 +209,8 @@ public class InventoryMove extends Check {
                         && pastMove2.hAllowedDistanceBase == lastMove.hAllowedDistance
                         && pastMove3.hAllowedDistanceBase == pastMove2.hAllowedDistance
                         // Ignore for now, too much friction
-                        && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))) {
+                        && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))
+                        && player.getNoDamageTicks() == 0) {
                     violation = true;
                 } 
             }

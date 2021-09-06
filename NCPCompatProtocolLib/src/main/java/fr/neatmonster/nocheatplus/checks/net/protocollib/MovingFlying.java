@@ -90,7 +90,8 @@ public class MovingFlying extends BaseAdapter {
         if (ServerVersion.compareMinecraftVersion("1.17") < 0) {
             types.add(PacketType.Play.Client.FLYING);
             StaticLog.logInfo("Add listener for legacy PlayInFlying packet.");
-        } else types.add(PacketType.Play.Client.GROUND);
+        } 
+        else types.add(PacketType.Play.Client.GROUND);
         // Add confirm teleport.
         // PacketPlayInTeleportAccept
         PacketType confirmType = ProtocolLibComponent.findPacketTypeByName(Protocol.PLAY, Sender.CLIENT, "TeleportAccept");
@@ -239,24 +240,26 @@ public class MovingFlying extends BaseAdapter {
                 }
                 return;
             }
-            
-            // TODO: Should let it here?
+
+            // TODO: Should let it here? -> IMO, this should be integrated into flyingfrequency as an EXTREME_MOVE subcheck :p
             // Work as ExtremeMove but for packet sent!
+            // Observed: this seems to prevent long/mid distance blink cheats.
             if (packetData.hasPos) {
                 final MovingData Mdata = pData.getGenericInstance(MovingData.class);
-                final Location loc1 = player.getLocation();
-                final Location loc2 = new Location(null, packetData.getX(), packetData.getY(), packetData.getZ());
-                final double xzdist = TrigUtil.distance(loc1, loc2);
-                final double ydist = Math.abs(loc1.getY() - loc2.getY());
+                final Location serverLocation = player.getLocation();
+                final Location packetLocation = new Location(null, packetData.getX(), packetData.getY(), packetData.getZ());
+                final double hDistanceDiff = TrigUtil.distance(serverLocation, packetLocation);
+                final double yDistanceDiff = Math.abs(serverLocation.getY() - packetLocation.getY());
 
                 // Vertical move.
-                if (ydist > 100.0) {
+                if (yDistanceDiff > 100.0) {
                     ++data.diffpacketVLs;
                 }
                 // Horizontal move.
-                else if (xzdist > 100.0) {
+                else if (hDistanceDiff > 100.0) {
                     ++data.diffpacketVLs;
-                } else data.diffpacketVLs *= 0.98;
+                } 
+                else data.diffpacketVLs *= 0.98;
 
                 if (data.diffpacketVLs > 7) {
                     cancel = true;
@@ -267,10 +270,10 @@ public class MovingFlying extends BaseAdapter {
                     int task = -1;
                     task = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                         final Location newTo = 
-                            Mdata.hasSetBack() ? Mdata.getSetBack(loc1) :
+                            Mdata.hasSetBack() ? Mdata.getSetBack(serverLocation) :
                             Mdata.hasMorePacketsSetBack() ? Mdata.getMorePacketsSetBack() :
                             // Unsafe position! Null world or world not updated
-                            loc1;
+                            serverLocation;
                             //null;
                         if (newTo == null) {
                             StaticLog.logSevere("[NoCheatPlus] could not restore location for " + player.getName() + ", kicking them.");
@@ -336,8 +339,6 @@ public class MovingFlying extends BaseAdapter {
             // Add as valid packet (exclude invalid coordinates etc. for now).
             validContent.add(packetData.getSimplifiedContentType());
         }
-
-        // TODO: Counters for hasPos, hasLook, both, none.
 
         // Actual packet frequency check.
         // TODO: Consider using the NetStatic check.

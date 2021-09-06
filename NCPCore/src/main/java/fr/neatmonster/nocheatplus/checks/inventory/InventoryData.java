@@ -36,6 +36,13 @@ public class InventoryData extends ACheckData {
     // General.
     public long     lastClickTime = 0;
     public long     chestOpenTime = 0;
+   /**
+    * Last time some inventory action was updated. Intention is to see if players could have opened their inventory:
+    * Updates on InventoryClickEvent(s) and resets when we receive an InventoryCloseEvent (we only get told
+    * when players close their own inventory) or on other occasions where players cannot possibly open their own inventory
+    * (i.e.: dead, respawn, portal, sleeping etc...)
+    */
+    public long lastKnownInvActivityTime;
 
     // Data of the drop check.
     public int      dropCount;
@@ -59,8 +66,6 @@ public class InventoryData extends ACheckData {
     public long     instantEatInteract;
     
     // Data of the InventoryMove check.
-    public boolean inventoryAttack = false;
-    public long     lastAttackEvent = 0;
     public long     lastMoveEvent = 0;
 
 }

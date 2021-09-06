@@ -123,13 +123,15 @@ public class ProtocolLibComponent implements IDisableListener, INotifyReload, Jo
             register("fr.neatmonster.nocheatplus.checks.net.protocollib.MovingFlying", plugin);
             register("fr.neatmonster.nocheatplus.checks.net.protocollib.OutgoingPosition", plugin);
         }
-        if (worldMan.isActiveAnywhere(CheckType.NET_KEEPALIVEFREQUENCY) 
-                || worldMan.isActiveAnywhere(CheckType.FIGHT_GODMODE)) {
+        if (worldMan.isActiveAnywhere(CheckType.NET_KEEPALIVEFREQUENCY) || worldMan.isActiveAnywhere(CheckType.FIGHT_GODMODE)) {
             // (Set lastKeepAlive if this or fight.godmode is enabled.)
             register("fr.neatmonster.nocheatplus.checks.net.protocollib.KeepAliveAdapter", plugin);
         }
         if (worldMan.isActiveAnywhere(CheckType.NET_SOUNDDISTANCE)) {
             register("fr.neatmonster.nocheatplus.checks.net.protocollib.SoundDistance", plugin);
+        }
+        if (worldMan.isActiveAnywhere(CheckType.NET_WRONGPACKET)) {
+            register("fr.neatmonster.nocheatplus.checks.net.protocollib.WrongPacketAdapter", plugin);
         }
         if (worldMan.isActiveAnywhere(CheckType.NET_WRONGTURN)) {
             register("fr.neatmonster.nocheatplus.checks.net.protocollib.WrongTurnAdapter", plugin);
@@ -151,7 +153,8 @@ public class ProtocolLibComponent implements IDisableListener, INotifyReload, Jo
             }
             StaticLog.logInfo("Available (and activated) packet level hooks: " + StringUtil.join(names, " | "));
             NCPAPIProvider.getNoCheatPlusAPI().addFeatureTags("packet-listeners", names);
-        } else {
+        } 
+        else {
             StaticLog.logInfo("No packet level hooks activated.");
         }
     }

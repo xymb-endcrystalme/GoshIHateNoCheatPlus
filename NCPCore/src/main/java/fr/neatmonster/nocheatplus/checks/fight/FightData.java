@@ -42,6 +42,7 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
     public double                  noSwingVL;
     public double                  reachVL;
     public double                  speedVL;
+    public double                  impossibleHitVL;
 
     // Shared
     public String lastWorld			= "";
@@ -107,6 +108,11 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
     public int                     speedShortTermCount;
     public int                     speedShortTermTick;
 
+    // Data of the ImpossibleHit check
+    public boolean interactAttack = false;
+    public long lastInteractTime = 0;
+    public boolean inventoryAttack = false;
+
     // TNT workaround: Allow ENTITY_ATTACK if these attributes match.
     // Discussion at: https://github.com/NoCheatPlus/NoCheatPlus/pull/17 (@Iceee)
     /** Tick the last explosion damage was dealt at. */
@@ -122,8 +128,7 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
     }
 
     @Override
-    public boolean dataOnRemoveSubCheckData(
-            final Collection<CheckType> checkTypes) {
+    public boolean dataOnRemoveSubCheckData(final Collection<CheckType> checkTypes) {
         for (final CheckType checkType : checkTypes) {
             switch(checkType) {
                 // TODO: case FIGHT: ...
@@ -161,6 +166,11 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
                     break;
                 case FIGHT_CRITICAL:
                     criticalVL = 0;
+                    break;
+                case FIGHT_IMPOSSIBLEHIT:
+                    impossibleHitVL = 0;
+                    inventoryAttack = false;
+                    interactAttack = false;
                     break;
                 case FIGHT_NOSWING:
                     noSwingVL = 0;

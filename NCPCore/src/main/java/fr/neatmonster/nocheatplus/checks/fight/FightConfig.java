@@ -59,6 +59,10 @@ public class FightConfig extends ACheckConfig {
     public final long 		godModeLagMinAge;
     public final long 		godModeLagMaxAge;
     public final ActionList godModeActions;
+    
+    public final boolean    impossibleHitImprobableFeedOnly;
+    public final float      impossibleHitImprobableWeight;
+    public final ActionList impossibleHitActions;
 
     public final ActionList noSwingActions;
 
@@ -146,6 +150,10 @@ public class FightConfig extends ACheckConfig {
         godModeActions = config.getOptimizedActionList(ConfPaths.FIGHT_GODMODE_ACTIONS, Permissions.FIGHT_GODMODE);
 
         noSwingActions = config.getOptimizedActionList(ConfPaths.FIGHT_NOSWING_ACTIONS, Permissions.FIGHT_NOSWING);
+
+        impossibleHitImprobableFeedOnly = config.getBoolean(ConfPaths.FIGHT_IMPOSSIBLEHIT_IMPROBABLE_FEEDONLY);
+        impossibleHitImprobableWeight = (float) config.getDouble(ConfPaths.FIGHT_IMPOSSIBLEHIT_IMPROBABLE_WEIGHT);
+        impossibleHitActions = config.getOptimizedActionList(ConfPaths.FIGHT_IMPOSSIBLEHIT_ACTIONS, Permissions.FIGHT_IMPOSSIBLEHIT);
 
         reachSurvivalDistance = config.getDouble(ConfPaths.FIGHT_REACH_SURVIVALDISTANCE, 3.5, 6.0, 4.4);
         reachPenalty = config.getLong(ConfPaths.FIGHT_REACH_PENALTY);
