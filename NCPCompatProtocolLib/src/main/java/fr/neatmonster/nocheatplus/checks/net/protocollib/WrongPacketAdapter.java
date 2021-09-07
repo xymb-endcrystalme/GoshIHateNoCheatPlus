@@ -75,24 +75,11 @@ public class WrongPacketAdapter extends BaseAdapter {
         final NetConfig cc = pData.getGenericInstance(NetConfig.class);
         // Only interested in Abilities packet for now
         data.clientSentAbilityPacket = false;
-        data.isIllegalPacket = false;
         if (event.getPacketType() == PacketType.Play.Client.ABILITIES) {
-
-            long now = System.currentTimeMillis();
-            if (data.timeFlying != 0) {
-                if (now < data.timeFlying) {
-                    data.timeFlying = now;
-                }
-                if (data.timeFlying + 50 > now) {
-                    data.isIllegalPacket = true;
-                }
-            }
-            data.timeFlying = now;
             data.clientSentAbilityPacket = true;
             if (pData.isCheckActive(CheckType.NET_WRONGPACKET, player) 
                 && wrongPacket.check(player, data, cc, data.clientSentAbilityPacket, pData)) {
                 event.setCancelled(true); 
-                data.isIllegalPacket = false; // Consume the flag.
                 // TODO: Force set false?
             }
         }

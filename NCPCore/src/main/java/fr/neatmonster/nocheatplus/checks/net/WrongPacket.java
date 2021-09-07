@@ -49,7 +49,7 @@ public class WrongPacket extends Check {
         final boolean creativeOrSpect = player.getGameMode() == GameMode.CREATIVE 
                                         || player.getGameMode() == GameMode.SPECTATOR;
 
-        if (sentFlyPacket && !player.getAllowFlight() || data.isIllegalPacket) { 
+        if (sentFlyPacket && !player.getAllowFlight()) { 
             
             // Skip should be obvious :)
             if (!creativeOrSpect) {

@@ -68,8 +68,6 @@ public class NetData extends ACheckData {
     public double wrongPacketVL = 0;
     /** A flying packet was sent by the client */
     public boolean clientSentAbilityPacket = false;
-    public long timeFlying = 0;
-    public boolean isIllegalPacket = false;
     
     // Shared.
     /**
