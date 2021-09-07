@@ -185,28 +185,27 @@ public class InventoryUtil {
     * or other events that would force-close the inventory.
     * 
     * @param player
-    *
     */
     public static boolean couldHaveInventoryOpen(final Player player) {
         final IPlayerData pData = DataManager.getPlayerData(player);
         final InventoryData iData = pData.getGenericInstance(InventoryData.class);
-        return iData.lastKnownInvActivityTime != 0;
+        return iData.firstClickTime != 0;
     }
     
    /**
     * Test if players have recently opened their own inventory
     * 
     * @param player
-    * @param maxTimeAge Maximum time in milliseconds to be considered as 'recent activity'
-    *                   Ergo, higher times equals less leniency. (Included)
-    * @param minTimeAge Minimum time in milliseconds to be considered as 'recent activity'. (Excluded)
+    * @param timeAge In milliseconds to be considered as 'recent activity'
     * @return True if the player has had recent inventory activity, false if they've been in their own inventory for some time.
     */
-    public static boolean hasOpenedInvRecently(final Player player, final long maxTimeAge, final long minTimeAge) {
+    public static boolean hasOpenedInvRecently(final Player player, final long timeAge) {
         final long now = System.currentTimeMillis();
         final IPlayerData pData = DataManager.getPlayerData(player);
         final InventoryData iData = pData.getGenericInstance(InventoryData.class);
-        return now - iData.lastKnownInvActivityTime <= maxTimeAge || now - iData.lastKnownInvActivityTime > minTimeAge; 
+        // player.sendMessage("Open: "  + (iData.firstClickTime != 0) + " | Result: " + (now - iData.firstClickTime) );
+        return iData.firstClickTime != 0 && (now - iData.firstClickTime <= timeAge);
+            
     }
 
     /**

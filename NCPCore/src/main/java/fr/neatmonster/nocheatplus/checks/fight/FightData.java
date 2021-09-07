@@ -111,7 +111,6 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
     // Data of the ImpossibleHit check
     public boolean interactAttack = false;
     public long lastInteractTime = 0;
-    public boolean inventoryAttack = false;
 
     // TNT workaround: Allow ENTITY_ATTACK if these attributes match.
     // Discussion at: https://github.com/NoCheatPlus/NoCheatPlus/pull/17 (@Iceee)
@@ -169,7 +168,6 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
                     break;
                 case FIGHT_IMPOSSIBLEHIT:
                     impossibleHitVL = 0;
-                    inventoryAttack = false;
                     interactAttack = false;
                     break;
                 case FIGHT_NOSWING:

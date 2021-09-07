@@ -30,7 +30,6 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -588,6 +587,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         IPenaltyList penaltyList = null;
 
         if (damagedPlayer != null) {
+            
             final IPlayerData damagedPData = DataManager.getPlayerData(damagedPlayer);
             damagedData = damagedPData.getGenericInstance(FightData.class);
             if (!damagedIsDead) {
@@ -620,10 +620,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
                 UnusedVelocity.checkUnusedVelocity(damagedPlayer, CheckType.FIGHT, damagedPData);
             }
         }
-        else {
-            damagedData = null;
-        }
-
+        else damagedData = null;
 
         // Attacking entities.
         if (event instanceof EntityDamageByEntityEvent) {
@@ -650,9 +647,9 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
      * @param event
      */
     private void onEntityDamageByEntity(final Entity damaged, final Player damagedPlayer, 
-            final boolean damagedIsDead, final boolean damagedIsFake, 
-            final FightData damagedData, final EntityDamageByEntityEvent event,
-            final IPenaltyList penaltyList) {
+                                        final boolean damagedIsDead, final boolean damagedIsFake, 
+                                        final FightData damagedData, final EntityDamageByEntityEvent event,
+                                        final IPenaltyList penaltyList) {
 
         final Entity damager = event.getDamager();
         final int tick = TickTask.getTick();
@@ -700,9 +697,8 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
                 return;
             }
         }
-        else {
-            attackerData = null;
-        }
+        else attackerData = null;
+        
         if (player != null) {
             // Actual fight checks.
             if (damageCause == DamageCause.ENTITY_ATTACK) {
@@ -947,20 +943,6 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
         data.exemptArmSwing = entity != null && entity.getType().name().equals("PARROT");
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onInventoryClick(final InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player)) {
-            return;
-        }
-        final HumanEntity entity = event.getWhoClicked();
-        if (!(entity instanceof Player)) {
-            return;
-        }
-        final Player player = (Player) entity;
-        final IPlayerData pData = DataManager.getPlayerData(player);
-        final FightData data = pData.getGenericInstance(FightData.class);
-        data.inventoryAttack = true;
-    }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerInteract(final PlayerInteractEvent event) {

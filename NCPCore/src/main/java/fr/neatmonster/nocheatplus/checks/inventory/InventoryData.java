@@ -34,15 +34,15 @@ public class InventoryData extends ACheckData {
     public double   gutenbergVL;
 
     // General.
+    /** Remember the last time an inventory click happened. Always updates with each click */
     public long     lastClickTime = 0;
     public long     chestOpenTime = 0;
    /**
-    * Last time some inventory action was updated. Intention is to see if players could have opened their inventory:
-    * Updates on InventoryClickEvent(s) and resets when we receive an InventoryCloseEvent (we only get told
-    * when players close their own inventory) or on other occasions where players cannot possibly open their own inventory
-    * (i.e.: dead, respawn, portal, sleeping etc...)
+    * Remember only the first time an inventory click was registered. Intention is to see if players could have opened their inventory:
+    * It resets when we receive an InventoryCloseEvent or other events that would forcibly close the player's inv (for false positives).
+    * See: https://www.spigotmc.org/threads/detecting-when-player-opens-their-own-inv.397535/#post-3563623
     */
-    public long lastKnownInvActivityTime;
+    public long firstClickTime;
 
     // Data of the drop check.
     public int      dropCount;

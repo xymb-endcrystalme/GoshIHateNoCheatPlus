@@ -77,7 +77,7 @@ public class InventoryMove extends Check {
         boolean violation = false;
         List<String> tags = new LinkedList<String>();
         // NOTES: 1) NoCheatPlus provides a base speed at which players can move without taking into account any mechanic:
-        //        the idea is that if the hAllowedDistanceBase != hAllowedDistance then the player is being moved by friction or other means.
+        //        the idea is that if the base speed does not equal to the finally allowed speed then the player is being moved by friction or other means.
         //        2) Important: MC allows players to swim (and keep the status) when on ground, but this is not *consistently* reflected back to the server 
         //        (while still allowing them to move at swimming speed) instead, isSprinting() will return. Observed in both Spigot and PaperMC around MC 1.13/14
         //        -> Seems fixed in latest versions (opening an inventory will end the swimming phase, if on ground)
@@ -89,9 +89,7 @@ public class InventoryMove extends Check {
         final MovingData mData = pData.getGenericInstance(MovingData.class);
         final PlayerMoveData thisMove = mData.playerMoves.getCurrentMove();
         final PlayerMoveData lastMove = mData.playerMoves.getFirstPastMove();
-        final PlayerMoveData pastMove2 = mData.playerMoves.getSecondPastMove();
         final PlayerMoveData pastMove3 = mData.playerMoves.getThirdPastMove();
-        final PlayerMoveData pastMove4 = mData.playerMoves.getPastMove(3);
         final boolean fullLiquidMove = thisMove.from.inLiquid && thisMove.to.inLiquid;
         final long currentEvent = System.currentTimeMillis();
         final boolean isCollidingWithEntities = CollisionUtil.isCollidingWithEntities(player, true) && ServerVersion.compareMinecraftVersion("1.9") >= 0;
@@ -111,7 +109,7 @@ public class InventoryMove extends Check {
                 + "\nmovingOnSurface=" + movingOnSurface + " fullLiquidMove= " + fullLiquidMove
             );
         }
-    
+
     
         // Clicking while using/consuming an item
         // Note: Why was player#isBlocking removed again? Can't remember...
@@ -163,10 +161,10 @@ public class InventoryMove extends Check {
         }
         
         // ...while climbing a block (one would need to click and press space bar at the same time to ascend)
-        else if (thisMove.from.onClimbable && thisMove.yDistance == Magic.climbSpeedAscend
+        else if (thisMove.from.onClimbable && thisMove.yDistance >= 117
                 // If hit on a climbable, skip. 
                 && mData.getOrUseVerticalVelocity(thisMove.yDistance) == null
-                && InventoryUtil.couldHaveInventoryOpen(player)) {
+                && !InventoryUtil.hasOpenedInvRecently(player, 1000)) {
             violation = true;
             tags.add("climbclick");
         }
@@ -181,7 +179,8 @@ public class InventoryMove extends Check {
                 && !player.isInsideVehicle() 
                 && !thisMove.downStream
                 && !Bridge1_13.isRiptiding(player)
-                && InventoryUtil.couldHaveInventoryOpen(player)
+                && !Bridge1_9.isGlidingWithElytra(player)
+                && !InventoryUtil.hasOpenedInvRecently(player, 1000)
                 ) { 
                 tags.add("moving");
                 
@@ -194,22 +193,20 @@ public class InventoryMove extends Check {
                 // Moving above liquid surface
                 else if (movingOnSurface && !thisMove.touchedGround
                         // No changes in speed during the 5 last movements
-                        && thisMove.hAllowedDistanceBase == lastMove.hAllowedDistance
-                        && pastMove2.hAllowedDistanceBase == lastMove.hAllowedDistance
-                        && pastMove3.hAllowedDistanceBase == pastMove2.hAllowedDistance
+                        && thisMove.hAllowedDistance == pastMove3.hAllowedDistanceBase
                         // Ignore for now, too much friction
                         && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))
+                        // Liquid fight, skip
                         && player.getNoDamageTicks() == 0) { 
                     violation = true;
                 }
                 // Moving inside liquid
                 else if (fullLiquidMove 
-                        // No changes in speed during the 4 last movements
-                        && thisMove.hAllowedDistanceBase == lastMove.hAllowedDistance
-                        && pastMove2.hAllowedDistanceBase == lastMove.hAllowedDistance
-                        && pastMove3.hAllowedDistanceBase == pastMove2.hAllowedDistance
+                        // No changes in speed during the 5 last movements
+                        && thisMove.hAllowedDistance == pastMove3.hAllowedDistanceBase
                         // Ignore for now, too much friction
                         && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(player))
+                        // Liquid fight, skip
                         && player.getNoDamageTicks() == 0) {
                     violation = true;
                 } 

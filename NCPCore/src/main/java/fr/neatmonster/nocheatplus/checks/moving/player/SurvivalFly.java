@@ -384,10 +384,12 @@ public class SurvivalFly extends Check {
         double vAllowedDistance = 0, vDistanceAboveLimit = 0;
         // TODO: thisMove.from.isInAnyMedium, rather?
         boolean InMedium = from.isOnHoneyBlock() || from.isInWeb() || from.isInBerryBush() 
-                           || from.isOnClimbable() || from.isInLiquid() || from.isInPowderSnow();
+                           || from.isOnClimbable() || from.isInLiquid() || from.isInPowderSnow()
+                           || to.isOnClimbable();
         
         // Wild-card: allow step height from ground to ground, if not on/in a medium already.
-        if (yDistance >= 0.0 && yDistance <= cc.sfStepHeight && toOnGround && fromOnGround && !InMedium) {
+        if (yDistance >= 0.0 && yDistance <= cc.sfStepHeight 
+            && toOnGround && fromOnGround && !InMedium) {
             vAllowedDistance = cc.sfStepHeight;
             thisMove.allowstep = true;
             tags.add("groundstep");
@@ -2671,7 +2673,7 @@ public class SurvivalFly extends Check {
     }
 
 
-    /** 
+   /** 
     * Collect the F_STICKY block flag. Clear NoFall's data upon side collision.
     * @param from
     * @param to
@@ -2691,10 +2693,12 @@ public class SurvivalFly extends Check {
         return isFlagCollected;
     }
 
-    // ... Is this still needed? (Actually better question would be: is the lantern modeled correctly?)
     // Model now correct but still flags
     // Reproduce : hanging lantern with 2 block space below, spam jump
     // TODO: Soul lantern too; research this magic thing
+    // Left notes on Discord: NCP doesn't see the player touching the ground again after headObstr.
+    // Rather than an actual lostground case this might also be tied to the onGround logic, since NCP also checks the block above against spider
+    // cheats and the like. Probably something is causing the check to return false when landing back after headObstr (?)
     private boolean isLanternUpper(PlayerLocation from) {
         World w = from.getWorld();
         final int x = from.getBlockX();

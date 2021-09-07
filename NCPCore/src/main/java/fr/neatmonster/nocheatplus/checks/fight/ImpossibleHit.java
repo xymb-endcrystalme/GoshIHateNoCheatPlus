@@ -71,11 +71,11 @@ public class ImpossibleHit extends Check {
             data.interactAttack = false;
             tags.add("atk+interact");
             // This should cover blockplacing and blockbreaking as well.
+            // Observed: Killauras tend to also trigger Block_interact_direction a lot here, might want to exploit that... :p
         }
         // Clicking and attacking at the same time
-        else if (data.inventoryAttack && InventoryUtil.couldHaveInventoryOpen(player)) {
+        else if (InventoryUtil.couldHaveInventoryOpen(player)) {
             violation = true;
-            data.inventoryAttack = false;
             tags.add("atk+invclick");
         }
         // Blocking/Using item and attacking
