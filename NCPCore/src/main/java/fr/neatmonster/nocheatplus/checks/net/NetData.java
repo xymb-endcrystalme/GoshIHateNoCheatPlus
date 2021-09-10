@@ -172,13 +172,23 @@ public class NetData extends ACheckData {
      * 
      * @return
      */
-    public DataPacketFlying peekFlyingQueue() {
-        // NOTE: Assuming this is the latest *past* packet (likewise lastMove/thisMove), could this be used 
-        // to fix https://github.com/Updated-NoCheatPlus/NoCheatPlus/issues/150 ?
+    public DataPacketFlying getCurrentFlyingPacket() {
         lock.lock();
         final DataPacketFlying latest = flyingQueue.isEmpty() ? null : flyingQueue.getFirst();
         lock.unlock();
         return latest;
+    }
+
+    /**
+     * Fetch a past packet in queue (under lock).
+     * @param index 0 is current 1 is first past packet.
+     * @return
+     */
+    public DataPacketFlying getPastFlyingPacketInQueue(final int index) {
+        lock.lock();
+        final DataPacketFlying packet = flyingQueue.isEmpty() ? null : flyingQueue.get(index);
+        lock.unlock();
+        return packet;
     }
 
     /**

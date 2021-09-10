@@ -42,6 +42,7 @@ public class BlockInteractData extends ACheckData {
     public double visibleVL		= 0;
 
     // General data
+    public int lookInteraction = -1;
     // Last block interacted with
     /** Set to Integer.MAX_VALUE for reset. */
     private int lastX = Integer.MAX_VALUE;

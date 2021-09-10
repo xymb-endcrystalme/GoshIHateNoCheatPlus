@@ -1413,9 +1413,9 @@ public class SurvivalFly extends Check {
         
 
 
-        ///////////////////////
-        // Other properties. //
-        ///////////////////////
+        /////////////////////////////////////////////////////////////////////////////////
+        // Set other modifiers that have to be set in hAllowedDistanceBase (not final) //
+        ////////////////////////////////////////////////////////////////////////////////
         // TODO: Reset friction on too big change of direction?
         // Account for flowing liquids (only if needed).
         // Assume: If in liquids this would be placed right here.
@@ -1441,16 +1441,6 @@ public class SurvivalFly extends Check {
         // if (Bridge1_17.getFreezeSeconds(player) > 0) {
         //     hAllowedDistance *= 0.5 + 0.025 / Bridge1_17.getFreezeTicks(player);
         // }
-        
-        // Soul speed workaround
-        if (data.keepfrictiontick > 0) {
-            if (!BridgeEnchant.hasSoulSpeed(player)) {
-                data.keepfrictiontick = 0;
-            } 
-            else if (lastMove.toIsValid) {
-                hAllowedDistance = Math.max(hAllowedDistance, lastMove.hAllowedDistance * 0.96);
-            }
-        }
 
         // Speeding bypass permission (can be combined with other bypasses).
         if (checkPermissions && pData.hasPermission(Permissions.MOVING_SURVIVALFLY_SPEEDING, player)) {
@@ -1460,11 +1450,26 @@ public class SurvivalFly extends Check {
         // Base speed is set.
         thisMove.hAllowedDistanceBase = hAllowedDistance;
 
+
+
+        /////////////////////////////////////////////////////////////////////
+        // Set the finally allowed speed, accounting for friction and more //
+        ////////////////////////////////////////////////////////////////////
         // Friction mechanics (next move).
         // Move is within lift-off/burst envelope, allow next time.
         // TODO: This probably is the wrong place (+ bunny, + buffer)?
         if (thisMove.hDistance <= hAllowedDistance) {
             data.nextFrictionHorizontal = 1.0;
+        }
+
+        // Soul speed workaround (friction)
+        if (data.keepfrictiontick > 0) {
+            if (!BridgeEnchant.hasSoulSpeed(player)) {
+                data.keepfrictiontick = 0;
+            } 
+            else if (lastMove.toIsValid) {
+                hAllowedDistance = Math.max(hAllowedDistance, lastMove.hAllowedDistance * 0.96);
+            }
         }
 
         // Friction or not (this move).
@@ -1475,7 +1480,7 @@ public class SurvivalFly extends Check {
             hAllowedDistance = Math.max(hAllowedDistance, lastMove.hDistance * friction);
         }
         
-        // The final allowed speed is set (accounts for friction).
+        // The final allowed speed is set.
         thisMove.hAllowedDistance = hAllowedDistance;
         return thisMove.hAllowedDistance;
     }
@@ -1518,8 +1523,7 @@ public class SurvivalFly extends Check {
                               final double hDistance, final double yDistance, 
                               final int multiMoveCount, final PlayerMoveData lastMove, 
                               final MovingData data, final MovingConfig cc, final IPlayerData pData) {
-        
-        // TODO: Friction might need same treatment as with horizontal (medium transitions: data.lastFrictionVertical).
+
         // TODO: Other edge cases?
         // TODO: Add/set 'allow starting to fall' first (data reset / from ground on if no speed).
         // TODO: Fix negative jump boosts.

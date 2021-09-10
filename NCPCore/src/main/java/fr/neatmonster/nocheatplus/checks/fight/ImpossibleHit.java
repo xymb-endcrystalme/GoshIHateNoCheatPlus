@@ -23,7 +23,7 @@ import fr.neatmonster.nocheatplus.actions.ParameterName;
 import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
-import fr.neatmonster.nocheatplus.checks.inventory.InventoryData;
+import fr.neatmonster.nocheatplus.checks.blockinteract.BlockInteractData;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.TickTask;
@@ -62,27 +62,28 @@ public class ImpossibleHit extends Check {
         final long currentEventTime = System.currentTimeMillis();
         List<String> tags = new LinkedList<String>();
         final MovingData mData = pData.getGenericInstance(MovingData.class);
-        final InventoryData iData = pData.getGenericInstance(InventoryData.class);
-
+        final BlockInteractData biData = pData.getGenericInstance(BlockInteractData.class);
         
-        // Attacking and interacting, at the same time
-        if (data.interactAttack && currentEventTime - data.lastInteractTime < 65L) {
+        // Meta check: Fight.direction passed, blockinteract.direction failed ->
+        // this is a server-sided rotation (player is interacting with something in another direction client-side)
+        // TODO: Adapt to the new Fight.Hitbox check, once merged in master
+        if ((data.lookFight == -1 && biData.lookInteraction == 0)) {
             violation = true;
-            data.interactAttack = false;
-            tags.add("atk+interact");
-            // This should cover blockplacing and blockbreaking as well.
-            // Observed: Killauras tend to also trigger Block_interact_direction a lot here, might want to exploit that... :p
+            // Consume the flags.
+            data.lookFight = -1;
+            biData.lookInteraction = -1;
+            tags.add("look_mismatch");
         }
         // Clicking and attacking at the same time
         else if (InventoryUtil.couldHaveInventoryOpen(player)) {
             violation = true;
-            tags.add("atk+invclick");
+            tags.add("inventoryclick");
         }
         // Blocking/Using item and attacking
         // TODO: If reset-active item is enabled, actually reset the item (see survivalFly.hDistanceAfterFailure())
         else if (mData.isusingitem || player.isBlocking()) {
             violation = true;
-            tags.add("atk+using/blocking");
+            tags.add("using/blocking");
         }
         // (While dead is canceled silentely, while sleeping shouldn't be possible...)
         // TODO: Is there more to prevent?

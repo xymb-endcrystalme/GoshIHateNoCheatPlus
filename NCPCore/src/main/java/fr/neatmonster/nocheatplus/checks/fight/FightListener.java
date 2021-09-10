@@ -32,7 +32,6 @@ import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -941,16 +940,6 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
     	final Player player = e.getPlayer();
     	final FightData data = DataManager.getGenericInstance(player, FightData.class);
         data.exemptArmSwing = entity != null && entity.getType().name().equals("PARROT");
-    }
-
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerInteract(final PlayerInteractEvent event) {
-        final Player player = event.getPlayer();
-        final IPlayerData pData = DataManager.getPlayerData(player);
-        final FightData data = pData.getGenericInstance(FightData.class);
-        data.lastInteractTime = System.currentTimeMillis();
-        data.interactAttack = true;
     }
 
     @Override

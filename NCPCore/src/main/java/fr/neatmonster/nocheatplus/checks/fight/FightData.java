@@ -53,7 +53,6 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
 
     /** Attack penalty (close combat, ENTITY_ATTACK). */
     public final PenaltyTime attackPenalty = new PenaltyTime();
-    public final PenaltyTime clicPatPenalty = new PenaltyTime();
 
     /** The entity id  which might get counter-attacked. */
     public int thornsId = Integer.MIN_VALUE;
@@ -109,8 +108,7 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
     public int                     speedShortTermTick;
 
     // Data of the ImpossibleHit check
-    public boolean interactAttack = false;
-    public long lastInteractTime = 0;
+    public int lookFight = -1;
 
     // TNT workaround: Allow ENTITY_ATTACK if these attributes match.
     // Discussion at: https://github.com/NoCheatPlus/NoCheatPlus/pull/17 (@Iceee)
@@ -168,7 +166,7 @@ public class FightData extends ACheckData implements IDataOnRemoveSubCheckData, 
                     break;
                 case FIGHT_IMPOSSIBLEHIT:
                     impossibleHitVL = 0;
-                    interactAttack = false;
+                    lookFight = -1;
                     break;
                 case FIGHT_NOSWING:
                     noSwingVL = 0;

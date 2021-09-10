@@ -67,7 +67,6 @@ public class Direction extends Check {
         // entity.height is broken and will always be 0, therefore. Calculate height instead based on boundingBox.
         final double height = damagedIsFake ? (damaged instanceof LivingEntity ? ((LivingEntity) damaged).getEyeHeight() : 1.75) : mcAccess.getHeight(damaged);
         
-        final boolean isPlayer = damaged instanceof Player ? true : false;
 
         // TODO: allow any hit on the y axis (might just adapt interface to use foot position + height)!
 
@@ -92,10 +91,10 @@ public class Direction extends Check {
 
             // Add the overall violation level of the check.
             data.directionVL += distance;
-
             // Execute whatever actions are associated with this check and the violation level and find out if we should
             // cancel the event.
             cancel = executeActions(player, data.directionVL, distance, cc.directionActions).willCancel();
+            data.lookFight = 0;
 
             if (cancel) {
                 // Deal an attack penalty time.
@@ -104,6 +103,7 @@ public class Direction extends Check {
         } else {
             // Reward the player by lowering their violation level.
             data.directionVL *= 0.8D;
+            data.lookFight = -1;
         }
 
         return cancel;
@@ -159,7 +159,7 @@ public class Direction extends Check {
             return false;
         }
         boolean cancel = false;
-        boolean isPlayer = damaged instanceof Player ? true : false;
+        boolean isPlayer = damaged instanceof Player;
 
         // TODO: allow any hit on the y axis (might just adapt interface to use foot position + height)!
 
@@ -171,7 +171,7 @@ public class Direction extends Check {
         if (cc.directionStrict){
             off = CollisionUtil.combinedDirectionCheck(loc, player.getEyeHeight(), context.direction, dLoc.getX(), dLoc.getY() + damagedBoxMarginVertical / 2D, dLoc.getZ(), damagedBoxMarginHorizontal * 2.0, damagedBoxMarginVertical, cc.directionloopprecision, cc.directionangleprecision, isPlayer);
         }
-        else{
+        else {
             // Also take into account the angle.
             off = CollisionUtil.directionCheck(loc, player.getEyeHeight(), 
                     context.direction, dLoc.getX(), 
@@ -181,8 +181,7 @@ public class Direction extends Check {
         }
 
         if (off > 0.0) {
-            if (dLoc.isInside(loc.getX(), loc.getY() + player.getEyeHeight(), 
-                    loc.getZ())) { // Inside box.
+            if (dLoc.isInside(loc.getX(), loc.getY() + player.getEyeHeight(), loc.getZ())) { // Inside box.
                 context.minResult = 0.0;
             }
             else {
@@ -192,10 +191,15 @@ public class Direction extends Check {
                     final double distance = blockEyes.crossProduct(context.direction).length() / context.lengthDirection;
                     context.minViolation = Math.min(context.minViolation, distance);
                     cancel = true;
+                    data.lookFight = 0;
                 }
                 context.minResult = Math.min(context.minResult, off);
             }
-        } else if (cc.directionFailAll) context.minResult = 0.0;
+        } 
+        else if (cc.directionFailAll) {
+            context.minResult = 0.0;
+            data.lookFight = -1;
+        }
 
         return cancel;
     }
@@ -224,6 +228,7 @@ public class Direction extends Check {
             // Execute whatever actions are associated with this check and the violation level and find out if we should
             // cancel the event.
             cancel = executeActions(player, data.directionVL, off, cc.directionActions).willCancel();
+            data.lookFight = 0;
 
             if (cancel) {
                 // Deal an attack penalty time.
@@ -233,9 +238,8 @@ public class Direction extends Check {
         else {
             // Reward the player by lowering their violation level.
             data.directionVL *= 0.8D;
+            data.lookFight = -1;
         }
-
         return cancel;
     }
-
 }
