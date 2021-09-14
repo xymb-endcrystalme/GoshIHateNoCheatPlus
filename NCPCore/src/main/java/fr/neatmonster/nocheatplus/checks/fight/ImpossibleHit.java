@@ -74,8 +74,8 @@ public class ImpossibleHit extends Check {
             biData.lookInteraction = -1;
             tags.add("look_mismatch");
         }
-        // Clicking and attacking at the same time
-        else if (InventoryUtil.couldHaveInventoryOpen(player)) {
+        // Can't attack with inventory open.
+        else if (InventoryUtil.hasAnyInventoryOpen(player)) {
             violation = true;
             tags.add("inventoryclick");
         }

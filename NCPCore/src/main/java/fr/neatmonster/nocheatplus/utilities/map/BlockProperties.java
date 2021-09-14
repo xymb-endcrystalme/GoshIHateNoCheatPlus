@@ -2854,6 +2854,24 @@ public class BlockProperties {
     }
 
     /**
+     * Test if the block is a containter.
+     *
+     * @param type
+     *            the type.
+     * @return true, if is container
+     */
+    public static boolean isContainer(final Material type) {
+        return type != null && (type == Material.CHEST
+                            || type == Material.ENDER_CHEST
+                            || type == Material.DISPENSER
+                            || type == Material.DROPPER
+                            || type == Material.SHULKER_BOX
+                            || type == BridgeMaterial.BARREL
+                            // Ugly.
+                            || type.toString().endsWith("SHULKER_BOX"));
+    }
+
+    /**
      * Convenience method including null checks.
      *
      * @param type

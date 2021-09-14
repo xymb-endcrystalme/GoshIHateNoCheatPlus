@@ -190,6 +190,7 @@ public class BridgeMaterial {
     ///////////////////////////////////////////////////
     // Specific unique material instances for blocks.
     ///////////////////////////////////////////////////
+    public static final Material BARREL = get("barrel"); // null for legacy servers
 
     public static final Material BEETROOTS = getFirst("beetroots", "beetroot_block");
 

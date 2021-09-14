@@ -269,9 +269,9 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     /** First count these down before incrementing sfHoverTicks. Set on join, if configured so. */
     public int sfHoverLoginTicks = 0;
     /** Ticks influenced by ice friction after sptintjumping, used in survivalFly.setAllowedHDist(). */
-    public int sfOnIce = 0; 
+    public int iceAirFrictionTick = 0; 
     /** Ticks influenced by bounce friction after sprintjumping, used in survivalFly.setAllowedHDist(). */
-    public int sfBounceTick = 0;
+    public int bounceAirFrictionTick = 0;
     /** Fake in air flag: set with any violation, reset once on ground. */
     public boolean  sfVLInAir = false;
     /** Vertical accounting info */
@@ -361,8 +361,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         bunnyhopDelay = 0;
         sfJumpPhase = 0;
         jumpAmplifier = 0;
-        sfOnIce = 0;
-        sfBounceTick = 0;
+        iceAirFrictionTick = 0;
+        bounceAirFrictionTick = 0;
         setBack = null;
         sfZeroVdistRepeat = 0;
         clearAccounting();

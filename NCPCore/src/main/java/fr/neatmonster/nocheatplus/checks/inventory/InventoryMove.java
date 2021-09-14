@@ -148,12 +148,6 @@ public class InventoryMove extends Check {
             violation = true;
         }
         
-        // ... while bunnyhopping, only pick up hopping and clicking at the same time
-        else if (thisMove.bunnyHop) {
-            tags.add("bunnyclick");
-            violation = true;
-        }
-        
         // ... while sneaking (legacy handling, players cannot use accessability settings to sneak while having an open inv)
         else if (player.isSneaking() && !Bridge1_13.hasIsSwimming()) {
             violation = true;
@@ -164,7 +158,7 @@ public class InventoryMove extends Check {
         else if (thisMove.from.onClimbable && thisMove.yDistance >= 117
                 // If hit on a climbable, skip. 
                 && mData.getOrUseVerticalVelocity(thisMove.yDistance) == null
-                && !InventoryUtil.hasOpenedInvRecently(player, 1000)) {
+                && !InventoryUtil.hasOpenedInvRecently(player, 1000)) { // This has to be configurable
             violation = true;
             tags.add("climbclick");
         }
@@ -180,7 +174,7 @@ public class InventoryMove extends Check {
                 && !thisMove.downStream
                 && !Bridge1_13.isRiptiding(player)
                 && !Bridge1_9.isGlidingWithElytra(player)
-                && !InventoryUtil.hasOpenedInvRecently(player, 1000)
+                && !InventoryUtil.hasOpenedInvRecently(player, 1500) // This has to be configurable
                 ) { 
                 tags.add("moving");
                 

@@ -4,9 +4,11 @@ NoCheatPlus
 [![Build Status](https://ci.codemc.io/buildStatus/icon?job=Updated-NoCheatPlus%2FUpdated-NoCheatPlus)](https://ci.codemc.io/job/Updated-NoCheatPlus/job/Updated-NoCheatPlus/)
 [![Discord](https://img.shields.io/discord/598285007496151098?label=discord&logo=discord)](https://discord.gg/NASKHYc)
 
-NoCheatPlus is a fork of the famous anti-cheat plugin [NoCheat](https://dev.bukkit.org/projects/nocheat/) created by [Evenprime](https://github.com/Evenprime). NoCheatPlus attempts to enforce "vanilla Minecraft" mechanics, as well as preventing players from abusing weaknesses in Minecraft or its protocol, making your server more safe. Organized in different sections, various checks are performed to test players doing, covering a wide range including flying and speeding, fighting hacks, fast block breaking and nukers, inventory hacks, chat spam and other types of malicious behaviour.
+Updated-NoCheatPlus is a continuation of the famous anti-cheat plugin NoCheatPlus, introduced by [NeatMonster](https://github.com/NeatMonster) and [Asofold](https://github.com/asofold) building on the code base of [NoCheat](https://github.com/md-5/NoCheat), created by [Evenprime](https://github.com/Evenprime).
 
-Installation (outdated)
+NoCheatPlus attempts to enforce "vanilla Minecraft" mechanics, as well as preventing players from abusing weaknesses in Minecraft or its protocol, making your server more safe. Organized in different sections, various checks are performed to test players doing, covering a wide range including flying and speeding, fighting hacks, fast block breaking and nukers, inventory hacks, chat spam and other types of malicious behaviour.
+
+Installation
 ---------
 * [Install a Spigot server](https://github.com/Updated-NoCheatPlus/NoCheatPlus/#obtain-a-build-of-spigot)
 * [Download NoCheatPlus](https://github.com/Updated-NoCheatPlus/NoCheatPlus/#download)
@@ -78,7 +80,7 @@ Profiles for choice of "non free" compatibility modules to build:
 | :------------------ | :-------------- |
 | _none_ | Default build without any of the native access modules, might pose compatibility issues with legacy Minecraft versions. The reflection based module is included here. |
 | `-P all` | All compatibility modules. |
-| `-P cbdev` | The latest version in development - Spigot 1.12 R1 (MC 1.12-1.12.2). |
+| `-P cbdev` | Spigot 1.12 R1 (MC 1.12-1.12.2). |
 | `-P spigot1_11_r1` | Spigot 1.11 R1 (MC 1.11-1.11.2). |
 | `-P spigot1_10_r1` | Spigot 1.10 R1 (MC 1.10-1.10.2). |
 | `-P spigot1_9_r2` | Spigot 1.9 R2 (MC 1.9.4). |

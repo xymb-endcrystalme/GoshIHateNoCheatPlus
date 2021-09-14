@@ -158,7 +158,7 @@ public class InventoryUtil {
      * @return If closed.
      */
     public static boolean closeOpenInventory(final Player player) {
-        if (hasInventoryOpen(player) || couldHaveInventoryOpen(player)) {
+        if (hasInventoryOpen(player) || hasAnyInventoryOpen(player)) {
             player.closeInventory();
             return true;
         } else {
@@ -167,8 +167,8 @@ public class InventoryUtil {
     }
 
     /**
-     * Check if the players inventory is open. This might ignore
-     * InventoryType.CRAFTING.
+     * Check if the player's inventory is open by looking up the InventoryView type,
+     * excluding InventoryType.CRAFTING due to the player not sending any packet for their own.
      *
      * @param player
      *            the player
@@ -180,32 +180,52 @@ public class InventoryUtil {
     }
 
    /**
-    * Test if players may have an open inventory (not necessarly their own):
-    * An inventory click was registered and we didn't receive an InventoryCloseEvent
-    * or other events that would force-close the inventory.
+    * Check if the player's inventory is open (including their own) by
+    * looking up the first time an inventory click was registered. Resets once
+    * we receive an InventoryCloseEvent (which the player sends for their own inventory).
     * 
     * @param player
+    *            the player
+    * @return true, if successful
     */
-    public static boolean couldHaveInventoryOpen(final Player player) {
+    public static boolean hasAnyInventoryOpen(final Player player) {
         final IPlayerData pData = DataManager.getPlayerData(player);
         final InventoryData iData = pData.getGenericInstance(InventoryData.class);
         return iData.firstClickTime != 0;
     }
     
    /**
-    * Test if players have recently opened their own inventory
+    * Test if players have recently opened an inventory.
+    * Rather meant to check if they opened their own.
     * 
     * @param player
     * @param timeAge In milliseconds to be considered as 'recent activity'
-    * @return True if the player has had recent inventory activity, false if they've been in their own inventory for some time.
+    * @return True if the player has had recent inventory activity, 
+    *         false if they've been in their own inventory for some time (beyond age).
     */
     public static boolean hasOpenedInvRecently(final Player player, final long timeAge) {
         final long now = System.currentTimeMillis();
         final IPlayerData pData = DataManager.getPlayerData(player);
         final InventoryData iData = pData.getGenericInstance(InventoryData.class);
-        // player.sendMessage("Open: "  + (iData.firstClickTime != 0) + " | Result: " + (now - iData.firstClickTime) );
-        return iData.firstClickTime != 0 && (now - iData.firstClickTime <= timeAge);
-            
+        return iData.firstClickTime != 0 && (now - iData.firstClickTime <= timeAge);     
+    }
+    
+   /**
+    * Test if the player has recently interacted with an inventory that's a container type.
+    * 
+    * @param player
+    * @param timeAge In milliseconds between the BLOCK interaction and inventory click 
+    *                to be considered as 'recent activity' (Excluded)
+    * @return true if the time between interaction and inventory click is too recent, false otherwise (beyond age).
+    */
+    public static boolean hasOpenedContainerRecently(final Player player, final long timeAge) {
+        final IPlayerData pData = DataManager.getPlayerData(player);
+        final InventoryData iData = pData.getGenericInstance(InventoryData.class);
+        return 
+                // This represents an error, will need to investigate why the times get set to 0.
+                (iData.containerOpenTime != 0 || iData.lastClickTime != 0) 
+                && Math.abs(iData.lastClickTime - iData.containerOpenTime) < timeAge;
+
     }
 
     /**
@@ -240,6 +260,23 @@ public class InventoryUtil {
      */
     public static boolean isConsumable(final ItemStack stack) {
         return stack == null ? false : isConsumable(stack.getType());
+    }
+
+    /**
+     * Test if the InventoryType is a container.
+     *
+     * @param stack
+     *            May be null.
+     * @return true, if is container
+     */
+    public static boolean isContainterInventory(final InventoryType type) {
+        return type != null && (type == InventoryType.CHEST
+                            || type == InventoryType.ENDER_CHEST
+                            || type == InventoryType.DISPENSER
+                            || type == InventoryType.DROPPER
+                            // For legacy servers... Ugly.
+                            || type.toString().equals("SHULKER_BOX")
+                            || type.toString().equals("BARREL"));
     }
 
     /**

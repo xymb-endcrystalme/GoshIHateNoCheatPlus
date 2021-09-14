@@ -75,6 +75,7 @@ import fr.neatmonster.nocheatplus.players.PlayerFactoryArgument;
 import fr.neatmonster.nocheatplus.stats.Counters;
 import fr.neatmonster.nocheatplus.utilities.InventoryUtil;
 import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
+import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 import fr.neatmonster.nocheatplus.utilities.map.MaterialUtil;
 import fr.neatmonster.nocheatplus.worlds.WorldFactoryArgument;
 
@@ -298,11 +299,8 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                     // The check requested the event to be cancelled.
                     cancel = true;
                 }
-                // Listen for more than just a chest?
-                if (check){
-                    if (event.getInventory().getType().equals(InventoryType.CHEST) || event.getInventory().getType().equals(InventoryType.ENDER_CHEST) 
-                        || event.getInventory().getType().toString().equals("BARREL") 
-                        || event.getInventory().getType().toString().equals("SHULKER_BOX")) {
+                if (check) {
+                    if (InventoryUtil.isContainterInventory(event.getInventory().getType())) {
                         if (fastClick.fastClickChest(player, data, cc)) {
                             cancel = true;
                             keepCancel = true;
@@ -325,7 +323,10 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         // Update this one only if the inventory was closed previously (or was forcibly closed)
         // otherwise keep the first click time
         // Can't use lastClickTime since it's used by checks.
-        if (data.firstClickTime == 0) data.firstClickTime = now;
+        if (data.firstClickTime == 0) {
+            data.firstClickTime = now;
+        }
+
         if (cancel || keepCancel) {
             event.setCancelled(true);
         }
@@ -348,18 +349,19 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                 final IPlayerData pData = DataManager.getPlayerData(player);
                 final InventoryData data = pData.getGenericInstance(InventoryData.class);
                 data.firstClickTime = 0;
+                data.containerOpenTime = 0;
             }
         }
         keepCancel = false;
     }
     
    /** 
-    * Listens for when a player opens a chest.
-    * We do this to compare the times between opening a chest and
+    * Listens for when a player opens a container.
+    * We do this to compare the times between opening a container and
     * interacting with it.
     */
     @EventHandler(priority = EventPriority.MONITOR)
-    public void chestOpen(PlayerInteractEvent event) {
+    public void containerOpen(PlayerInteractEvent event) {
 
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
@@ -368,13 +370,14 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         if (!pData.isCheckActive(CheckType.INVENTORY, player)) return;
         
         // Check left click too to prevent any bypasses
+        // Set the container opening time.
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null 
-            || event.getAction() == Action.LEFT_CLICK_BLOCK && event.getClickedBlock() != null){
-
-            if (event.getClickedBlock().getType().toString().endsWith("CHEST") 
-                || event.getClickedBlock().getType().toString().equals("BARREL") 
-                || event.getClickedBlock().getType().toString().endsWith("SHULKER_BOX")) {
-               data.chestOpenTime = System.currentTimeMillis();
+            || event.getAction() == Action.LEFT_CLICK_BLOCK && event.getClickedBlock() != null) {
+            
+            // Issue (important): Sneaking and right clicking with a block in hand will 
+            // cause the player to place the block down, not to open the container.
+            if (BlockProperties.isContainer(event.getClickedBlock().getType())) {
+               data.containerOpenTime = System.currentTimeMillis();
             }
         } 
     }
@@ -520,7 +523,8 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                 data.instantEatInteract = (data.instantEatInteract > 0 && now - data.instantEatInteract < 800) 
                         ? Math.min(System.currentTimeMillis(), data.instantEatInteract) : System.currentTimeMillis();
                         data.instantBowInteract = 0; // Who's monitoring this indentation code?
-            } else resetAll = true;
+            } 
+            else resetAll = true;
 
             // Illegal enchantments hotfix check.
             if (Items.checkIllegalEnchantments(player, item, pData)) {
@@ -638,6 +642,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         final InventoryData data = pData.getGenericInstance(InventoryData.class);
         open.check(event.getPlayer());
         data.firstClickTime = 0;
+        data.containerOpenTime = 0;
     }
     
     /**
@@ -667,6 +672,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         final IPlayerData pData = DataManager.getPlayerData(player);
         final InventoryData data = pData.getGenericInstance(InventoryData.class);
         data.firstClickTime = 0;
+        data.containerOpenTime = 0;
     }
     
     /**
@@ -687,6 +693,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                 final IPlayerData pData = DataManager.getPlayerData(player);
                 final InventoryData data = pData.getGenericInstance(InventoryData.class);
                 data.firstClickTime = 0;
+                data.containerOpenTime = 0;
             }
         }
     }
@@ -705,6 +712,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         final IPlayerData pData = DataManager.getPlayerData(player);
         final InventoryData data = pData.getGenericInstance(InventoryData.class);
         data.firstClickTime = 0;
+        data.containerOpenTime = 0;
     }
 
     /**
@@ -788,6 +796,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         final IPlayerData pData = DataManager.getPlayerData(player);
         final InventoryData data = pData.getGenericInstance(InventoryData.class);
         data.firstClickTime = 0; // Fix false positives with InvMove when teleporting.
+        data.containerOpenTime = 0;
     }
 
     @Override
@@ -797,6 +806,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         final IPlayerData pData = DataManager.getPlayerData(player);
         final InventoryData data = pData.getGenericInstance(InventoryData.class);
         data.firstClickTime = 0;
+        data.containerOpenTime = 0;
     }
 
     @Override
@@ -805,6 +815,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         final IPlayerData pData = DataManager.getPlayerData(player);
         final InventoryData data = pData.getGenericInstance(InventoryData.class);
         data.firstClickTime = 0;
+        data.containerOpenTime = 0;
         open.check(player);
     }
 

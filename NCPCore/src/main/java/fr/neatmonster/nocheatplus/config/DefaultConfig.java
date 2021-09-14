@@ -688,7 +688,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".drop", start + "tried to drop more items than allowed" + end, 785);
         set(ConfPaths.STRINGS + ".dropkick", kick + "Dropping items too fast.", 1154);
         set(ConfPaths.STRINGS + ".fastbreak", start + "tried to break a block faster than possible (Block: &6[blocktype]&7)" + end, 1154);
-        set(ConfPaths.STRINGS + ".fastclick", start + "tried to move items in their inventory too quickly" + end, 785);
+        set(ConfPaths.STRINGS + ".fastclick", start + "tried to move items in their inventory too quickly (Tags: &6[tags]&7)" + end, 785);
         set(ConfPaths.STRINGS + ".fastconsume", start + "tried to consume an item too quickly (Food: &6[food][tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".fastheal", start + "tried to regenerate their health bar faster than possible (Health: &6[health]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".fastplace", start + "tried to place blocks too quickly" + end, 1154);

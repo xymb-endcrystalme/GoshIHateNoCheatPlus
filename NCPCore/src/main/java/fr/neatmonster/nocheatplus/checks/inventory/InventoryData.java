@@ -36,7 +36,8 @@ public class InventoryData extends ACheckData {
     // General.
     /** Remember the last time an inventory click happened. Always updates with each click */
     public long     lastClickTime = 0;
-    public long     chestOpenTime = 0;
+    /** Remember the time at which a containter was interacted with */
+    public long     containerOpenTime = 0;
    /**
     * Remember only the first time an inventory click was registered. Intention is to see if players could have opened their inventory:
     * It resets when we receive an InventoryCloseEvent or other events that would forcibly close the player's inv (for false positives).
