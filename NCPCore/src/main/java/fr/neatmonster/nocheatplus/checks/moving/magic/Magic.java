@@ -152,10 +152,8 @@ public class Magic {
      * @return
      */
     public static double swimBaseSpeedV(boolean isSwimming) {
-        final boolean ServerIsBelow1_13 = ServerVersion.compareMinecraftVersion("1.13") < 0;
-        if (ServerIsBelow1_13) return WALK_SPEED * modSwim[2] + 0.1; // Allow legacy versions to go at swimming speed regardless...(ViaVesion)
         // TODO: Does this have to be the dynamic walk speed (refactoring)?
-        else return isSwimming ? WALK_SPEED * modSwim[2] + 0.1 : WALK_SPEED * modSwim[0] + 0.07; // 0.244
+        return isSwimming ? WALK_SPEED * modSwim[2] + 0.1 : WALK_SPEED * modSwim[0] + 0.07; // 0.244
     }
 
     /**
@@ -166,7 +164,7 @@ public class Magic {
      * @return
      */
     public static boolean fallingEnvelope(final double yDistance, final double lastYDist, 
-            final double lastFrictionVertical, final double extraGravity) {
+                                          final double lastFrictionVertical, final double extraGravity) {
         if (yDistance >= lastYDist) {
             return false;
         }
@@ -197,7 +195,8 @@ public class Magic {
      * @return
      */
     public static boolean enoughFrictionEnvelope(final PlayerMoveData thisMove, final PlayerMoveData lastMove, final double friction, 
-            final double minGravity, final double maxOff, final double decreaseByOff) {
+                                                 final double minGravity, final double maxOff, final double decreaseByOff) {
+
         // TODO: Elaborate... could have one method to test them all?
         final double frictDist = lastMove.yDistance * friction - minGravity;
         final double off = Math.abs(thisMove.yDistance - frictDist);
@@ -205,22 +204,21 @@ public class Magic {
     }
     
     /**
-     *
      * Test for the specific air friction that applies after the player has perfomed a bunnyhop.
      * Call if the player is in a bunnyhop delay phase and the distance is higher than allowed.
      *
      * @param hDistDiff 
-     *           Difference from last to current hDistance (Last must be greater)
+     *            Difference from last to current hDistance
      * @param lastHDistance
-     *           hDistane before current
+     *            hDistane before current
      * @param hDistanceAboveLimit
      * @param currentHDistance
      * @param currentAllowedBaseSpeed 
-     *           thisMove.hAllowedDistanceBase (Without taking into account special mechanics, like bunnyhopping)
+     *            thisMove.hAllowedDistanceBase (Without taking into account special mechanics, like bunnyhopping)
      * @return
      */
-    public static boolean isBunnyFrictionPhase(final double hDistDiff, final double lastHDistance, final double hDistanceAboveLimit, 
-                                               final double currentHDistance, final double currentAllowedBaseSpeed) {
+    public static boolean bunnyFrictionEnvelope(final double hDistDiff, final double lastHDistance, final double hDistanceAboveLimit, 
+                                                final double currentHDistance, final double currentAllowedBaseSpeed) {
 
         // TODO: Conditions may be too loose as of now. Could be more strict.
         if (currentHDistance > lastHDistance) {
@@ -229,6 +227,56 @@ public class Magic {
         return  hDistDiff >= lastHDistance / bunnyDivFriction 
                 || hDistDiff >= hDistanceAboveLimit / 33.3 
                 || hDistDiff >= (currentHDistance - currentAllowedBaseSpeed) * (1.0 - FRICTION_MEDIUM_AIR);
+    }
+    
+   /**
+    * Test (using the past move tracking) if the player has jumped up a slope (next to a block).
+    * No tight checking, ground only.
+    * @param data
+    * @return 
+    */
+    public static boolean jumpedUpSlope(final MovingData data) {
+
+        final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
+        final PlayerMoveData pastMove1 = data.playerMoves.getFirstPastMove();
+        // (0 is the latest PAST move, so pastMove2 would be 1 and so on)
+        final PlayerMoveData pastMove5 = data.playerMoves.getPastMove(4);
+        final PlayerMoveData pastMove6 = data.playerMoves.getPastMove(5);
+        final PlayerMoveData pastMove7 = data.playerMoves.getPastMove(6);
+        final PlayerMoveData pastMove8 = data.playerMoves.getPastMove(7);
+
+       /* 
+        * TODO: Observed workarounds applied during such phase (which allow 1-block step cheats, likely)
+        *       - fastfall 2/3
+        *       - accepted.env
+        *       - shortmove 1
+        *       - occasionally, oddSlope 1
+        *       - oddgravity.1
+        */     
+        return 
+                // Lift off
+                pastMove8.from.onGround && !pastMove8.to.onGround 
+                // 1st air phase
+                && !pastMove7.from.onGround && !pastMove7.to.onGround 
+               /* 
+                * On early air phase, the player's hitbox will collide with the block even though they are
+                * still ascending, causing the onGround flag to be turned to true for a short while.
+                * NOTE: During such phase the player still has to to move up roughly by 0.15/16. 
+                *       Most step cheats will simply ignore this 'leftover' distance and move on as if no height difference was taken.
+                *       Perhaps we could add a subcheck to vDistAir to specifically enforce this type of movement when jumping next to a block...
+                */
+                && !pastMove6.from.onGround && pastMove6.to.onGround 
+                && pastMove5.from.onGround && !pastMove5.to.onGround 
+                // (4, 3 and 2 are all advanced in-air phases no need to also check those)
+                // Air phase has ended
+                && !pastMove1.from.onGround && pastMove1.to.onGround 
+                // Fully on ground now
+                && thisMove.from.onGround && thisMove.to.onGround 
+                // Now compare the altitude changes.
+                && thisMove.to.getY() > pastMove8.from.getY() 
+                // Observed: Multiple split/micro moves after landing and before jumping.
+                // && thisMove.multiMoveCount == 1 && pastMove8.multiMoveCount == 2
+            ;
     }
 
     /**

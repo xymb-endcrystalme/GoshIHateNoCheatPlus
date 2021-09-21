@@ -37,17 +37,20 @@ import fr.neatmonster.nocheatplus.compat.BridgeMisc;
 
 
 /**
- * This class is meant to contain just about every deviation/exception from the ordinary yDistance
- * set in survivalFly.vDistAir. The allowed yDistance gets compared to these rules, if a match is found
- * the movement is allowed.
+ * This class is meant to contain just about every possible type of vertical
+ * movement that players can perform. The relative distance is set
+ * in Survivalfly.vDistAir, once estimated, it gets compared to these rules.
+ * If the movement does not fit into any rule, a vDistRel violation is triggered.
  *
  */
 public class InAirRules {
 
+    // TODO: Tighten/Review all workarounds
+
 
     /**
-     * Vertical envelope "hacks". Directly check for certain transitions, on
-     * match, skip sub-checks: vdistrel, maxphase, inAirChecks.
+     * Workarounds for exiting cobwebs and jumping on slime.
+     * TODO: Get rid of the cobweb workaround and adjust bounding box size to check with rather.
      * 
      * @param from
      * @param to
@@ -60,7 +63,6 @@ public class InAirRules {
                                     final MovingData data) {
         return 
                 // 0: Intended for cobweb.
-                // TODO: Bounding box issue ?
                 data.liftOffEnvelope == LiftOffEnvelope.NO_JUMP && data.sfJumpPhase < 60
                 && (
                     lastMove.toIsValid && lastMove.yDistance < 0.0 
@@ -134,7 +136,7 @@ public class InAirRules {
                                     final double yDistDiffEx, final PlayerMoveData lastMove, 
                                     final MovingData data) {
 
-        return data.sfJumpPhase == 1 //&& data.fromWasReset 
+        return data.sfJumpPhase == 1 
                 && Math.abs(yDistDiffEx) < 2.0 * Magic.GRAVITY_SPAN 
                 && lastMove.yDistance > 0.0 && yDistance < lastMove.yDistance
                 && to.getY() - data.getSetBackY() <= data.liftOffEnvelope.getMaxJumpHeight(data.jumpAmplifier)
@@ -165,6 +167,7 @@ public class InAirRules {
         // TODO: And distinguish where JP=2 is ok?
         // TODO: Most are medium transitions with the possibility to keep/alter friction or even speed on 1st/2nd move (counting in the transition).
         // TODO: Do any belong into odd gravity? (Needs re-grouping EVERYTHING anyway.)
+        // TODO: This allows bunnyhopping with 1-block deep pools.
         if (data.sfJumpPhase != 1 && data.sfJumpPhase != 2) {
             return false;
         }
@@ -624,6 +627,11 @@ public class InAirRules {
                                                   final double maxJumpGain, final Player player,
                                                   final PlayerMoveData thisMove, final boolean resetTo) {
 
+        if (!lastMove.toIsValid) {
+            return false;
+            // Skip everything if last move is invalid
+        }
+
         if (yDistance > 0.0 && lastMove.yDistance < 0.0 
             && data.ws.use(WRPT.W_M_SF_SLIME_JP_2X0)
             && InAirRules.oddBounce(to, yDistance, lastMove, data)) {
@@ -823,7 +831,11 @@ public class InAirRules {
                                       final double maxJumpGain, final boolean resetTo,
                                       final PlayerMoveData thisMove, final PlayerMoveData lastMove, 
                                       final MovingData data, final MovingConfig cc) {
+        if (!lastMove.toIsValid) {
+            return false;
+            // Skip everything if last move is invalid
 
+        }
         // TODO: Cleanup/reduce signature (accept thisMove.yDistance etc.).
         if (InAirRules.oddLiquid(yDistance, yDistDiffEx, maxJumpGain, resetTo, thisMove, lastMove, data)) {
             // Jump after leaving the liquid near ground.

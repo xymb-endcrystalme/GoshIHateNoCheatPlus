@@ -668,7 +668,7 @@ public class BlockProperties {
     /** The Constant F_LIQUID. */
     public static final long F_LIQUID                       = f_flag();
 
-    public static final long F_NEWLIQ                       = f_flag();
+    public static final long F_WATER_PLANT                  = f_flag();
 
     // TODO: maybe remove F_SOLID use (unless for setting F_GROUND on init).
     /** Minecraft isSolid result. Used for setting ground flag - Subject to change / rename.*/
@@ -1132,8 +1132,8 @@ public class BlockProperties {
         for (final Material mat : MaterialUtil.SLABS) {
             setFlag(mat, stepFlags);
         }
-        for (final Material mat : MaterialUtil.NEWLIQ) {
-            setFlag(mat, F_XZ100 | F_NEWLIQ | F_LIQUID | F_WATER);
+        for (final Material mat : MaterialUtil.WATER_PLANTS) {
+            setFlag(mat, F_XZ100 | F_WATER_PLANT | F_LIQUID | F_WATER);
         }
 
         // Rails
@@ -2750,8 +2750,8 @@ public class BlockProperties {
      *            the block type
      * @return true, if is liquid
      */
-    public static final boolean isNewLiq(final Material blockType) {
-        return (getBlockFlags(blockType) & F_NEWLIQ) != 0;
+    public static final boolean isWaterPlant(final Material blockType) {
+        return (getBlockFlags(blockType) & F_WATER_PLANT) != 0;
     }
 
     /**

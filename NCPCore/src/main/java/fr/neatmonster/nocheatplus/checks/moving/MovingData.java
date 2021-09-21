@@ -88,8 +88,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     //////////////////////////////////////////////
     /** Tick counter for how long a player has been in water 0= out of water, 10= fully in water. */
     public int liqtick = 0;
-    /** (0 = no checking, 1 = check when leaving a liquid block until touching the ground). */
-    public int watermovect = 0;
+    /** ID for players leaving a liquid in order to patch waterwalk exploits: 0= no checking, 1= enforce speed restriction until ground is touched or the player sinks back in water/lava. */
+    public int surfaceId = 0;
     /** Tick counter used to workaround certain transitions with repeated or high motion (e.g.: gliding->normal, riptiding->normal). */
     // TODO: Rename -> motionTransitionTick/(...)
     public int keepfrictiontick = 0;
@@ -169,7 +169,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         public PlayerMoveData call() throws Exception {
             return new PlayerMoveData();
         }
-    }, 4); // Too many moves, perhaps... :p 
+    }, 8); // Too many moves, perhaps... :p 
     /** Keep track of currently processed (if) and past moves for vehicle moving. Stored moves can be altered by modifying the int. */
     // TODO: There may be need to store such data with vehicles, or detect tandem abuse in a different way.
     public final MoveTrace <VehicleMoveData> vehicleMoves = new MoveTrace<VehicleMoveData>(new Callable<VehicleMoveData>() {
