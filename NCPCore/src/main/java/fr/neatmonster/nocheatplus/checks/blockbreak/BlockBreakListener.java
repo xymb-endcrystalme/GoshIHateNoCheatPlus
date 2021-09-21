@@ -234,7 +234,7 @@ public class BlockBreakListener extends CheckListener {
         }
 
         // Destroying liquid blocks.
-        if (!cancelled && BlockProperties.isLiquid(block.getType()) && !BlockProperties.isNewLiq(block.getType())
+        if (!cancelled && BlockProperties.isLiquid(block.getType()) && !BlockProperties.isWaterPlant(block.getType())
                 && !pData.hasPermission(Permissions.BLOCKBREAK_BREAK_LIQUID, player) 
                 && !NCPExemptionManager.isExempted(player, CheckType.BLOCKBREAK_BREAK)){
             cancelled = true;

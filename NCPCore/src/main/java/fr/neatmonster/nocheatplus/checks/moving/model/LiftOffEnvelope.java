@@ -38,7 +38,7 @@ public enum LiftOffEnvelope {
     HALF_JUMP(0.21, 0.4, 4, true), 
     /** Nearly ordinary jumping gain (meant for berry bushes)*/
     // TEST: Jumping height is random (but higher than the honeyblock), needs testing to be more strict.
-    BERRY_JUMP(0.35, 0.54, 5, true), 
+    BERRY_JUMP(0.35, 0.54, 0, true), 
     // Powder snow is considered as reset condition so we don't care about the jump phase.
     /** Special liftoff handling for powder snow: higher than ordinary despite not reaching actual full block height */
     LIMIT_POWDER_SNOW(0.63, 0.63, 0, true) 
@@ -130,8 +130,8 @@ public enum LiftOffEnvelope {
     }
     
     /**
-     * Maximum jump phase (In-air counter) before players are supposed to start
-     * to lose altitude after achieving maximum jump gain.
+     * How many in-air events players can achieve before losing 
+     * altitude.
      * 
      * @param jumpAmplifier
      * @return The maximum jump phase for this envelope.
