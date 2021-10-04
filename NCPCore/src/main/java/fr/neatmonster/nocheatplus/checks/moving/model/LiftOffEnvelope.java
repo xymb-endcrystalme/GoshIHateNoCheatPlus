@@ -41,7 +41,10 @@ public enum LiftOffEnvelope {
     BERRY_JUMP(0.35, 0.54, 0, true), 
     // Powder snow is considered as reset condition so we don't care about the jump phase.
     /** Special liftoff handling for powder snow: higher than ordinary despite not reaching actual full block height */
-    LIMIT_POWDER_SNOW(0.63, 0.63, 0, true) 
+    POWDER_SNOW(0.63, 0.63, 0, true),
+    /** Jumping up stairs. Not ordinary ground-to-ground stepping because this game's movement mechanics are trash. */
+    // TODO: Get rid of the F_GROUND_HEIGHT flag for stairs and handle them with their own liftoff envelope (vDistRel or separated handling)
+    STAIRS(0.5, 1.35, 3, false) // Jump height 0.5 as well?
     ;
 
     private double maxJumpGain;

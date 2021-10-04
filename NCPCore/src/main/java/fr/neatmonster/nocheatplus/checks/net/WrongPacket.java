@@ -24,7 +24,6 @@ import fr.neatmonster.nocheatplus.players.IPlayerData;
 /**
  * A check to see if clients send (accidentally or on purpose) a fly ability packet if 
  * they aren't allowed to fly. 
- * In the future, this can be the central location for any kind of invalid packet sending/alteration (Similarly to SurvivalFly)
  */
 public class WrongPacket extends Check {
 
@@ -51,7 +50,7 @@ public class WrongPacket extends Check {
 
         if (sentFlyPacket && !player.getAllowFlight()) { 
             
-            // Skip should be obvious :)
+            // Skip should be obvious.
             if (!creativeOrSpect) {
                 
                 data.wrongPacketVL++ ;

@@ -204,8 +204,9 @@ public class Magic {
     }
     
     /**
-     * Test for the specific air friction that applies after the player has perfomed a bunnyhop.
-     * Call if the player is in a bunnyhop delay phase and the distance is higher than allowed.
+     * After bunnyhop friction phase (very few air friction).
+     * Call if the player is in a "bunnyfly" phase and the distance is higher than allowed.
+     * Requires last move's data.
      *
      * @param hDistDiff 
      *            Difference from last to current hDistance
@@ -214,7 +215,7 @@ public class Magic {
      * @param hDistanceAboveLimit
      * @param currentHDistance
      * @param currentAllowedBaseSpeed 
-     *            thisMove.hAllowedDistanceBase (Without taking into account special mechanics, like bunnyhopping)
+     *            Applicable base speed (not final;  not taking into account other mechanics, like friction)
      * @return
      */
     public static boolean bunnyFrictionEnvelope(final double hDistDiff, final double lastHDistance, final double hDistanceAboveLimit, 
@@ -277,6 +278,23 @@ public class Magic {
                 // Observed: Multiple split/micro moves after landing and before jumping.
                 // && thisMove.multiMoveCount == 1 && pastMove8.multiMoveCount == 2
             ;
+    }
+
+    /**
+     * Check if the player has switched horizontal direction (strafing, rather) 
+     * @param thisMove
+     * @param lastMove
+     * @return true if the player has switched horizontal direction
+     */
+    public static boolean changedHDir(final PlayerMoveData thisMove, final PlayerMoveData lastMove) {
+
+         final double xDistance = thisMove.to.getX() - thisMove.from.getX();
+         final double xLastDistance = lastMove.to.getX() - lastMove.from.getX();
+         final double zDistance = thisMove.to.getZ() - thisMove.from.getZ();
+         final double zLastDistance = lastMove.to.getZ() - lastMove.from.getZ();
+
+         return (xLastDistance != xDistance && (xDistance <= 0.0 && xLastDistance >= 0.0 || xDistance >= 0.0 && xLastDistance <= 0.0))
+                || (zLastDistance != zDistance && (zDistance <= 0.0 && zLastDistance >= 0.0 || zDistance >= 0.0 && zLastDistance <= 0.0)); 
     }
 
     /**

@@ -834,7 +834,6 @@ public class InAirRules {
         if (!lastMove.toIsValid) {
             return false;
             // Skip everything if last move is invalid
-
         }
         // TODO: Cleanup/reduce signature (accept thisMove.yDistance etc.).
         if (InAirRules.oddLiquid(yDistance, yDistDiffEx, maxJumpGain, resetTo, thisMove, lastMove, data)) {

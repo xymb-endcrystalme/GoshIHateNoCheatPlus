@@ -93,7 +93,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     /** Tick counter used to workaround certain transitions with repeated or high motion (e.g.: gliding->normal, riptiding->normal). */
     // TODO: Rename -> motionTransitionTick/(...)
     public int keepfrictiontick = 0;
-    /** Countdown for the next bunnyhop. 10(maximum) represents a just performed bunnyhop. */
+    /** Countdown for ending a bunnyfly phase(= phase after bunnyhop). 10(max) represents a bunnyhop, 9-1 represent the tick at which this bunnfly phase currently is. */
     public int bunnyhopDelay;
     /** bunnyHopDelay phase before applying a LostGround case (set in SurvivalFly.bunnyHop()) */ 
     public int lastbunnyhopDelay = 0;

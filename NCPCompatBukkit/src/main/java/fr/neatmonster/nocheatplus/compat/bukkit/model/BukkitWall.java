@@ -63,6 +63,8 @@ public class BukkitWall implements BukkitShapeModel {
     public double[] getShape(final BlockCache blockCache, 
             final World world, final int x, final int y, final int z) {
 
+        // Relevant: https://bugs.mojang.com/browse/MC-9565
+
         final Block block = world.getBlockAt(x, y, z);
         final BlockState state = block.getState();
         final BlockData blockData = state.getBlockData();
