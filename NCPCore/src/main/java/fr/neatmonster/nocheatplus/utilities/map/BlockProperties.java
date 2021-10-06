@@ -2764,6 +2764,10 @@ public class BlockProperties {
         return (getBlockFlags(blockType) & F_WATER) != 0;
     }
 
+    public static final boolean isChest(final Material blockType) {
+        return blockType != null && (blockType == Material.CHEST || blockType == Material.TRAPPED_CHEST);
+    }
+
     /**
      * Checks if is ice.
      *

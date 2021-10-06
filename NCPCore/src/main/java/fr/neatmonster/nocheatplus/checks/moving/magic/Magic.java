@@ -204,7 +204,7 @@ public class Magic {
     }
     
     /**
-     * After bunnyhop friction phase (very few air friction).
+     * After bunnyhop friction envelope (very few air friction).
      * Call if the player is in a "bunnyfly" phase and the distance is higher than allowed.
      * Requires last move's data.
      *
@@ -365,6 +365,41 @@ public class Magic {
                 && !lastMove.from.resetCond && lastMove.to.inWater // Into water.
                 && excludeStaticSpeed(thisMove) && excludeStaticSpeed(lastMove)
                 ;
+    }
+
+    /**
+     * 
+     * @param thisMove
+     *            Not strictly the latest move in MovingData.
+     * @return
+     */
+    public static boolean fromSlipperyBlock(final PlayerMoveData thisMove) {
+        return thisMove.from.onSlimeBlock || thisMove.from.onIce || thisMove.from.onBlueIce;
+    }
+    
+    /**
+     * 
+     * @param thisMove
+     *            Not strictly the latest move in MovingData.
+     * @return
+     */
+    public static boolean touchedIce(final PlayerMoveData thisMove) {
+        return thisMove.from.onIce || thisMove.to.onIce || thisMove.from.onBlueIce || thisMove.to.onBlueIce;
+    }
+
+    /**
+     * 
+     * @param thisMove
+     *            Not strictly the latest move in MovingData.
+     * @param from
+     * @return
+     */
+    public static boolean touchedSlipperyBlockHeadObstr(final PlayerMoveData thisMove, final PlayerLocation from) {
+        return  thisMove.headObstructed 
+                && (touchedIce(thisMove) 
+                    // Hack. accounts for beds too.
+                    || thisMove.touchedGround && (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0
+                );
     }
 
     /**

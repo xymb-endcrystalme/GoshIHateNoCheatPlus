@@ -95,6 +95,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int keepfrictiontick = 0;
     /** Countdown for ending a bunnyfly phase(= phase after bunnyhop). 10(max) represents a bunnyhop, 9-1 represent the tick at which this bunnfly phase currently is. */
     public int bunnyhopDelay;
+    /** Just like bunnyHopDelay but for blocks that decrease in-air friction even more (ice, blue ice, slime, packed ice) */
+    public int bunnySlideDelay = 0;
     /** bunnyHopDelay phase before applying a LostGround case (set in SurvivalFly.bunnyHop()) */ 
     public int lastbunnyhopDelay = 0;
     /** Ticks after landing on ground (InAir->Ground). Mainly used in SurvivalFly. */
@@ -268,10 +270,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int sfHoverTicks = -1;
     /** First count these down before incrementing sfHoverTicks. Set on join, if configured so. */
     public int sfHoverLoginTicks = 0;
-    /** Ticks influenced by ice friction after sptintjumping, used in survivalFly.setAllowedHDist(). */
-    public int iceAirFrictionTick = 0; 
-    /** Ticks influenced by bounce friction after sprintjumping, used in survivalFly.setAllowedHDist(). */
-    public int bounceAirFrictionTick = 0;
+    /** Ticks influenced by ice friction after sptintjumping with head obstr., used in survivalFly.setAllowedHDist(). */
+    public int iceFrictionTick = 0; 
     /** Fake in air flag: set with any violation, reset once on ground. */
     public boolean  sfVLInAir = false;
     /** Vertical accounting info */
@@ -359,10 +359,10 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public void clearFlyData() {
         playerMoves.invalidate();
         bunnyhopDelay = 0;
+        bunnySlideDelay = 0;
         sfJumpPhase = 0;
         jumpAmplifier = 0;
-        iceAirFrictionTick = 0;
-        bounceAirFrictionTick = 0;
+        iceFrictionTick = 0;
         setBack = null;
         sfZeroVdistRepeat = 0;
         clearAccounting();
@@ -446,12 +446,9 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
 
     /**
      * Set data.nextFriction according to media.
-     * @param from
-     * @param to
-     * @param data
-     * @param cc
+     * @param thisMove
      */
-    public void setNextFriction(final PlayerMoveData thisMove, final MovingConfig cc) {
+    public void setNextFriction(final PlayerMoveData thisMove) {
 
         // NOTE: Other methods might still override nextFriction to 1.0 due to burst/lift-off envelope.
         // TODO: Other media / medium transitions / friction by block.
@@ -489,7 +486,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
             nextFrictionHorizontal = nextFrictionVertical = Magic.FRICTION_MEDIUM_AIR;
         }
         else {
-            nextFrictionHorizontal = 0.0; // TODO: Friction for walking on blocks (!).
+            nextFrictionHorizontal = Magic.touchedIce(thisMove) ? Magic.FRICTION_MEDIUM_AIR : 0.0; 
             nextFrictionVertical = Magic.FRICTION_MEDIUM_AIR;
         }
     }

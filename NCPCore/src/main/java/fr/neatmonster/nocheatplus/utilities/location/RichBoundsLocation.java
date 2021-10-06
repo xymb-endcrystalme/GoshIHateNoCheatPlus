@@ -22,6 +22,7 @@ import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeReference;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker.BlockChangeEntry;
@@ -750,7 +751,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     }
 
     /**
-     * Reset condition for flying checks (sf + nofall): liquids, web, ladder
+     * Reset condition for flying checks (sf + nofall): liquids, web, climbable, powder snow, berry bushes.
      * (not on-ground, though).
      *
      * @return true, if is reset cond
@@ -858,11 +859,23 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
             if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_ICE) == 0) {
                 // TODO: check onGroundMinY !?
                 onIce = false;
-            } else {
+            } 
+            else {
+                // MC applies ice properties only with at least half the box on the block
+                final double xzMargin = getBoxMarginHorizontal();
                 // TODO: Might skip the isOnGround part, e.g. if boats sink in slightly. Needs testing.
-                onIce = isOnGround() && BlockProperties.collides(blockCache, minX, minY - yOnGround, minZ, maxX, minY, maxZ, BlockProperties.F_ICE);
+                onIce = isOnGround() && BlockProperties.collides(blockCache, minX+xzMargin, minY - yOnGround, minZ+xzMargin, maxX-xzMargin, minY, maxZ-xzMargin, BlockProperties.F_ICE);
             }
         }
+        // Workaround for Minecraft's legacy stupidity: ice properties apply on top of chests with ice underneath...
+        // Applies for slime blocks and soul sand too, but we don't care about those since they do not increase player's speed in-air.
+        //   else if (ServerVersion.compareMinecraftVersion("1.9") > 0) {
+        //        Material blockBelowFeet = getTypeId(getBlockX(), Location.locToBlock(getY() - yOnGround), getBlockZ());
+        //        Material blockBelowBlock = getTypeId(getBlockX(), Location.locToBlock(getY() - 1.0), getBlockZ());
+        //        if (BlockProperties.isChest(blockBelowFeet) && BlockProperties.isIce(blockBelowBlock) && isOnGround()) {
+        //           onIce = true; // There, fixed. 
+        //        }
+        //    }
         return onIce;
     }
 
@@ -876,9 +889,12 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         if (onBlueIce == null) {
             if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_BLUE_ICE) == 0) {
                 onBlueIce = false;
-            } else {
+            } 
+            else {
+                // MC applies ice properties only with at least half the box on the block
+                final double xzMargin = getBoxMarginHorizontal();
                 // TODO: Might skip the isOnGround part, e.g. if boats sink in slightly. Needs testing.
-                onBlueIce = isOnGround() && BlockProperties.collides(blockCache, minX, minY - yOnGround, minZ, maxX, minY, maxZ, BlockProperties.F_BLUE_ICE);
+                onBlueIce = isOnGround() && BlockProperties.collides(blockCache, minX+xzMargin, minY - yOnGround, minZ+xzMargin, maxX-xzMargin, minY, maxZ-xzMargin, BlockProperties.F_BLUE_ICE);
             }
         }
         return onBlueIce;
@@ -914,7 +930,9 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
                 onSlimeBlock = false;
             } 
             else { 
-                onSlimeBlock = isOnGround() && BlockProperties.collides(blockCache, minX, minY - yOnGround, minZ, maxX, minY, maxZ, BlockProperties.F_SLIME); 
+                // MC applies slime properties only with at least half the box on the block
+                final double xzMargin = getBoxMarginHorizontal();
+                onSlimeBlock = isOnGround() && BlockProperties.collides(blockCache, minX+xzMargin, minY - yOnGround, minZ+xzMargin, maxX-xzMargin, minY, maxZ-xzMargin, BlockProperties.F_SLIME); 
             }
         }
         return onSlimeBlock;

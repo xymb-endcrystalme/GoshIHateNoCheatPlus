@@ -80,8 +80,7 @@ public class ImpossibleHit extends Check {
             tags.add("inventoryclick");
         }
         // Blocking/Using item and attacking
-        // TODO: If reset-active item is enabled, actually reset the item (see survivalFly.hDistanceAfterFailure())
-        else if (mData.isusingitem || player.isBlocking()) {
+        else if ((mData.isusingitem || player.isBlocking()) && !resetActiveItem) {
             violation = true;
             tags.add("using/blocking");
         }
