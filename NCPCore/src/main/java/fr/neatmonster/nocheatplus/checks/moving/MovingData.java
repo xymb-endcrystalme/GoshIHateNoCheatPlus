@@ -95,8 +95,10 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int keepfrictiontick = 0;
     /** Countdown for ending a bunnyfly phase(= phase after bunnyhop). 10(max) represents a bunnyhop, 9-1 represent the tick at which this bunnfly phase currently is. */
     public int bunnyhopDelay;
-    /** Just like bunnyHopDelay but for blocks that decrease in-air friction even more (ice, blue ice, slime, packed ice) */
-    public int bunnySlideDelay = 0;
+    /** Whether the player is in a bunnyslide phase, allowing a higher bunnyfriction speed */
+    public boolean bunnySlide;
+    /** Value to increase the allowed bunnyfriction speed with. Set in SurvivalFly.bunnyHop() */
+    public double frictionAccel;
     /** bunnyHopDelay phase before applying a LostGround case (set in SurvivalFly.bunnyHop()) */ 
     public int lastbunnyhopDelay = 0;
     /** Ticks after landing on ground (InAir->Ground). Mainly used in SurvivalFly. */
@@ -359,7 +361,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public void clearFlyData() {
         playerMoves.invalidate();
         bunnyhopDelay = 0;
-        bunnySlideDelay = 0;
+        bunnySlide = false;
+        frictionAccel = 0.0;
         sfJumpPhase = 0;
         jumpAmplifier = 0;
         iceFrictionTick = 0;

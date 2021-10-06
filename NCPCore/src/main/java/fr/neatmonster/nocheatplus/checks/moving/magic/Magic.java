@@ -373,8 +373,10 @@ public class Magic {
      *            Not strictly the latest move in MovingData.
      * @return
      */
-    public static boolean fromSlipperyBlock(final PlayerMoveData thisMove) {
-        return thisMove.from.onSlimeBlock || thisMove.from.onIce || thisMove.from.onBlueIce;
+    public static boolean touchedBouncyBlock(final PlayerMoveData thisMove, final PlayerLocation from) {
+        return thisMove.from.onSlimeBlock 
+               // beds
+               || (thisMove.touchedGround && (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0);
     }
     
     /**
@@ -384,22 +386,27 @@ public class Magic {
      * @return
      */
     public static boolean touchedIce(final PlayerMoveData thisMove) {
-        return thisMove.from.onIce || thisMove.to.onIce || thisMove.from.onBlueIce || thisMove.to.onBlueIce;
-    }
+        return thisMove.from.onIce || thisMove.from.onBlueIce || thisMove.to.onIce || thisMove.to.onBlueIce;
+    } 
 
     /**
      * 
      * @param thisMove
      *            Not strictly the latest move in MovingData.
-     * @param from
      * @return
      */
-    public static boolean touchedSlipperyBlockHeadObstr(final PlayerMoveData thisMove, final PlayerLocation from) {
-        return  thisMove.headObstructed 
-                && (touchedIce(thisMove) 
-                    // Hack. accounts for beds too.
-                    || thisMove.touchedGround && (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0
-                );
+    public static boolean touchedSlipperyBlock(final PlayerMoveData thisMove, final PlayerLocation from) {
+        return touchedIce(thisMove) || touchedBouncyBlock(thisMove, from);
+    } 
+    
+    /**
+     * 
+     * @param thisMove
+     *            Not strictly the latest move in MovingData.
+     * @return
+     */
+    public static boolean touchedSoulSand(final PlayerMoveData thisMove) {
+        return thisMove.from.onSoulSand || thisMove.to.onSoulSand;
     }
 
     /**
