@@ -60,7 +60,6 @@ public class Magic {
 
     // Horizontal speeds/modifiers. 
     public static final double WALK_SPEED           = 0.221D;
-    public static final double modBlockSneak        = (0.13D / WALK_SPEED) - (0.1277D / WALK_SPEED); // 0.0104
     public static final double modWeb               = 0.09D / WALK_SPEED; 
     public static final double modPowderSnow        = 0.1252 / WALK_SPEED;
     public static final double modBlock             = 0.1277D / WALK_SPEED;
@@ -68,6 +67,8 @@ public class Magic {
     public static final double modSlime             = 0.131D / WALK_SPEED;
     public static final double modBush              = 0.134D / WALK_SPEED;
     public static final double modSoulSand          = 0.16D / WALK_SPEED;
+    public static final double modLanding           = 0.25194D / WALK_SPEED;
+    public static final double modHopTick           = 0.25415D / WALK_SPEED;
     public static final double modSprint            = 0.27D / WALK_SPEED; // TODO: without bunny  0.29 / practical is 0.35
     public static final double[] modSurface         = new double [] {0.23426D / WALK_SPEED, 0.29835D / WALK_SPEED};
     public static final double modCollision         = 0.3006D / WALK_SPEED;

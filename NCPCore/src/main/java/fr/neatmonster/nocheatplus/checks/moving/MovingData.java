@@ -95,10 +95,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int keepfrictiontick = 0;
     /** Countdown for ending a bunnyfly phase(= phase after bunnyhop). 10(max) represents a bunnyhop, 9-1 represent the tick at which this bunnfly phase currently is. */
     public int bunnyhopDelay;
-    /** Whether the player is in a bunnyslide phase, allowing a higher bunnyfriction speed */
-    public boolean bunnySlide;
     /** Value to increase the allowed bunnyfriction speed with. Set in SurvivalFly.bunnyHop() */
-    public double frictionAccel;
+    public double groundAccel;
     /** bunnyHopDelay phase before applying a LostGround case (set in SurvivalFly.bunnyHop()) */ 
     public int lastbunnyhopDelay = 0;
     /** Ticks after landing on ground (InAir->Ground). Mainly used in SurvivalFly. */
@@ -361,8 +359,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public void clearFlyData() {
         playerMoves.invalidate();
         bunnyhopDelay = 0;
-        bunnySlide = false;
-        frictionAccel = 0.0;
+        groundAccel = 0.0;
         sfJumpPhase = 0;
         jumpAmplifier = 0;
         iceFrictionTick = 0;
@@ -445,6 +442,18 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         setTeleported(loc);
         // TODO: sfHoverTicks ?
     }
+    
+
+    /**
+     * Get the amount to add in bunnyfriction speed according to medium.
+     * @param thisMove
+     * @param from
+     */
+    public double getGroundAccelAddition(final PlayerMoveData thisMove, final PlayerLocation from) {
+        if (Magic.touchedIce(thisMove)) return 0.1167;
+        else if (Magic.touchedBouncyBlock(thisMove, from)) return 0.1068;
+        else return 0.0;
+    }
 
 
     /**
@@ -484,13 +493,15 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
                 nextFrictionHorizontal = nextFrictionVertical = Magic.FRICTION_MEDIUM_WATER;
             }
         }
+        else if (Magic.touchedIce(thisMove)) {
+            nextFrictionHorizontal = nextFrictionVertical = Magic.FRICTION_MEDIUM_AIR;
+        }
         // TODO: consider setting minimum friction last (air), do add ground friction.
         else if (!from.onGround && !to.onGround) {
             nextFrictionHorizontal = nextFrictionVertical = Magic.FRICTION_MEDIUM_AIR;
         }
         else {
-            nextFrictionHorizontal = Magic.touchedIce(thisMove) ? Magic.FRICTION_MEDIUM_AIR : 0.0; 
-            nextFrictionVertical = Magic.FRICTION_MEDIUM_AIR;
+            nextFrictionHorizontal = nextFrictionVertical = Magic.FRICTION_MEDIUM_AIR;
         }
     }
 
