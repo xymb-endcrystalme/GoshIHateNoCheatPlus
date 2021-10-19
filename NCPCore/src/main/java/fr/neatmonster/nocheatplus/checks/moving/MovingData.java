@@ -485,7 +485,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
             nextFrictionHorizontal = nextFrictionVertical = Magic.FRICTION_MEDIUM_AIR;
         }
         else {
-            nextFrictionHorizontal = nextFrictionVertical = Magic.FRICTION_MEDIUM_AIR;
+            nextFrictionHorizontal = 0.0;
+            nextFrictionVertical = Magic.FRICTION_MEDIUM_AIR;
         }
     }
 
