@@ -155,13 +155,13 @@ public class InventoryMove extends Check {
         }
         
         // ...while climbing a block (one would need to click and press space bar at the same time to ascend)
-        else if (thisMove.from.onClimbable && thisMove.yDistance >= 0.117
-                // If hit on a climbable, skip. 
-                && mData.getOrUseVerticalVelocity(thisMove.yDistance) == null
-                && !InventoryUtil.hasOpenedInvRecently(player, 1000)) { // This has to be configurable
-            violation = true;
-            tags.add("climbclick");
-        }
+        //   else if (thisMove.from.onClimbable && thisMove.yDistance >= 0.117
+        //           // If hit on a climbable, skip. 
+        //           && mData.getOrUseVerticalVelocity(thisMove.yDistance) == null
+        //           && !InventoryUtil.hasOpenedInvRecently(player, 1000)) { // This has to be configurable
+        //       violation = true;
+        //       tags.add("climbclick");
+        //   }
         
         // Last resort, check if the player is actively moving while clicking in their inventory
         else {
