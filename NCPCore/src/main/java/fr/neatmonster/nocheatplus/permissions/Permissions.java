@@ -164,8 +164,8 @@ public class Permissions {
     public static final RegisteredPermission  NET_ATTACKFREQUENCY          = add(NET + ".attackfrequency");
     public static final RegisteredPermission  NET_FLYINGFREQUENCY          = add(NET + ".flyingfrequency");
     public static final RegisteredPermission  NET_KEEPALIVEFREQUENCY       = add(NET + ".keepalivefrequency");
+    public static final RegisteredPermission  NET_MOVING                   = add(NET + ".moving");
     public static final RegisteredPermission  NET_PACKETFREQUENCY          = add(NET + ".packetfrequency");
-    public static final RegisteredPermission  NET_WRONGPACKET              = add(NET + ".wrongpacket");
 	public static final RegisteredPermission  NET_WRONGTURN                = add(NET + ".wrongturn");
 
     public static final RegisteredPermission  MOVING                       = add(CHECKS + ".moving");

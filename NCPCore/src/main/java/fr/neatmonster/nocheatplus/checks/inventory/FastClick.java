@@ -171,10 +171,6 @@ public class FastClick extends Check {
             if (vd.needsParameters()) vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
             cancel = executeActions(vd).willCancel();  
         }
-        // Feed the improbable.
-        if (cc.fastClickImprobableWeight > 0.0f) {
-            Improbable.feed(player, cc.fastClickImprobableWeight, System.currentTimeMillis());
-        }
        return cancel;
     }
     

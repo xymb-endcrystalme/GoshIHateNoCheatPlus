@@ -38,6 +38,7 @@ import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.net.FlyingFrequency;
+import fr.neatmonster.nocheatplus.checks.net.Moving;
 import fr.neatmonster.nocheatplus.checks.net.NetConfig;
 import fr.neatmonster.nocheatplus.checks.net.NetData;
 import fr.neatmonster.nocheatplus.checks.net.model.DataPacketFlying;
@@ -80,13 +81,12 @@ public class MovingFlying extends BaseAdapter {
     public static final int indexPitch = 1;
     
     private final Plugin plugin = Bukkit.getPluginManager().getPlugin("NoCheatPlus");
-
     private static PacketType[] initPacketTypes() {
         final List<PacketType> types = new LinkedList<PacketType>(Arrays.asList(
                 PacketType.Play.Client.LOOK,
                 PacketType.Play.Client.POSITION,
                 PacketType.Play.Client.POSITION_LOOK
-                ));
+        ));
         if (ServerVersion.compareMinecraftVersion("1.17") < 0) {
             types.add(PacketType.Play.Client.FLYING);
             StaticLog.logInfo("Add listener for legacy PlayInFlying packet.");
@@ -102,20 +102,15 @@ public class MovingFlying extends BaseAdapter {
         return types.toArray(new PacketType[types.size()]);
     }
 
-
     /** Frequency check for flying packets. */
     private final FlyingFrequency flyingFrequency = new FlyingFrequency();
-
+    /** Other checks related to packet content. */
+    private final Moving moving = new Moving();
     private final int idFlying = counters.registerKey("packet.flying");
     private final int idAsyncFlying = counters.registerKey("packet.flying.asynchronous");
-
-    /**
-     * If a packet can't be parsed, this time stamp is set for occasional
-     * logging.
-     */
+    /** If a packet can't be parsed, this time stamp is set for occasional logging. */
     private long packetMismatch = Long.MIN_VALUE;
     private long packetMismatchLogFrequency = 60000; // Every minute max, good for updating :).
-
     private final HashSet<PACKET_CONTENT> validContent = new LinkedHashSet<PACKET_CONTENT>();
     private final PacketType confirmTeleportType = ProtocolLibComponent.findPacketTypeByName(Protocol.PLAY, Sender.CLIENT, "TeleportAccept");
     private boolean acceptConfirmTeleportPackets = confirmTeleportType != null;
@@ -125,10 +120,8 @@ public class MovingFlying extends BaseAdapter {
         super(plugin, ListenerPriority.LOW, initPacketTypes());
         // Keep the CheckType NET for now.
         // Add feature tags for checks.
-        if (NCPAPIProvider.getNoCheatPlusAPI().getWorldDataManager().isActiveAnywhere(
-                CheckType.NET_FLYINGFREQUENCY)) {
-            NCPAPIProvider.getNoCheatPlusAPI().addFeatureTags(
-                    "checks", Arrays.asList(FlyingFrequency.class.getSimpleName()));
+        if (NCPAPIProvider.getNoCheatPlusAPI().getWorldDataManager().isActiveAnywhere(CheckType.NET_FLYINGFREQUENCY)) {
+            NCPAPIProvider.getNoCheatPlusAPI().addFeatureTags( "checks", Arrays.asList(FlyingFrequency.class.getSimpleName()));
         }
         NCPAPIProvider.getNoCheatPlusAPI().addComponent(flyingFrequency);
     }
@@ -137,7 +130,8 @@ public class MovingFlying extends BaseAdapter {
     public void onPacketReceiving(final PacketEvent event) {
         try {
             if (event.isPlayerTemporary()) return;
-        } catch(NoSuchMethodError e) {
+        } 
+        catch(NoSuchMethodError e) {
             if (event.getPlayer() == null) return;
             if (DataManager.getPlayerDataSafe(event.getPlayer()) == null) return;
         }
@@ -146,10 +140,7 @@ public class MovingFlying extends BaseAdapter {
                 onConfirmTeleportPacket(event);
             }
         }
-        else {
-            onFlyingPacket(event);
-        }
-
+        else onFlyingPacket(event);
     }
 
     private void onConfirmTeleportPacket(final PacketEvent event) {
@@ -181,7 +172,7 @@ public class MovingFlying extends BaseAdapter {
         if (matched.decideOptimistically()) {
             ActionFrequency.subtract(System.currentTimeMillis(), 1, data.flyingFrequencyAll);
         }
-        if (pData.isDebugActive(this.checkType)) { // TODO: FlyingFrequency / NET_MOVING? + check others who depend
+        if (pData.isDebugActive(this.checkType)) { 
             debug(player, "Confirm teleport packet" + (matched.decideOptimistically() ? (" (matched=" + matched + ")") : "") + ": " + teleportId);
         }
     }
@@ -193,7 +184,7 @@ public class MovingFlying extends BaseAdapter {
     }
 
     private void onFlyingPacket(final PacketEvent event) {
-        final boolean primaryThread = Bukkit.isPrimaryThread(); // TODO: Code review protocol plugin :p.
+        final boolean primaryThread = Bukkit.isPrimaryThread(); 
         counters.add(idFlying, 1, primaryThread);
         if (event.isAsync() == primaryThread) {
             counters.add(ProtocolLibComponent.idInconsistentIsAsync, 1, primaryThread);
@@ -224,7 +215,6 @@ public class MovingFlying extends BaseAdapter {
 
         final NetConfig cc = pData.getGenericInstance(NetConfig.class);
         boolean cancel = false;
-
         // Interpret the packet content.
         final DataPacketFlying packetData = interpretPacket(event, time);
 
@@ -241,58 +231,6 @@ public class MovingFlying extends BaseAdapter {
                 return;
             }
 
-            // TODO: Should let it here? -> IMO, this should be integrated into flyingfrequency as an EXTREME_MOVE subcheck :p
-            // Work as ExtremeMove but for packet sent!
-            // Observed: this seems to prevent long/mid distance blink cheats.
-            if (packetData.hasPos) {
-                final MovingData Mdata = pData.getGenericInstance(MovingData.class);
-                final Location serverLocation = player.getLocation();
-                final Location packetLocation = new Location(null, packetData.getX(), packetData.getY(), packetData.getZ());
-                final double hDistanceDiff = TrigUtil.distance(serverLocation, packetLocation);
-                final double yDistanceDiff = Math.abs(serverLocation.getY() - packetLocation.getY());
-
-                // Vertical move.
-                if (yDistanceDiff > 100.0) {
-                    ++data.diffpacketVLs;
-                }
-                // Horizontal move.
-                else if (hDistanceDiff > 100.0) {
-                    ++data.diffpacketVLs;
-                } 
-                else data.diffpacketVLs *= 0.98;
-
-                if (data.diffpacketVLs > 7) {
-                    cancel = true;
-                }
-                if (data.diffpacketVLs > 15) {
-                    // Player might be freezed by canceling, set back might turn it to normal
-                    data.diffpacketVLs = 0.0;
-                    int task = -1;
-                    task = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                        final Location newTo = 
-                            Mdata.hasSetBack() ? Mdata.getSetBack(serverLocation) :
-                            Mdata.hasMorePacketsSetBack() ? Mdata.getMorePacketsSetBack() :
-                            // Unsafe position! Null world or world not updated
-                            serverLocation;
-                            //null;
-                        if (newTo == null) {
-                            StaticLog.logSevere("[NoCheatPlus] could not restore location for " + player.getName() + ", kicking them.");
-                            CheckUtils.kickIllegalMove(player, pData.getGenericInstance(MovingConfig.class));
-                        } else {
-                            // Mask player teleport as a set back.
-                            Mdata.prepareSetBack(newTo);
-                            player.teleport(LocUtil.clone(newTo), 
-                                    BridgeMisc.TELEPORT_CAUSE_CORRECTION_OF_POSITION);
-                            if (pData.isDebugActive(this.checkType)) 
-                                debug(player, "Set back player: " + player.getName() + ":" + LocUtil.simpleFormat(newTo));
-                        }
-                    });
-                    if (task == -1) {
-                        StaticLog.logWarning("Failed to schedule task. Player: " + player.getName());
-                    }
-                    Mdata.resetTeleported(); // Cleanup, just in case.
-                }
-            }
             switch(data.teleportQueue.processAck(packetData)) {
                 case WAITING: {
                     if (pData.isDebugActive(this.checkType)) {
@@ -343,12 +281,16 @@ public class MovingFlying extends BaseAdapter {
         // Actual packet frequency check.
         // TODO: Consider using the NetStatic check.
         if (!cancel && !skipFlyingFrequency 
-                && !pData.hasBypass(CheckType.NET_FLYINGFREQUENCY, player)
-                && flyingFrequency.check(player, packetData, time, data, cc, pData)) {
+            && !pData.hasBypass(CheckType.NET_FLYINGFREQUENCY, player)
+            && flyingFrequency.check(player, packetData, time, data, cc, pData)) {
             cancel = true;
         }
-
-        // TODO: Run other checks based on the packet content.
+        
+        // More packet checks.
+        if (!cancel && !pData.hasBypass(CheckType.NET_MOVING, player) && !skipFlyingFrequency
+            && moving.check(player, packetData, data, cc, pData, plugin)) {
+            cancel = true;
+        }
 
         // Cancel redundant packets, when frequency is high anyway.
         // TODO: Recode to detect cheating in a more reliable way, normally this is not the primary thread.
@@ -360,6 +302,7 @@ public class MovingFlying extends BaseAdapter {
         if (cancel) {
             event.setCancelled(true);
         }
+        
         if (pData.isDebugActive(this.checkType)) {
             debug(player, (packetData == null ? "(Incompatible data)" : packetData.toString()) + (event.isCancelled() ? " CANCEL" : ""));
         }
@@ -461,5 +404,4 @@ public class MovingFlying extends BaseAdapter {
             NCPAPIProvider.getNoCheatPlusAPI().getLogManager().warning(Streams.STATUS, builder.toString());
         }
     }
-
 }

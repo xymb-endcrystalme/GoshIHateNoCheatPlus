@@ -69,6 +69,7 @@ public class MovingUtil {
     //            | BlockProperties.F_CLIMBABLE
     //            ;
 
+
     /**
      * Check if the player is to be checked by the survivalfly check.<br>
      * Primary thread only.
@@ -123,6 +124,28 @@ public class MovingUtil {
             ;
     }
 
+
+    /** 
+     * Collect the F_STICKY block flag. Clear NoFall's data upon side collision.
+     * @param from
+     * @param to
+     * @param data
+     */
+    public static boolean isCollideWithHB(PlayerLocation from, PlayerLocation to, MovingData data) {
+
+        final boolean isFlagCollected = (to.getBlockFlags() & BlockProperties.F_STICKY) != 0;
+        // Moving on side block, remove nofall data
+        if (isFlagCollected && !to.isOnGround() && BlockProperties.collides(to.getBlockCache(),
+                                                         to.getMinX() - 0.01, to.getMinY(), to.getMinZ() - 0.01, 
+                                                         to.getMaxX() + 0.01, to.getMaxY(), to.getMaxZ() + 0.01, 
+                                                         BlockProperties.F_STICKY)
+        ) {
+            data.clearNoFallData();
+        }
+        return isFlagCollected;
+    }
+
+
     /**
      * Consistency / cheat check. Prerequisite is
      * Bridge1_9.isGlidingWithElytra(player) having returned true.
@@ -134,7 +157,7 @@ public class MovingUtil {
      * @return
      */
     public static boolean isGlidingWithElytraValid(final Player player, final PlayerLocation fromLocation, 
-            final MovingData data, final MovingConfig cc) {
+                                                   final MovingData data, final MovingConfig cc) {
 
         // TODO: Configuration for which/if to check on either lift-off / unknown / gliding.
         // TODO: Item durability?
@@ -179,6 +202,7 @@ public class MovingUtil {
                 BlockProperties.F_COBWEB);
     }
 
+
     /**
      * Check lift-off (CB: on ground is done wrongly, inWater probably is
      * correct, web is not checked).
@@ -187,8 +211,7 @@ public class MovingUtil {
      * @param data
      * @return
      */
-    public static boolean canLiftOffWithElytra(final Player player, final PlayerLocation loc, 
-            final MovingData data) {
+    public static boolean canLiftOffWithElytra(final Player player, final PlayerLocation loc, final MovingData data) {
         // TODO: Item durability here too?
         // TODO: this/firstPast- Move not touching or not explicitly on ground would be enough?
         return 
@@ -217,6 +240,7 @@ public class MovingUtil {
                 ;
     }
 
+
     /**
      * Workaround for getEyeHeight not accounting for special conditions like
      * gliding with elytra. (Sleeping is not checked.)
@@ -230,6 +254,7 @@ public class MovingUtil {
         return Bridge1_9.isGlidingWithElytra(player) ? 0.4 : player.getEyeHeight();
     }
 
+
     /**
      * Initialize pLoc with edge data specific to gliding with elytra.
      * 
@@ -240,9 +265,10 @@ public class MovingUtil {
      * @param mcAccess
      */
     public static void setElytraProperties(final Player player, final PlayerLocation pLoc, final Location loc,
-            final double yOnGround, final MCAccess mcAccess) {
+                                           final double yOnGround, final MCAccess mcAccess) {
         pLoc.set(loc, player, mcAccess.getWidth(player), 0.4, 0.6, 0.6, yOnGround);
     }
+
 
     /**
      * Handle an illegal move by a player, attempt to restore a valid location.
@@ -255,8 +281,8 @@ public class MovingUtil {
      * @param cc
      */
     public static void handleIllegalMove(final PlayerMoveEvent event, final Player player, 
-            final MovingData data, final MovingConfig cc)
-    {
+                                         final MovingData data, final MovingConfig cc) {
+
         // This might get extended to a check-like thing.
         boolean restored = false;
         final PlayerLocation pLoc = new PlayerLocation(NCPAPIProvider.getNoCheatPlusAPI().getGenericInstanceHandle(MCAccess.class), null);
@@ -299,6 +325,7 @@ public class MovingUtil {
         }
     }
 
+
     /**
      * Used for a workaround that resets the set back for the case of jumping on just placed blocks.
      * @param id
@@ -307,6 +334,7 @@ public class MovingUtil {
     public static boolean canJumpOffTop(final Material blockType) {
         return BlockProperties.isGround(blockType) || BlockProperties.isSolid(blockType);
     }
+
 
     /**
      * Check the context-independent pre-conditions for checking for untracked
@@ -323,6 +351,7 @@ public class MovingUtil {
                 && !BlockProperties.isPassable(loc)
                 && pData.isCheckActive(CheckType.MOVING_PASSABLE, player);
     }
+
 
     /**
      * Detect if the given location is an untracked spot. This is spots for
@@ -387,6 +416,7 @@ public class MovingUtil {
         }
     }
 
+
     /**
      * Convenience method for the case that the server has already reset the
      * fall distance, e.g. with micro moves.
@@ -397,9 +427,9 @@ public class MovingUtil {
      * @param data
      * @return
      */
-    public static double getRealisticFallDistance(final Player player, 
-            final double fromY, final double toY, 
-            final MovingData data, final IPlayerData pData) {
+    public static double getRealisticFallDistance(final Player player, final double fromY, final double toY, 
+                                                  final MovingData data, final IPlayerData pData) {
+
         if (pData.isCheckActive(CheckType.MOVING_NOFALL, player)) {
             // (NoFall will not be checked, if this method is called.)
             if (data.noFallMaxY >= fromY ) {
@@ -413,6 +443,7 @@ public class MovingUtil {
         }
     }
 
+
     /**
      * Ensure we have a set back location set, plus allow moving from upwards
      * with respawn/login. Intended for MovingListener (pre-checks).
@@ -422,7 +453,8 @@ public class MovingUtil {
      * @param data
      */
     public static void checkSetBack(final Player player, final PlayerLocation from, 
-            final MovingData data, final IPlayerData pData, final IDebugPlayer idp) {
+                                    final MovingData data, final IPlayerData pData, final IDebugPlayer idp) {
+
         if (!data.hasSetBack()) {
             data.setSetBack(from);
         }
@@ -440,6 +472,7 @@ public class MovingUtil {
         }
     }
 
+
     public static double getJumpAmplifier(final Player player, final MCAccess mcAccess) {
         final double amplifier = mcAccess.getJumpAmplifier(player);
         if (Double.isInfinite(amplifier)) {
@@ -449,6 +482,7 @@ public class MovingUtil {
             return 1.0 + amplifier;
         }
     }
+
 
     public static void prepareFullCheck(final RichBoundsLocation from, final RichBoundsLocation to, final MoveData thisMove, final double yOnGround) {
         // Collect block flags.
@@ -467,6 +501,7 @@ public class MovingUtil {
         thisMove.setExtraProperties(from, to);
     }
 
+
     /**
      * Ensure nearby chunks are loaded so that the move can be processed at all.
      * Assume too big moves to be cancelled anyway and/or checks like passable
@@ -481,9 +516,9 @@ public class MovingUtil {
      * @param data
      * @param cc
      */
-    public static void ensureChunksLoaded(final Player player, 
-            final Location from, final Location to, final PlayerMoveData lastMove, 
-            final String tag, final MovingConfig cc, final IPlayerData pData) {
+    public static void ensureChunksLoaded(final Player player,final Location from, final Location to, final PlayerMoveData lastMove, 
+                                          final String tag, final MovingConfig cc, final IPlayerData pData) {
+
         // (Worlds must be equal. Ensured in player move handling.)
         final double x0 = from.getX();
         final double z0 = from.getZ();
@@ -530,6 +565,7 @@ public class MovingUtil {
         }
     }
 
+
     /**
      * Ensure nearby chunks are loaded. Further skip chunk loading if the latest
      * stored past move has extra properties set and is close by.
@@ -541,10 +577,9 @@ public class MovingUtil {
      * @param data
      * @param cc
      */
-    public static void ensureChunksLoaded(final Player player, 
-            final Location loc, final String tag, 
-            final MovingData data, final MovingConfig cc, 
-            final IPlayerData pData) {
+    public static void ensureChunksLoaded(final Player player, final Location loc, final String tag, 
+                                          final MovingData data, final MovingConfig cc, final IPlayerData pData) {
+
         final PlayerMoveData lastMove = data.playerMoves.getFirstPastMove();
         final double x0 = loc.getX();
         final double z0 = loc.getZ();
@@ -567,6 +602,7 @@ public class MovingUtil {
         }
     }
 
+
     /**
      * Test if a set back is set in data and scheduled. <br>
      * Primary thread only.
@@ -579,6 +615,7 @@ public class MovingUtil {
                 DataManager.getGenericInstance(player, MovingData.class));
     }
 
+
     /**
      * Test if a set back is set in data and scheduled. <br>
      * Primary thread only.
@@ -590,10 +627,12 @@ public class MovingUtil {
         return data.hasTeleported() && isPlayersetBackScheduled(playerId);
     }
 
+
     private static boolean isPlayersetBackScheduled(final UUID playerId) {
         final IPlayerData pd = DataManager.getPlayerData(playerId);
         return pd != null  && pd.isPlayerSetBackScheduled();
     }
+
 
     /**
      * 
@@ -601,8 +640,7 @@ public class MovingUtil {
      * @param debugMessagePrefix
      * @return True, if the teleport has been successful.
      */
-    public static boolean processStoredSetBack(final Player player, 
-            final String debugMessagePrefix, final IPlayerData pData) {
+    public static boolean processStoredSetBack(final Player player, final String debugMessagePrefix, final IPlayerData pData) {
         final MovingData data = pData.getGenericInstance(MovingData.class);
         final boolean debug = pData.isDebugActive(CheckType.MOVING);
         if (!data.hasTeleported()) {
@@ -675,6 +713,7 @@ public class MovingUtil {
         }
     }
 
+
     /**
      * Get the applicable set-back location at this moment.
      * <hr>
@@ -696,9 +735,8 @@ public class MovingUtil {
      * @param cc
      * @return The applicable set back location
      */
-    public static Location getApplicableSetBackLocation(final Player player,
-            final float refYaw, final float refPitch, final PlayerLocation from,
-            final MovingData data, final MovingConfig cc) {
+    public static Location getApplicableSetBackLocation(final Player player, final float refYaw, final float refPitch, 
+                                                        final PlayerLocation from, final MovingData data, final MovingConfig cc) {
         /*
          * TODO: Consider returning a context object (include if to deal fall
          * damage, otherwise / if possible use a utility method checking the
@@ -748,14 +786,14 @@ public class MovingUtil {
         return null;
     }
 
+
     /**
      * 
      * @param player
      * @param from
      * @return {rough position of ground or -1.0 if none, maximum error}
      */
-    private static final double[] scanForGroundOrResetCond(final Player player, 
-            final PlayerLocation from) {
+    private static final double[] scanForGroundOrResetCond(final Player player, final PlayerLocation from) {
         // Re-check for ground - who knows where this will get called from.
         if (from.isOnGroundOrResetCond()) {
             // TODO: + inside blocks?
@@ -785,5 +823,4 @@ public class MovingUtil {
             return null;
         }
     }
-
 }

@@ -148,9 +148,9 @@ permissions:
         default: false
     nocheatplus.checks.net.keepalivefrequency.silent:
         default: false
-    nocheatplus.checks.net.packetfrequency.silent:
+    nocheatplus.checks.net.moving.silent:
         default: false
-    nocheatplus.checks.net.wrongpacket.silent:
+    nocheatplus.checks.net.packetfrequency.silent:
         default: false
     nocheatplus.checks.net.wrongturn.silent:
         default: false
@@ -333,10 +333,10 @@ permissions:
                   description: Bypass the FlyingFrequency check (flying packet spam).
                 nocheatplus.checks.net.keepalivefrequency:
                   description: Bypass the KeepAliveFrequency check (keep alive packet spam).
+                nocheatplus.checks.net.moving:
+                  description: Allow the player to bypass the Moving check (flying packet checks).
                 nocheatplus.checks.net.packetfrequency:
                   description: Bypass the PacketFrequency check (overall packet spam).
-                nocheatplus.checks.net.wrongpacket:
-                  description: Allow the player to bypass the WrongPacket check.
                 nocheatplus.checks.net.wrongturn:
                   description: Allow the player to bypass the WrongTurn check.
                   

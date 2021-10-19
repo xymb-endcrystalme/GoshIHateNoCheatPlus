@@ -77,7 +77,7 @@ public class ImpossibleHit extends Check {
         // Can't attack with inventory open.
         else if (InventoryUtil.hasAnyInventoryOpen(player)) {
             violation = true;
-            tags.add("inventoryclick");
+            tags.add("inventoryopen");
         }
         // Blocking/Using item and attacking
         else if ((mData.isusingitem || player.isBlocking()) && !resetActiveItem) {

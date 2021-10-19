@@ -325,13 +325,13 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
                     Improbable.feed(player, cc.speedImprobableWeight, now);
                 }
             }
-        }
-        // Feed improbable in case of ok-moves too.
-        // TODO: consider only feeding if attacking with higher average speed (!)
-        else if (normalizedMove > 2.0) { 
-            if (cc.speedImprobableWeight > 0.0f) {
-                if (!cc.speedImprobableFeedOnly && Improbable.check(player, cc.speedImprobableWeight, now, "fight.speed", pData)) {
-                	cancelled = true;
+            // Feed improbable in case of ok-moves too.
+            // TODO: consider only feeding if attacking with higher average speed (!)
+            else if (normalizedMove > 2.0) { 
+                if (cc.speedImprobableWeight > 0.0f) {
+                    if (!cc.speedImprobableFeedOnly && Improbable.check(player, cc.speedImprobableWeight, now, "fight.speed", pData)) {
+                        cancelled = true;
+                    }
                 }
             }
         }
@@ -353,13 +353,7 @@ public class FightListener extends CheckListener implements JoinLeaveListener{
 
                 // Still feed the Improbable
                 if (cc.impossibleHitImprobableWeight > 0.0f) {
-
-                    if (cc.impossibleHitImprobableFeedOnly) {
-                        Improbable.feed(player, cc.impossibleHitImprobableWeight, System.currentTimeMillis());
-                    } 
-                    else if (Improbable.check(player, cc.impossibleHitImprobableWeight, System.currentTimeMillis(), "fight.impossiblehit", pData)) {
-                        cancelled = true;
-                    }
+                    Improbable.feed(player, cc.impossibleHitImprobableWeight, System.currentTimeMillis());
                 }
             }
         }

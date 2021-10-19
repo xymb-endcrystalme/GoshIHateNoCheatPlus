@@ -108,11 +108,10 @@ public enum CheckType {
     NET_ATTACKFREQUENCY(CheckTypeType.CHECK, NET, Permissions.NET_ATTACKFREQUENCY),
     NET_FLYINGFREQUENCY(CheckTypeType.CHECK, NET, Permissions.NET_FLYINGFREQUENCY),
     NET_KEEPALIVEFREQUENCY(CheckTypeType.CHECK, NET, Permissions.NET_KEEPALIVEFREQUENCY),
+    NET_MOVING(CheckTypeType.CHECK, NET, Permissions.NET_MOVING),
     NET_PACKETFREQUENCY(CheckTypeType.CHECK, NET, Permissions.NET_PACKETFREQUENCY),
     NET_SOUNDDISTANCE(CheckTypeType.CHECK, NET), // Can not exempt players from this one.
-    NET_WRONGTURN(CheckTypeType.CHECK, NET, Permissions.NET_WRONGTURN),
-    NET_WRONGPACKET(CheckTypeType.CHECK, NET, Permissions.NET_WRONGPACKET),
-
+    NET_WRONGTURN(CheckTypeType.CHECK, NET, Permissions.NET_WRONGTURN)
     ;
 
     public static enum CheckTypeType {
@@ -246,5 +245,4 @@ public enum CheckType {
     public String getConfigPathLag() {
         return configPathLag;
     }
-
 }

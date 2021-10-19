@@ -39,9 +39,9 @@ public class NetConfig extends ACheckConfig {
             Permissions.NET_ATTACKFREQUENCY,
             Permissions.NET_FLYINGFREQUENCY, 
             Permissions.NET_KEEPALIVEFREQUENCY,
+            Permissions.NET_MOVING,
             Permissions.NET_PACKETFREQUENCY,
-			Permissions.NET_WRONGTURN,
-            Permissions.NET_WRONGPACKET
+			Permissions.NET_WRONGTURN
     };
 
     public static RegisteredPermission[] getPreferKeepUpdatedPermissions() {
@@ -71,11 +71,11 @@ public class NetConfig extends ACheckConfig {
     public final ActionList keepAliveFrequencyActions;
     public final int keepAliveFrequencyStartupDelay;
 
+    public final ActionList movingActions;
+
     public final float packetFrequencyPacketsPerSecond;
     public final int packetFrequencySeconds;
     public final ActionList packetFrequencyActions;
-
-    public final ActionList wrongPacketActions;
 	
 	public final ActionList wrongTurnActions;
 
@@ -125,11 +125,12 @@ public class NetConfig extends ACheckConfig {
             //worldData.overrideCheckActivation(CheckType.NET_PACKETFREQUENCY,
             //        AlmostBoolean.NO, OverrideType.PERMANENT, true);
         }
+
+        movingActions = config.getOptimizedActionList(ConfPaths.NET_MOVING_ACTIONS, Permissions.NET_MOVING);
+
         packetFrequencyPacketsPerSecond = config.getInt(ConfPaths.NET_PACKETFREQUENCY_PPS);
         packetFrequencySeconds = config.getInt(ConfPaths.NET_PACKETFREQUENCY_SECONDS);
         packetFrequencyActions = config.getOptimizedActionList(ConfPaths.NET_PACKETFREQUENCY_ACTIONS, Permissions.NET_PACKETFREQUENCY);
-
-        wrongPacketActions = config.getOptimizedActionList(ConfPaths.NET_WRONGPACKET_ACTIONS, Permissions.NET_WRONGPACKET);
 		
 		wrongTurnActions = config.getOptimizedActionList(ConfPaths.NET_WRONGTURN_ACTIONS, Permissions.NET_WRONGTURN);
 

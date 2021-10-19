@@ -666,6 +666,8 @@ public class BlockProperties {
     public static final long F_STAIRS                       = f_flag();
 
     /** The Constant F_LIQUID. */
+    public static final long F_BED                          = f_flag();
+
     public static final long F_LIQUID                       = f_flag();
 
     public static final long F_WATER_PLANT                  = f_flag();
@@ -1358,7 +1360,7 @@ public class BlockProperties {
         }
         for (Material mat : MaterialUtil.BEDS) { // TODO: Beds are special.
             setBlock(mat, leafType);
-            setFlag(mat, F_GROUND | F_SOLID | F_BOUNCE25);
+            setFlag(mat, F_GROUND | F_SOLID | F_BOUNCE25 | F_BED);
 	}
 
         // Cobweb
@@ -2869,7 +2871,6 @@ public class BlockProperties {
                             || type == Material.ENDER_CHEST
                             || type == Material.DISPENSER
                             || type == Material.DROPPER
-                            || type == Material.SHULKER_BOX
                             || type == BridgeMaterial.BARREL
                             // Ugly.
                             || type.toString().endsWith("SHULKER_BOX"));

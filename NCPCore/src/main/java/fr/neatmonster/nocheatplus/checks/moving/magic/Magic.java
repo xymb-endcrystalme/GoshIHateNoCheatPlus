@@ -36,6 +36,8 @@ import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
  */
 public class Magic {
 
+    // TODO: Do any of these belong to MovingUtil?
+    
     // CraftBukkit/Minecraft constants.
     public static final double DEFAULT_WALKSPEED = 0.2;
     public static final double DEFAULT_FLYSPEED = 0.1;
@@ -246,15 +248,7 @@ public class Magic {
         final PlayerMoveData pastMove6 = data.playerMoves.getPastMove(5);
         final PlayerMoveData pastMove7 = data.playerMoves.getPastMove(6);
         final PlayerMoveData pastMove8 = data.playerMoves.getPastMove(7);
-
-       /* 
-        * TODO: Observed workarounds applied during such phase (which allow 1-block step cheats, likely)
-        *       - fastfall 2/3
-        *       - accepted.env
-        *       - shortmove 1
-        *       - occasionally, oddSlope 1
-        *       - oddgravity.1
-        */     
+    
         return 
                 // Lift off
                 pastMove8.from.onGround && !pastMove8.to.onGround 
@@ -369,15 +363,54 @@ public class Magic {
     }
 
     /**
+     * Test, using the past move tracking, if the player has been on ice.
+     * Uses all available past moves.
+     * 
+     * @param data
+     * @return
+     */
+    public static boolean wasOnIceRecently(final MovingData data) {
+        int limit = data.playerMoves.getNumberOfPastMoves();
+        for (int i = 0; i < limit; i++) {
+            
+            final PlayerMoveData pastMove = data.playerMoves.getPastMove(i);
+            if (touchedIce(pastMove)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Test, using the past move tracking, if the player has been on a bouncy block.
+     * Uses all available past moves.
+     * 
+     * @param data
+     * @return
+     */
+    public static boolean wasOnBouncyBlockRecently(final MovingData data) {
+        int limit = data.playerMoves.getNumberOfPastMoves();
+        for (int i = 0; i < limit; i++) {
+            final PlayerMoveData pastMove = data.playerMoves.getPastMove(i);
+            if (!pastMove.toIsValid) {
+                return false;
+            }
+            else if (touchedBouncyBlock(pastMove)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    /**
      * 
      * @param thisMove
      *            Not strictly the latest move in MovingData.
      * @return
      */
-    public static boolean touchedBouncyBlock(final PlayerMoveData thisMove, final PlayerLocation from) {
-        return thisMove.from.onSlimeBlock 
-               // beds
-               || (thisMove.touchedGround && (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0);
+    public static boolean touchedBouncyBlock(final PlayerMoveData thisMove) {
+        return thisMove.from.onBouncyBlock || thisMove.to.onBouncyBlock;
     }
     
     /**
@@ -396,8 +429,8 @@ public class Magic {
      *            Not strictly the latest move in MovingData.
      * @return
      */
-    public static boolean touchedSlipperyBlock(final PlayerMoveData thisMove, final PlayerLocation from) {
-        return touchedIce(thisMove) || touchedBouncyBlock(thisMove, from);
+    public static boolean touchedSlipperyBlock(final PlayerMoveData thisMove) {
+        return touchedIce(thisMove) || touchedBouncyBlock(thisMove);
     } 
     
     /**

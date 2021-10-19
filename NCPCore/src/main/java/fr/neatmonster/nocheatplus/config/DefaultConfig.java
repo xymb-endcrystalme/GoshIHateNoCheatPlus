@@ -364,11 +364,10 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_GODMODE_CHECK, "default", 785);
         set(ConfPaths.FIGHT_GODMODE_LAGMINAGE, 1100, 785); // TODO: ndt/2 => 500-600.
         set(ConfPaths.FIGHT_GODMODE_LAGMAXAGE, 5000, 785);
-        set(ConfPaths.FIGHT_GODMODE_ACTIONS, "cancel log:godmode:0:5:icf cmdc:kickgod:0:5", 1154);
+        set(ConfPaths.FIGHT_GODMODE_ACTIONS, "cancel vl>10 cancel log:godmode:0:5:icf cmdc:kickgod:0:5", 1154);
         // ImpHit
         set(ConfPaths.FIGHT_IMPOSSIBLEHIT_CHECK, "default", 785);
-        set(ConfPaths.FIGHT_IMPOSSIBLEHIT_IMPROBABLE_FEEDONLY, false, 1154);
-        set(ConfPaths.FIGHT_IMPOSSIBLEHIT_IMPROBABLE_WEIGHT, 3.0, 1154);
+        set(ConfPaths.FIGHT_IMPOSSIBLEHIT_IMPROBABLE_WEIGHT, 0.05, 1154);
         set(ConfPaths.FIGHT_IMPOSSIBLEHIT_ACTIONS, "cancel vl>3 cancel log:impossiblehit:0:5:if", 1154);
         // NoSwing
         set(ConfPaths.FIGHT_NOSWING_CHECK, "default", 785);
@@ -394,7 +393,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.FIGHT_SPEED_SHORTTERM_TICKS, 7, 785);
         set(ConfPaths.FIGHT_SPEED_SHORTTERM_LIMIT, 5, 1154);
         set(ConfPaths.FIGHT_SPEED_IMPROBABLE_FEEDONLY, false, 1154);
-        set(ConfPaths.FIGHT_SPEED_IMPROBABLE_WEIGHT, 2.0, 1154);
+        set(ConfPaths.FIGHT_SPEED_IMPROBABLE_WEIGHT, 1.0, 1154);
 
 
         /* Inventory */
@@ -524,7 +523,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_MOREPACKETS_BURST_PACKETS, 35, 785);
         set(ConfPaths.MOVING_MOREPACKETS_BURST_DIRECT, 55, 785);
         set(ConfPaths.MOVING_MOREPACKETS_BURST_EPM, 100, 1154);
-        set(ConfPaths.MOVING_MOREPACKETS_SETBACKAGE, 150, 1154); // Quite harsh. 
+        set(ConfPaths.MOVING_MOREPACKETS_SETBACKAGE, 110, 1154); // Quite harsh. 
         set(ConfPaths.MOVING_MOREPACKETS_ACTIONS, "cancel vl>2 cancel log:morepackets:10:9:i vl>100 cancel log:morepackets:0:2:ifc cmdc:kickpackets:0:10", 1154);
         // NoFall
         set(ConfPaths.MOVING_NOFALL_CHECK, "default", 785);
@@ -563,10 +562,8 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_SURVIVALFLY_SETBACKPOLICY_FALLDAMAGE, true, 785);
         set(ConfPaths.MOVING_SURVIVALFLY_SETBACKPOLICY_VOIDTOVOID, false, 1154);
         set(ConfPaths.MOVING_SURVIVALFLY_ACTIONS, "cancel log:flyfile:6:15:f" 
-            + " vl>50 cancel log:survivalfly:13:9:i log:flyfile:6:15:f" 
-            + " vl>300 cancel log:survivalfly:7:8:i log:flyfile:1:3:f" 
-            + " vl>830 cancel log:survivalflyhighvl:4:9:i log:flyfile:2:3:f" 
-            + " vl>1500 cancel log:survivalflyhighvl:3:4:i log:flyfile:1:2:f" 
+            + " vl>100 cancel log:survivalfly:10:11:i log:flyfile:6:15:f" 
+            + " vl>700 cancel log:survivalfly:8:5:i log:flyfile:1:3:f" 
             + " vl>2100 cancel log:survivalflyhighvl:0:4:icf cmd:clearsf:0:15 cmdc:kickfly:0:15", 1154);     
         // SurvivalFly - Hover Subcheck
         set(ConfPaths.MOVING_SURVIVALFLY_HOVER_CHECK, true, 785); // Not a check type yet.
@@ -590,7 +587,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_LOADCHUNKS_MOVE, false, 1154);
         set(ConfPaths.MOVING_LOADCHUNKS_TELEPORT, true, 785);
         set(ConfPaths.MOVING_LOADCHUNKS_WORLDCHANGE, true, 785);
-        set(ConfPaths.MOVING_SPRINTINGGRACE, 2.0, 785);
+        set(ConfPaths.MOVING_SPRINTINGGRACE, 4.0, 785);
         set(ConfPaths.MOVING_ASSUMESPRINT, true, 785);
         set(ConfPaths.MOVING_SPEEDGRACE, 4.0, 785);
         set(ConfPaths.MOVING_ENFORCELOCATION, "default", 785);
@@ -630,12 +627,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.NET_FLYINGFREQUENCY_ACTIVE, "default", 785);
         set(ConfPaths.NET_FLYINGFREQUENCY_SECONDS, 5, 785);
         set(ConfPaths.NET_FLYINGFREQUENCY_PACKETSPERSECOND, 60, 785);
-        // Observed: when a flying packet gets canceled, the position of the player won't get updated to the server
-        // but they will still be able to move client-side; this will result in a server-sided freeze.
-        // When the player thaws out of this state, (presumably) their position will update in a rather fast sequence, which SurvivalFly
-        // really seems to dislike. (Players can sometimes reach 1000+ VLs(!))
-        // Thus, lower Flyingfrequency violations should not be immediately canceled, 20 seems a reasonable threshold through testing.
-        set(ConfPaths.NET_FLYINGFREQUENCY_ACTIONS, "vl>20 cancel log:flyingfrequency:3:2:i vl>500 cancel log:flyingfrequency:0:5:if vl>1000 cancel log:flyingfrequency:0:2:icf cmdc:kickflyingfrequency:0:10", 1154); 
+        set(ConfPaths.NET_FLYINGFREQUENCY_ACTIONS, "cancel vl>20 cancel log:flyingfrequency:3:2:i vl>500 cancel log:flyingfrequency:0:5:if vl>1000 cancel log:flyingfrequency:0:2:icf cmdc:kickflyingfrequency:0:10", 1154); 
         set(ConfPaths.NET_FLYINGFREQUENCY_REDUNDANT_ACTIVE, true, 785);
         set(ConfPaths.NET_FLYINGFREQUENCY_REDUNDANT_SECONDS, 3, 785);
         set(ConfPaths.NET_FLYINGFREQUENCY_REDUNDANT_ACTIONS, "cancel", 785); 
@@ -643,6 +635,9 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.NET_KEEPALIVEFREQUENCY_ACTIVE, "default", 785);
         set(ConfPaths.NET_KEEPALIVEFREQUENCY_SECONDS, 20, 1153);
         set(ConfPaths.NET_KEEPALIVEFREQUENCY_ACTIONS, "cancel vl>10 cancel log:keepalive:2:6:i vl>60 cancel log:keepalive:0:10:icf cmdc:kickalive:0:5", 1154);
+        // Moving
+        set(ConfPaths.NET_MOVING_ACTIVE, "default", 1154);
+        set(ConfPaths.NET_MOVING_ACTIONS, "cancel vl>17 cancel log:moving:10:15:i", 1154);
         // PacketFrequency (pre 1.9).
         set(ConfPaths.NET_PACKETFREQUENCY_ACTIVE, "default", 785);
         set(ConfPaths.NET_PACKETFREQUENCY_PPS, 300, 1154); // Old limit: 200, legit 1.8 clients seem to be able to reach such value more often than not...
@@ -653,9 +648,6 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.NET_SOUNDDISTANCE_MAXDISTANCE, 320, 785);
         // Superseded
         set(ConfPaths.NET_SUPERSEDED_FLYING_CANCELWAITING, true, 1090);
-        // Wrongpacket
-        set(ConfPaths.NET_WRONGPACKET_ACTIVE, "default", 1154);
-        set(ConfPaths.NET_WRONGPACKET_ACTIONS, "cancel cmdc:kickimprobable:0:10 log:wrongpacket:0:15:i", 1154);
         // WrongTurn
         set(ConfPaths.NET_WRONGTURN_ACTIVE, "default", 1154);
         set(ConfPaths.NET_WRONGTURN_ACTIONS, "cancel log:wrongturn:0:15:icf cmdc:kickillegalrotations:0:10", 1154);
@@ -742,6 +734,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".kickwb", kick + "Block breaking out of sync.", 1154);
         set(ConfPaths.STRINGS + ".freachhighvl", start + "is most likely using a killaura cheat (Reach: &6[reachdistance]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".morepackets", start + "sent too many moves (&cPackets&7/&cVL [packets]&7)", 1154);
+        set(ConfPaths.STRINGS + ".moving", start + "tried to send improbable position updates" + end, 1154);
         set(ConfPaths.STRINGS + ".msgtempdenylogin", "You are temporarily denied to join this server.", 785);
         set(ConfPaths.STRINGS + ".munchhausen", start + "tried to hit themeselves with a fishing rod too many times (the knockback can be potentially abused for bypasses)" + end, 1154);
         set(ConfPaths.STRINGS + ".nofall", start + "tried to alter fall damage or fall distance (Tags: &6[tags]&7)" + end, 1154);
@@ -752,10 +745,9 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".survivalfly", start + "tried to move unexpectedly" + end, 1154);
         set(ConfPaths.STRINGS + ".survivalflyhighvl", start + "tried to perform an illegal move (Subchecks: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".tellchatnormal", tell + "Too many messages, slow down...", 1154);
-        set(ConfPaths.STRINGS + ".tempkick1", "ncp tempkick [player] 1  &c&l(!)&7 You have to wait 1 minute before joining this server again.", 1154);
-        set(ConfPaths.STRINGS + ".tempkick5", "ncp tempkick [player] 5  &c&l(!)&7 You have to wait 5 minutes before joining this server again.", 1154);
+        set(ConfPaths.STRINGS + ".tempkick1", "ncp tempkick [player] 1 &c&l(!)&7 You have to wait 1 minute before joining this server again.", 1154);
+        set(ConfPaths.STRINGS + ".tempkick5", "ncp tempkick [player] 5 &c&l(!)&7 You have to wait 5 minutes before joining this server again.", 1154);
         set(ConfPaths.STRINGS + ".vehicleenvelope", start + "tried to move a vehicle unexpectedly (Tags/Vehicle: &6[tags]&7)" + end, 1154);
-        set(ConfPaths.STRINGS + ".wrongpacket", start + "tried to send a fly packet (is not allowed to fly)" + end, 1154);
         set(ConfPaths.STRINGS + ".wrongturn", start + "tried to send an impossible pitch rotation (&6>90 &7or&6 <-90&7)" + end, 1154);
         // Clear a check data  
         set(ConfPaths.STRINGS + ".clearcritical", clear + "FIGHT_CRITICAL", 1154);

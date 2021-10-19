@@ -95,8 +95,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int keepfrictiontick = 0;
     /** Countdown for ending a bunnyfly phase(= phase after bunnyhop). 10(max) represents a bunnyhop, 9-1 represent the tick at which this bunnfly phase currently is. */
     public int bunnyhopDelay;
-    /** Value to increase the allowed bunnyfriction speed with. Set in SurvivalFly.bunnyHop() */
-    public double groundAccel;
     /** bunnyHopDelay phase before applying a LostGround case (set in SurvivalFly.bunnyHop()) */ 
     public int lastbunnyhopDelay = 0;
     /** Ticks after landing on ground (InAir->Ground). Mainly used in SurvivalFly. */
@@ -171,7 +169,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         public PlayerMoveData call() throws Exception {
             return new PlayerMoveData();
         }
-    }, 8); // Too many moves, perhaps... :p 
+    }, 14); //+ currentmove = 15. For keeping track of moves influenced by ice friction and such, perhaps it's too much... The 4 extra past moves are for bunnyhop on ice with jump boost.
     /** Keep track of currently processed (if) and past moves for vehicle moving. Stored moves can be altered by modifying the int. */
     // TODO: There may be need to store such data with vehicles, or detect tandem abuse in a different way.
     public final MoveTrace <VehicleMoveData> vehicleMoves = new MoveTrace<VehicleMoveData>(new Callable<VehicleMoveData>() {
@@ -179,7 +177,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         public VehicleMoveData call() throws Exception {
             return new VehicleMoveData();
         }
-    }, 4);
+    }, 2);
 
     // *----------Velocity handling----------* 
     /** Tolerance value for using vertical velocity (the client sends different values than received with fight damage). */
@@ -273,7 +271,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     /** Ticks influenced by ice friction after sptintjumping with head obstr., used in survivalFly.setAllowedHDist(). */
     public int iceFrictionTick = 0; 
     /** Fake in air flag: set with any violation, reset once on ground. */
-    public boolean  sfVLInAir = false;
+    public boolean sfVLInAir = false;
     /** Vertical accounting info */
     public final ActionAccumulator vDistAcc = new ActionAccumulator(3, 3);
     /** Workarounds (InAirRules,LiquidWorkarounds). */
@@ -329,7 +327,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         trace = new LocationTrace(config.traceMaxAge, config.traceMaxSize, NCPAPIProvider.getNoCheatPlusAPI().getGenericInstance(TraceEntryPool.class));
         // A new set of workaround conters.
         ws = NCPAPIProvider.getNoCheatPlusAPI().getGenericInstance(WRPT.class).getWorkaroundSet(WRPT.WS_MOVING);
-
     }
 
 
@@ -359,7 +356,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public void clearFlyData() {
         playerMoves.invalidate();
         bunnyhopDelay = 0;
-        groundAccel = 0.0;
         sfJumpPhase = 0;
         jumpAmplifier = 0;
         iceFrictionTick = 0;
@@ -441,18 +437,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         // Remember where we send the player to.
         setTeleported(loc);
         // TODO: sfHoverTicks ?
-    }
-    
-
-    /**
-     * Get the amount to add in bunnyfriction speed according to medium.
-     * @param thisMove
-     * @param from
-     */
-    public double getGroundAccelAddition(final PlayerMoveData thisMove, final PlayerLocation from) {
-        if (Magic.touchedIce(thisMove)) return 0.1167;
-        else if (Magic.touchedBouncyBlock(thisMove, from)) return 0.1068;
-        else return 0.0;
     }
 
 

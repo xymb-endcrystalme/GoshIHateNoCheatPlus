@@ -22,6 +22,8 @@ import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
+import fr.neatmonster.nocheatplus.NCPAPIProvider;
+import fr.neatmonster.nocheatplus.logging.Streams;
 import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeReference;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker;
@@ -142,6 +144,9 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     
     /** Is the player in powder snow? */
     Boolean inPowderSnow = null;
+    
+    /** Is the player on a boncy block? (Bed, slime) */
+    Boolean onBouncyBlock = null;
 
 
     // "Heavy" object members that need to be set to null on cleanup. //
@@ -869,7 +874,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         }
         // Workaround for Minecraft's legacy stupidity: ice properties apply on top of chests with ice underneath...
         // Applies for slime blocks and soul sand too, but we don't care about those since they do not increase player's speed in-air.
-        //   else if (ServerVersion.compareMinecraftVersion("1.9") > 0) {
+        //   else if (ServerVersion.compareMinecraftVersion("1.9") < 0) {
         //        Material blockBelowFeet = getTypeId(getBlockX(), Location.locToBlock(getY() - yOnGround), getBlockZ());
         //        Material blockBelowBlock = getTypeId(getBlockX(), Location.locToBlock(getY() - 1.0), getBlockZ());
         //        if (BlockProperties.isChest(blockBelowFeet) && BlockProperties.isIce(blockBelowBlock) && isOnGround()) {
@@ -939,6 +944,27 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     }
 
     /**
+     * Check the location is on a bouncy block only regarding the center. Currently
+     * demands to be on ground as well.
+     *
+     * @return true, if is on a bouncy block
+     */
+    public boolean isOnBouncyBlock() {
+        if (onBouncyBlock == null) {
+            if (isOnSlimeBlock()) {
+                onBouncyBlock = true;
+            }
+            else if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_BED) != 0) {
+                onBouncyBlock = isOnGround() && BlockProperties.collides(blockCache, minX, minY - yOnGround, minZ, maxX, minY, maxZ, BlockProperties.F_BED); 
+            }
+            else onBouncyBlock = false;
+        }
+        return onBouncyBlock;
+    }
+
+
+
+    /**
      * Check the location is on honey block.
      *
      * @return true, if is on honey block
@@ -1001,13 +1027,13 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
                         // TODO: BlockHeight is needed for fences, use right away (above)?
                         if (!BlockProperties.isPassableWorkaround(blockCache, blockX, bY, blockZ, minX - blockX, minY - yOnGround - bY, minZ - blockZ, useNode, maxX - minX, yOnGround, maxZ - minZ,  1.0)
                                 || (flags & BlockProperties.F_GROUND_HEIGHT) != 0 &&  BlockProperties.getGroundMinHeight(blockCache, blockX, bY, blockZ, useNode, flags) <= y - bY) {
-                            //                          NCPAPIProvider.getNoCheatPlusAPI().getLogManager().debug(Streams.TRACE_FILE, "*** onground SHORTCUT");
+                           //  NCPAPIProvider.getNoCheatPlusAPI().getLogManager().debug(Streams.TRACE_FILE, "*** onground SHORTCUT");
                             onGround = true;
                         }
                     }
                 }
                 if (onGround == null) {
-                    //                  NCPAPIProvider.getNoCheatPlusAPI().getLogManager().debug(Streams.TRACE_FILE, "*** fetch onground std");
+                    //NCPAPIProvider.getNoCheatPlusAPI().getLogManager().debug(Streams.TRACE_FILE, "*** fetch onground std");
                     // Full on-ground check (blocks).
                     // Note: Might check for half-block height too (getTypeId), but that is much more seldom.
                     onGround = BlockProperties.isOnGround(blockCache, minX, minY - yOnGround, minZ, maxX, minY, maxZ, 0L);
@@ -1108,7 +1134,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
                 if (notOnGroundMaxY >= yOnGround) return false;
             }
         }
-        //      NCPAPIProvider.getNoCheatPlusAPI().getLogManager().debug(Streams.TRACE_FILE, "*** Fetch on-ground: yOnGround=" + yOnGround + " xzM=" + xzMargin + " yM=" + yMargin + " ign=" + ignoreFlags);
+        //NCPAPIProvider.getNoCheatPlusAPI().getLogManager().debug(Streams.TRACE_FILE, "*** Fetch on-ground: yOnGround=" + yOnGround + " xzM=" + xzMargin + " yM=" + yMargin + " ign=" + ignoreFlags);
         final boolean onGround = BlockProperties.isOnGround(blockCache, minX - xzMargin, minY - yOnGround - yMargin, minZ - xzMargin, maxX + xzMargin, minY + yMargin, maxZ + xzMargin, ignoreFlags);
         if (ignoreFlags == 0) {
             if (onGround) {
@@ -1523,6 +1549,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         this.onSoulSand = other.isOnSoulSand();
         this.inPowderSnow = other.isInPowderSnow();
         this.onClimbable = other.isOnClimbable();
+        this.onBouncyBlock = other.isOnBouncyBlock();
         // Complex checks last.
         if (!onGround && !isResetCond()) {
             // TODO: if resetCond is checked, set on the other !?
@@ -1590,7 +1617,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
 
         // Reset cached values.
         node = nodeBelow = null;
-        aboveStairs = inLava = inWater = inWaterLogged = inWeb = onIce = onBlueIce = onSoulSand = onHoneyBlock = onSlimeBlock = inBerryBush = inPowderSnow = onGround = onClimbable = passable = passableBox = null;
+        aboveStairs = inLava = inWater = inWaterLogged = inWeb = onIce = onBlueIce = onSoulSand = onHoneyBlock = onSlimeBlock = inBerryBush = inPowderSnow = onGround = onClimbable = onBouncyBlock = passable = passableBox = null;
         onGroundMinY = Double.MAX_VALUE;
         notOnGroundMaxY = Double.MIN_VALUE;
         blockFlags = null;

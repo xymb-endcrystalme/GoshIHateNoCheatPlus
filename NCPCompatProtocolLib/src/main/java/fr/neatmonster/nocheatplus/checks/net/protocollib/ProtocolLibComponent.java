@@ -118,7 +118,7 @@ public class ProtocolLibComponent implements IDisableListener, INotifyReload, Jo
             // (Also sets lastKeepAliveTime, if enabled.)
             register("fr.neatmonster.nocheatplus.checks.net.protocollib.UseEntityAdapter", plugin);
         }
-        if (worldMan.isActiveAnywhere(CheckType.NET_FLYINGFREQUENCY)) {
+        if (worldMan.isActiveAnywhere(CheckType.NET_FLYINGFREQUENCY) || worldMan.isActiveAnywhere(CheckType.NET_MOVING)) {
             // (Also sets lastKeepAliveTime, if enabled.)
             register("fr.neatmonster.nocheatplus.checks.net.protocollib.MovingFlying", plugin);
             register("fr.neatmonster.nocheatplus.checks.net.protocollib.OutgoingPosition", plugin);
@@ -129,9 +129,6 @@ public class ProtocolLibComponent implements IDisableListener, INotifyReload, Jo
         }
         if (worldMan.isActiveAnywhere(CheckType.NET_SOUNDDISTANCE)) {
             register("fr.neatmonster.nocheatplus.checks.net.protocollib.SoundDistance", plugin);
-        }
-        if (worldMan.isActiveAnywhere(CheckType.NET_WRONGPACKET)) {
-            register("fr.neatmonster.nocheatplus.checks.net.protocollib.WrongPacketAdapter", plugin);
         }
         if (worldMan.isActiveAnywhere(CheckType.NET_WRONGTURN)) {
             register("fr.neatmonster.nocheatplus.checks.net.protocollib.WrongTurnAdapter", plugin);
