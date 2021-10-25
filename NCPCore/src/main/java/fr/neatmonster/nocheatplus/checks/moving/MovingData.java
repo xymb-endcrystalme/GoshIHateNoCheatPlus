@@ -169,7 +169,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         public PlayerMoveData call() throws Exception {
             return new PlayerMoveData();
         }
-    }, 14); //+ currentmove = 15. For keeping track of moves influenced by ice friction and such, perhaps it's too much... The 4 extra past moves are for bunnyhop on ice with jump boost.
+    }, 16); //+ currentmove = 17. For keeping track of moves influenced by ice friction and such, perhaps it's too much... The 6 extra past moves are for bunnyhop on ice with jump boost.
     /** Keep track of currently processed (if) and past moves for vehicle moving. Stored moves can be altered by modifying the int. */
     // TODO: There may be need to store such data with vehicles, or detect tandem abuse in a different way.
     public final MoveTrace <VehicleMoveData> vehicleMoves = new MoveTrace<VehicleMoveData>(new Callable<VehicleMoveData>() {
@@ -1401,6 +1401,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public void handleTimeRanBackwards() {
         final long time = System.currentTimeMillis();
         timeSprinting = Math.min(timeSprinting, time);
+        timeRiptiding = Math.min(timeRiptiding, time);
+        delayWorkaround = Math.min(delayWorkaround, time);
         vehicleMorePacketsLastTime = Math.min(vehicleMorePacketsLastTime, time);
         clearAccounting(); // Not sure: adding up might not be nice.
         removeAllPlayerSpeedModifiers(); // TODO: This likely leads to problems.
@@ -1554,7 +1556,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     @Override
     public boolean dataOnReload(final IGetGenericInstance dataAccess) {
         final MovingConfig cc = dataAccess.getGenericInstance(MovingConfig.class);
-        trace.adjustSettings(cc.traceMaxAge, cc.traceMaxSize, System.currentTimeMillis());
+        trace.adjustSettings(cc.traceMaxAge, cc.traceMaxSize, TickTask.getTick());
         return false;
     }
 

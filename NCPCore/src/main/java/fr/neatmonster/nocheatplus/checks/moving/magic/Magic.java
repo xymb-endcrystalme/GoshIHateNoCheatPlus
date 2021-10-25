@@ -276,59 +276,6 @@ public class Magic {
     }
 
     /**
-     * Check if the player has switched horizontal direction (strafing, rather) 
-     * @param thisMove
-     * @param lastMove
-     * @return true if the player has switched horizontal direction
-     */
-    public static boolean changedHDir(final PlayerMoveData thisMove, final PlayerMoveData lastMove) {
-
-         final double xDistance = thisMove.to.getX() - thisMove.from.getX();
-         final double xLastDistance = lastMove.to.getX() - lastMove.from.getX();
-         final double zDistance = thisMove.to.getZ() - thisMove.from.getZ();
-         final double zLastDistance = lastMove.to.getZ() - lastMove.from.getZ();
-
-         return (xLastDistance != xDistance && (xDistance <= 0.0 && xLastDistance >= 0.0 || xDistance >= 0.0 && xLastDistance <= 0.0))
-                || (zLastDistance != zDistance && (zDistance <= 0.0 && zLastDistance >= 0.0 || zDistance >= 0.0 && zLastDistance <= 0.0)); 
-    }
-
-    /**
-     * Pre conditions: A slime block is underneath and the player isn't really
-     * sneaking. This does not account for pistons pushing (slime) blocks.<br>
-     * 
-     * @param player
-     * @param from
-     * @param to
-     * @param data
-     * @param cc
-     * @return
-     */
-    public static boolean checkBounceEnvelope(final Player player, final PlayerLocation from, final PlayerLocation to, 
-                                              final MovingData data, final MovingConfig cc, final IPlayerData pData) {
-        
-        // Workaround/fix for bed bouncing. getBlockY() would return an int, while a bed's maxY is 0.5625, causing this method to always return false.
-        // A better way to do this would to get the maxY through another method, just can't seem to find it :/
-        // Collect block flags at the current location as they may not already be there, and cause NullPointer errors.
-        to.collectBlockFlags();
-        double blockY = ((to.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0) 
-                        && ((to.getY() + 0.4375) % 1 == 0) ? to.getY() : to.getBlockY();
-        return 
-                // 0: Normal envelope (forestall NoFall).
-                (
-                    // 1: Ordinary.
-                    to.getY() - blockY <= Math.max(cc.yOnGround, cc.noFallyOnGround)
-                    // 1: With carpet.
-                    || BlockProperties.isCarpet(to.getTypeId()) && to.getY() - to.getBlockY() <= 0.9
-                )
-                && MovingUtil.getRealisticFallDistance(player, from.getY(), to.getY(), data, pData) > 1.0
-                // 0: Within wobble-distance.
-                || to.getY() - blockY < 0.286 && to.getY() - from.getY() > -0.9
-                && to.getY() - from.getY() < -Magic.GRAVITY_MIN
-                && !to.isOnGround()
-                ;
-    }
-
-    /**
      * Test for a specific move in-air -> water, then water -> in-air.
      * 
      * @param thisMove
@@ -372,9 +319,11 @@ public class Magic {
     public static boolean wasOnIceRecently(final MovingData data) {
         int limit = data.playerMoves.getNumberOfPastMoves();
         for (int i = 0; i < limit; i++) {
-            
             final PlayerMoveData pastMove = data.playerMoves.getPastMove(i);
-            if (touchedIce(pastMove)) {
+            if (!pastMove.toIsValid) {
+                return false;
+            }
+            else if (touchedIce(pastMove)) {
                 return true;
             }
         }
@@ -401,7 +350,6 @@ public class Magic {
         }
         return false;
     }
-
 
     /**
      * 
@@ -532,27 +480,6 @@ public class Magic {
         return !lastMove.toIsValid && data.sfJumpPhase == 0 && thisMove.multiMoveCount > 0
                 && setBackYDistance > 0.0 && setBackYDistance < PAPER_DIST 
                 && thisMove.yDistance > 0.0 && thisMove.yDistance < PAPER_DIST && inAir(thisMove);
-    }
-
-    /**
-     * Disregarding this move, test if all the way falling after head being
-     * obstructed.
-     * 
-     * @param data
-     * @return
-     */
-    public static boolean fallAfterHeadObstructed(final MovingData data, int limit) {
-        limit = Math.min(limit, data.playerMoves.getNumberOfPastMoves());
-        for (int i = 0; i < limit; i++) {
-            final PlayerMoveData move = data.playerMoves.getPastMove(i);
-            if (!move.toIsValid || move.yDistance >= 0.0) {
-                return false;
-            }
-            else if (move.headObstructed) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
