@@ -60,7 +60,13 @@ public class InAirRules {
      */
     public static boolean venvHacks(final PlayerLocation from, final PlayerLocation to, final double yDistance, 
                                     final double yDistChange, final PlayerMoveData thisMove, final PlayerMoveData lastMove, 
-                                    final MovingData data) {
+                                    final MovingData data, final boolean resetFrom, final boolean resetTo) {
+        
+        // Only for air phases.
+        if (!resetFrom && !resetTo) {
+            return false;
+        }
+
         return 
                 // 0: Intended for cobweb.
                 data.liftOffEnvelope == LiftOffEnvelope.NO_JUMP && data.sfJumpPhase < 60

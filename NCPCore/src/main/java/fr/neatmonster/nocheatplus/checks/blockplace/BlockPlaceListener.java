@@ -281,7 +281,7 @@ public class BlockPlaceListener extends CheckListener {
                     || Scaffold.check(player, placedFace, pData, data, cc, event.isCancelled(), mData.playerMoves.getCurrentMove().yDistance, mData.sfJumpPhase)) {
                     cancelled = true;
                 }
-                // Still a scaffold-like placement, feed the Improbable.
+                // If not cancelled, do still feed the Improbable.
                 else if (cc.scaffoldImprobableWeight > 0.0f) {
 
                     if (cc.scaffoldImprobableFeedOnly) {

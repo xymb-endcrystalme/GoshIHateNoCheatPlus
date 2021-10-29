@@ -959,6 +959,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             // Prepare from, to, thisMove for full checking.
             // TODO: Could further differentiate if really needed to (newTo / NoFall).
             MovingUtil.prepareFullCheck(pFrom, pTo, thisMove, Math.max(cc.noFallyOnGround, cc.yOnGround));
+
             // HACK: Add velocity for transitions between creativefly and survivalfly.
             if (lastMove.toIsValid && lastMove.flyCheck == CheckType.MOVING_CREATIVEFLY) { 
                 final long tickHasLag = data.delayWorkaround + Math.round(200 / TickTask.getLag(200, true));
@@ -990,7 +991,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 }
                 else data.sfHoverTicks = -1;
 
-                // NoFall.
+                // Still check for NoFall.
                 if (checkNf) {
                     noFall.check(player, pFrom, pTo, previousSetBackY, data, cc, pData);
                 }
@@ -1069,22 +1070,23 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         //////////////////////////////////////////////
         // Check if the move is to be allowed       //
         //////////////////////////////////////////////
+        // No check has requested a new to-Location (or actions are set not to cancel)
         if (newTo == null) {
-            // Allowed move.
+
+            // 1: Ignore this one.
             if (data.hasTeleported()) {
                 data.resetTeleported();
                 if (debug) debug(player, "Ignore hook-induced set-back: actions not set to cancel.");
             }
 
-            // Bounce effects.
+            // 2: Process the bounce effect if the move is allowed.
             if (verticalBounce != BounceType.NO_BOUNCE) {
                 BounceUtil.processBounce(player, pFrom.getY(), pTo.getY(), verticalBounce, tick, this, data, cc, pData);
             }
 
-            // Finished move processing.
+            // 3: Finish processing the current move, move it to past ones
+            // TODO: More simple: UUID keys or a data flag instead?
             if (processingEvents.containsKey(playerName)) {
-                // Normal processing.
-                // TODO: More simple: UUID keys or a data flag instead?
                 data.playerMoves.finishCurrentMove();
             }
             // Teleport during violation processing, just invalidate thisMove.
@@ -1095,6 +1097,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
         // A check has requested a new to-location.
         else {
+
+            // 1: Setback override, adjust newTo.
             if (data.hasTeleported()) {
                 if (debug) debug(player, "The set back has been overridden from (" + newTo + ") to: " + data.getTeleported());
                 newTo = data.getTeleported();
@@ -1103,9 +1107,11 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 if (verticalBounce != BounceType.NO_BOUNCE) debug(player, "Bounce effect not processed: " + verticalBounce);
                 if (data.verticalBounce != null) debug(player, "Bounce effect not used: " + data.verticalBounce);  
             }
-            // Set back handling.
+
+            // 2: Set back handling.
             prepareSetBack(player, event, newTo, data, cc, pData);
-            // Prevent freezing (e.g. ascending with gliding set in water, but moving normally).
+
+            // 3: Prevent freezing (e.g. ascending with gliding set in water, but moving normally).
             if ((thisMove.flyCheck == CheckType.MOVING_SURVIVALFLY || thisMove.flyCheck == CheckType.MOVING_CREATIVEFLY
                 && pFrom.isInLiquid()) && Bridge1_9.isGlidingWithElytra(player)) {
                 player.setGliding(false);            

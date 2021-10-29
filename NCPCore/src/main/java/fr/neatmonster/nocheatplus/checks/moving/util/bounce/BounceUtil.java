@@ -47,7 +47,7 @@ import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker
 
 
 /**
- * Auxiliary methods for bouncing on slimes.
+ * Auxiliary methods for bounce effect
  * @author asofold 
  * 
  */

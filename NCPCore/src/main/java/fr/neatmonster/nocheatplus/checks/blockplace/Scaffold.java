@@ -125,6 +125,7 @@ public class Scaffold extends Check {
         }
 
         // Rotate Check - Check for large changes in rotation between block placements
+        // Note: Yaw speed change is also monitored. (See listener...)
         if (cc.scaffoldRotate) {
             data.lastYaw = player.getLocation().getYaw();
             TickListener pitchTick = new TickListener() {

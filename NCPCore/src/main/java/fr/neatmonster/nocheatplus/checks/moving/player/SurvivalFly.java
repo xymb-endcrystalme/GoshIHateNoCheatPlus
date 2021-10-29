@@ -1325,7 +1325,7 @@ public class SurvivalFly extends Check {
                 // Count in speed potions.
                 final double speedAmplifier = mcAccess.getHandle().getFasterMovementAmplifier(player);
                 if (!Double.isInfinite(speedAmplifier) && useBaseModifiersSprint) {
-                    hAllowedDistance *= 1.0D + 0.2D * (speedAmplifier + 1);
+                    hAllowedDistance *= 1.0D + 0.15D * (speedAmplifier + 1); // Old ... + 0.2
                 }
             }
             else {
@@ -1561,7 +1561,7 @@ public class SurvivalFly extends Check {
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // Compare yDistance to expected and search for an existing rule. Use velocity on violations, if nothing has been found. //
+        // Compare yDistance to expected and search for an existing match. Use velocity on violations, if nothing has been found.//
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /** Relative vertical distance violation */
         boolean vDistRelVL = false;
@@ -1572,7 +1572,7 @@ public class SurvivalFly extends Check {
         final boolean TooBigMove          = InAirRules.outOfEnvelopeExemptions(yDistance, yDistDiffEx, lastMove, data, from, to, now, yDistChange, maxJumpGain, player, thisMove, resetTo);
         final boolean TooShortMove        = InAirRules.shortMoveExemptions(yDistance, yDistDiffEx, lastMove, data, from, to, now, strictVdistRel, maxJumpGain, vAllowedDistance, player, thisMove);
         final boolean TooFastFall         = InAirRules.fastFallExemptions(yDistance, yDistDiffEx, lastMove, data, from, to, now, strictVdistRel, yDistChange, resetTo, fromOnGround, toOnGround, maxJumpGain, player, thisMove, resetFrom);
-        final boolean VEnvHack            = InAirRules.venvHacks(from, to, yDistance, yDistChange, thisMove, lastMove, data) && !resetFrom && !resetTo;
+        final boolean VEnvHack            = InAirRules.venvHacks(from, to, yDistance, yDistChange, thisMove, lastMove, data, resetFrom, resetTo);
         final boolean TooBigMoveNoData    = InAirRules.outOfEnvelopeNoData(yDistance, from, to, thisMove, resetTo, data);
 
         // Quick invalidation for too much water envelope
@@ -2008,7 +2008,8 @@ public class SurvivalFly extends Check {
         final double yDistance = thisMove.yDistance;
         final double baseSpeed = thisMove.hAllowedDistanceBase;
         final double speedAmplifier = mcAccess.getHandle().getFasterMovementAmplifier(player);
-        final boolean iceSlimeOrHeadObstr = thisMove.headObstructed || Magic.touchedSlipperyBlock(thisMove) || lastMove.headObstructed; // These share the same multiplier.
+        // Catch-all multiplier for all those cases where bunnyhop activation can happen at lower accelerations.
+        final boolean needLowerMultiplier = thisMove.headObstructed || Magic.touchedSlipperyBlock(thisMove) || lastMove.headObstructed || !Double.isInfinite(speedAmplifier);
         final PlayerMoveData secondLastMove = data.playerMoves.getSecondPastMove();
 
         ///////////////////////////////////////////////////////////////////
@@ -2019,14 +2020,14 @@ public class SurvivalFly extends Check {
             final int hopTime = bunnyHopMax - data.bunnyhopDelay;
             
             // Bunnyfly phase
-            // Check "bunny fly" here, to not fall over sprint resetting on the way.
             if (lastMove.hDistance > hDistance) { // Speed is decreasing due to friction.
 
                 final double hDistDiff = lastMove.hDistance - hDistance;
                 final double slowDownMult = (Magic.wasOnIceRecently(data) || Magic.wasOnBouncyBlockRecently(data)) ? 0.07333 : 0.66;
                 // Slope phase (downwards, directly after hop but before friction). 
-                // Ensure relative speed decrease vs. hop is met somehow.
-                if (data.bunnyhopDelay == 9 && hDistDiff >= slowDownMult * (lastMove.hDistance - baseSpeed) 
+                if (
+                    // Ensure relative speed decrease vs. hop is met somehow.
+                    data.bunnyhopDelay == 9 && hDistDiff >= slowDownMult * (lastMove.hDistance - baseSpeed) 
                     // Too small in-air speed decrease after hopping on blocks lower than normal with head obstr.
                     || thisMove.headObstructed && hopTime == 2 && hDistDiff >= 0.05 * (lastMove.hDistance - baseSpeed)
                     && hDistDiff <= 0.01 && secondLastMove.bunnyHop && Magic.inAir(thisMove)) {
@@ -2036,11 +2037,13 @@ public class SurvivalFly extends Check {
                 // Bunny friction: very few air friction than ordinary.
                 else if (Magic.bunnyFrictionEnvelope(hDistDiff, lastMove.hDistance, hDistanceAboveLimit, hDistance, baseSpeed)) {
                 
-                    // Demand that bunnyhop speed decreases properly over the whole bunnyfly time (max-delay count)
-                    final double groundAccel = Magic.wasOnIceRecently(data) ? 0.1118 : Magic.wasOnBouncyBlockRecently(data) ? 0.1028 : 0.0;
-                    final double accelerationFactor = data.bunnyhopTick > 0 ? (1.09 + (groundAccel * data.bunnyhopDelay)) : (1.255 + (groundAccel * data.bunnyhopDelay));
-                    final double maxSpeed = baseSpeed * accelerationFactor;
-                    final double allowedSpeed = maxSpeed * Math.pow(0.99, bunnyHopMax - data.bunnyhopDelay);
+                    // The initial/bunnyhop acceleration needs to drop sharply at first, then during bunnyfly, by some minimal amount per event.
+                    // Acceleration modifiers: blocks that decrease air friction even more, resulting in higher in-air speed than normal bunnyfrict.
+                    final double groundMod = Magic.wasOnIceRecently(data) ? 0.1118 : Magic.wasOnBouncyBlockRecently(data) ? 0.1028 : 0.0;
+                    final double accelerationFactor = data.bunnyhopTick > 0 ? (1.09 + groundMod * data.bunnyhopDelay) : (1.255 + groundMod * data.bunnyhopDelay);
+                    final double maxSpeed = baseSpeed * accelerationFactor; 
+                    final double allowedSpeed = maxSpeed * Math.pow(0.99, hopTime); 
+                    // Speed is decreasing properly, allow the move.
                     if (hDistance <= allowedSpeed) {
                         tags.add("bunnyfriction");
                         hDistanceAboveLimit = 0.0;
@@ -2093,8 +2096,7 @@ public class SurvivalFly extends Check {
                 }
                 // I give up: wild card bunnyhop on headobstructed, provided the acceleration is reasonable.
                 // (Should be confined more but it's not worth the tediousness of having to reproduce+research all cases)
-                else if (thisMove.touchedGround && thisMove.headObstructed 
-                        && hDistance / baseSpeed < (Magic.wasOnIceRecently(data) ? 3.0 : 1.99)) {
+                else if (thisMove.touchedGround && thisMove.headObstructed && hDistance / baseSpeed < (Magic.touchedIce(thisMove) ? 3.0 : 1.99)) {
                     tags.add("headbangbunny");
                     allowHop = true;
                     
@@ -2154,10 +2156,10 @@ public class SurvivalFly extends Check {
         //       Also need to simplify ground acceleration factors. 
         //       Dynamically scale based on: slipperiness/speed effects/head obstr, account for small legit gains and such. Question is, how? :)
         // TODO: Test bunny spike over all sorts of speeds + attributes.
-        final double headObstrMaxAccel = Magic.touchedIce(thisMove) ? 2.998 : 1.968;
-        final double MinAccelMult = !Double.isInfinite(speedAmplifier) ? 1.05 : iceSlimeOrHeadObstr ? 1.0279 : (!lastMove.toIsValid || lastMove.hDistance == 0.0 && lastMove.yDistance == 0.0) ? 1.11 : 1.314;
-        final double MaxAccelMult = (thisMove.headObstructed || lastMove.headObstructed) ? headObstrMaxAccel : data.bunnyhopTick > 0 ? (data.bunnyhopTick > 2 ? 1.76 : 1.96) : 2.15;
-        final double MaxAccelMult1 = (thisMove.headObstructed || lastMove.headObstructed) ? headObstrMaxAccel : data.bunnyhopTick > 0 ? (data.bunnyhopTick > 2 ? 1.9 : 2.1) : 2.3;
+        final double headObstrMaxAccel = Magic.wasOnIceRecently(data) ? 2.998 : 1.968;
+        final double MinAccelMult = needLowerMultiplier ? 1.0279 : (!lastMove.toIsValid || lastMove.hDistance == 0.0 && lastMove.yDistance == 0.0) ? 1.11 : 1.314;
+        final double MaxAccelMult = (thisMove.headObstructed || Magic.headWasObstructedRecently(data, 3)) ? headObstrMaxAccel : data.bunnyhopTick > 0 ? (data.bunnyhopTick > 2 ? 1.76 : 1.96) : 2.15;
+        final double MaxAccelMult1 = (thisMove.headObstructed || Magic.headWasObstructedRecently(data, 3)) ? headObstrMaxAccel : data.bunnyhopTick > 0 ? (data.bunnyhopTick > 2 ? 1.9 : 2.1) : 2.3;
 
         // Only if we allow hopping and the hDistance is higher than the allowed speed.
         if (allowHop && hDistance >= baseSpeed
@@ -2174,7 +2176,7 @@ public class SurvivalFly extends Check {
                     // 1: Normal jumping.
                     yDistance > 0.0 && yDistance > data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier) - Magic.GRAVITY_SPAN
                     // 1: Too short with head obstructed.
-                    || thisMove.headObstructed || lastMove.toIsValid && lastMove.headObstructed
+                    || thisMove.headObstructed || Magic.headWasObstructedRecently(data, 3)
                     // 1: Hop without y distance increase at moderate h-speed (Legacy, still needed?)
                     || yDistance >= 0.0 && (cc.sfGroundHop || yDistance == 0.0 && !lastMove.touchedGroundWorkaround && !lastMove.from.onGround)
                     && baseSpeed > 0.0 && hDistance / baseSpeed < 1.5 && (hDistance / lastMove.hDistance < 1.35 || hDistance / baseSpeed < 1.35)
@@ -2198,8 +2200,7 @@ public class SurvivalFly extends Check {
                 )
                 // 0: Can't bunnyhop if in reset condition (climbable,water,web,bushes,powder snow)
                 && (!from.isResetCond() && !to.isResetCond() || data.isHalfGroundHalfWater) // TODO: !to.isResetCond() should be reviewed.
-                ) {
-
+            ) {
                 // Set the maximum delay before the player will be allowed to bunnyhop again. Bunnyfly starts.
                 data.bunnyhopDelay = bunnyHopMax;
                 hDistanceAboveLimit = 0.0;

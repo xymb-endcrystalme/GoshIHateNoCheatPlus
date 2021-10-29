@@ -352,6 +352,30 @@ public class Magic {
     }
 
     /**
+     * Test if the player is transitioning from head obstructed to head free
+     * 
+     * @param data
+     * @return
+     */
+    public static boolean headWasObstructedRecently(final MovingData data, int limit) {
+        limit = Math.min(limit, data.playerMoves.getNumberOfPastMoves());
+        // Current move has head free
+        if (!data.playerMoves.getCurrentMove().headObstructed) {
+            // Check if recent past moves have had head obstructed.
+            for (int i = 0; i <= limit; i++) {
+                final PlayerMoveData move = data.playerMoves.getPastMove(i);
+                if (!move.toIsValid) {
+                    return false;
+                }
+                else if (move.headObstructed) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * 
      * @param thisMove
      *            Not strictly the latest move in MovingData.
