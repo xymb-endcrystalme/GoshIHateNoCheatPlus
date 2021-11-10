@@ -59,9 +59,6 @@ public class PlayerMoveData extends MoveData {
 
     /** This move was a bunny hop. */
     public boolean bunnyHop;
-    
-    /** Bunny fly phase */ 
-    public boolean bunnyFly;
    
     /** This move was allowed to step. Set in SurvivalFly.check(vdistrel) */
     public boolean allowstep;

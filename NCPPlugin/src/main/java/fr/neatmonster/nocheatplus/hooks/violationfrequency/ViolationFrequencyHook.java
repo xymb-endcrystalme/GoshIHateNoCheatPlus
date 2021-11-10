@@ -85,7 +85,7 @@ public class ViolationFrequencyHook implements NCPHook, IFirst {
                 return true;
             }
 
-            final int lastviolationmove = data.getPlayerMoveCount() - data.sfVLTime;
+            final int lastviolationmove = data.getPlayerMoveCount() - data.sfVLMoveCount;
             if (lastviolationmove <= config.movecount) {
                 data.survivalFlyVL += config.morevls;
                 if (config.debug) {

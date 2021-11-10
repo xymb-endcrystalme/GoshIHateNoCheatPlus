@@ -154,7 +154,7 @@ public class BounceUtil {
      */
     public static BounceType checkPastStateBounceDescend(final Player player, final PlayerLocation from, final PlayerLocation to,
                                                          final PlayerMoveData thisMove, final PlayerMoveData lastMove, final int tick, 
-                                                         final MovingData data, final MovingConfig cc, final BlockChangeTracker blockChangeTracker) {
+                                                         final MovingData data, final MovingConfig cc, BlockChangeTracker blockChangeTracker) {
 
         // TODO: Find more preconditions.
         // TODO: Might later need to override/adapt just the bounce effect set by the ordinary method.
@@ -197,7 +197,7 @@ public class BounceUtil {
      */
     public static BounceType checkPastStateBounceAscend(final Player player, final PlayerLocation from, final PlayerLocation to,
                                                         final PlayerMoveData thisMove, final PlayerMoveData lastMove, final int tick, final IPlayerData pData, 
-                                                        final IDebugPlayer idp, final MovingData data, final MovingConfig cc, final BlockChangeTracker blockChangeTracker) {
+                                                        final IDebugPlayer idp, final MovingData data, final MovingConfig cc, BlockChangeTracker blockChangeTracker) {
 
         // TODO: More preconditions.
         // TODO: Nail down to more precise side conditions for larger jumps, if possible.

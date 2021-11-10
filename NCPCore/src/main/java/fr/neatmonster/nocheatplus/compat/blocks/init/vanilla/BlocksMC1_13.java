@@ -44,7 +44,7 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         }
 
         // Workaround for ladder
-        BlockFlags.addFlags(Material.LADDER, BlockProperties.F_GROUND_HEIGHT);
+        // BlockFlags.addFlags(Material.LADDER, BlockProperties.F_GROUND_HEIGHT);
         // Void air.
         BlockInit.setAs("VOID_AIR", Material.AIR);
         // Cave air.

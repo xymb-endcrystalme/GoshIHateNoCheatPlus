@@ -157,7 +157,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public boolean changeslot = false;
     /** TODO: */
     public long time_rl_item = 0;
-    /** Detection: the player is cheating for sure */
+    /** Detection flag */
     public boolean isHackingRI = false;
     /** Keep track of hopping while using items */
     public int noslowhop = 0;
@@ -240,7 +240,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     /** Default lift-off envelope, used after resetting. <br> TODO: Test, might be better ground. */
     private static final LiftOffEnvelope defaultLiftOffEnvelope = LiftOffEnvelope.UNKNOWN;
     /** playerMoveCount at the time of the last sf violation. */
-    public int sfVLTime = 0;
+    public int sfVLMoveCount = 0;
     /** The current horizontal buffer value. Horizontal moving VLs get compensated with emptying the buffer. */
     public double sfHorizontalBuffer = 0.0;
     /** Event-counter to cover up for sprinting resetting server side only. Set in the FighListener. */
@@ -268,8 +268,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int sfHoverTicks = -1;
     /** First count these down before incrementing sfHoverTicks. Set on join, if configured so. */
     public int sfHoverLoginTicks = 0;
-    /** Ticks influenced by ice friction after sptintjumping with head obstr., used in survivalFly.setAllowedHDist(). */
-    public int iceFrictionTick = 0; 
     /** Fake in air flag: set with any violation, reset once on ground. */
     public boolean sfVLInAir = false;
     /** Vertical accounting info */
@@ -328,6 +326,27 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         // A new set of workaround conters.
         ws = NCPAPIProvider.getNoCheatPlusAPI().getGenericInstance(WRPT.class).getWorkaroundSet(WRPT.WS_MOVING);
     }
+    
+
+    /**
+     * Tick counters to be adjusted after having checked horizontal speed in Sf.
+     */
+    public void adjustPostHorCheckingCounters() {
+        // Decrease bhop tick after checking
+        if (bunnyhopTick > 0) {
+            bunnyhopTick-- ;
+        }
+
+        // Count down for the soul speed enchant motion
+        if (keepfrictiontick > 0) {
+            keepfrictiontick-- ;
+        }
+
+        // A special(model) move from CreativeFly has been turned to a normal move again, count up for the incoming motion
+        if (keepfrictiontick < 0) {
+            keepfrictiontick++ ;
+        }
+    }
 
 
     /**
@@ -358,10 +377,10 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         bunnyhopDelay = 0;
         sfJumpPhase = 0;
         jumpAmplifier = 0;
-        iceFrictionTick = 0;
         setBack = null;
         sfZeroVdistRepeat = 0;
         clearAccounting();
+        clearHAccounting();
         clearNoFallData();
         removeAllPlayerSpeedModifiers();
         lostSprintCount = 0;
@@ -376,9 +395,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         blockChangeRef.valid = false;
         bunnyhopTick = 0;
         liqtick = 0;
-        combinedMediumHCount = 0;
-        combinedMediumHValue = 0.0;
-        // More resets? (bunnyhopTick, liqtick...)
     }
 
 
@@ -606,6 +622,14 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      */
     public void clearAccounting() {
         vDistAcc.clear();
+    }
+
+    /**
+     * Clear hacc
+     */
+    public void clearHAccounting() {
+        combinedMediumHCount = 0;
+        combinedMediumHValue = 0.0;
     }
 
 
@@ -946,7 +970,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
 
 
     /**
-     * Std. value counter for horizontal velocity, based on the vlaue.
+     * Std. value counter for horizontal velocity, based on the value.
      * 
      * @param velocity
      * @return
@@ -1447,7 +1471,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         playerMoveCount++;
         if (playerMoveCount == Integer.MAX_VALUE) {
             playerMoveCount = 0;
-            sfVLTime = 0;
+            sfVLMoveCount = 0;
             morePacketsSetBackResetTime = 0;
             setBackResetTime = 0;
         }

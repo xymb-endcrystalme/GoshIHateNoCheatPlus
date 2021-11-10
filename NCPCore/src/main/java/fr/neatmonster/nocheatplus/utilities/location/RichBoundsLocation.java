@@ -742,6 +742,16 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     }
 
     /**
+     * Check if the player's box is in liquid within a given margin.
+     * Rather meant to test if the player's body is in water by enough, currently.
+     * @param yMargin
+     * @return 
+     */
+    public boolean isBodySubmerged(final double yMargin) {
+        return BlockProperties.collides(blockCache, minX, minY + yMargin, minZ, maxX, maxY, maxZ, BlockProperties.F_LIQUID);
+    }
+
+    /**
      * Check if solid blocks hit the box.
      *
      * @param xzMargin
@@ -1075,7 +1085,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     }
 
     /**
-     * SSimple block-on-ground check for given margin (no entities). Meant for
+     * Simple block-on-ground check for given margin (no entities). Meant for
      * checking bigger margin than the normal yOnGround.
      *
      * @param yOnGround
@@ -1597,6 +1607,11 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         pitch = location.getPitch();
 
         // Set bounding box.
+        /*
+         * For future reference, uhm...
+         *  maxY (+ = Grow bounding box above head | - = Shrink bounding box below head)
+         *  minY (- = Grow bounding box below feet | + = Shrink bounding box above feet)
+         */
         final double dxz = Math.round(fullWidth * 500.0) / 1000.0; // this.width / 2; // 0.3;
         minX = x - dxz;
         minY = y;

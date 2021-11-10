@@ -57,8 +57,6 @@ public class Magic {
     /** Friction for lava. */
     public static final double FRICTION_MEDIUM_LAVA = 0.535;
     public static final double FRICTION_MEDIUM_ELYTRA_AIR = 0.9800002;
-    /** Divisor vs. last hDist for minimum slow down. */
-    private static final double bunnyDivFriction = 160.0; // Rather in-air, blocks would differ by friction.
 
     // Horizontal speeds/modifiers. 
     public static final double WALK_SPEED           = 0.221D;
@@ -72,13 +70,17 @@ public class Magic {
     public static final double modLanding           = 0.25194D / WALK_SPEED;
     public static final double modHopTick           = 0.25415D / WALK_SPEED;
     public static final double modSprint            = 0.27D / WALK_SPEED; // TODO: without bunny  0.29 / practical is 0.35
+    public static final double modSlope             = 0.3069D / WALK_SPEED; // TODO: without bunny  0.29 / practical is 0.35
     public static final double[] modSurface         = new double [] {0.23426D / WALK_SPEED, 0.29835D / WALK_SPEED};
     public static final double modCollision         = 0.3006D / WALK_SPEED;
     public static final double modSoulSpeed         = 0.3094D / WALK_SPEED;
     public static final double modBounce            = 0.3125D / WALK_SPEED;
     public static final double modIce               = 0.5525D / WALK_SPEED; 
     public static final double modDolphinsGrace     = 0.9945D / WALK_SPEED; // TODO: Adjust value to be more stricter and closer to actual movement speed, and use different value from in water vs above water
-    public static final double[] modSwim            = new double[] {0.115D / WALK_SPEED, 0.044D / WALK_SPEED, 0.3D / WALK_SPEED}; // 0.044D for horizontal, 0.3 for vertical swimming
+    /** 0.044D for horizontal SWIMMING(1.13), 0.3 for vertical swimming,  0.115 for horizontal TO MULTIPLY WALKSPEED WITH and with body fully in water, 0.145 for moving on the surface horizotally */
+    // Observed around 2021/11: 0.115 for whatever reason now flags even with legacy clients. It wasn't a problem before but it is now. Very fun game indeed.
+    // I have no clue on why this is happening... (Checking commit history doesn't show any recent change)
+    public static final double[] modSwim            = new double[] {0.115D / WALK_SPEED,  0.044D / WALK_SPEED,  0.3D / WALK_SPEED,  0.146D / WALK_SPEED}; 
     public static final double modDownStream        = 0.19D / (WALK_SPEED * modSwim[0]);
     public static final double[] modDepthStrider    = new double[] {
             1.0,
@@ -101,6 +103,13 @@ public class Magic {
     public static final double webSpeedDescendDefault  = -0.032;
     public static final double bushSpeedAscend         = 0.315;
     public static final double bushSpeedDescend        = -0.09;
+
+    /**
+     * Get the speed modifier, for debugging purposes.
+     */
+    public static void getModifier(final Player player, final double hDistance, final PlayerMoveData thisMove) {
+        player.sendMessage("Mod: " + (hDistance / thisMove.walkSpeed * Magic.WALK_SPEED));
+    }
 
     /**
      * Some kind of minimum y descend speed (note the negative sign), for an
@@ -205,75 +214,66 @@ public class Magic {
         final double off = Math.abs(thisMove.yDistance - frictDist);
         return off <= maxOff && Math.abs(thisMove.yDistance - lastMove.yDistance) <= off * decreaseByOff;
     }
-    
-    /**
-     * After bunnyhop friction envelope (very few air friction).
-     * Call if the player is in a "bunnyfly" phase and the distance is higher than allowed.
-     * Requires last move's data.
-     *
-     * @param hDistDiff 
-     *            Difference from last to current hDistance
-     * @param lastHDistance
-     *            hDistane before current
-     * @param hDistanceAboveLimit
-     * @param currentHDistance
-     * @param currentAllowedBaseSpeed 
-     *            Applicable base speed (not final;  not taking into account other mechanics, like friction)
-     * @return
-     */
-    public static boolean bunnyFrictionEnvelope(final double hDistDiff, final double lastHDistance, final double hDistanceAboveLimit, 
-                                                final double currentHDistance, final double currentAllowedBaseSpeed) {
 
-        // TODO: Conditions may be too loose as of now. Could be more strict.
-        if (currentHDistance > lastHDistance) {
-            return false;
-        }
-        return  hDistDiff >= lastHDistance / bunnyDivFriction 
-                || hDistDiff >= hDistanceAboveLimit / 33.3 
-                || hDistDiff >= (currentHDistance - currentAllowedBaseSpeed) * (1.0 - FRICTION_MEDIUM_AIR);
-    }
     
    /**
-    * Test (using the past move tracking) if the player has jumped up a slope (next to a block).
-    * No tight checking, ground only.
+    * Test (using the past move tracking) if the player has jumped up a slope.
+    * No tight checking.
     * @param data
+    * @param to
+    * @param limit
+    *             How many past moves should be tracked
+    * @param distance
+    *             Minimum distance to ground
     * @return 
     */
-    public static boolean jumpedUpSlope(final MovingData data) {
+    public static boolean jumpedUpSlope(final MovingData data, final PlayerLocation to, int limit, double distance) {
 
+        limit = Math.min(limit, data.playerMoves.getNumberOfPastMoves());
         final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
-        final PlayerMoveData pastMove1 = data.playerMoves.getFirstPastMove();
-        // (0 is the latest PAST move, so pastMove2 would be 1 and so on)
-        final PlayerMoveData pastMove5 = data.playerMoves.getPastMove(4);
-        final PlayerMoveData pastMove6 = data.playerMoves.getPastMove(5);
-        final PlayerMoveData pastMove7 = data.playerMoves.getPastMove(6);
-        final PlayerMoveData pastMove8 = data.playerMoves.getPastMove(7);
-    
-        return 
-                // Lift off
-                pastMove8.from.onGround && !pastMove8.to.onGround 
-                // 1st air phase
-                && !pastMove7.from.onGround && !pastMove7.to.onGround 
-               /* 
-                * On early air phase, the player's hitbox will collide with the block even though they are
-                * still ascending, causing the onGround flag to be turned to true for a short while.
-                * NOTE: During such phase the player still has to to move up roughly by 0.15/16. 
-                *       Most step cheats will simply ignore this 'leftover' distance and move on as if no height difference was taken.
-                *       Perhaps we could add a subcheck to vDistAir to specifically enforce this type of movement when jumping next to a block...
-                */
-                && !pastMove6.from.onGround && pastMove6.to.onGround 
-                && pastMove5.from.onGround && !pastMove5.to.onGround 
-                // (4, 3 and 2 are all advanced in-air phases no need to also check those)
-                // Air phase has ended
-                && !pastMove1.from.onGround && pastMove1.to.onGround 
-                // Fully on ground now
-                && thisMove.from.onGround && thisMove.to.onGround 
-                // Now compare the altitude changes.
-                && thisMove.to.getY() > pastMove8.from.getY() 
-                // Observed: Multiple split/micro moves after landing and before jumping.
-                // && thisMove.multiMoveCount == 1 && pastMove8.multiMoveCount == 2
-            ;
+        final PlayerMoveData lastMove = data.playerMoves.getFirstPastMove();
+        
+        for (int i = 0; i < limit; i++) {
+            final PlayerMoveData pastMove = data.playerMoves.getPastMove(i);
+            // Stairs are for now skipped, need to fix on ground logic.
+            if (!pastMove.toIsValid || thisMove.from.aboveStairs) {
+                 return false;
+            }
+            // Past move was on ground with smaller altitude than the current move, which is within ground reach (to forestall lowjump).
+            else if (to.isOnGround(distance)
+                    && (thisMove.from.getY() - pastMove.to.getY()) <= 1.2 
+                    && (thisMove.from.getY() - pastMove.to.getY()) > 0.99
+                    && (pastMove.to.onGround || pastMove.from.onGround)) {
+                return true;
+            }
+        }
+        return false;
+        //    return 
+        //            // Lift off
+        //            pastMove8.from.onGround && !pastMove8.to.onGround 
+        //            // 1st air phase
+        //            && !pastMove7.from.onGround && !pastMove7.to.onGround 
+        //           /* 
+        //            * On early air phase, the player's hitbox will collide with the block even though they are
+        //            * still ascending, causing the onGround flag to be turned to true for a short while.
+        //            * NOTE: During such phase the player still has to to move up roughly by 0.15/16. 
+        //            *       Most step cheats will simply ignore this 'leftover' distance and move on as if no height difference was taken.
+        //            *       Perhaps we could add a subcheck to vDistAir to specifically enforce this type of movement when jumping next to a block...
+        //            */
+        //            && !pastMove6.from.onGround && pastMove6.to.onGround 
+        //           && pastMove5.from.onGround && !pastMove5.to.onGround 
+        //            // (4, 3 and 2 are all advanced in-air phases no need to also check those)
+        //            // Air phase has ended
+        //            && !pastMove1.from.onGround && pastMove1.to.onGround 
+        //            // Fully on ground now
+        //            && thisMove.from.onGround && thisMove.to.onGround 
+        //            // Now compare the altitude changes.
+        //            && thisMove.to.getY() > pastMove8.from.getY() 
+        //            // Observed: Multiple split/micro moves after landing and before jumping.
+        //            // && thisMove.multiMoveCount == 1 && pastMove8.multiMoveCount == 2
+        //        ;
     }
+
 
     /**
      * Test for a specific move in-air -> water, then water -> in-air.
@@ -352,7 +352,7 @@ public class Magic {
     }
 
     /**
-     * Test if the player is transitioning from head obstructed to head free
+     * Check if recent past moves have had head obstructed.
      * 
      * @param data
      * @return
@@ -360,16 +360,13 @@ public class Magic {
     public static boolean headWasObstructedRecently(final MovingData data, int limit) {
         limit = Math.min(limit, data.playerMoves.getNumberOfPastMoves());
         // Current move has head free
-        if (!data.playerMoves.getCurrentMove().headObstructed) {
-            // Check if recent past moves have had head obstructed.
-            for (int i = 0; i <= limit; i++) {
-                final PlayerMoveData move = data.playerMoves.getPastMove(i);
-                if (!move.toIsValid) {
-                    return false;
-                }
-                else if (move.headObstructed) {
-                    return true;
-                }
+        for (int i = 0; i < limit && !data.playerMoves.getCurrentMove().headObstructed; i++) {
+            final PlayerMoveData move = data.playerMoves.getPastMove(i);
+            if (!move.toIsValid) {
+                return false;
+            }
+            else if (move.headObstructed) {
+                return true;
             }
         }
         return false;
@@ -393,6 +390,16 @@ public class Magic {
      */
     public static boolean touchedIce(final PlayerMoveData thisMove) {
         return thisMove.from.onIce || thisMove.from.onBlueIce || thisMove.to.onIce || thisMove.to.onBlueIce;
+    } 
+
+    /**
+     * 
+     * @param thisMove
+     *            Not strictly the latest move in MovingData.
+     * @return
+     */
+    public static boolean touchedBlueIce(final PlayerMoveData thisMove) {
+        return thisMove.from.onBlueIce || thisMove.from.onBlueIce;
     } 
 
     /**
@@ -452,7 +459,7 @@ public class Magic {
      * @param thisMove
      * @return
      */
-    static boolean leavingLiquid(final PlayerMoveData thisMove) {
+    public static boolean leavingLiquid(final PlayerMoveData thisMove) {
         return thisMove.from.inLiquid && !thisMove.to.inLiquid && excludeStaticSpeed(thisMove);
     }
 

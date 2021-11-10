@@ -37,11 +37,11 @@ import fr.neatmonster.nocheatplus.compat.BridgeMisc;
 
 
 /**
- * This class is meant to contain just about every possible type of vertical
- * movement that players can perform. The relative distance is set
- * in Survivalfly.vDistAir, once estimated, it gets compared to these rules.
- * If the movement does not fit into any rule, a vDistRel violation is triggered.
- *
+ * Aggregate every non-ordinary vertical movement here.
+ * The relative distance is estimated in SurvivalFly.vDistAir,
+ * it then gets compared to these rules, if no match is found
+ * (or the move is within limit) a vDistRel VL is triggered.
+ * 
  */
 public class InAirRules {
 
