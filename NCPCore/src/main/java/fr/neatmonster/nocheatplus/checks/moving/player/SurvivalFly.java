@@ -347,14 +347,10 @@ public class SurvivalFly extends Check {
         // Vertical move                  ///
         /////////////////////////////////////
         double vAllowedDistance = 0, vDistanceAboveLimit = 0;
-        // TODO: thisMove.from.isInAnyMedium, rather?
-        boolean InMedium = from.isOnHoneyBlock() || from.isInWeb() || from.isInBerryBush() 
-                           || from.isOnClimbable() || from.isInLiquid() || from.isInPowderSnow()
-                           || to.isOnClimbable();
         
         // Wild-card: allow step height from ground to ground, if not on/in a medium already.
         if (yDistance >= 0.0 && yDistance <= cc.sfStepHeight 
-            && toOnGround && fromOnGround && !InMedium) {
+            && toOnGround && fromOnGround && !from.isResetCond()) {
             vAllowedDistance = cc.sfStepHeight;
             thisMove.allowstep = true;
             tags.add("groundstep");
@@ -362,7 +358,7 @@ public class SurvivalFly extends Check {
 
         // TODO: Test, adjust.
         // Powder snow (1.17+)
-        else if (data.liftOffEnvelope == LiftOffEnvelope.POWDER_SNOW) {
+        else if (from.isInPowderSnow()) {
             final double[] resultSnow = vDistPowderSnow(yDistance, from, to, cc, data, player);
             vAllowedDistance = resultSnow[0];
             vDistanceAboveLimit = resultSnow[1];
@@ -507,7 +503,7 @@ public class SurvivalFly extends Check {
             // TODO: Distinguish strong limit from normal.
             else data.liftOffEnvelope = LiftOffEnvelope.LIMIT_LIQUID;
         }
-        else if (BlockProperties.isPowderSnow(to.getTypeId())) {
+        else if (thisMove.to.inPowderSnow) {
             data.liftOffEnvelope = LiftOffEnvelope.POWDER_SNOW;
         }
         else if (thisMove.to.inWeb) {
@@ -535,7 +531,7 @@ public class SurvivalFly extends Check {
             // TODO: Distinguish strong limit.
             else data.liftOffEnvelope = LiftOffEnvelope.LIMIT_LIQUID;
         }
-        else if (BlockProperties.isPowderSnow(from.getTypeId())) {
+        else if (thisMove.from.inPowderSnow) {
             data.liftOffEnvelope = LiftOffEnvelope.POWDER_SNOW;
         }
         else if (thisMove.from.inWeb) {
@@ -571,8 +567,10 @@ public class SurvivalFly extends Check {
             // The player has moved onto ground.
             if (toOnGround) {
                 // Reset bunny-hop-delay.
+                // TODO: Is this still necessary and why was it introduced?
                 if (data.bunnyhopDelay > 0 && yDistance > 0.0 && to.getY() > data.getSetBackY() + 0.12 
                     && !from.isResetCond() && !to.isResetCond()) {
+                    // Too early abort, remember when the delay was reset (see MagicBunny.bunnyHop)
                     if (data.bunnyhopDelay > 6) data.lastbunnyhopDelay = data.bunnyhopDelay;
                     data.bunnyhopDelay = 0;
                     tags.add("resetbunny");
@@ -823,7 +821,7 @@ public class SurvivalFly extends Check {
                 data.bunnyhopTick = 31;
             }
             // More momentum if jumping up slopes.
-            else if (Magic.jumpedUpSlope(data, to, 13, 0.1)) {
+            else if (Magic.jumpedUpSlope(data, to, 13)) {
                 data.bunnyhopTick = 11;
             }
             else data.bunnyhopTick = ServerIsAtLeast1_13 ? 6 : 3;
@@ -940,7 +938,7 @@ public class SurvivalFly extends Check {
         final long now                    = System.currentTimeMillis(); 
         final double modHoneyBlock        = Magic.modSoulSand * (thisMove.to.onGround ? 0.8 : 1.75);
         final double modStairs            = isMovingBackwards ? 1.0 : thisMove.yDistance == 0.5 ? 1.85 : 1.325;
-        final double modHopSprint         = (data.bunnyhopTick < 3 ? Magic.modHopTick : Magic.jumpedUpSlope(data, to, 13, 0.1) ? Magic.modSlope : Magic.modSprint);
+        final double modHopSprint         = (data.bunnyhopTick < 3 ? Magic.modHopTick : Magic.jumpedUpSlope(data, to, 13) && thisMove.hDistance > thisMove.walkSpeed ? Magic.modSlope : Magic.modSprint);
         final boolean sfDirty             = data.isVelocityJumpPhase(); 
         double hAllowedDistance           = 0.0;
         double friction                   = data.lastFrictionHorizontal; // Friction to use with this move.
@@ -2021,7 +2019,7 @@ public class SurvivalFly extends Check {
         double vDistanceAboveLimit = 0.0;
         double yDistAbs = Math.abs(yDistance);
         boolean waterStep = lastMove.from.inLiquid && yDistAbs < Magic.swimBaseSpeedV(Bridge1_13.hasIsSwimming());
-        double vAllowedDistance = waterStep ? yDistance : yDistance < 0.0 ? Magic.climbSpeedDescend : Magic.climbSpeedAscend;
+        double vAllowedDistance = waterStep ? yDistAbs : yDistance < 0.0 ? Magic.climbSpeedDescend : Magic.climbSpeedAscend;
         final double jumpHeight = 1.35 + (data.jumpAmplifier > 0 ? (0.6 + data.jumpAmplifier - 1.0) : 0.0);
         final double maxJumpGain = data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier) + 0.005;
 
@@ -2107,7 +2105,6 @@ public class SurvivalFly extends Check {
 
         if (vDistanceAboveLimit > 0.0) {
             tags.add(yDistance >= 0.0 ? "vweb" : "vwebdesc");
-            
         }
 
         return new double[]{vAllowedDistance, vDistanceAboveLimit};
@@ -2205,7 +2202,7 @@ public class SurvivalFly extends Check {
         final boolean violation = fall ? Math.abs(yDistDiffEx) > 0.05 : Math.abs(yDistance) > Math.abs(vAllowedDistance);
         vDistanceAboveLimit = violation ? yDistance : 0;
         if (vDistanceAboveLimit > 0.0) {
-            tags.add(yDistance >= 0.0 ? "snowasc" : "snowdesc");
+            tags.add(yDistance >= 0.0 ? "vsnowasc" : "vsnowdesc");
         }
         return new double[]{vAllowedDistance, vDistanceAboveLimit};
     }
@@ -2365,6 +2362,7 @@ public class SurvivalFly extends Check {
             builder.append("\n fdsq: " + StringUtil.fdec3.format(thisMove.distanceSquared / lastMove.distanceSquared));
             if (data.bunnyhopDelay > 0) {
                 builder.append("\n Bunny ratio(s): " +"hDist/Base("+ StringUtil.fdec3.format(hDistance / thisMove.hAllowedDistanceBase) + ") / hDist/lastHDist(" + StringUtil.fdec3.format(hDistance / lastMove.hDistance) + ")");
+                builder.append(" \n Delay= " + data.bunnyhopDelay);
             }
         }
         if (thisMove.verVelUsed != null) {

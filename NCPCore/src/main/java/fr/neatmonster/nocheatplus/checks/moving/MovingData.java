@@ -527,6 +527,10 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
             liftOffEnvelope = LiftOffEnvelope.BERRY_JUMP;
             nextFrictionHorizontal = nextFrictionVertical = 0.0;
         }
+        else if (loc.isInPowderSnow()) {
+            liftOffEnvelope = LiftOffEnvelope.POWDER_SNOW;
+            nextFrictionHorizontal = nextFrictionVertical = 0.0;
+        }
         else if (loc.isOnHoneyBlock()) {
             liftOffEnvelope = LiftOffEnvelope.HALF_JUMP;
             nextFrictionHorizontal = nextFrictionVertical = 0.0;
@@ -977,7 +981,9 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      */
     public static int getHorVelValCount(double velocity) {
         // TODO: Configable max cap
-        return Math.max(30, 1 + (int) Math.round(velocity * 10.0));
+        // TODO: Not sure if this is intentional but the cap would force NCP to always pick 30 for velocity entries smaller than 3.0
+        // As a workaround/fix simply increase the actual velocity value
+        return Math.max(30, 1 + (int) Math.round(velocity * 50.0));
     }
 
 

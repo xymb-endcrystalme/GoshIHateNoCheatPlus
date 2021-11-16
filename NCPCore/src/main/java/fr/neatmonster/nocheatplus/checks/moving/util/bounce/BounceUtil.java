@@ -53,12 +53,11 @@ import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker
  */
 public class BounceUtil {
 
-	private static final long FLAGS_VELOCITY_BOUNCE_BLOCK = VelocityFlags.ORIGIN_BLOCK_BOUNCE;
+    private static final long FLAGS_VELOCITY_BOUNCE_BLOCK = VelocityFlags.ORIGIN_BLOCK_BOUNCE;
     private static final long FLAGS_VELOCITY_BOUNCE_BLOCK_MOVE_ASCEND = FLAGS_VELOCITY_BOUNCE_BLOCK | VelocityFlags.SPLIT_ABOVE_0_42 
                                                                         | VelocityFlags.SPLIT_RETAIN_ACTCOUNT | VelocityFlags.ORIGIN_BLOCK_MOVE;
 
-
-	/**
+    /**
      * Adjust data to allow bouncing back and/or removing fall damage.<br>
      * yDistance is < 0, the middle of the player is above a slime block (to) +
      * on ground. This might be a micro-move onto ground.
@@ -103,7 +102,7 @@ public class BounceUtil {
     }
 
 
-	/**
+    /**
      * Handle a prepare bounce.
      * 
      * @param player
@@ -140,7 +139,7 @@ public class BounceUtil {
     }
 
 
-	/**
+    /**
      * Only for yDistance < 0 + some bounce envelope checked.
      * @param player
      * @param from
@@ -285,7 +284,7 @@ public class BounceUtil {
     }
 
 
-	/**
+    /**
      * Pre conditions: A slime block is underneath and the player isn't really
      * sneaking. This does not account for pistons pushing (slime) blocks.<br>
      * 

@@ -148,8 +148,8 @@ public class InAirRules {
                 && to.getY() - data.getSetBackY() <= data.liftOffEnvelope.getMaxJumpHeight(data.jumpAmplifier)
                 && (
                      // Decrease more after lost-ground cases with more y-distance than normal lift-off.
-                     lastMove.yDistance > maxJumpGain && lastMove.yDistance < 1.1 * maxJumpGain 
-                     && data.ws.use(WRPT.W_M_SF_SLOPE1)
+                    lastMove.yDistance > maxJumpGain && lastMove.yDistance < 1.1 * maxJumpGain 
+                    && data.ws.use(WRPT.W_M_SF_SLOPE1)
                     //&& fallingEnvelope(yDistance, lastMove.yDistance, 2.0 * GRAVITY_SPAN)
                     // Decrease more after going through liquid (but normal ground envelope).
                     || lastMove.yDistance > 0.5 * maxJumpGain && lastMove.yDistance < 0.84 * maxJumpGain
@@ -274,7 +274,7 @@ public class InAirRules {
                         lastMove.yDistance < 3.0 * Magic.GRAVITY_MAX + Magic.GRAVITY_MIN && yDistChange < -Magic.GRAVITY_MIN 
                         && yDistChange > -2.5 * Magic.GRAVITY_MAX -Magic.GRAVITY_MIN
                         && data.ws.use(WRPT.W_M_SF_ODDGRAVITY_1)
-                        // Transition to 0.0 yDistance, ascending.
+                        // 1: Transition to 0.0 yDistance, ascending.
                         || lastMove.yDistance > Magic.GRAVITY_ODD / 2.0 && lastMove.yDistance < Magic.GRAVITY_MIN && yDistance == 0.0
                         && data.ws.use(WRPT.W_M_SF_ODDGRAVITY_2)
                         // 1: yDist inversion near 0 (almost). TODO: This actually happens near liquid, but NORMAL env!?
@@ -294,10 +294,12 @@ public class InAirRules {
                         && data.ws.use(WRPT.W_M_SF_ODDGRAVITY_5)
                         // 1: Slope with slimes (also near ground without velocityJumpPhase, rather lowjump but not always).
                         || lastMove.yDistance < -Magic.GRAVITY_MAX && yDistChange < - Magic.GRAVITY_ODD / 2.0 && yDistChange > -Magic.GRAVITY_MIN
+                        && Magic.wasOnBouncyBlockRecently(data) // TODO: Test
                         && data.ws.use(WRPT.W_M_SF_ODDGRAVITY_6)
                         // 1: Near ground (slime block).
                         || lastMove.yDistance == 0.0 && yDistance < -Magic.GRAVITY_ODD / 2.5 
-                        && yDistance > -Magic.GRAVITY_MIN && to.isOnGround(Magic.GRAVITY_MIN)
+                        && yDistance > -Magic.GRAVITY_MIN && to.isOnGround(Magic.GRAVITY_MIN) 
+                        && Magic.wasOnBouncyBlockRecently(data) // TODO: Test
                         && data.ws.use(WRPT.W_M_SF_ODDGRAVITY_7)
                         // 1: Start to fall after touching ground somehow (possibly too slowly).
                         || (lastMove.touchedGround || lastMove.to.resetCond) && lastMove.yDistance <= Magic.GRAVITY_MIN 
@@ -336,7 +338,6 @@ public class InAirRules {
                 )
                 // 0: Small distance to setback.
                 || data.hasSetBack() && Math.abs(data.getSetBackY() - from.getY()) < 1.0
-                // TODO: Consider low fall distance as well.
                 && (
                         // 1: Near ground small decrease.
                         lastMove.yDistance > Magic.GRAVITY_MAX && lastMove.yDistance < 3.0 * Magic.GRAVITY_MAX
@@ -435,9 +436,8 @@ public class InAirRules {
                                 // (Needs jump phase == 1, to confine decrease from pastMove1 to lastMove.)
                                 // TODO: Never seems to apply.
                                 // TODO: Might explicitly demand (lava) friction decrease from pastMove1 to lastMove.
-                                || Magic.inLiquid(pastMove1) 
+                                || Magic.inLiquid(pastMove1) && pastMove1.from.inLava
                                 && Magic.leavingLiquid(lastMove) && lastMove.yDistance > 4.0 * Magic.GRAVITY_MAX
-                                // TODO: Store applicable or used friction in MoveData and use enoughFrictionEnvelope?
                                 && yDistance < lastMove.yDistance - Magic.GRAVITY_MAX 
                                 && yDistance > lastMove.yDistance - 2.0 * Magic.GRAVITY_MAX
                                 && Math.abs(lastMove.yDistance - pastMove1.yDistance) > 4.0 * Magic.GRAVITY_MAX

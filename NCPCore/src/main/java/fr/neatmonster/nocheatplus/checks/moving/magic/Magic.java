@@ -46,7 +46,7 @@ public class Magic {
     public static final double GRAVITY_MAX = 0.0834;
     public static final double GRAVITY_MIN = 0.0624; 
     public static final double GRAVITY_SPAN = GRAVITY_MAX - GRAVITY_MIN;
-    public static final double GRAVITY_ODD = 0.05; // 19; // TODO: This should probably be min. / cleanup.
+    public static final double GRAVITY_ODD = 0.05; 
     /** Assumed minimal average decrease per move, suitable for regarding 3 moves. */
     public static final float GRAVITY_VACC = (float) (GRAVITY_MIN * 0.6);
 
@@ -69,8 +69,8 @@ public class Magic {
     public static final double modSoulSand          = 0.16D / WALK_SPEED;
     public static final double modLanding           = 0.25194D / WALK_SPEED;
     public static final double modHopTick           = 0.25415D / WALK_SPEED;
-    public static final double modSprint            = 0.27D / WALK_SPEED; // TODO: without bunny  0.29 / practical is 0.35
-    public static final double modSlope             = 0.3069D / WALK_SPEED; // TODO: without bunny  0.29 / practical is 0.35
+    public static final double modSprint            = 0.27D / WALK_SPEED; 
+    public static final double modSlope             = 0.3069D / WALK_SPEED; 
     public static final double[] modSurface         = new double [] {0.23426D / WALK_SPEED, 0.29835D / WALK_SPEED};
     public static final double modCollision         = 0.3006D / WALK_SPEED;
     public static final double modSoulSpeed         = 0.3094D / WALK_SPEED;
@@ -214,7 +214,6 @@ public class Magic {
         final double off = Math.abs(thisMove.yDistance - frictDist);
         return off <= maxOff && Math.abs(thisMove.yDistance - lastMove.yDistance) <= off * decreaseByOff;
     }
-
     
    /**
     * Test (using the past move tracking) if the player has jumped up a slope.
@@ -240,40 +239,47 @@ public class Magic {
                  return false;
             }
             // Past move was on ground with smaller altitude than the current move, which is within ground reach (to forestall lowjump).
-            else if (to.isOnGround(distance)
-                    && (thisMove.from.getY() - pastMove.to.getY()) <= 1.2 
+            else if (to.isOnGround(Math.min(1.0, distance))
+                    && (thisMove.from.getY() - pastMove.to.getY()) <= (1.0 + distance)
                     && (thisMove.from.getY() - pastMove.to.getY()) > 0.99
                     && (pastMove.to.onGround || pastMove.from.onGround)) {
                 return true;
             }
         }
         return false;
-        //    return 
-        //            // Lift off
-        //            pastMove8.from.onGround && !pastMove8.to.onGround 
-        //            // 1st air phase
-        //            && !pastMove7.from.onGround && !pastMove7.to.onGround 
-        //           /* 
-        //            * On early air phase, the player's hitbox will collide with the block even though they are
-        //            * still ascending, causing the onGround flag to be turned to true for a short while.
-        //            * NOTE: During such phase the player still has to to move up roughly by 0.15/16. 
-        //            *       Most step cheats will simply ignore this 'leftover' distance and move on as if no height difference was taken.
-        //            *       Perhaps we could add a subcheck to vDistAir to specifically enforce this type of movement when jumping next to a block...
-        //            */
-        //            && !pastMove6.from.onGround && pastMove6.to.onGround 
-        //           && pastMove5.from.onGround && !pastMove5.to.onGround 
-        //            // (4, 3 and 2 are all advanced in-air phases no need to also check those)
-        //            // Air phase has ended
-        //            && !pastMove1.from.onGround && pastMove1.to.onGround 
-        //            // Fully on ground now
-        //            && thisMove.from.onGround && thisMove.to.onGround 
-        //            // Now compare the altitude changes.
-        //            && thisMove.to.getY() > pastMove8.from.getY() 
-        //            // Observed: Multiple split/micro moves after landing and before jumping.
-        //            // && thisMove.multiMoveCount == 1 && pastMove8.multiMoveCount == 2
-        //        ;
     }
-
+    
+   /**
+    * Test (using the past move tracking) if the player has jumped up a slope.
+    * No tight checking.
+    * @param data
+    * @param currentLoc
+    *             From/To location
+    * @param limit
+    *             How many past moves should be tracked
+    * @return 
+    */
+    public static boolean jumpedUpSlope(final MovingData data, final PlayerLocation currentLoc, int limit) {
+        limit = Math.min(limit, data.playerMoves.getNumberOfPastMoves());
+        final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
+            
+        for (int i = 0; i < limit; i++) {
+            final PlayerMoveData pastMove = data.playerMoves.getPastMove(i);
+            // Stairs are for now skipped, need to fix on ground logic.
+            if (!pastMove.toIsValid || thisMove.from.aboveStairs) {
+                return false;
+            }
+            // Past move was on ground with smaller altitude than the current move which is on ground
+            else if (currentLoc.isOnGround()
+                    // Prevent regular jumps from being seen as slopes.
+                    && (currentLoc.getY() - pastMove.to.getY()) <= 1.0
+                    && (currentLoc.getY() - pastMove.to.getY()) > 0.99
+                    && (pastMove.to.onGround || pastMove.from.onGround)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Test for a specific move in-air -> water, then water -> in-air.

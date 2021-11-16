@@ -405,6 +405,7 @@ public class NoFall extends Check {
         // TODO: Also handle from and to independently (rather fire twice than wait for next time).
         boolean onClimbableFrom = false;
         boolean onClimbableTo = false;
+        // TODO: Possibly fixed by removing the GROUND_HEIGHT block flag?
         if (pFrom.getBlockFlags() != null) onClimbableFrom = (pFrom.getBlockFlags() & BlockProperties.F_CLIMBABLE) != 0;
         if (pTo.getBlockFlags() != null) onClimbableTo = (pTo.getBlockFlags() & BlockProperties.F_CLIMBABLE) != 0;
         final boolean fromReset = from.resetCond || onClimbableFrom && !BlockProperties.isGround(pFrom.getTypeIdBelow());
