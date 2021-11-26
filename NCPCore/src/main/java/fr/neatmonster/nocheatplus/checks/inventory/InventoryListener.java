@@ -764,16 +764,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         final Inventory inv = player.getOpenInventory().getTopInventory();
         if (moreInv.isEnabled(player, pData) 
             && moreInv.check(player, data, pData, inv.getType(), inv, PoYdiff)) {
-            // Just simply close inventory ?
-            for (int i =1; i<=4 ;i++) {
-                final ItemStack item = inv.getItem(i);
-                if (item != null && item.getType() != Material.AIR) {
-                    player.getWorld().dropItemNaturally(player.getLocation(), item);
-                    inv.setItem(i, null);
-                    if (pData.isDebugActive(CheckType.INVENTORY_MOREINVENTORY))
-                        debug(player , "Drop items from crafting slot:" + i);
-                }
-            }
+            player.closeInventory();
         }
         // TODO: Let's check for certain conditions here, to see if the player is
         // Actually moving and not just moving from other events (Ice, falling, velocity)
