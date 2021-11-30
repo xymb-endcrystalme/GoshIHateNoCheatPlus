@@ -407,14 +407,14 @@ public class LostGround {
             }
 
             // Check for jumping up strange blocks like flower pots on top of other blocks.
+            // Doesn't seem like it's needed anymore, consider dropping it
             if (yDistance == 0.0 && lastMove.yDistance > 0.0 && lastMove.yDistance < 0.25 
                 && data.sfJumpPhase <= Math.max(0, 6 + data.jumpAmplifier * 3.0) 
                 && setBackYDistance > 1.0 && setBackYDistance < Math.max(0.0, 1.5 + 0.2 * data.jumpAmplifier) 
                 && !to.isOnGround()) {
                 
                 // TODO: confine by block types ?
-                if (from.isOnGround(0.25, 0.4, 0, 0L) ) {
-                    data.sfLowJump = false;
+                if (from.isOnGround(0.25, 0.4, 0, 0L)) {
                     return applyLostGround(player, from, true, thisMove, data, "ministep", tags);
                 }
             }

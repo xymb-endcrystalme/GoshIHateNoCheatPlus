@@ -239,7 +239,7 @@ public class Magic {
                  return false;
             }
             // Past move was on ground with smaller altitude than the current move, which is within ground reach (to forestall lowjump).
-            else if (to.isOnGround(Math.min(1.0, distance))
+            else if (to.isOnGround(distance)
                     && (thisMove.from.getY() - pastMove.to.getY()) <= (1.0 + distance)
                     && (thisMove.from.getY() - pastMove.to.getY()) > 0.99
                     && (pastMove.to.onGround || pastMove.from.onGround)) {

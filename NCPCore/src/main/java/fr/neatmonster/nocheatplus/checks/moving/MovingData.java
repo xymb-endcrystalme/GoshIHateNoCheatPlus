@@ -259,19 +259,18 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public LiftOffEnvelope liftOffEnvelope = defaultLiftOffEnvelope;
     /** Count how many moves have been made inside a medium (other than air). */
     public int insideMediumCount = 0;
-    // TODO: Does combinedMedium stuff need resetting on join/teleport/special?
-    /** Number of moves for horizontal moving within air + certain medium. */
-    public int combinedMediumHCount = 0;
-    /** Sum of actual speed / base speed for horizontal moving within air + certain medium. */
-    public double combinedMediumHValue = 0.0;
     /** Counting while the player is not on ground and not moving. A value < 0 means not hovering at all. */
     public int sfHoverTicks = -1;
     /** First count these down before incrementing sfHoverTicks. Set on join, if configured so. */
     public int sfHoverLoginTicks = 0;
     /** Fake in air flag: set with any violation, reset once on ground. */
     public boolean sfVLInAir = false;
-    /** Vertical accounting info */
-    public final ActionAccumulator vDistAcc = new ActionAccumulator(3, 3);
+    /** Vertical accounting: gravity enforcer (for a minimum amount) */
+    public final ActionAccumulator vDistAcc = new ActionAccumulator(3, 3); // 3 buckets with max capacity of 3 events
+    /** Horizontal accounting: tracker of actual speed / allowed base speed */
+    public final ActionAccumulator hDistAcc = new ActionAccumulator(1, 100); // 1 bucket capable of holding a maximum of 100 events.
+    /** Step accounting: accumulates Y-distances on slope-jumping and checks if accumulated value is higher than step height.*/
+    public final ActionAccumulator stepAcc = new ActionAccumulator(1, 4);
     /** Workarounds (InAirRules,LiquidWorkarounds). */
     public final WorkaroundSet ws;
 
@@ -381,6 +380,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         sfZeroVdistRepeat = 0;
         clearAccounting();
         clearHAccounting();
+        clearStepAcc();
         clearNoFallData();
         removeAllPlayerSpeedModifiers();
         lostSprintCount = 0;
@@ -417,6 +417,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         // Keep jump amplifier
         // Keep bunny-hop delay (?)
         // keep jump phase.
+        // Keep hAcc ?
+        // Keep stepAcc?
         lostSprintCount = 0;
         sfHoverTicks = -1; // 0 ?
         sfDirty = false;
@@ -447,6 +449,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         playerMoves.invalidate();
         vehicleMoves.invalidate();
         clearAccounting();
+        clearHAccounting();
         sfJumpPhase = 0;
         sfZeroVdistRepeat = 0;
         verticalBounce = null;
@@ -632,8 +635,14 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      * Clear hacc
      */
     public void clearHAccounting() {
-        combinedMediumHCount = 0;
-        combinedMediumHValue = 0.0;
+        hDistAcc.clear();
+    }
+
+    /**
+     * Clear step accounting
+     */
+    public void clearStepAcc() {
+        stepAcc.clear();
     }
 
 

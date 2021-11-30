@@ -96,6 +96,11 @@ public class MagicBunny {
         ///////////////////////////////////////////////////////////////////
         // After hop checks ("bunnyfly" phase, special cases)            //
         ///////////////////////////////////////////////////////////////////
+        /*
+         * TODO: Switch bunnyfly speed decrease to use action accumulator?
+         * With a logic similar to vertical accounting, in the sense that we demand that
+         * with time, the speed decreases.
+         */
         if (lastMove.toIsValid && data.bunnyhopDelay > 0 && hDistance > baseSpeed) {
             allowHop = false;
             final int hopTime = BUNNYHOP_MAX_DELAY - data.bunnyhopDelay;
@@ -394,8 +399,6 @@ public class MagicBunny {
      * @return the modifier
      */
     public static double modBunny(final boolean headObstructed, final MovingData data) {
-
-
         return  
                 // Ice (friction takes care with head obstr, so no need to increase the factor.)
                 Magic.wasOnIceRecently(data) ? 1.5415 :
