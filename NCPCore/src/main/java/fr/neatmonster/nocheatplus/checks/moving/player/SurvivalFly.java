@@ -364,11 +364,22 @@ public class SurvivalFly extends Check {
             vDistanceAboveLimit = resultSnow[1];
         }
 
+        // Climbable blocks
+        // this check needs to be before isInWeb, because this can lead to false positive
+        else if (from.isOnClimbable()) {
+            final double[] resultClimbable = vDistClimbable(player, from, to, fromOnGround, toOnGround, thisMove, lastMove, yDistance, data);
+            vAllowedDistance = resultClimbable[0];
+            vDistanceAboveLimit = resultClimbable[1];
+        }
+
         // Webs 
         else if (from.isInWeb()) {
-            final double[] resultWeb = vDistWeb(player, thisMove, toOnGround, hDistanceAboveLimit, now, data, cc, from);
-            vAllowedDistance = resultWeb[0];
-            vDistanceAboveLimit = resultWeb[1];
+            // there is a special corner case where a player is pushed from a bubbleStream into a web
+            if (!from.isInBubbleStream()) {
+                final double[] resultWeb = vDistWeb(player, thisMove, toOnGround, hDistanceAboveLimit, now, data, cc, from);
+                vAllowedDistance = resultWeb[0];
+                vDistanceAboveLimit = resultWeb[1];
+            }
         }
 
          // Berry bush (1.15+)
@@ -383,13 +394,6 @@ public class SurvivalFly extends Check {
             vAllowedDistance = data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier);
             vDistanceAboveLimit = yDistance - vAllowedDistance;
             if (vDistanceAboveLimit > 0.0) tags.add("honeyasc");
-        }
-
-        // Climbable blocks
-        else if (from.isOnClimbable()) {
-            final double[] resultClimbable = vDistClimbable(player, from, to, fromOnGround, toOnGround, thisMove, lastMove, yDistance, data);
-            vAllowedDistance = resultClimbable[0];
-            vDistanceAboveLimit = resultClimbable[1];
         }
 
         // In liquid
