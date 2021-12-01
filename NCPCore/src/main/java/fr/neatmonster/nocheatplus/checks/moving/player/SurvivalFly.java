@@ -374,12 +374,9 @@ public class SurvivalFly extends Check {
 
         // Webs 
         else if (from.isInWeb()) {
-            // there is a special corner case where a player is pushed from a bubbleStream into a web
-            if (!from.isInBubbleStream()) {
-                final double[] resultWeb = vDistWeb(player, thisMove, toOnGround, hDistanceAboveLimit, now, data, cc, from);
-                vAllowedDistance = resultWeb[0];
-                vDistanceAboveLimit = resultWeb[1];
-            }
+            final double[] resultWeb = vDistWeb(player, thisMove, toOnGround, hDistanceAboveLimit, now, data, cc, from);
+            vAllowedDistance = resultWeb[0];
+            vDistanceAboveLimit = resultWeb[1];
         }
 
          // Berry bush (1.15+)
@@ -2095,9 +2092,14 @@ public class SurvivalFly extends Check {
 
         // Ascend: players cannot ascend in webs
         if (yDistance >= 0.0) {
-            vAllowedDistance = step ? yDistance : thisMove.from.onGround ? 0.1 : 0.0; 
-            if (step) tags.add("web_step");
-            vDistanceAboveLimit = yDistance - vAllowedDistance;
+            // they can on climbable (ladders, vines) and they get pushed upwards by bubblesteam
+            if (from.isInBubbleStream() || from.isOnClimbable()) {
+                vAllowedDistance = Magic.climbSpeedAscend * 0.15;
+            } else {
+                vAllowedDistance = step ? yDistance : thisMove.from.onGround ? 0.1 : 0.0;
+                if (step) tags.add("web_step");
+                vDistanceAboveLimit = yDistance - vAllowedDistance;
+            }
         }
         // Descend
         else {
