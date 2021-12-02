@@ -364,6 +364,14 @@ public class SurvivalFly extends Check {
             vDistanceAboveLimit = resultSnow[1];
         }
 
+        // Climbable blocks
+        // this check needs to be before isInWeb, because this can lead to false positive
+        else if (from.isOnClimbable()) {
+            final double[] resultClimbable = vDistClimbable(player, from, to, fromOnGround, toOnGround, thisMove, lastMove, yDistance, data);
+            vAllowedDistance = resultClimbable[0];
+            vDistanceAboveLimit = resultClimbable[1];
+        }
+
         // Webs 
         else if (from.isInWeb()) {
             final double[] resultWeb = vDistWeb(player, thisMove, toOnGround, hDistanceAboveLimit, now, data, cc, from);
@@ -383,13 +391,6 @@ public class SurvivalFly extends Check {
             vAllowedDistance = data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier);
             vDistanceAboveLimit = yDistance - vAllowedDistance;
             if (vDistanceAboveLimit > 0.0) tags.add("honeyasc");
-        }
-
-        // Climbable blocks
-        else if (from.isOnClimbable()) {
-            final double[] resultClimbable = vDistClimbable(player, from, to, fromOnGround, toOnGround, thisMove, lastMove, yDistance, data);
-            vAllowedDistance = resultClimbable[0];
-            vDistanceAboveLimit = resultClimbable[1];
         }
 
         // In liquid
@@ -2091,9 +2092,14 @@ public class SurvivalFly extends Check {
 
         // Ascend: players cannot ascend in webs
         if (yDistance >= 0.0) {
-            vAllowedDistance = step ? yDistance : thisMove.from.onGround ? 0.1 : 0.0; 
-            if (step) tags.add("web_step");
-            vDistanceAboveLimit = yDistance - vAllowedDistance;
+            // they can on climbable (ladders, vines) and they get pushed upwards by bubblesteam
+            if (from.isInBubbleStream() || from.isOnClimbable()) {
+                vAllowedDistance = Magic.climbSpeedAscend * 0.15;
+            } else {
+                vAllowedDistance = step ? yDistance : thisMove.from.onGround ? 0.1 : 0.0;
+                if (step) tags.add("web_step");
+                vDistanceAboveLimit = yDistance - vAllowedDistance;
+            }
         }
         // Descend
         else {
