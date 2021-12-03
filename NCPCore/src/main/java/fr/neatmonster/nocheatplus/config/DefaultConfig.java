@@ -546,6 +546,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_SURVIVALFLY_STEPHEIGHT, "default", 785);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_VACC, true, 785);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_HACC, true, 1154);
+        set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_STEP, false, 785);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_NOSLOW, true, 1154);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_RESETITEM, true, 1154);
         set(ConfPaths.MOVING_SURVIVALFLY_LENIENCY_HBUFMAX, 1.0, 1154);

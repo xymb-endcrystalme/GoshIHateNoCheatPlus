@@ -487,10 +487,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             token = null;
         }
 
-        // TODO: Might log base parts here (+extras).
         if (earlyReturn) {
-            // TODO: Remove player from enforceLocation ?
-            // TODO: Log "early return: " + tags.
             if (debug) {
                 debug(player, "Early return" + (token == null ? "" : (" (" + token + ")")) +  " on PlayerMoveEvent: from: " + from + " , to: " + to);
             }
@@ -654,7 +651,6 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             // NOTE: The setback should not be set before this, even if not yet set.
             // Last to vs. from.
             newTo = enforceLocation(player, from, data);
-            // TODO: Remove anyway ? 
             playersEnforce.remove(playerName);
         }
 
@@ -836,6 +832,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             }
             
             // 6.3: Set BCT
+            // NOTE: Block change activity has to be checked *after* the extreme move checks run.
             useBlockChangeTracker = newTo == null && cc.trackBlockMove && (checkPassable || checkSf || checkCf) && blockChangeTracker.hasActivityShuffled(from.getWorld().getUID(), pFrom, pTo, 1.5625);
 
             // 6.4: Check jumping on things like slime blocks.

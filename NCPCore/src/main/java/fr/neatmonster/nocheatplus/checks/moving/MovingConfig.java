@@ -126,10 +126,11 @@ public class MovingConfig extends ACheckConfig {
     public final double     sfStepHeight;
     public final boolean    survivalFlyAccountingH;
     public final boolean    survivalFlyAccountingV;
+    public final boolean    survivalFlyAccountingStep;
     public final boolean    survivalFlyResetItem;
     // Leniency settings.
     /** Horizontal buffer (rather sf), after failure leniency. */
-    public final double hBufMax;
+    public final double     hBufMax;
     public final long       survivalFlyVLFreezeCount;
     public final boolean    survivalFlyVLFreezeInAir;
     // Set back policy.
@@ -265,8 +266,9 @@ public class MovingConfig extends ACheckConfig {
         survivalFlyWalkingSpeed = config.getInt(ConfPaths.MOVING_SURVIVALFLY_WALKINGSPEED, 100);
         sfSlownessSprintHack = config.getAlmostBoolean(ConfPaths.MOVING_SURVIVALFLY_SLOWNESSSPRINTHACK, AlmostBoolean.MAYBE).decideOptimistically();
         sfGroundHop = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_GROUNDHOP, ServerVersion.compareMinecraftVersion("1.7") == -1);
-        survivalFlyAccountingH = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_HACC, false);
+        survivalFlyAccountingH = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_HACC);
         survivalFlyAccountingV = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_VACC);
+        survivalFlyAccountingStep = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_STEP);
         survivalFlyResetItem = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_RESETITEM);
         sfSetBackPolicyFallDamage = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_SETBACKPOLICY_FALLDAMAGE);
         sfSetBackPolicyVoid = config.getBoolean(ConfPaths.MOVING_SURVIVALFLY_SETBACKPOLICY_VOIDTOVOID);

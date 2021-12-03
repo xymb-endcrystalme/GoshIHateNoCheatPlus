@@ -67,71 +67,57 @@ public class Critical extends Check {
         boolean cancel = false;
         boolean violation = false;
         final List<String> tags = new ArrayList<String>();
-        final double mcFallDistance = (double) player.getFallDistance();
         final MovingData mData = pData.getGenericInstance(MovingData.class);
-        final MovingConfig mcc = pData.getGenericInstance(MovingConfig.class);
+        final MovingConfig mCC = pData.getGenericInstance(MovingConfig.class);
         final PlayerMoveData thisMove = mData.playerMoves.getCurrentMove();
-        final double fallDistDiff = Math.abs(mData.noFallFallDistance - mcFallDistance);
+        final double mcFallDistance = (double) player.getFallDistance();
+        final double ncpFallDistance = mData.noFallFallDistance;
+        final double realisticFallDistance = MovingUtil.getRealisticFallDistance(player, thisMove.from.getY(), thisMove.to.getY(), mData, pData);
 
 
-        // Check if the hit was a critical hit (very small fall-distance, not on ladder, 
-        //  not in liquid, not in vehicle, and without blindness effect).
+        // Check if the hit was a critical hit (very small fall-distance, not on ladder, not in liquid, not in vehicle, and without blindness effect).
         if (mcFallDistance > 0.0 && !player.isInsideVehicle() && !player.hasPotionEffect(PotionEffectType.BLINDNESS)) {
 
             if (pData.isDebugActive(type)) {
-                debug(player, "y=" + loc.getY() + " mcfalldist=" + mcFallDistance 
+                debug(player, "y=" + loc.getY() + " \nFall distances: MC(" + StringUtil.fdec3.format(mcFallDistance) +") / NCP("+ StringUtil.fdec3.format(ncpFallDistance) +") / Realistic("+ StringUtil.fdec3.format(realisticFallDistance) +")"
                     + " jumpphase: " + mData.sfJumpPhase 
-                    + " noFallDist: " + mData.noFallFallDistance + " lowjump: " + mData.sfLowJump 
+                    + " lowjump: " + mData.sfLowJump 
                     + " toGround: " + thisMove.to.onGround + " fromGround: " + thisMove.from.onGround);
             }
-        
+
             // Detect silent jumping (might be redundant with the mismatch check below)
-            if (fallDistDiff > cc.criticalFallDistLeniency 
+            if (Math.abs(ncpFallDistance - mcFallDistance) > cc.criticalFallDistLeniency 
                 && mcFallDistance <= cc.criticalFallDistance 
                 && mData.sfJumpPhase <= 1
-                && !BlockProperties.isResetCond(player, loc, mcc.yOnGround)
-                ) {
-               tags.add("silent_jump");
+                && !BlockProperties.isResetCond(player, loc, mCC.yOnGround)) {
+               tags.add("fakejump");
                violation = true;
             }
             // Detect lowjumping
             else if (mData.sfLowJump) {
-                tags.add("low_jump");
+                tags.add("lowjump");
                 violation = true;
             }
-            // As a last resort, ensure that Minecraft's fall distance is on par with our fall distance if the move is fully grounded.
-            else if (mData.noFallFallDistance != mcFallDistance && thisMove.from.onGround && thisMove.to.onGround) {
-                tags.add("falldist_mismatch");
+            // Player is on ground with server-side fall distance; we are going to force a violation here :)
+            else if (ncpFallDistance != mcFallDistance && thisMove.from.onGround && thisMove.to.onGround 
+                    && !BlockProperties.isResetCond(player, loc, mCC.yOnGround)) {
+                tags.add("fakefall");
                 violation = true;
             }
                    
             // Handle violations
             if (violation) {
 
-                // TODO: Use past move tracking to check for SurvivalFly and the like?
                 final PlayerMoveInfo moveInfo = auxMoving.usePlayerMoveInfo();
-                moveInfo.set(player, loc, null, mcc.yOnGround);
-
+                moveInfo.set(player, loc, null, mCC.yOnGround);
                 // False positives with medium counts reset all nofall data when nearby boat
                 // TODO: Fix isOnGroundDueToStandingOnAnEntity() to work on entity not nearby
-                if (MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, moveInfo.to, mData, mcc, pData) 
+                if (MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, null, mData, mCC, pData) 
                     && !moveInfo.from.isOnGroundDueToStandingOnAnEntity()) {
+
                     moveInfo.from.collectBlockFlags(0.4);
-                    
-                    // TODO: maybe these require a fix/modification with NoFall? For now, exempt the player.
-                    // Don't think its possible to fake a crit in these situations either (except for being onGround in a web/water, which is checked for before being exempt) ... or at least from my testing?
-                    if (thisMove.from.onClimbable || thisMove.to.onClimbable) {
-                        // Ignore climbables
-                    } 
-                    else if ((thisMove.from.inLiquid | thisMove.to.inLiquid) 
-                            && thisMove.from.onGround && thisMove.to.onGround) {
-                        // Ignore liquids
-                    } 
-                    else if ((thisMove.from.inWeb | thisMove.to.inWeb) & !thisMove.to.onGround) {
-                        // Ignore webs
-                    } 
-                    else if ((moveInfo.from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0 
-                            && !thisMove.from.onGround && !thisMove.to.onGround) {
+                    if ((moveInfo.from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0 
+                        && !thisMove.from.onGround && !thisMove.to.onGround) {
                         // Slime blocks
                     }   
                     else {
@@ -147,10 +133,8 @@ public class Critical extends Check {
                     auxMoving.returnPlayerMoveInfo(moveInfo);
                 }
             }
-
-            if (!cancel) {
-                data.criticalVL *= 0.96D;
-            }
+            // Crit was legit, reward the player.
+            else data.criticalVL *= 0.96D;
         }
         return cancel;
     }

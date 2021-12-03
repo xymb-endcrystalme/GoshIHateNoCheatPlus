@@ -22,39 +22,41 @@ package fr.neatmonster.nocheatplus.checks.moving.model;
  */
 public enum LiftOffEnvelope {
     /** Normal in-air lift off without any restrictions/specialties. */
-    NORMAL(0.42, 1.35, 6, true),
+    NORMAL(0.42, 1.35, 1.15, 6, true),
     /** Weak or no limit moving off liquid near ground. */
-    LIMIT_NEAR_GROUND(0.42, 1.35, 6, false), // TODO: 0.385 / not jump on top of 1 high wall from water.
+    LIMIT_NEAR_GROUND(0.42, 1.35, 1.15, 6, false), // TODO: 0.385 / not jump on top of 1 high wall from water.
     /** Simple calm water surface. */
-    LIMIT_LIQUID(0.1, 0.27, 3, false),
+    LIMIT_LIQUID(0.1, 0.27, 0.23, 3, false),
     //    /** Flowing water / strong(-est) limit. */
     //    LIMIT_LIQUID_STRONG(...), // TODO
     /** No jumping at all (web). */
-    NO_JUMP(0.0, 0.0, 0, false),
+    NO_JUMP(0.0, 0.0, 0.0, 0, false),
     /** Like NO_JUMP, just to distinguish from being in web. */
-    UNKNOWN(0.0, 0.0, 0, false),
+    UNKNOWN(0.0, 0.0, 0.0, 0, false),
     /** Halfed jump gain, meant for the honey block, rather. */
     // NOTE: Jump height: 0.3 would trigger false positives. While 0.45 is too much
-    HALF_JUMP(0.21, 0.4, 4, true), 
+    HALF_JUMP(0.21, 0.4, 0.34, 4, true), 
     /** Nearly ordinary jumping gain (meant for berry bushes)*/
     // TEST: Jumping height is random (but higher than the honeyblock), needs testing to be more strict.
-    BERRY_JUMP(0.35, 0.54, 0, true), 
+    BERRY_JUMP(0.35, 0.54, 0.46, 0, true), 
     // Powder snow is considered as reset condition so we don't care about the jump phase.
     /** Special liftoff handling for powder snow: higher than ordinary despite not reaching actual full block height */
-    POWDER_SNOW(0.63, 0.63, 0, true),
+    POWDER_SNOW(0.63, 0.63, 0.535, 0, true),
     /** Jumping up stairs. Not ordinary ground-to-ground stepping because this game's movement mechanics are trash. */
     // TODO: Get rid of the F_GROUND_HEIGHT flag for stairs and handle them with their own liftoff envelope (vDistRel or separated handling)
-    STAIRS(0.5, 1.35, 3, false) // Jump height 0.5 as well?
+    STAIRS(0.5, 1.35, 1.15, 3, false) // Jump height 0.5 as well?
     ;
 
     private double maxJumpGain;
     private double maxJumpHeight;
+    private double minJumpHeight;
     private int maxJumpPhase;
     private boolean jumpEffectApplies;
 
-    private LiftOffEnvelope(double maxJumpGain, double maxJumpHeight, int maxJumpPhase, boolean jumpEffectApplies) {
-        this.maxJumpGain = maxJumpGain;
-        this.maxJumpHeight = maxJumpHeight;
+    private LiftOffEnvelope(double maxJumpGain, double maxJumpHeight, double minJumpHeight, int maxJumpPhase, boolean jumpEffectApplies) {
+        this.maxJumpGain = maxJumpGain; //(Lift-off speed gain)
+        this.maxJumpHeight = maxJumpHeight; //(Actual jump height)
+        this.minJumpHeight = minJumpHeight;
         this.maxJumpPhase = maxJumpPhase;
         this.jumpEffectApplies = jumpEffectApplies;
     }
@@ -75,7 +77,7 @@ public enum LiftOffEnvelope {
     }
 
     /**
-     * Minimal distance expected with lift-off.
+     * Minimal distance expected with lift-off, with a custom factor for the jump amplifier.
      * @param jumpAmplifier
      * @param factor
      * @return
@@ -101,6 +103,21 @@ public enum LiftOffEnvelope {
         }
         else {
             return maxJumpGain;
+        }
+    }
+
+    /**
+     * Minimal jump height in blocks.
+     * @param jumpAmplifier
+     * @param factor
+     * @return
+     */
+    public double getMinJumpHeight(double jumpAmplifier) {
+        if (jumpEffectApplies && jumpAmplifier != 0.0) {
+            return minJumpHeight + (0.5 * jumpAmplifier);
+        }
+        else {
+            return minJumpHeight;
         }
     }
     
@@ -151,5 +168,4 @@ public enum LiftOffEnvelope {
     public boolean jumpEffectApplies() {
         return jumpEffectApplies;
     }
-
 }
