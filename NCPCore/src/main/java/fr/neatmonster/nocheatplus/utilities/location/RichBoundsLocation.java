@@ -22,9 +22,6 @@ import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
-import fr.neatmonster.nocheatplus.NCPAPIProvider;
-import fr.neatmonster.nocheatplus.logging.Streams;
-import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeReference;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker.BlockChangeEntry;
@@ -147,6 +144,9 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     
     /** Is the player on a boncy block? (Bed, slime) */
     Boolean onBouncyBlock = null;
+
+    /** Is the player in a bubblestream? */
+    Boolean inBubblestream = null;
 
 
     // "Heavy" object members that need to be set to null on cleanup. //
@@ -992,6 +992,24 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         return onHoneyBlock;
     }
 
+
+    /**
+     * Check the location is a bubblestream
+     *
+     * @return true, if is an bubblestream
+     */
+    public boolean isInBubbleStream() {
+        if (inBubblestream == null) {
+            if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_BUBBLECOLUMN) == 0) {
+                inBubblestream = false;
+            } else {
+                inBubblestream = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockProperties.F_BUBBLECOLUMN);
+            }
+        }
+        return inBubblestream;
+    }
+
+
     /**
      * Test if the location is on rails (assuming minecarts with some magic
      * bounds/behavior).
@@ -1552,6 +1570,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         this.inLava = other.isInLava();
         this.inWeb = other.isInWeb();
         this.inBerryBush = other.isInBerryBush();
+        this.inBubblestream = other.isInBubbleStream();
         this.onHoneyBlock = other.isOnHoneyBlock();
         this.onSlimeBlock = other.isOnSlimeBlock();
         this.onIce = other.isOnIce();
@@ -1632,7 +1651,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
 
         // Reset cached values.
         node = nodeBelow = null;
-        aboveStairs = inLava = inWater = inWaterLogged = inWeb = onIce = onBlueIce = onSoulSand = onHoneyBlock = onSlimeBlock = inBerryBush = inPowderSnow = onGround = onClimbable = onBouncyBlock = passable = passableBox = null;
+        aboveStairs = inLava = inWater = inWaterLogged = inWeb = onIce = onBlueIce = onSoulSand = onHoneyBlock = onSlimeBlock = inBerryBush = inPowderSnow = onGround = onClimbable = onBouncyBlock = passable = passableBox = inBubblestream = null;
         onGroundMinY = Double.MAX_VALUE;
         notOnGroundMaxY = Double.MIN_VALUE;
         blockFlags = null;
