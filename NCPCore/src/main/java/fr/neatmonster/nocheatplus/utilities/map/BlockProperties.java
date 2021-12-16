@@ -882,7 +882,7 @@ public class BlockProperties {
     public static final long F_COBWEB                       = f_flag();
 
     /** Berry bush-like, similar to webs but with higher speed (adhesive). */
-    public static final long F_COBWEB2                      = f_flag();
+    public static final long F_BERRY_BUSH                   = f_flag();
 
     /** Soul sand and the like */
     public static final long F_SOULSAND                     = f_flag();

@@ -75,14 +75,15 @@ public class Critical extends Check {
         final double realisticFallDistance = MovingUtil.getRealisticFallDistance(player, thisMove.from.getY(), thisMove.to.getY(), mData, pData);
 
 
-        // Check if the hit was a critical hit (very small fall-distance, not on ladder, not in liquid, not in vehicle, and without blindness effect).
+        // Check if the hit was a critical hit (very small fall-distance, not on ladder, not in vehicle, and without blindness effect).
         if (mcFallDistance > 0.0 && !player.isInsideVehicle() && !player.hasPotionEffect(PotionEffectType.BLINDNESS)) {
 
             if (pData.isDebugActive(type)) {
-                debug(player, "y=" + loc.getY() + " \nFall distances: MC(" + StringUtil.fdec3.format(mcFallDistance) +") / NCP("+ StringUtil.fdec3.format(ncpFallDistance) +") / Realistic("+ StringUtil.fdec3.format(realisticFallDistance) +")"
-                    + " jumpphase: " + mData.sfJumpPhase 
-                    + " lowjump: " + mData.sfLowJump 
-                    + " toGround: " + thisMove.to.onGround + " fromGround: " + thisMove.from.onGround);
+                debug(player, 
+                    "Fall distances: MC(" + StringUtil.fdec3.format(mcFallDistance) +") | NCP("+ StringUtil.fdec3.format(ncpFallDistance) +") | R("+ StringUtil.fdec3.format(realisticFallDistance) +")"
+                    + "\nfD diff: " + StringUtil.fdec3.format(Math.abs(ncpFallDistance - mcFallDistance))
+                    + "\nJumpPhase: " + mData.sfJumpPhase + " | LowJump: " + mData.sfLowJump + " | NCP onGround: " + (thisMove.from.onGround ? "ground -> " : "--- -> ") + (thisMove.to.onGround ? "ground" : "---") + " | MC onGround: " + player.isOnGround()
+                ); // + ", packet onGround: " + packet.onGround); 
             }
 
             // Detect silent jumping (might be redundant with the mismatch check below)
@@ -101,8 +102,15 @@ public class Critical extends Check {
             // Player is on ground with server-side fall distance; we are going to force a violation here :)
             else if (ncpFallDistance != mcFallDistance && thisMove.from.onGround && thisMove.to.onGround 
                     && !BlockProperties.isResetCond(player, loc, mCC.yOnGround)) {
+                tags.add("falldist_mismatch");
+                violation = true;
+            }
+            // In these media players cannot perform critical hits, but they can be faked. Always invalidate them, if so.
+            else if ((thisMove.from.inBerryBush || thisMove.from.inWeb 
+                    || thisMove.from.inPowderSnow) && mData.insideMediumCount > 1) { // mcFallDistance > 0.0 is checked above.
                 tags.add("fakefall");
                 violation = true;
+                // (Cannot fake in liquid)
             }
                    
             // Handle violations
@@ -119,6 +127,7 @@ public class Critical extends Check {
                     if ((moveInfo.from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0 
                         && !thisMove.from.onGround && !thisMove.to.onGround) {
                         // Slime blocks
+                        // TODO: Remove (See TODO in Discord.)
                     }   
                     else {
 

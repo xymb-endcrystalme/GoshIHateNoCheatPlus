@@ -148,19 +148,19 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     
     // *----------No slowdown related data----------*
     /** Whether the player is using an item */
-    public boolean isusingitem = false;
+    public boolean isUsingItem = false;
     /** TODO: */
-    public boolean offhanduse = false;
+    public boolean offHandUse = false;
     /** TODO: */
-    public int olditemslot = 0;
+    public int oldItemSlot = 0;
     /** TODO: */
-    public boolean changeslot = false;
+    public boolean slotChange = false;
     /** TODO: */
-    public long time_rl_item = 0;
+    public long releaseItemTime = 0;
     /** Detection flag */
     public boolean isHackingRI = false;
     /** Keep track of hopping while using items */
-    public int noslowhop = 0;
+    public int noSlowHop = 0;
 
     // *----------Move / Vehicle move tracking----------*
     /** Keep track of currently processed (if) and past moves for player moving. Stored moves can be altered by modifying the int. */
@@ -181,7 +181,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
 
     // *----------Velocity handling----------* 
     /** Tolerance value for using vertical velocity (the client sends different values than received with fight damage). */
-    private static final double TOL_VVEL = 0.0625;
+    private static final double TOL_VVEL = 0.0625; // Result of minimum gravity + 0.0001
     /** Vertical velocity modeled as an axis (positive and negative possible) */
     private final SimpleAxisVelocity verVel = new SimpleAxisVelocity();
     /** Horizontal velocity modeled as an axis (always positive) */
@@ -270,7 +270,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     /** Horizontal accounting: tracker of actual speed / allowed base speed */
     public final ActionAccumulator hDistAcc = new ActionAccumulator(1, 100); // 1 bucket capable of holding a maximum of 100 events.
     /** Step accounting: accumulates Y-distances on slope-jumping and checks if accumulated value is higher than step height.*/
-    public final ActionAccumulator stepAcc = new ActionAccumulator(1, 4);
+    public final ActionAccumulator stepAcc = new ActionAccumulator(1, 3);
     /** Workarounds (InAirRules,LiquidWorkarounds). */
     public final WorkaroundSet ws;
 
@@ -415,10 +415,10 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         // Assume the player to start falling from there rather, or be on ground.
         // TODO: Check if to adjust some counters to state before setback? 
         // Keep jump amplifier
-        // Keep bunny-hop delay (?)
+        // Keep bunny-hop delay. Harsher on bunnyhop cheats.
         // keep jump phase.
         // Keep hAcc ?
-        // Keep stepAcc?
+        // Keep stepAcc.
         lostSprintCount = 0;
         sfHoverTicks = -1; // 0 ?
         sfDirty = false;
@@ -631,12 +631,14 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         vDistAcc.clear();
     }
 
+
     /**
      * Clear hacc
      */
     public void clearHAccounting() {
         hDistAcc.clear();
     }
+
 
     /**
      * Clear step accounting

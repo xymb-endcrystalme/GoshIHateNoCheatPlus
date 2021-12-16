@@ -1700,7 +1700,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         //final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
         data.clearMostMovingCheckData();
         data.setSetBack(player.getLocation(useLoc)); // TODO: Monitor this change (!).
-        data.isusingitem = false;
+        data.isUsingItem = false;
         // Log location.
         if (pData.isDebugActive(checkType)) debug(player, "Death: " + player.getLocation(useLoc));
         useLoc.setWorld(null);

@@ -122,7 +122,7 @@ public class BlocksMC1_14 implements BlockPropertiesSetup{
 		BlockProperties.setBlockProps("LANTERN", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 6.0f, BlockProperties.secToMs(17.0, 2.6, 1.3, 0.85, 0.7, 0.55, 0.4)));
 		BlockFlags.addFlags("LANTERN", BlockProperties.F_GROUND);
 
-		BlockFlags.addFlags("SWEET_BERRY_BUSH", BlockProperties.F_COBWEB2);
+		BlockFlags.addFlags("SWEET_BERRY_BUSH", BlockProperties.F_BERRY_BUSH);
         ConfigFile config = ConfigManager.getConfigFile();
         if (config.getBoolean(ConfPaths.BLOCKBREAK_DEBUG, config.getBoolean(ConfPaths.CHECKS_DEBUG, false)))
         StaticLog.logInfo("Added block-info for Minecraft 1.14 blocks.");

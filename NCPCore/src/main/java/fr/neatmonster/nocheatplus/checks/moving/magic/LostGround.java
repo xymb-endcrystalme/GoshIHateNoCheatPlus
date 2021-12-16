@@ -145,11 +145,15 @@ public class LostGround {
                 // Half block step up (definitive).
                 if (to.isOnGround() && setBackYMargin >= yDistance && hDistance <= thisMove.hAllowedDistanceBase * 2.2) {
                     if (lastMove.yDistance < 0.0 || yDistance <= cc.sfStepHeight && from.isOnGround(cc.sfStepHeight - yDistance)) {
+                        // data.clearStepAcc();
                         return applyLostGround(player, from, true, thisMove, data, "step", tags);
                     }
                 }
 
                 // Check for sprint-jumping on fences with trapdoors above (missing trapdoor's edge touch on server-side, player lands directly onto the fence)
+                // TODO: Currently this is treated as a lostground case. Not sure if this is an actual bug within MC:
+                //       With an ordinary jump, the player lands on the trapdoor first, then steps up the 0.5 block-high slope of the fence (aka. the fence is still 1.5 blocks high),
+                //       but a bunnyhopping player will be able to sometimes hop right onto the fence as if it was 1 block high.
                 if (setBackYDistance > 1.0 && setBackYDistance <= 1.5 
                     && setBackYMargin < 0.9 && setBackYMargin > 0.0 && data.bunnyhopDelay > 0 
                     && yDistance > from.getyOnGround() && lastMove.yDistance <= Magic.GRAVITY_MAX) {
@@ -157,17 +161,16 @@ public class LostGround {
                     to.collectBlockFlags();
                     if ((to.getBlockFlags() & BlockProperties.F_ATTACHED_LOW2_SNEW) != 0
                         && (to.getBlockFlags() & BlockProperties.F_HEIGHT150) != 0
-                        // Anticipate ground-touch (next move will touch the ground)
+                        // Forestall ground-touch (next move will touch the ground), set set back on the trapdoor to not yield a VL.
                         && lostGroundEdgeAsc(player, from.getBlockCache(), to.getWorld(), to.getX(), to.getY(), 
                                              to.getZ(), from.getX(), from.getY(), from.getZ(), 
-                                             hDistance, to.getBoxMarginHorizontal(), 0.006, 
+                                             hDistance, to.getBoxMarginHorizontal(), 0.003, 
                                              data, "fence", tags, from.getMCAccess())) {
                         return true;
                     }
                 }
 
                 // Noob tower (moving up placing blocks underneath). Rather since 1.9: player jumps off with 0.4 speed but ground within 0.42.
-                // TODO: Re-test with legacy.
                 // TODO: Confine by actually having placed a block nearby.
                 // TODO: Jump phase can be 6/7 - also confine by typical max jump phase (!)
                 final double maxJumpGain = data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier);
@@ -199,7 +202,8 @@ public class LostGround {
                 // TODO: Possibly confine margin depending on side, moving direction (see client code).
                 if (from.isOnGround(1.0) 
                     && BlockProperties.isOnGroundShuffled(to.getBlockCache(), from.getX(), from.getY() + cc.sfStepHeight, from.getZ(), to.getX(), to.getY(), to.getZ(), 0.1 + from.getBoxMarginHorizontal(), to.getyOnGround(), 0.0)) {
-                    // TODO: Set a data property, so vdist does not trigger (currently: scan for tag)
+                    // Might be safer to clear here... Need to review potential exploit.
+                    data.clearStepAcc();
                     return applyLostGround(player, from, false, thisMove, data, "couldstep", tags);
                 }
 
@@ -211,9 +215,8 @@ public class LostGround {
                         return true;
                     }
 
-                    // Special cases.
+                    // Special cases: similar to couldstep, with 0 y-distance but slightly above any ground nearby (no micro move!).
                     if (yDistance == 0.0 && lastMove.yDistance <= -0.1515 && (hDistance <= lastMove.hDistance * 1.1)) {
-                        // Similar to couldstep, with 0 y-distance but slightly above any ground nearby (no micro move!).
                         // TODO: Confining in x/z direction in general: should detect if collided in that direction (then skip the x/z dist <= last time).
                         // TODO: Code duplication with edgeasc7 below.
                         /*
@@ -352,9 +355,9 @@ public class LostGround {
         // First: calculate vector towards last from.
         x2 -= x1;
         z2 -= z1;
+
         // double y2 = data.fromY - y1; // Just for consistency checks (lastYDist).
         // Second: cap the size of the extra box (at least horizontal).
-
         double fMin = 1.0; // Factor for capping.
         if (Math.abs(x2) > hDistance2) {
             fMin = Math.min(fMin, hDistance2 / Math.abs(x2));
@@ -368,6 +371,7 @@ public class LostGround {
         // Third: calculate end points.
         x2 = fMin * x2 + x1;
         z2 = fMin * z2 + z1;
+
         // Finally test for ground.
         // (We don't add another xz-margin here, as the move should cover ground.)
         if (BlockProperties.isOnGroundShuffled(blockCache, x1, y1, z1, x2, y1 + (data.snowFix ? 0.125 : 0.0), z2, boxMarginHorizontal + (data.snowFix ? 0.1 : 0.0), yOnGround, 0.0)) {
@@ -421,13 +425,14 @@ public class LostGround {
         if (!lastMove.toIsValid) {
             return false;
         }
-
+        
+        // TODO: Since 1.17, after a setback has happened, players will trigger hSpeed VLs with lostground_pyramid...
         if (data.sfJumpPhase <= 7) {
-
+                   
             // Check for sprinting down blocks etc.
             if (lastMove.yDistance <= yDistance && setBackYDistance < 0 && !to.isOnGround()) {
                 // TODO: setbackydist: <= - 1.0 or similar
-                // TODO: <= 7 might work with speed II, not sure with above.
+                 // TODO: <= 7 might work with speed II, not sure with above.
                 if (from.isOnGround(0.6, 0.4, 0.0, 0L) ) {
                     // Temporary "fix".
                     // TODO: Seems to virtually always be preceded by a "vcollide" move.
@@ -436,7 +441,6 @@ public class LostGround {
             }
 
             // Check for jumping up strange blocks like flower pots on top of other blocks.
-            // Doesn't seem like it's needed anymore, consider dropping it
             if (yDistance == 0.0 && lastMove.yDistance > 0.0 && lastMove.yDistance < 0.25 
                 && data.sfJumpPhase <= Math.max(0, 6 + data.jumpAmplifier * 3.0) 
                 && setBackYDistance > 1.0 && setBackYDistance < Math.max(0.0, 1.5 + 0.2 * data.jumpAmplifier) 
@@ -444,7 +448,9 @@ public class LostGround {
                 
                 // TODO: confine by block types ?
                 if (from.isOnGround(0.25, 0.4, 0, 0L)) {
-                    return applyLostGround(player, from, true, thisMove, data, "ministep", tags);
+                    // Legitimate step, clear accounting
+                    data.clearStepAcc();
+                    return applyLostGround(player, from, true, thisMove, data, "ministep", tags); // Maybe set to false to prevent setback resetting at the step point, which will cause a lowjump.
                 }
             }
         }

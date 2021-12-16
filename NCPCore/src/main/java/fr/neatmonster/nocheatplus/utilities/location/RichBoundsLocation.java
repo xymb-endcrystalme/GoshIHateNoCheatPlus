@@ -26,6 +26,7 @@ import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeReferen
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker.BlockChangeEntry;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker.Direction;
+import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.components.location.IGetBox3D;
 import fr.neatmonster.nocheatplus.components.location.IGetBlockPosition;
 import fr.neatmonster.nocheatplus.components.location.IGetBukkitLocation;
@@ -56,7 +57,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     /** The block coordinates. */
     int blockX, blockY, blockZ;
 
-    /** The exact coordinates. */
+    /** The player coordinates. */
     double x, y, z;
 
     /** The pitch. */
@@ -742,7 +743,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     }
 
     /**
-     * Check if the player's box is in liquid within a given margin.
+     * Check if the player's mid-box is in liquid within a given margin.
      * Rather meant to test if the player's body is in water by enough, currently.
      * @param yMargin
      * @return 
@@ -849,10 +850,10 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isInBerryBush() {
         if (inBerryBush == null) {
-            if (blockFlags == null || (blockFlags & BlockProperties.F_COBWEB2) != 0L) {
+            if (blockFlags == null || (blockFlags & BlockProperties.F_BERRY_BUSH) != 0L) {
                 // TODO: inset still needed / configurable? -> Nope :)
                 //final double inset = 0.001d;
-                inBerryBush = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockProperties.F_COBWEB2);
+                inBerryBush = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockProperties.F_BERRY_BUSH);
             }
             else {
                 inBerryBush = false;
@@ -872,8 +873,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
             // TODO: Use a box here too ?
             // TODO: check if player is really sneaking (refactor from survivalfly to static access in Combined ?)!
             if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_ICE) == 0) {
-                // TODO: check onGroundMinY !?
-                onIce = false;
+                onIce = isOnIceLegacy() ? true : false;
             } 
             else {
                 // MC applies ice properties only with at least half the box on the block
@@ -882,16 +882,21 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
                 onIce = isOnGround() && BlockProperties.collides(blockCache, minX+xzMargin, minY - yOnGround, minZ+xzMargin, maxX-xzMargin, minY, maxZ-xzMargin, BlockProperties.F_ICE);
             }
         }
-        // Workaround for Minecraft's legacy stupidity: ice properties apply on top of chests with ice underneath...
-        // Applies for slime blocks and soul sand too, but we don't care about those since they do not increase player's speed in-air.
-        //   else if (ServerVersion.compareMinecraftVersion("1.9") < 0) {
-        //        Material blockBelowFeet = getTypeId(getBlockX(), Location.locToBlock(getY() - yOnGround), getBlockZ());
-        //        Material blockBelowBlock = getTypeId(getBlockX(), Location.locToBlock(getY() - 1.0), getBlockZ());
-        //        if (BlockProperties.isChest(blockBelowFeet) && BlockProperties.isIce(blockBelowBlock) && isOnGround()) {
-        //           onIce = true; // There, fixed. 
-        //        }
-        //    }
         return onIce;
+    }
+
+    /**
+     * Checks if the player is on ice (special case for 1.8)
+     * 
+     * @return true, if the player is on ice
+     */
+    public boolean isOnIceLegacy() {
+        if (Bridge1_9.hasElytra()) return false;
+        else {
+            final Material blockBelowChest = getTypeIdBelow();
+            final Material blockBelowPlayer = getTypeId(blockX, Location.locToBlock(minY - yOnGround), blockZ);
+            return BlockProperties.isIce(blockBelowChest) && BlockProperties.isChest(blockBelowPlayer) && isOnGround();
+       }
     }
 
     /**
@@ -1691,5 +1696,4 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         builder.append(')');
         return builder.toString();
     }
-
 }

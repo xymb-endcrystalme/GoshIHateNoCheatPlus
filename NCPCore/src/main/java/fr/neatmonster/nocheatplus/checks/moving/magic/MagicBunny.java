@@ -124,8 +124,6 @@ public class MagicBunny {
                     final double allowedSpeed = maxSpeed * Math.pow(BUNNY_FRICTION, hopTime); 
                     // Speed is decreasing properly, allow the move.
                     if (hDistance <= allowedSpeed 
-                        // Extremely little in-air decrease. Observed with slopes.
-                        || Magic.jumpedUpSlope(data, to, 30) && hDistDiff <= 0.00001 && Magic.inAir(thisMove)
                         // Transition from head obstructed to head free, only apply air friction. Somwehat defensive.
                         || Magic.headWasObstructedRecently(data, 30) && hDistance <= frictionDist
                         // TODO: Transitions: head obstructed on ice - headobstructed on normal ground
@@ -290,14 +288,6 @@ public class MagicBunny {
                     // 1: Landing on ground with negative yDistance left. Observed with slime blocks.
                     // TODO: Needs more precise confinment.
                     || yDistance < 0.0 && (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0 
-                    // 1: Y slopes, harder gravity.
-                    // TODO: Test against exploits.
-                    /* 
-                     * TODO: Might want to relate to fall distance instead of yDistance here,
-                     * since the latter can be quite incosistent and vary a lot if colliding with anything
-                     */
-                    || Magic.jumpedUpSlope(data, from, 30) && !lastMove.bunnyHop 
-                    && yDistance > 0.0 && yDistance <= minJumpGain - Magic.GRAVITY_MIN 
                     // 1: Ice-slope-slide-down (sprint-jumping on a single block then sliding back down)
                     || Magic.wasOnIceRecently(data) && (hDistance / baseSpeed < 1.33 || hDistance / lastMove.hDistance < 1.27) && !headObstructed
                     && (
@@ -387,7 +377,7 @@ public class MagicBunny {
                // Slimes and beds
                Magic.touchedBouncyBlock(lastMove) ? BUNNY_SLOPE_LOSS / (headObstructed ? 1.74 : 1.11) :
                // Ordinary
-               BUNNY_SLOPE_LOSS / (headObstructed ?  1.4 : 1.0)
+               BUNNY_SLOPE_LOSS / (headObstructed ? 1.4 : 1.0)
             ;
     }
     

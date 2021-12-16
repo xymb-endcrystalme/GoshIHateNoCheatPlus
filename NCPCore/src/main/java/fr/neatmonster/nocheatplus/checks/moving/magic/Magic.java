@@ -45,10 +45,10 @@ public class Magic {
     // Gravity.
     public static final double GRAVITY_MAX = 0.0834;
     public static final double GRAVITY_MIN = 0.0624; 
-    public static final double GRAVITY_SPAN = GRAVITY_MAX - GRAVITY_MIN;
+    public static final double GRAVITY_SPAN = GRAVITY_MAX - GRAVITY_MIN; // 0.021
     public static final double GRAVITY_ODD = 0.05; 
     /** Assumed minimal average decrease per move, suitable for regarding 3 moves. */
-    public static final float GRAVITY_VACC = (float) (GRAVITY_MIN * 0.6);
+    public static final float GRAVITY_VACC = (float) (GRAVITY_MIN * 0.6); // 0.03744
 
     // Friction factor by medium (move inside of).
     public static final double FRICTION_MEDIUM_AIR = 0.98;
@@ -80,7 +80,15 @@ public class Magic {
     /** 0.044D for horizontal SWIMMING(1.13), 0.3 for vertical swimming,  0.115 for horizontal TO MULTIPLY WALKSPEED WITH and with body fully in water, 0.145 for moving on the surface horizotally */
     // Observed around 2021/11: 0.115 for whatever reason now flags even with legacy clients. It wasn't a problem before but it is now. Very fun game indeed.
     // I have no clue on why this is happening... (Checking commit history doesn't show any recent change)
-    public static final double[] modSwim            = new double[] {0.115D / WALK_SPEED,  0.044D / WALK_SPEED,  0.3D / WALK_SPEED,  0.146D / WALK_SPEED}; 
+    public static final double[] modSwim            = new double[] {
+            // Horizontal with body fully in water
+            0.115D / WALK_SPEED,  
+            // Horizontal swimming (Do not multiply with thisMove.walkSpeed)
+            0.044D / WALK_SPEED,  
+            // Vertical swimming
+            0.3D / WALK_SPEED, 
+            // Horizontal surface level (body out of water) 
+            0.146D / WALK_SPEED}; 
     public static final double modDownStream        = 0.19D / (WALK_SPEED * modSwim[0]);
     public static final double[] modDepthStrider    = new double[] {
             1.0,
@@ -223,14 +231,18 @@ public class Magic {
     * @param limit
     *             How many past moves should be tracked
     * @param distance
-    *             Minimum distance to ground
+    *             Distance to ground. Current use is rather meant to forestall
+    *             lowjump on slope-jumping.
     * @return 
     */
-    public static boolean jumpedUpSlope(final MovingData data, final PlayerLocation to, int limit, double distance) {
-
+    public static boolean jumpedUpSlope(final MovingData data, final PlayerLocation loc, int limit, double distance) {
         limit = Math.min(limit, data.playerMoves.getNumberOfPastMoves());
         final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
-        final PlayerMoveData lastMove = data.playerMoves.getFirstPastMove();
+        
+        // Don't care about jump potions.
+        if (data.jumpAmplifier != 0.0){
+            return false;
+        }
         
         for (int i = 0; i < limit; i++) {
             final PlayerMoveData pastMove = data.playerMoves.getPastMove(i);
@@ -238,10 +250,10 @@ public class Magic {
             if (!pastMove.toIsValid || thisMove.from.aboveStairs) {
                  return false;
             }
-            // Past move was on ground with smaller altitude than the current move, which is within ground reach (to forestall lowjump).
-            else if (to.isOnGround(distance)
-                    && (thisMove.from.getY() - pastMove.to.getY()) <= (1.0 + distance)
-                    && (thisMove.from.getY() - pastMove.to.getY()) > 0.99
+            // Past move was on ground and with smaller altitude than the current move, which is within distance to ground.
+            else if (loc.isOnGround(distance)
+                    && (loc.getY() - pastMove.to.getY()) <= distance
+                    && (loc.getY() - pastMove.to.getY()) >= data.liftOffEnvelope.getMinJumpHeight(0.0)
                     && (pastMove.to.onGround || pastMove.from.onGround)) {
                 return true;
             }
@@ -259,9 +271,14 @@ public class Magic {
     *             How many past moves should be tracked
     * @return 
     */
-    public static boolean jumpedUpSlope(final MovingData data, final PlayerLocation currentLoc, int limit) {
+    public static boolean jumpedUpSlope(final MovingData data, final PlayerLocation loc, int limit) {
         limit = Math.min(limit, data.playerMoves.getNumberOfPastMoves());
         final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
+        
+        // Don't care about jump potions.
+        if (data.jumpAmplifier != 0.0){
+            return false;
+        }
             
         for (int i = 0; i < limit; i++) {
             final PlayerMoveData pastMove = data.playerMoves.getPastMove(i);
@@ -270,10 +287,10 @@ public class Magic {
                 return false;
             }
             // Past move was on ground with smaller altitude than the current move which is on ground
-            else if (currentLoc.isOnGround()
+            else if (loc.isOnGround()
                     // Prevent regular jumps from being seen as slopes.
-                    && (currentLoc.getY() - pastMove.to.getY()) <= 1.0
-                    && (currentLoc.getY() - pastMove.to.getY()) > 0.99
+                    && (loc.getY() - pastMove.to.getY()) <= 1.0
+                    && (loc.getY() - pastMove.to.getY()) > 0.99
                     && (pastMove.to.onGround || pastMove.from.onGround)) {
                 return true;
             }

@@ -148,7 +148,7 @@ public class InspectCommand extends BaseCommand {
             builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is sprinting.");
         }
 
-        if (mData.isusingitem) {
+        if (mData.isUsingItem) {
             builder.append("\n "+ c1 + "" + c2 + "•" + c1 + " Is using an item."); // TODO: Which item?
         }
 

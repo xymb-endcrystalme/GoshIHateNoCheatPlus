@@ -72,8 +72,7 @@ public class Open extends Check implements IDisableListener{
      */
     public boolean check(final Player player) {
 
-        final boolean isShulkerBox = ServerVersion.compareMinecraftVersion("1.11") >= 0 
-                                     && (player.getOpenInventory().getTopInventory().getType() == InventoryType.SHULKER_BOX); 
+        final boolean isShulkerBox = player.getOpenInventory().getTopInventory().getType().toString().equals("SHULKER_BOX");
         
         if (
                 // TODO: POC: Item duplication with teleporting NPCS, having their inventory open.
@@ -98,5 +97,4 @@ public class Open extends Check implements IDisableListener{
         }
         return cc.openCancelOther;
     }
-
 }

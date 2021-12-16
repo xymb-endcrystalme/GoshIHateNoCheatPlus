@@ -125,7 +125,7 @@ public class NoSlow extends BaseAdapter {
         
         final IPlayerData pData = DataManager.getPlayerData(p);
         final MovingData data = pData.getGenericInstance(MovingData.class);
-        data.isusingitem = false;        
+        data.isUsingItem = false;        
     }
 
     private static void onInventoryOpen(final InventoryOpenEvent e){
@@ -134,7 +134,7 @@ public class NoSlow extends BaseAdapter {
         
         final IPlayerData pData = DataManager.getPlayerData(p);
         final MovingData data = pData.getGenericInstance(MovingData.class);
-        data.isusingitem = false;        
+        data.isUsingItem = false;        
     }
 
     private static void onItemInteract(final PlayerInteractEvent e){
@@ -144,10 +144,10 @@ public class NoSlow extends BaseAdapter {
         final IPlayerData pData = DataManager.getPlayerData(p);
         final MovingData data = pData.getGenericInstance(MovingData.class);
         // Reset
-        data.offhanduse = false;
+        data.offHandUse = false;
         Block b = e.getClickedBlock();
         if (p.getGameMode() == GameMode.CREATIVE) {
-            data.isusingitem = false;
+            data.isUsingItem = false;
             return;
         }
         if (b != null && (
@@ -157,7 +157,7 @@ public class NoSlow extends BaseAdapter {
              || b.getType().toString().endsWith("LEVER")
              || (b.getType().name().startsWith("SWEET_BERRY_BUSH") && ((Ageable) b.getBlockData()).getAge() > 1)
         )) {
-            data.isusingitem = false;
+            data.isUsingItem = false;
             return;
         }
         if (e.hasItem()) {
@@ -168,50 +168,50 @@ public class NoSlow extends BaseAdapter {
                 // pre1.9 splash potion
                 if (!Bridge1_9.hasElytra() && item.getDurability() > 16384) return;
                 if (m == Material.POTION || m == Material.MILK_BUCKET || m.toString().endsWith("_APPLE") || m.name().startsWith("HONEY_BOTTLE")) {
-                    data.isusingitem = true;
-                    data.offhanduse = Bridge1_9.hasGetItemInOffHand() && e.getHand() == EquipmentSlot.OFF_HAND;
+                    data.isUsingItem = true;
+                    data.offHandUse = Bridge1_9.hasGetItemInOffHand() && e.getHand() == EquipmentSlot.OFF_HAND;
                     return;
                 }
                 if (item.getType().isEdible() && p.getFoodLevel() < 20) {
-                    data.isusingitem = true;
-                    data.offhanduse = Bridge1_9.hasGetItemInOffHand() && e.getHand() == EquipmentSlot.OFF_HAND;
+                    data.isUsingItem = true;
+                    data.offHandUse = Bridge1_9.hasGetItemInOffHand() && e.getHand() == EquipmentSlot.OFF_HAND;
                     return;
                 }
             }
             if (m.toString().equals("BOW") && hasArrow(p.getInventory())) {
-                data.isusingitem = true;
-                data.offhanduse = Bridge1_9.hasGetItemInOffHand() && e.getHand() == EquipmentSlot.OFF_HAND;
+                data.isUsingItem = true;
+                data.offHandUse = Bridge1_9.hasGetItemInOffHand() && e.getHand() == EquipmentSlot.OFF_HAND;
                 return;
             }
             if (m.name().equals("SHIELD")) {
-                data.offhanduse = e.getHand() == EquipmentSlot.OFF_HAND;
+                data.offHandUse = e.getHand() == EquipmentSlot.OFF_HAND;
                 return;
             }
             if (m.toString().equals("CROSSBOW")) {
                 if (item.getItemMeta().serialize().get("charged").equals(false) && hasArrow(p.getInventory())) {
-                    data.isusingitem = true;
-                    data.offhanduse = e.getHand() == EquipmentSlot.OFF_HAND;
+                    data.isUsingItem = true;
+                    data.offHandUse = e.getHand() == EquipmentSlot.OFF_HAND;
                 }
             }
-        } else data.isusingitem = false;        
+        } else data.isUsingItem = false;        
     }
 
     private static void onChangeSlot(final PlayerItemHeldEvent e) {
         final Player p = e.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(p);
         final MovingData data = pData.getGenericInstance(MovingData.class);
-        if (data.changeslot) {
-            p.getInventory().setHeldItemSlot(data.olditemslot);
-            data.changeslot = false;
+        if (data.slotChange) {
+            p.getInventory().setHeldItemSlot(data.oldItemSlot);
+            data.slotChange = false;
         }
-        data.isusingitem = false;
+        data.isUsingItem = false;
     }
 
     private static void onPlace(final BlockPlaceEvent e) {
         final Player p = e.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(p);
         final MovingData data = pData.getGenericInstance(MovingData.class);
-        if (InventoryUtil.isConsumable(e.getItemInHand())) data.isusingitem = false;
+        if (InventoryUtil.isConsumable(e.getItemInHand())) data.isUsingItem = false;
     }
 
     private static boolean hasArrow(PlayerInventory i) {
@@ -240,22 +240,22 @@ public class NoSlow extends BaseAdapter {
         final MovingData data = pData.getGenericInstance(MovingData.class);
         PlayerDigType digtype = event.getPacket().getPlayerDigTypes().read(0);
         // DROP_ALL_ITEMS when dead?
-        if (digtype == PlayerDigType.DROP_ALL_ITEMS || digtype == PlayerDigType.DROP_ITEM) data.isusingitem = false;
+        if (digtype == PlayerDigType.DROP_ALL_ITEMS || digtype == PlayerDigType.DROP_ITEM) data.isUsingItem = false;
         
         //Advanced check
         if(digtype == PlayerDigType.RELEASE_USE_ITEM) {
-            data.isusingitem = false;
+            data.isUsingItem = false;
             long now = System.currentTimeMillis();
-            if (data.time_rl_item != 0) {
-                if (now < data.time_rl_item) {
-                    data.time_rl_item = now;
+            if (data.releaseItemTime != 0) {
+                if (now < data.releaseItemTime) {
+                    data.releaseItemTime = now;
                     return;
                 }
-                if (data.time_rl_item + timeBetweenRL > now) {
+                if (data.releaseItemTime + timeBetweenRL > now) {
                     data.isHackingRI = true;
                 }
             }
-            data.time_rl_item = now;
+            data.releaseItemTime = now;
         }
     }
 

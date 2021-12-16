@@ -345,11 +345,10 @@ public class InAirRules {
                         && data.ws.use(WRPT.W_M_SF_ODDGRAVITY_SETBACK)
                 )
                 // 0: Jump-effect-specific
-                // TODO: Jump effect at reduced lift off envelope -> skip this?
                 || data.jumpAmplifier > 0 && lastMove.yDistance < Magic.GRAVITY_MAX + Magic.GRAVITY_MIN / 2.0 
                 && lastMove.yDistance > -2.0 * Magic.GRAVITY_MAX - 0.5 * Magic.GRAVITY_MIN
                 && yDistance > -2.0 * Magic.GRAVITY_MAX - 2.0 * Magic.GRAVITY_MIN && yDistance < Magic.GRAVITY_MIN
-                && yDistChange < -Magic.GRAVITY_SPAN
+                && yDistChange < -Magic.GRAVITY_SPAN && data.liftOffEnvelope == LiftOffEnvelope.NORMAL // Skip for other envelopes.
                 && data.ws.use(WRPT.W_M_SF_ODDGRAVITY_JUMPEFFECT)
                 // 0: Another near 0 yDistance case.
                 // TODO: Inaugurate into some more generic envelope.

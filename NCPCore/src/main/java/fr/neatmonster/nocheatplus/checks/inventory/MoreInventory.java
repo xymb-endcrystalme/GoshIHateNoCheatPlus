@@ -46,12 +46,12 @@ public class MoreInventory extends Check{
     * @author xaw3ep
     * @return true if succesful
     */
-    public boolean check(final Player player, final MovingData movingdata, final IPlayerData pData, final InventoryType type, 
+    public boolean check(final Player player, final MovingData mData, final IPlayerData pData, final InventoryType type, 
     	                 final Inventory inv, final boolean PoYdiff) {
         
         // TODO: bring in the moving subcheck in invMove.
         if (type == InventoryType.CRAFTING 
-            && (player.isSprinting() || PoYdiff || player.isBlocking() || player.isSneaking() || movingdata.isusingitem)) {
+            && (player.isSprinting() || PoYdiff || player.isBlocking() || player.isSneaking() || mData.isUsingItem)) {
             return true;
         }
         return false;

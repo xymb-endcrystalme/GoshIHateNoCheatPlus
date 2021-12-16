@@ -80,7 +80,7 @@ public class ImpossibleHit extends Check {
             tags.add("inventoryopen");
         }
         // Blocking/Using item and attacking
-        else if ((mData.isusingitem || player.isBlocking()) && !resetActiveItem) {
+        else if ((mData.isUsingItem || player.isBlocking()) && !resetActiveItem) {
             violation = true;
             tags.add("using/blocking");
         }

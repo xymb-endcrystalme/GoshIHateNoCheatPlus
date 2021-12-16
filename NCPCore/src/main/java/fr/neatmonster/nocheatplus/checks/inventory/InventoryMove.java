@@ -81,10 +81,6 @@ public class InventoryMove extends Check {
         //        2) Important: MC allows players to swim (and keep the status) when on ground, but this is not *consistently* reflected back to the server 
         //        (while still allowing them to move at swimming speed) instead, isSprinting() will return. Observed in both Spigot and PaperMC around MC 1.13/14
         //        -> Seems fixed in latest versions (opening an inventory will end the swimming phase, if on ground)
-        // TODO: Keep the workaround for server <1.17? ... 
-        // TODO: Detect ascending in liquid (friction envelope, might just set a flag in SurvivalFly.vDistLiquid)
-        // TODO: Click and jump. Not sure.
-        
         // Shortcuts:
         final MovingData mData = pData.getGenericInstance(MovingData.class);
         final PlayerMoveData thisMove = mData.playerMoves.getCurrentMove();
@@ -113,7 +109,7 @@ public class InventoryMove extends Check {
     
         // Clicking while using/consuming an item
         // Note: Why was player#isBlocking removed again? Can't remember...
-        if (mData.isusingitem && !isMerchant) { 
+        if (mData.isUsingItem && !isMerchant) { 
             tags.add("usingitem");
             violation = true;
         }

@@ -87,7 +87,7 @@ import fr.neatmonster.nocheatplus.worlds.WorldFactoryArgument;
 public class InventoryListener  extends CheckListener implements JoinLeaveListener{
 
     /** The drop check. */
-    private final Drop       drop       = addCheck(new Drop());
+    private final Drop drop = addCheck(new Drop());
     
     /** Inventory Move check */
     private final InventoryMove invMove = addCheck(new InventoryMove());
@@ -104,9 +104,9 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
     /** The instant eat check. */
     private final InstantEat instantEat = addCheck(new InstantEat());
 
-    protected final Items items         = addCheck(new Items());
+    protected final Items items = addCheck(new Items());
 
-    private final Open open             = addCheck(new Open());
+    private final Open open = addCheck(new Open());
     
     private boolean keepCancel = false;
 
@@ -116,12 +116,14 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
     private final Location useLoc = new Location(null, 0, 0, 0);
 
     private final Counters counters = NCPAPIProvider.getNoCheatPlusAPI().getGenericInstance(Counters.class);
+
     private final int idCancelDead = counters.registerKey("cancel.dead");
+
     private final int idIllegalItem = counters.registerKey("illegalitem");
+
     private final int idEggOnEntity = counters.registerKey("eggonentity");
 
-    private final IGenericInstanceHandle<IEntityAccessVehicle> handleVehicles = 
-            NCPAPIProvider.getNoCheatPlusAPI().getGenericInstanceHandle(IEntityAccessVehicle.class);
+    private final IGenericInstanceHandle<IEntityAccessVehicle> handleVehicles = NCPAPIProvider.getNoCheatPlusAPI().getGenericInstanceHandle(IEntityAccessVehicle.class);
 
     @SuppressWarnings("unchecked")
     public InventoryListener() {
@@ -166,28 +168,27 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         
         // Only if a player shot the arrow.
         if (event.getEntity() instanceof Player) {
+
             final Player player = (Player) event.getEntity();
             final IPlayerData pData = DataManager.getPlayerData(player);
             if (instantBow.isEnabled(player, pData)) {
                 final long now = System.currentTimeMillis();
                 final Location loc = player.getLocation(useLoc);
-                if (Combined.checkYawRate(player, loc.getYaw(), now, 
-                        loc.getWorld().getName(), pData)) {
+                if (Combined.checkYawRate(player, loc.getYaw(), now, loc.getWorld().getName(), pData)) {
                     // No else if with this, could be cancelled due to other checks feeding, does not have actions.
                     event.setCancelled(true);
                 }
+
                 final InventoryConfig cc = pData.getGenericInstance(InventoryConfig.class);
                 // Still check instantBow, whatever yawrate says.
                 if (instantBow.check(player, event.getForce(), now)) {
-                    // The check requested the event to be cancelled.
                     event.setCancelled(true);
                 }
                 else if (cc.instantBowImprobableWeight > 0.0f) {
                     if (cc.instantBowImprobableFeedOnly) {
                         Improbable.feed(player, cc.instantBowImprobableWeight, now);
                     }
-                    else if (Improbable.check(player, cc.instantBowImprobableWeight, 
-                            now, "inventory.instantbow", pData)) {
+                    else if (Improbable.check(player, cc.instantBowImprobableWeight, now, "inventory.instantbow", pData)) {
                         // Combined fighting speed (Else if: Matter of taste, preventing extreme cascading and actions spam).
                         event.setCancelled(true);
                     }
@@ -267,23 +268,24 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         final ItemStack clicked = event.getCurrentItem();
         boolean cancel = false;
         // Illegal enchantment checks.
-        try{
+        try {
             if (Items.checkIllegalEnchantments(player, clicked, pData)) {
                 cancel = true;
                 counters.addPrimaryThread(idIllegalItem, 1);
             }
         }
-        catch(final ArrayIndexOutOfBoundsException e) {} // Hotfix (CB)
-        try{
+        catch (final ArrayIndexOutOfBoundsException e) {} // Hotfix (CB)
+        try {
             if (!cancel && Items.checkIllegalEnchantments(player, cursor, pData)) {
                 cancel = true;
                 counters.addPrimaryThread(idIllegalItem, 1);
             }
         }
-        catch(final ArrayIndexOutOfBoundsException e) {} // Hotfix (CB)
+        catch (final ArrayIndexOutOfBoundsException e) {} // Hotfix (CB)
 
         // Fast inventory manipulation check.
         if (fastClick.isEnabled(player, pData)) {
+
             final InventoryConfig cc = pData.getGenericInstance(InventoryConfig.class);
             if (!((event.getView().getType().equals(InventoryType.CREATIVE) || player.getGameMode() == GameMode.CREATIVE) && cc.fastClickSpareCreative)) {
                 boolean check = true;
@@ -293,36 +295,32 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                 catch (final IllegalStateException e) {
                     check = true; //...
                 }
-                if (check && fastClick.check(player, now, 
-                        event.getView(), slot, cursor, clicked, event.isShiftClick(), 
-                        inventoryAction, data, cc, pData)) {  
-                    // The check requested the event to be cancelled.
+                
+                // First check for too fast inventory clicking
+                if (check && fastClick.check(player, now, event.getView(), slot, cursor, clicked, event.isShiftClick(), 
+                                             inventoryAction, data, cc, pData)) {  
                     cancel = true;
                 }
-                if (check) {
-                    if (InventoryUtil.isContainterInventory(event.getInventory().getType())) {
-                        if (fastClick.fastClickChest(player, data, cc)) {
-                            cancel = true;
-                            keepCancel = true;
-                        }
-                    }
+
+                // Check for too quick interactions.
+                if (check && InventoryUtil.isContainterInventory(event.getInventory().getType())
+                    && fastClick.fastClickChest(player, data, cc)) {
+                    cancel = true;
+                    keepCancel = true;
                 }
             }
         }
         
         // Inventory Move check
-        final SlotType type = event.getSlotType();
-        if (invMove.isEnabled(player, pData)) {
-            final InventoryConfig cc = pData.getGenericInstance(InventoryConfig.class);
-                if (invMove.check(player, data, pData, cc, type)) {
-                    cancel = true;  
-            }
+        if (invMove.isEnabled(player, pData) 
+            && invMove.check(player, data, pData, pData.getGenericInstance(InventoryConfig.class), event.getSlotType())) {
+            cancel = true;
         }
         
+        // Always update the last time we received an inventory click.
         data.lastClickTime = now;
-        // Update this one only if the inventory was closed previously (or was forcibly closed)
-        // otherwise keep the first click time
-        // Can't use lastClickTime since it's used by checks.
+        // We received an inventory click and the inventory was closed previously (no click registered). Get the time at which this click was performed.
+        // (Assume the inventory stays open until we receive an inventory click event (or other events), which will reset the time)
         if (data.firstClickTime == 0) {
             data.firstClickTime = now;
         }
@@ -538,8 +536,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
 
         if (resetAll) {
             // Nothing that we are interested in, reset data.
-            if (pData.isDebugActive(CheckType.INVENTORY_INSTANTEAT) 
-                    && data.instantEatFood != null) {
+            if (pData.isDebugActive(CheckType.INVENTORY_INSTANTEAT) && data.instantEatFood != null) {
                 debug(player, "PlayerInteractEvent, reset fastconsume (legacy: instanteat).");
             }
             data.instantBowInteract = 0;
@@ -569,8 +566,8 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         final ItemStack stack = Bridge1_9.getUsedItem(player, event);
         Entity entity = event.getRightClicked();
         if (stack != null &&  MaterialUtil.isSpawnEgg(stack.getType())
-                && (entity == null || entity instanceof LivingEntity  || entity instanceof ComplexEntityPart)
-                && items.isEnabled(player, DataManager.getPlayerData(player))) {
+            && (entity == null || entity instanceof LivingEntity  || entity instanceof ComplexEntityPart)
+            && items.isEnabled(player, DataManager.getPlayerData(player))) {
             event.setCancelled(true);
             counters.addPrimaryThread(idEggOnEntity, 1);
             return;
@@ -692,6 +689,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
             if (player != null) {
                 final IPlayerData pData = DataManager.getPlayerData(player);
                 final InventoryData data = pData.getGenericInstance(InventoryData.class);
+                open.check(player);
                 data.firstClickTime = 0;
                 data.containerOpenTime = 0;
             }
@@ -711,6 +709,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         final Player player = event.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(player);
         final InventoryData data = pData.getGenericInstance(InventoryData.class);
+        open.check(player);
         data.firstClickTime = 0;
         data.containerOpenTime = 0;
     }
@@ -769,9 +768,11 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                 final ItemStack item = inv.getItem(i);
                 // Ensure air-clicking is not detected... :)
                 if (item != null && item.getType() != Material.AIR) {
+                    // Note: dropItemsNaturally does not fire InvDrop events, simply close the inventory
                     player.closeInventory();
-                    if (pData.isDebugActive(CheckType.INVENTORY_MOREINVENTORY))
+                    if (pData.isDebugActive(CheckType.INVENTORY_MOREINVENTORY)) {
                         debug(player, "Force-close inventory on MoreInv detection.");
+                    }
                 }
             }
         }
