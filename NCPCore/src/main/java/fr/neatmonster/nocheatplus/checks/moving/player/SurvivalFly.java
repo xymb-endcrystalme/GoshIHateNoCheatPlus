@@ -1558,12 +1558,8 @@ public class SurvivalFly extends Check {
             if (totalVDistViolation > 0.0) {
         
                 if (InAirRules.vDistSBExemptions(toOnGround, thisMove, lastMove, data, cc, now, player, 
-                                                 totalVDistViolation, yDistance, fromOnGround)) {
-                    // Skip
-                }
-                else if (yDistance <= cc.sfStepHeight && thisMove.touchedGroundWorkaround 
-                        && tags.contains("lostground_couldstep")) {
-                    // Skip if the player could step up by lostground_couldstep.
+                                                 totalVDistViolation, yDistance, fromOnGround, tags)) {
+                    // Several types of odd jumps
                 }
                 // Attempt to use velocity.
                 else if (data.getOrUseVerticalVelocity(yDistance) == null) {
@@ -1698,10 +1694,9 @@ public class SurvivalFly extends Check {
                         data.clearStepAcc();
                         data.stepAcc.add((float) yDistance);
                     }
-                    // Reached maximum capacity with no VLs, relax.
+                    // Do clear only if the bucket is full and no violation has happened.
                     else if (data.stepAcc.count() == data.stepAcc.bucketCapacity()) {
-                        data.clearStepAcc(); // Might be safer to clear altogether.
-                        // data.stepAcc.add((float) -0.1);
+                        data.clearStepAcc(); 
                     }
                 }
             }

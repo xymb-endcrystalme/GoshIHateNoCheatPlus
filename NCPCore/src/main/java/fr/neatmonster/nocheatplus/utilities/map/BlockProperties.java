@@ -3763,7 +3763,7 @@ public class BlockProperties {
                 StaticLog.logInfo("Overriding block-flags was not entirely successful, all available flags: \n" + StringUtil.join(flagNameMap.values(), "|"));
             }
         }
-        minWorldY = config.getInt(pathPrefix + ConfPaths.SUB_BLOCKCACHE_WORLD_MINY, 0); 
+        minWorldY = config.getInt(pathPrefix + ConfPaths.SUB_BLOCKCACHE_WORLD_MINY); 
     }
 
     /**

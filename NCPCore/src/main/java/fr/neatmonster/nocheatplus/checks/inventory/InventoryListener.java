@@ -320,7 +320,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         // Always update the last time we received an inventory click.
         data.lastClickTime = now;
         // We received an inventory click and the inventory was closed previously (no click registered). Get the time at which this click was performed.
-        // (Assume the inventory stays open until we receive an inventory click event (or other events), which will reset the time)
+        // (Assume the inventory stays open until we receive an inventory close event (or other events), which will reset the time)
         if (data.firstClickTime == 0) {
             data.firstClickTime = now;
         }

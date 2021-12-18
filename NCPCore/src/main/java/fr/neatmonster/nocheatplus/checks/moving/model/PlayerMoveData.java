@@ -78,6 +78,12 @@ public class PlayerMoveData extends MoveData {
     public int multiMoveCount;
 
     /**
+     * Since 1.17, the client will send a duplicate position packet on right clicking (use item)
+     * which we need to ignore (Thanks Mojang).
+     */
+    public boolean isDuplicate;
+
+    /**
      * Just the used vertical velocity. Could be overridden multiple times
      * during processing of moving checks.
      */
@@ -98,6 +104,7 @@ public class PlayerMoveData extends MoveData {
         // Meta stuff.
         //flyCheck = null;
         //modelFlying = null;
+        isDuplicate = false;
         multiMoveCount = 0;
         verVelUsed = null;
         // Super class last, because it'll set valid to true in the end.

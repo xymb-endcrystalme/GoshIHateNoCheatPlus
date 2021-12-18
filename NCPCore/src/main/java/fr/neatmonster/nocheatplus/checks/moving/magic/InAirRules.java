@@ -14,6 +14,8 @@
  */
 package fr.neatmonster.nocheatplus.checks.moving.magic;
 
+import java.util.Collection;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.World;
@@ -719,7 +721,8 @@ public class InAirRules {
     */
     public static boolean vDistSBExemptions(final boolean toOnGround, final PlayerMoveData thisMove, final PlayerMoveData lastMove, 
                                             final MovingData data, final MovingConfig cc, final long now, final Player player, 
-                                            double totalVDistViolation, final double yDistance, final boolean fromOnGround) {
+                                            double totalVDistViolation, final double yDistance, final boolean fromOnGround,
+                                            final Collection<String> tags) {
 
         return 
                // 0: Ignore: Legitimate step.
@@ -732,6 +735,15 @@ public class InAirRules {
                // TODO: Better workaround/fix. This is really coarse.
                || totalVDistViolation < 0.8 
                && (data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID || data.liftOffEnvelope == LiftOffEnvelope.BERRY_JUMP)
+               // 0: Lost ground cases
+               || thisMove.touchedGroundWorkaround 
+               && ( 
+                    // 1: Skip if the player could step up by lostground_couldstep.
+                    yDistance <= cc.sfStepHeight && tags.contains("lostground_couldstep")
+                    // 1: Server-sided-trapdoor-touch-miss: player lands directly onto the fence as if it were 1.0 block high
+                    || yDistance < data.liftOffEnvelope.getMaxJumpGain(0.0) && tags.contains("lostground_fencestep")
+                )
+            
         ;
     }
     

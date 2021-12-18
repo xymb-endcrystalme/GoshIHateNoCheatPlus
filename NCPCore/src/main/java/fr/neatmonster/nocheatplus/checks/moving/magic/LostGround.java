@@ -153,20 +153,20 @@ public class LostGround {
                 // Check for sprint-jumping on fences with trapdoors above (missing trapdoor's edge touch on server-side, player lands directly onto the fence)
                 // TODO: Currently this is treated as a lostground case. Not sure if this is an actual bug within MC:
                 //       With an ordinary jump, the player lands on the trapdoor first, then steps up the 0.5 block-high slope of the fence (aka. the fence is still 1.5 blocks high),
-                //       but a bunnyhopping player will be able to sometimes hop right onto the fence as if it was 1 block high.
+                //       but a bunnyhopping player will be able to sometimes hop right onto the fence as if it were 1 block high.
                 if (setBackYDistance > 1.0 && setBackYDistance <= 1.5 
-                    && setBackYMargin < 0.9 && setBackYMargin > 0.0 && data.bunnyhopDelay > 0 
+                    && setBackYMargin < 0.6 && data.bunnyhopDelay > 0 
                     && yDistance > from.getyOnGround() && lastMove.yDistance <= Magic.GRAVITY_MAX) {
                     
                     to.collectBlockFlags();
+                    // (Doesn't seem to be a problem with carpets)
                     if ((to.getBlockFlags() & BlockProperties.F_ATTACHED_LOW2_SNEW) != 0
-                        && (to.getBlockFlags() & BlockProperties.F_HEIGHT150) != 0
-                        // Forestall ground-touch (next move will touch the ground), set set back on the trapdoor to not yield a VL.
-                        && lostGroundEdgeAsc(player, from.getBlockCache(), to.getWorld(), to.getX(), to.getY(), 
-                                             to.getZ(), from.getX(), from.getY(), from.getZ(), 
-                                             hDistance, to.getBoxMarginHorizontal(), 0.003, 
-                                             data, "fence", tags, from.getMCAccess())) {
-                        return true;
+                        && (to.getBlockFlags() & BlockProperties.F_HEIGHT150) != 0) {
+
+                        if (to.isOnGround(0.003, thisMove.hAllowedDistanceBase, 0.0)) {
+                            // (No safe place to set setback. Keep it on the ground)
+                            return applyLostGround(player, from, false, thisMove, data, "fencestep", tags);
+                        }
                     }
                 }
 
@@ -202,7 +202,7 @@ public class LostGround {
                 // TODO: Possibly confine margin depending on side, moving direction (see client code).
                 if (from.isOnGround(1.0) 
                     && BlockProperties.isOnGroundShuffled(to.getBlockCache(), from.getX(), from.getY() + cc.sfStepHeight, from.getZ(), to.getX(), to.getY(), to.getZ(), 0.1 + from.getBoxMarginHorizontal(), to.getyOnGround(), 0.0)) {
-                    // Might be safer to clear here... Need to review potential exploit.
+                    // Might be safer to clear here... Need to review potential exploits.
                     data.clearStepAcc();
                     return applyLostGround(player, from, false, thisMove, data, "couldstep", tags);
                 }

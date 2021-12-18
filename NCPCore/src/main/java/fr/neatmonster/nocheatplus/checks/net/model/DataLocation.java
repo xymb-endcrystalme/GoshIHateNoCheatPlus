@@ -57,6 +57,16 @@ public class DataLocation implements IGetPositionWithLook {
     }
 
     /**
+     * Quick test for same coordinates only.
+     * 
+     * @param other
+     * @return
+     */
+    public boolean isSameLocOnly(final DataLocation other) {
+        return getY() == other.getY() && getX() == other.getX() && getZ() == other.getZ();
+    }
+
+    /**
      * Quick test for same coordinates and looking direction.
      * 
      * @param x

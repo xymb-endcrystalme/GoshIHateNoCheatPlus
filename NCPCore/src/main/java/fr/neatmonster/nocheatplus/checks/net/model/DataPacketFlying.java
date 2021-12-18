@@ -97,6 +97,15 @@ public class DataPacketFlying extends DataLocation {
     }
 
     /**
+     * Test if this packet has the same coordinates, disregarding looking direction.
+     * @param other
+     * @return
+     */
+    public boolean isSamePos(final DataPacketFlying other) {
+        return hasPos && other.hasPos && isSameLocOnly(other);
+    }
+
+    /**
      * Quick test if position and look is contained and match.
      * 
      * @param x
