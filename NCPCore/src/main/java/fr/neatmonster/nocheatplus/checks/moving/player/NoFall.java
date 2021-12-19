@@ -51,6 +51,7 @@ import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 
 /**
  * A check to see if people cheat by tricking the server to not deal them fall damage.
@@ -242,7 +243,7 @@ public class NoFall extends Check {
             final Material blockmat = player.getWorld().getBlockAt(
                     Location.locToBlock(validmove.to.getX()), Location.locToBlock(validmove.to.getY()), Location.locToBlock(validmove.to.getZ())
                     ).getType();
-            if ((BlockProperties.getBlockFlags(blockmat) & BlockProperties.F_STICKY) != 0) {
+            if ((BlockFlags.getBlockFlags(blockmat) & BlockFlags.F_STICKY) != 0) {
                 return Math.round(damage / 5);
             }
         }
@@ -406,8 +407,8 @@ public class NoFall extends Check {
         boolean onClimbableFrom = false;
         boolean onClimbableTo = false;
         // TODO: Possibly fixed by removing the GROUND_HEIGHT block flag?
-        if (pFrom.getBlockFlags() != null) onClimbableFrom = (pFrom.getBlockFlags() & BlockProperties.F_CLIMBABLE) != 0;
-        if (pTo.getBlockFlags() != null) onClimbableTo = (pTo.getBlockFlags() & BlockProperties.F_CLIMBABLE) != 0;
+        if (pFrom.getBlockFlags() != null) onClimbableFrom = (pFrom.getBlockFlags() & BlockFlags.F_CLIMBABLE) != 0;
+        if (pTo.getBlockFlags() != null) onClimbableTo = (pTo.getBlockFlags() & BlockFlags.F_CLIMBABLE) != 0;
         final boolean fromReset = from.resetCond || onClimbableFrom && !BlockProperties.isGround(pFrom.getTypeIdBelow());
         final boolean toReset = to.resetCond || onClimbableTo && !BlockProperties.isGround(pTo.getTypeIdBelow());
 

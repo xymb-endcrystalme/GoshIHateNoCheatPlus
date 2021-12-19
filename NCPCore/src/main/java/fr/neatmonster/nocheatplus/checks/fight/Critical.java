@@ -36,6 +36,7 @@ import fr.neatmonster.nocheatplus.penalties.IPenaltyList;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 
 /**
  * A check used to verify that critical hits done by players are legit.
@@ -124,7 +125,7 @@ public class Critical extends Check {
                     && !moveInfo.from.isOnGroundDueToStandingOnAnEntity()) {
 
                     moveInfo.from.collectBlockFlags(0.4);
-                    if ((moveInfo.from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0 
+                    if ((moveInfo.from.getBlockFlags() & BlockFlags.F_BOUNCE25) != 0 
                         && !thisMove.from.onGround && !thisMove.to.onGround) {
                         // Slime blocks
                         // TODO: Remove (See TODO in Discord.)

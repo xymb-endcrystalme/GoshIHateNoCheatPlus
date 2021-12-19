@@ -35,7 +35,7 @@ import fr.neatmonster.nocheatplus.utilities.location.LocUtil;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
-
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 
 /**
  * Horizontal acceleration magic
@@ -203,7 +203,7 @@ public class MagicBunny {
                 else if (Magic.jumpedUpSlope(data, to, 30) && lastMove.bunnyHop 
                         && thisMove.from.onGround && lastMove.to.onGround && !lastMove.from.onGround
                         && hDistance > lastMove.hDistance && hDistance / lastMove.hDistance <= 1.09
-                        && (to.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0) { // What with BED slopes !?
+                        && (to.getBlockFlags() & BlockFlags.F_BOUNCE25) != 0) { // What with BED slopes !?
                     tags.add("bouncebunny");
                     allowHop = true;
                 }
@@ -287,7 +287,7 @@ public class MagicBunny {
                     && baseSpeed > 0.0 && hDistance / baseSpeed < 1.5 && (hDistance / lastMove.hDistance < 1.35 || hDistance / baseSpeed < 1.35)
                     // 1: Landing on ground with negative yDistance left. Observed with slime blocks.
                     // TODO: Needs more precise confinment.
-                    || yDistance < 0.0 && (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0 
+                    || yDistance < 0.0 && (from.getBlockFlags() & BlockFlags.F_BOUNCE25) != 0 
                     // 1: Ice-slope-slide-down (sprint-jumping on a single block then sliding back down)
                     || Magic.wasOnIceRecently(data) && (hDistance / baseSpeed < 1.33 || hDistance / lastMove.hDistance < 1.27) && !headObstructed
                     && (

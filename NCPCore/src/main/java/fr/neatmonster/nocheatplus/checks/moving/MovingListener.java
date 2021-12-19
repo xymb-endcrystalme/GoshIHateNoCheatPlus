@@ -130,6 +130,7 @@ import fr.neatmonster.nocheatplus.utilities.location.LocUtil;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.MapUtil;
 import fr.neatmonster.nocheatplus.worlds.WorldFactoryArgument;
 
@@ -693,11 +694,11 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         if (Bridge1_17.hasIsFrozen()) {
             boolean hasboots = Bridge1_17.hasLeatherBootsOn(player);
             if (pTo.isOnGround() && !hasboots 
-                && pTo.adjustOnGround(!pTo.isOnGroundDueToStandingOnAnEntity() && !pTo.isOnGround(cc.yOnGround, BlockProperties.F_POWDERSNOW)) && debug) {
+                && pTo.adjustOnGround(!pTo.isOnGroundDueToStandingOnAnEntity() && !pTo.isOnGround(cc.yOnGround, BlockFlags.F_POWDERSNOW)) && debug) {
                 debug(player, "Collide ground surface but not actually on ground. Adjusting To location.");
             }
             if (pFrom.isOnGround() && !hasboots 
-                && pFrom.adjustOnGround(!pFrom.isOnGroundDueToStandingOnAnEntity() && !pFrom.isOnGround(cc.yOnGround, BlockProperties.F_POWDERSNOW)) && debug) {
+                && pFrom.adjustOnGround(!pFrom.isOnGroundDueToStandingOnAnEntity() && !pFrom.isOnGround(cc.yOnGround, BlockFlags.F_POWDERSNOW)) && debug) {
                 debug(player, "Collide ground surface but not actually on ground. Adjusting From location");
             }
         }
@@ -848,7 +849,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                     if (!survivalFly.isReallySneaking(player) && BounceUtil.checkBounceEnvelope(player, pFrom, pTo, data, cc, pData)) {
                         // TODO: Check other side conditions (fluids, web, max. distance to the block top (!))
                         // Classic static bounce.
-                        if ((pTo.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0L) {
+                        if ((pTo.getBlockFlags() & BlockFlags.F_BOUNCE25) != 0L) {
                             /* TODO: May need to adapt within this method, if "push up" happened and the trigger had been ordinary */
                             verticalBounce = BounceType.STATIC;
                             checkNf = false; // Skip NoFall.
@@ -2830,7 +2831,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             // Note: the block flags are for normal on-ground checking, not with yOnGrond set to 0.5.
             from.collectBlockFlags(maxYOnGround);
             if (from.getBlockFlags() != 0) {
-                builder.append("\nFrom flags: " + StringUtil.join(BlockProperties.getFlagNames(from.getBlockFlags()), "+"));
+                builder.append("\nFrom flags: " + StringUtil.join(BlockFlags.getFlagNames(from.getBlockFlags()), "+"));
             }
             if (!BlockProperties.isAir(from.getTypeId())) {
                 DebugUtil.addBlockInfo(builder, from, "\nFrom");
@@ -2843,7 +2844,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             }
             to.collectBlockFlags(maxYOnGround);
             if (to.getBlockFlags() != 0) {
-                builder.append("\nTo flags: " + StringUtil.join(BlockProperties.getFlagNames(to.getBlockFlags()), "+"));
+                builder.append("\nTo flags: " + StringUtil.join(BlockFlags.getFlagNames(to.getBlockFlags()), "+"));
             }
             if (!BlockProperties.isAir(to.getTypeId())) {
                 DebugUtil.addBlockInfo(builder, to, "\nTo");

@@ -33,6 +33,7 @@ import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.MaterialUtil;
 
 public class MCAccessBukkitModern extends MCAccessBukkit {
@@ -163,15 +164,15 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     	// Variables for repeated flags (Temporary flags, these should be fixed later so that they are not added here)
     	final long blockFix = BlockFlags.SOLID_GROUND;
     	// Adjust flags for individual blocks.
-        BlockProperties.setBlockFlags(Material.COCOA, blockFix);
-        BlockProperties.setBlockFlags(Material.TURTLE_EGG, blockFix);
-        BlockProperties.setBlockFlags(Material.CHORUS_PLANT, blockFix);
-        BlockProperties.setBlockFlags(Material.CREEPER_WALL_HEAD, blockFix);
-        BlockProperties.setBlockFlags(Material.ZOMBIE_WALL_HEAD, blockFix);
-        BlockProperties.setBlockFlags(Material.PLAYER_WALL_HEAD, blockFix);
-        BlockProperties.setBlockFlags(Material.DRAGON_WALL_HEAD, blockFix);
-        BlockProperties.setBlockFlags(Material.WITHER_SKELETON_WALL_SKULL, blockFix);
-        BlockProperties.setBlockFlags(Material.SKELETON_WALL_SKULL, blockFix);
+        BlockFlags.setBlockFlags(Material.COCOA, blockFix);
+        BlockFlags.setBlockFlags(Material.TURTLE_EGG, blockFix);
+        BlockFlags.setBlockFlags(Material.CHORUS_PLANT, blockFix);
+        BlockFlags.setBlockFlags(Material.CREEPER_WALL_HEAD, blockFix);
+        BlockFlags.setBlockFlags(Material.ZOMBIE_WALL_HEAD, blockFix);
+        BlockFlags.setBlockFlags(Material.PLAYER_WALL_HEAD, blockFix);
+        BlockFlags.setBlockFlags(Material.DRAGON_WALL_HEAD, blockFix);
+        BlockFlags.setBlockFlags(Material.WITHER_SKELETON_WALL_SKULL, blockFix);
+        BlockFlags.setBlockFlags(Material.SKELETON_WALL_SKULL, blockFix);
 
         // Directly keep blocks as is.
         for (final Material mat : new Material[] {
@@ -210,7 +211,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
         // Cauldron
         for (Material mat : MaterialUtil.CAULDRON) {
-            BlockProperties.setBlockFlags(mat, BlockFlags.SOLID_GROUND);
+            BlockFlags.setBlockFlags(mat, BlockFlags.SOLID_GROUND);
             addModel(mat, MODEL_CAULDRON);
         }
 
@@ -431,14 +432,14 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
         // Sort to processed by flags.
         for (final Material mat : Material.values()) {
-            final long flags = BlockProperties.getBlockFlags(mat);
+            final long flags = BlockFlags.getBlockFlags(mat);
             // Stairs.
-            if (BlockFlags.hasAnyFlag(flags, BlockProperties.F_STAIRS)) {
+            if (BlockFlags.hasAnyFlag(flags, BlockFlags.F_STAIRS)) {
                 addModel(mat, MODEL_STAIRS);
             }
             // Fences.
-            if (BlockFlags.hasAnyFlag(flags, BlockProperties.F_THICK_FENCE)) {
-                if (BlockFlags.hasAnyFlag(flags, BlockProperties.F_PASSABLE_X4)) {
+            if (BlockFlags.hasAnyFlag(flags, BlockFlags.F_THICK_FENCE)) {
+                if (BlockFlags.hasAnyFlag(flags, BlockFlags.F_PASSABLE_X4)) {
                     // TODO: Perhaps another model flag.
                     addModel(mat, MODEL_GATE);
                 }

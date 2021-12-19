@@ -68,6 +68,7 @@ import fr.neatmonster.nocheatplus.utilities.location.LocUtil;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 
 /**
  * The counterpart to the CreativeFly check. People that are not allowed to fly get checked by this. It will try to
@@ -266,7 +267,7 @@ public class SurvivalFly extends Check {
         // TODO: Might remove that flag, as the issue for trying this has been resolved differently (F_HEIGHT8_1).
         // TODO: Consider setting on ground_height always?
         // TODO: Specialize - test for foot region?
-        if ((from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) != 0) {
+        if ((from.getBlockFlags() & BlockFlags.F_ALLOW_LOWJUMP) != 0) {
             data.sfNoLowJump = true;
         }
 
@@ -274,7 +275,7 @@ public class SurvivalFly extends Check {
         thisMove.headObstructed = (yDistance > 0.0 ? from.isHeadObstructed(yDistance) : from.isHeadObstructed());
 
         // Moving half on farmland(or end_potal_frame) and half on water
-        data.isHalfGroundHalfWater = (from.getBlockFlags() & BlockProperties.F_MIN_HEIGHT16_15) != 0 
+        data.isHalfGroundHalfWater = (from.getBlockFlags() & BlockFlags.F_MIN_HEIGHT16_15) != 0 
                                      && from.isInWater() && !BlockProperties.isLiquid(from.getTypeId(from.getBlockX(), Location.locToBlock(from.getY() + 0.3), from.getBlockZ()));
 
 
@@ -867,7 +868,7 @@ public class SurvivalFly extends Check {
                         //                        // TODO: Push of box off-center has the same effect.
                         //                        final BlockChangeEntry entry = blockChangeTracker.getBlockChangeEntryMatchFlags(data.blockChangeRef, 
                         //                                tick, from.getWorld().getUID(), from.getBlockX(), from.getBlockY() - 1, from.getBlockZ(),
-                        //                                Direction.Y_POS, BlockProperties.F_BOUNCE25);
+                        //                                Direction.Y_POS, BlockFlags.F_BOUNCE25);
                         //                        if (entry != null) {
                         //                            data.blockChangeRef.updateSpan(entry);
                         //                            data.prependVerticalVelocity(new SimpleEntry(tick, 0.5015, 3)); // TODO: HACK
@@ -893,7 +894,7 @@ public class SurvivalFly extends Check {
             //                if (from.matchBlockChangeMatchResultingFlags(
             //                        blockChangeTracker, data.blockChangeRef, Direction.Y_POS, 
             //                        Math.min(yDistance, 0.415), // Special limit.
-            //                        BlockProperties.F_BOUNCE25)) {
+            //                        BlockFlags.F_BOUNCE25)) {
             //                    tags.add("blkmv_y_pos_bounce");
             //                    final double maxDistYPos = yDistance; //1.0 - (from.getY() - from.getBlockY()); // TODO: Margin ?
             //                    // TODO: Set bounce effect or something !?
@@ -991,7 +992,7 @@ public class SurvivalFly extends Check {
             friction = 0.0;
             
             // Multiprotocol plugins: allow normal walking.
-            if ((from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) != 0) {
+            if ((from.getBlockFlags() & BlockFlags.F_ALLOW_LOWJUMP) != 0) {
                hAllowedDistance = thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
             }
         }
@@ -1298,8 +1299,8 @@ public class SurvivalFly extends Check {
         
         // Edge case bullshit (undetectable jump with head obstructed and trapdoor underneath)
         if (thisMove.headObstructed 
-            && ((from.getBlockFlags() & BlockProperties.F_ICE) != 0 || (from.getBlockFlags() & BlockProperties.F_BLUE_ICE) != 0)
-            && (from.getBlockFlags() & BlockProperties.F_ATTACHED_LOW2_SNEW) != 0) {
+            && ((from.getBlockFlags() & BlockFlags.F_ICE) != 0 || (from.getBlockFlags() & BlockFlags.F_BLUE_ICE) != 0)
+            && (from.getBlockFlags() & BlockFlags.F_ATTACHED_LOW2_SNEW) != 0) {
             hAllowedDistance *= Magic.modIce;
         }
 
@@ -1986,7 +1987,7 @@ public class SurvivalFly extends Check {
         
         // Test for bubble columns early.
         // TODO: Set magic speeds!
-        if ((from.getBlockFlags() & BlockProperties.F_BUBBLECOLUMN) != 0) {
+        if ((from.getBlockFlags() & BlockFlags.F_BUBBLECOLUMN) != 0) {
             tags.add("bubblestream");
             return new double[]{yDistance, 0.0};
         }
@@ -2069,7 +2070,7 @@ public class SurvivalFly extends Check {
 
         if (yDistAbs > vAllowedDistance) {
             // Catch insta-ladder quick.
-            if (from.isOnGround(jumpHeight, 0D, 0D, BlockProperties.F_CLIMBABLE)) {
+            if (from.isOnGround(jumpHeight, 0D, 0D, BlockFlags.F_CLIMBABLE)) {
                 if (yDistance > maxJumpGain) {
                     vDistanceAboveLimit = yDistAbs - vAllowedDistance;
                     tags.add("climbstep");
@@ -2192,7 +2193,7 @@ public class SurvivalFly extends Check {
         // Allow the first move when falling from far above.
         // Observed: Upon first collision with a berry bush, a lot of lost ground cases will apply (pyramid and edgedesc)
         final double descendSpeed = (!fromOnGround && !lastMove.from.inBerryBush && toOnGround && thisMove.to.inBerryBush || thisMove.touchedGroundWorkaround) ? yDistance : Magic.bushSpeedDescend; 
-        final boolean multiProtocolPluginPresent = (from.getBlockFlags() & BlockProperties.F_ALLOW_LOWJUMP) != 0; 
+        final boolean multiProtocolPluginPresent = (from.getBlockFlags() & BlockFlags.F_ALLOW_LOWJUMP) != 0; 
         final double defaultLiftOffGain = data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier); 
         final double normalMaxGain = LiftOffEnvelope.NORMAL.getMaxJumpGain(data.jumpAmplifier);
         double vAllowedDistance = 0.0;

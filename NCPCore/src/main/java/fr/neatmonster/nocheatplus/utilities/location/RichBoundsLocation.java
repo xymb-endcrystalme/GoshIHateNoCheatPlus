@@ -36,6 +36,7 @@ import fr.neatmonster.nocheatplus.utilities.collision.CollisionUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache.IBlockCacheNode;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.MapUtil;
 
 // TODO: Auto-generated Javadoc
@@ -629,14 +630,14 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isAboveStairs() {
         if (aboveStairs == null) {
-            if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_STAIRS) == 0 ) {
+            if (blockFlags != null && (blockFlags.longValue() & BlockFlags.F_STAIRS) == 0 ) {
                 aboveStairs = false;
                 return false;
             }
             // TODO: Distinguish based on actual height off .0 ?
             // TODO: diff still needed ?
             final double diff = 0; // 0.001;
-            aboveStairs = BlockProperties.collides(blockCache, minX - diff, minY - 1.0, minZ - diff, maxX + diff, minY + 0.25, maxZ + diff, BlockProperties.F_STAIRS);
+            aboveStairs = BlockProperties.collides(blockCache, minX - diff, minY - 1.0, minZ - diff, maxX + diff, minY + 0.25, maxZ + diff, BlockFlags.F_STAIRS);
         }
         return aboveStairs;
     }
@@ -648,7 +649,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isInLava() {
         if (inLava == null) {
-            if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_LAVA) == 0 ) {
+            if (blockFlags != null && (blockFlags.longValue() & BlockFlags.F_LAVA) == 0 ) {
                 inLava = false;
                 return false;
             }
@@ -656,8 +657,8 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
             //          final double dX = -0.10000000149011612D;
             //          final double dY = -0.40000000596046448D;
             //          final double dZ = dX;
-            //          inLava = BlockProperties.collides(blockCache, minX - dX, minY - dY, minZ - dZ, maxX + dX, maxY + dY, maxZ + dZ, BlockProperties.F_LAVA);
-            inLava = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockProperties.F_LAVA);
+            //          inLava = BlockProperties.collides(blockCache, minX - dX, minY - dY, minZ - dZ, maxX + dX, maxY + dY, maxZ + dZ, BlockFlags.F_LAVA);
+            inLava = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockFlags.F_LAVA);
         }
         return inLava;
     }
@@ -669,7 +670,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isInWater() {
         if (inWater == null) {
-            if (!isInWaterLogged() && blockFlags != null && (blockFlags.longValue() & BlockProperties.F_WATER) == 0 ) {
+            if (!isInWaterLogged() && blockFlags != null && (blockFlags.longValue() & BlockFlags.F_WATER) == 0 ) {
                 inWater = false;
                 return false;
             }
@@ -677,8 +678,8 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
             //          final double dX = -0.001D;
             //          final double dY = -0.40000000596046448D - 0.001D;
             //          final double dZ = dX;
-            //          inWater = BlockProperties.collides(blockCache, minX - dX, minY - dY, minZ - dZ, maxX + dX, maxY + dY, maxZ + dZ, BlockProperties.F_WATER);
-            inWater = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockProperties.F_WATER) || isInWaterLogged();
+            //          inWater = BlockProperties.collides(blockCache, minX - dX, minY - dY, minZ - dZ, maxX + dX, maxY + dY, maxZ + dZ, BlockFlags.F_WATER);
+            inWater = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockFlags.F_WATER) || isInWaterLogged();
 
         }
         return inWater;
@@ -703,7 +704,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isInLiquid() {
         // TODO: optimize (check liquid first and only if liquid check further)
-        if (!isInWaterLogged() && blockFlags != null && (blockFlags.longValue() & BlockProperties.F_LIQUID) == 0 ) return false;
+        if (!isInWaterLogged() && blockFlags != null && (blockFlags.longValue() & BlockFlags.F_LIQUID) == 0 ) return false;
         // TODO: This should check for F_LIQUID too, Use a method that returns all found flags (!).
         return isInWater() || isInLava();
     }
@@ -718,22 +719,22 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         if (onClimbable == null) {
             // Early return with flags set and no climbable nearby.
             final Material typeId = getTypeId();
-            if (blockFlags != null && (blockFlags & BlockProperties.F_CLIMBABLE) == 0
+            if (blockFlags != null && (blockFlags & BlockFlags.F_CLIMBABLE) == 0
                     // Special case trap doors: // Better than increasing maxYOnGround.
-                    && (blockFlags & BlockProperties.F_PASSABLE_X4) == 0
+                    && (blockFlags & BlockFlags.F_PASSABLE_X4) == 0
                     ) {
                 onClimbable = false;
                 return false;
             }
-            final long thisFlags = BlockProperties.getBlockFlags(typeId);
-            onClimbable = (thisFlags & BlockProperties.F_CLIMBABLE) != 0;
+            final long thisFlags = BlockFlags.getBlockFlags(typeId);
+            onClimbable = (thisFlags & BlockFlags.F_CLIMBABLE) != 0;
             // TODO: maybe use specialized bounding box.
             //          final double d = 0.1d;
-            //          onClimbable = BlockProperties.collides(getBlockAccess(), minX - d, minY - d, minZ - d, maxX + d, minY + 1.0, maxZ + d, BlockProperties.F_CLIMBABLE);
+            //          onClimbable = BlockProperties.collides(getBlockAccess(), minX - d, minY - d, minZ - d, maxX + d, minY + 1.0, maxZ + d, BlockFlags.F_CLIMBABLE);
             if (!onClimbable) {
                 // Special case trap door (simplified preconditions check).
                 // TODO: Distance to the wall?
-                if ((thisFlags & BlockProperties.F_PASSABLE_X4) != 0
+                if ((thisFlags & BlockFlags.F_PASSABLE_X4) != 0
                         && BlockProperties.isTrapDoorAboveLadderSpecialCase(blockCache, blockX, blockY, blockZ)) {
                     onClimbable = true;
                 }
@@ -749,7 +750,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      * @return 
      */
     public boolean isBodySubmerged(final double yMargin) {
-        return BlockProperties.collides(blockCache, minX, minY + yMargin, minZ, maxX, maxY, maxZ, BlockProperties.F_LIQUID);
+        return BlockProperties.collides(blockCache, minX, minY + yMargin, minZ, maxX, maxY, maxZ, BlockFlags.F_LIQUID);
     }
 
     /**
@@ -763,7 +764,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isNextToGround(final double xzMargin, final double yMargin) {
         // TODO: Adjust to check block flags ?
-        return BlockProperties.collides(blockCache, minX - xzMargin, minY - yMargin, minZ - xzMargin, maxX + xzMargin, maxY + yMargin, maxZ + xzMargin, BlockProperties.F_GROUND);
+        return BlockProperties.collides(blockCache, minX - xzMargin, minY - yMargin, minZ - xzMargin, maxX + xzMargin, maxY + yMargin, maxZ + xzMargin, BlockFlags.F_GROUND);
     }
 
     /**
@@ -800,9 +801,9 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      * @return If so.
      */
     public boolean isAboveLadder() {
-        if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_CLIMBABLE) == 0 ) return false;
+        if (blockFlags != null && (blockFlags.longValue() & BlockFlags.F_CLIMBABLE) == 0 ) return false;
         // TODO: bounding box ?
-        return (BlockProperties.getBlockFlags(getTypeIdBelow()) & BlockProperties.F_CLIMBABLE) != 0;
+        return (BlockFlags.getBlockFlags(getTypeIdBelow()) & BlockFlags.F_CLIMBABLE) != 0;
     }
 
     /**
@@ -812,12 +813,12 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isInWeb() {
         if (inWeb == null) {
-            if (blockFlags == null || (blockFlags & BlockProperties.F_COBWEB) != 0L ) {
+            if (blockFlags == null || (blockFlags & BlockFlags.F_COBWEB) != 0L ) {
                 // TODO: inset still needed / configurable?
                 final double inset = 0.001d;
                 inWeb = BlockProperties.collides(blockCache, minX + inset, minY + inset, minZ + inset, 
                         maxX - inset, maxY - inset, maxZ - inset, 
-                        BlockProperties.F_COBWEB);
+                        BlockFlags.F_COBWEB);
             }
             else {
                 inWeb = false;
@@ -833,8 +834,8 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isInPowderSnow() {
         if (inPowderSnow == null) {
-            if (blockFlags == null || (blockFlags & BlockProperties.F_POWDERSNOW) != 0L) {
-                inPowderSnow = (BlockProperties.getBlockFlags(getTypeId()) & BlockProperties.F_POWDERSNOW) != 0;
+            if (blockFlags == null || (blockFlags & BlockFlags.F_POWDERSNOW) != 0L) {
+                inPowderSnow = (BlockFlags.getBlockFlags(getTypeId()) & BlockFlags.F_POWDERSNOW) != 0;
             }
             else {
                 inPowderSnow = false;
@@ -850,10 +851,10 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isInBerryBush() {
         if (inBerryBush == null) {
-            if (blockFlags == null || (blockFlags & BlockProperties.F_BERRY_BUSH) != 0L) {
+            if (blockFlags == null || (blockFlags & BlockFlags.F_BERRY_BUSH) != 0L) {
                 // TODO: inset still needed / configurable? -> Nope :)
                 //final double inset = 0.001d;
-                inBerryBush = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockProperties.F_BERRY_BUSH);
+                inBerryBush = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockFlags.F_BERRY_BUSH);
             }
             else {
                 inBerryBush = false;
@@ -872,14 +873,14 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         if (onIce == null) {
             // TODO: Use a box here too ?
             // TODO: check if player is really sneaking (refactor from survivalfly to static access in Combined ?)!
-            if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_ICE) == 0) {
+            if (blockFlags != null && (blockFlags.longValue() & BlockFlags.F_ICE) == 0) {
                 onIce = isOnIceLegacy() ? true : false;
             } 
             else {
                 // MC applies ice properties only with at least half the box on the block
                 final double xzMargin = getBoxMarginHorizontal();
                 // TODO: Might skip the isOnGround part, e.g. if boats sink in slightly. Needs testing.
-                onIce = isOnGround() && BlockProperties.collides(blockCache, minX+xzMargin, minY - yOnGround, minZ+xzMargin, maxX-xzMargin, minY, maxZ-xzMargin, BlockProperties.F_ICE);
+                onIce = isOnGround() && BlockProperties.collides(blockCache, minX+xzMargin, minY - yOnGround, minZ+xzMargin, maxX-xzMargin, minY, maxZ-xzMargin, BlockFlags.F_ICE);
             }
         }
         return onIce;
@@ -907,14 +908,14 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isOnBlueIce() {
         if (onBlueIce == null) {
-            if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_BLUE_ICE) == 0) {
+            if (blockFlags != null && (blockFlags.longValue() & BlockFlags.F_BLUE_ICE) == 0) {
                 onBlueIce = false;
             } 
             else {
                 // MC applies ice properties only with at least half the box on the block
                 final double xzMargin = getBoxMarginHorizontal();
                 // TODO: Might skip the isOnGround part, e.g. if boats sink in slightly. Needs testing.
-                onBlueIce = isOnGround() && BlockProperties.collides(blockCache, minX+xzMargin, minY - yOnGround, minZ+xzMargin, maxX-xzMargin, minY, maxZ-xzMargin, BlockProperties.F_BLUE_ICE);
+                onBlueIce = isOnGround() && BlockProperties.collides(blockCache, minX+xzMargin, minY - yOnGround, minZ+xzMargin, maxX-xzMargin, minY, maxZ-xzMargin, BlockFlags.F_BLUE_ICE);
             }
         }
         return onBlueIce;
@@ -927,12 +928,12 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isOnSoulSand() {
         if (onSoulSand == null) {
-            if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_SOULSAND) == 0) {
+            if (blockFlags != null && (blockFlags.longValue() & BlockFlags.F_SOULSAND) == 0) {
                 onSoulSand = false;
             } 
             else {
                 // In soul block, rather.
-                onSoulSand = (BlockProperties.getBlockFlags(getTypeId()) & BlockProperties.F_SOULSAND) != 0;
+                onSoulSand = (BlockFlags.getBlockFlags(getTypeId()) & BlockFlags.F_SOULSAND) != 0;
             }
         }
         return onSoulSand;
@@ -946,13 +947,13 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isOnSlimeBlock() {
         if (onSlimeBlock == null) {
-            if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_SLIME) == 0) {
+            if (blockFlags != null && (blockFlags.longValue() & BlockFlags.F_SLIME) == 0) {
                 onSlimeBlock = false;
             } 
             else { 
                 // MC applies slime properties only with at least half the box on the block
                 final double xzMargin = getBoxMarginHorizontal();
-                onSlimeBlock = isOnGround() && BlockProperties.collides(blockCache, minX+xzMargin, minY - yOnGround, minZ+xzMargin, maxX-xzMargin, minY, maxZ-xzMargin, BlockProperties.F_SLIME); 
+                onSlimeBlock = isOnGround() && BlockProperties.collides(blockCache, minX+xzMargin, minY - yOnGround, minZ+xzMargin, maxX-xzMargin, minY, maxZ-xzMargin, BlockFlags.F_SLIME); 
             }
         }
         return onSlimeBlock;
@@ -969,8 +970,8 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
             if (isOnSlimeBlock()) {
                 onBouncyBlock = true;
             }
-            else if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_BED) != 0) {
-                onBouncyBlock = isOnGround() && BlockProperties.collides(blockCache, minX, minY - yOnGround, minZ, maxX, minY, maxZ, BlockProperties.F_BED); 
+            else if (blockFlags != null && (blockFlags.longValue() & BlockFlags.F_BED) != 0) {
+                onBouncyBlock = isOnGround() && BlockProperties.collides(blockCache, minX, minY - yOnGround, minZ, maxX, minY, maxZ, BlockFlags.F_BED); 
             }
             else onBouncyBlock = false;
         }
@@ -986,12 +987,12 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isOnHoneyBlock() {
         if (onHoneyBlock == null) {
-            if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_STICKY) == 0) {
+            if (blockFlags != null && (blockFlags.longValue() & BlockFlags.F_STICKY) == 0) {
                 onHoneyBlock = false;
             } 
             else {
                 // Only count in actually being in the honeyblock, players can jump normally on the very edge.
-                onHoneyBlock = (BlockProperties.getBlockFlags(getTypeId()) & BlockProperties.F_STICKY) != 0;
+                onHoneyBlock = (BlockFlags.getBlockFlags(getTypeId()) & BlockFlags.F_STICKY) != 0;
             }
         }
         return onHoneyBlock;
@@ -1005,10 +1006,10 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isInBubbleStream() {
         if (inBubblestream == null) {
-            if (blockFlags != null && (blockFlags.longValue() & BlockProperties.F_BUBBLECOLUMN) == 0) {
+            if (blockFlags != null && (blockFlags.longValue() & BlockFlags.F_BUBBLECOLUMN) == 0) {
                 inBubblestream = false;
             } else {
-                inBubblestream = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockProperties.F_BUBBLECOLUMN);
+                inBubblestream = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockFlags.F_BUBBLECOLUMN);
             }
         }
         return inBubblestream;
@@ -1045,21 +1046,21 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         }
         else {
             // Shortcut check (currently needed for being stuck + sf).
-            if (blockFlags == null || (blockFlags.longValue() & BlockProperties.F_GROUND) != 0) {
+            if (blockFlags == null || (blockFlags.longValue() & BlockFlags.F_GROUND) != 0) {
                 // TODO: Consider dropping this shortcut.
                 final int bY = Location.locToBlock(y - yOnGround);
                 final IBlockCacheNode useNode = bY == blockY ? getOrCreateBlockCacheNode() : (bY == blockY -1 ? getOrCreateBlockCacheNodeBelow() : blockCache.getOrCreateBlockCacheNode(blockX,  bY, blockZ, false));
                 final Material id = useNode.getType();
-                final long flags = BlockProperties.getBlockFlags(id);
+                final long flags = BlockFlags.getBlockFlags(id);
                 // TODO: Might remove check for variable ?
-                if ((flags & BlockProperties.F_GROUND) != 0 && (flags & BlockProperties.F_VARIABLE) == 0) {
+                if ((flags & BlockFlags.F_GROUND) != 0 && (flags & BlockFlags.F_VARIABLE) == 0) {
                     final double[] bounds = useNode.getBounds(blockCache, blockX, bY, blockZ);
                     // Check collision if not inside of the block. [Might be a problem for cauldron or similar + something solid above.]
                     // TODO: Might need more refinement.
                     if (bounds != null && y - bY >= bounds[4] && BlockProperties.collidesBlock(blockCache, x, minY - yOnGround, z, x, minY, z, blockX, bY, blockZ, useNode, null, flags)) {
                         // TODO: BlockHeight is needed for fences, use right away (above)?
                         if (!BlockProperties.isPassableWorkaround(blockCache, blockX, bY, blockZ, minX - blockX, minY - yOnGround - bY, minZ - blockZ, useNode, maxX - minX, yOnGround, maxZ - minZ,  1.0)
-                                || (flags & BlockProperties.F_GROUND_HEIGHT) != 0 &&  BlockProperties.getGroundMinHeight(blockCache, blockX, bY, blockZ, useNode, flags) <= y - bY) {
+                                || (flags & BlockFlags.F_GROUND_HEIGHT) != 0 &&  BlockProperties.getGroundMinHeight(blockCache, blockX, bY, blockZ, useNode, flags) <= y - bY) {
                            //  NCPAPIProvider.getNoCheatPlusAPI().getLogManager().debug(Streams.TRACE_FILE, "*** onground SHORTCUT");
                             onGround = true;
                         }
@@ -1216,7 +1217,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isNextToSolid(final double xzMargin, final double yMargin) {
         // TODO: Adjust to check block flags ?
-        return BlockProperties.collides(blockCache, minX - xzMargin, minY - yMargin, minZ - xzMargin, maxX + xzMargin, maxY + yMargin, maxZ + xzMargin, BlockProperties.F_SOLID);
+        return BlockProperties.collides(blockCache, minX - xzMargin, minY - yMargin, minZ - xzMargin, maxX + xzMargin, maxY + yMargin, maxZ + xzMargin, BlockFlags.F_SOLID);
     }
 
     /**
@@ -1300,7 +1301,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      * @return true, if is block flags passable
      */
     private boolean isBlockFlagsPassable() {
-        return blockFlags != null && (blockFlags & (BlockProperties.F_SOLID | BlockProperties.F_GROUND)) == 0;
+        return blockFlags != null && (blockFlags & (BlockFlags.F_SOLID | BlockFlags.F_GROUND)) == 0;
     }
 
     /**

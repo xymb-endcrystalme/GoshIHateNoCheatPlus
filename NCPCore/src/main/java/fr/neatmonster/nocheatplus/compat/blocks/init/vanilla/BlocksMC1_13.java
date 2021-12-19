@@ -37,14 +37,14 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
     @Override
     public void setupBlockProperties(WorldConfigProvider<?> worldConfigProvider) {
         // Flag for anvil
-        BlockProperties.setBlockFlags("ANVIL", BlockFlags.SOLID_GROUND);
+        BlockFlags.setBlockFlags("ANVIL", BlockFlags.SOLID_GROUND);
         // Change flag for walls
         for (Material mat : MaterialUtil.ALL_WALLS) {
-            BlockProperties.setBlockFlags(mat, BlockFlags.SOLID_GROUND);
+            BlockFlags.setBlockFlags(mat, BlockFlags.SOLID_GROUND);
         }
 
         // Workaround for ladder
-        // BlockFlags.addFlags(Material.LADDER, BlockProperties.F_GROUND_HEIGHT);
+        // BlockFlags.addFlags(Material.LADDER, BlockFlags.F_GROUND_HEIGHT);
         // Void air.
         BlockInit.setAs("VOID_AIR", Material.AIR);
         // Cave air.
@@ -65,7 +65,7 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         for (Material mat : MaterialUtil.DEAD_CORAL_PARTS) {
             // (Flags should be set correctly by default.)
             BlockProperties.setBlockProps(mat, BlockProperties.instantType);
-            BlockProperties.setBlockFlags(mat, BlockProperties.F_IGN_PASSABLE);
+            BlockFlags.setBlockFlags(mat, BlockFlags.F_IGN_PASSABLE);
         }
 
         // Kelp.
@@ -75,7 +75,7 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         // Bubble column.
         // TODO: Drag down effect: probably not using velocity.
         BlockInit.setAs("BUBBLE_COLUMN", Material.WATER);
-        BlockFlags.addFlags("BUBBLE_COLUMN", BlockProperties.F_BUBBLECOLUMN);
+        BlockFlags.addFlags("BUBBLE_COLUMN", BlockFlags.F_BUBBLECOLUMN);
 
         // Further melon/pumpkin stems.
 
@@ -84,7 +84,7 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
 
         // Shulker boxes.
         for (Material mat : MaterialUtil.SHULKER_BOXES) {
-            BlockFlags.addFlags(mat, BlockProperties.F_XZ100 | BlockFlags.SOLID_GROUND);
+            BlockFlags.addFlags(mat, BlockFlags.F_XZ100 | BlockFlags.SOLID_GROUND);
             BlockProperties.setBlockProps(mat, new BlockProps(BlockProperties.woodPickaxe, 2,
                     BlockProperties.secToMs(3.0, 1.45, 0.7, 0.45, 0.3, 0.25, 0.2)));
         }
@@ -107,7 +107,7 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
 
         // Blue ice.
         BlockInit.setAs("BLUE_ICE", Material.ICE);
-        BlockFlags.addFlags("BLUE_ICE",BlockProperties.F_BLUE_ICE);
+        BlockFlags.addFlags("BLUE_ICE",BlockFlags.F_BLUE_ICE);
 
         // Wet sponge.
         BlockInit.setAs("WET_SPONGE", Material.SPONGE);
@@ -187,21 +187,21 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         
         // Sea Pickle.
         BlockProperties.setBlockProps("SEA_PICKLE", BlockProperties.instantType);
-        BlockFlags.addFlags("SEA_PICKLE", BlockProperties.F_GROUND | BlockProperties.F_GROUND_HEIGHT);
+        BlockFlags.addFlags("SEA_PICKLE", BlockFlags.F_GROUND | BlockFlags.F_GROUND_HEIGHT);
 
         // Turtle egg.
         BlockProperties.setBlockProps("TURTLE_EGG", new BlockProps(
                 BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.7)));
 
-        BlockProperties.setBlockFlags(Material.HOPPER, BlockFlags.SOLID_GROUND);
+        BlockFlags.setBlockFlags(Material.HOPPER, BlockFlags.SOLID_GROUND);
 
         // Farm land. (Just in case not having multiversion plugin installed)
-        BlockFlags.removeFlags(BridgeMaterial.FARMLAND, BlockProperties.F_HEIGHT100);
+        BlockFlags.removeFlags(BridgeMaterial.FARMLAND, BlockFlags.F_HEIGHT100);
         BlockFlags.addFlags(BridgeMaterial.FARMLAND,
-                BlockProperties.F_XZ100 | BlockProperties.F_MIN_HEIGHT16_15);
+                BlockFlags.F_XZ100 | BlockFlags.F_MIN_HEIGHT16_15);
 
-        BlockProperties.setBlockFlags("BREWING_STAND", BlockFlags.SOLID_GROUND);
-        BlockProperties.setBlockFlags(BridgeMaterial.PISTON_HEAD, BlockFlags.SOLID_GROUND);
+        BlockFlags.setBlockFlags("BREWING_STAND", BlockFlags.SOLID_GROUND);
+        BlockFlags.setBlockFlags(BridgeMaterial.PISTON_HEAD, BlockFlags.SOLID_GROUND);
         ConfigFile config = ConfigManager.getConfigFile();
         if (config.getBoolean(ConfPaths.BLOCKBREAK_DEBUG, config.getBoolean(ConfPaths.CHECKS_DEBUG, false)))
         StaticLog.logInfo("Added block-info for Minecraft 1.13 blocks.");

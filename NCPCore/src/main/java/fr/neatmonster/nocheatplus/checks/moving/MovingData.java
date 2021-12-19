@@ -66,7 +66,7 @@ import fr.neatmonster.nocheatplus.workaround.IWorkaroundRegistry.WorkaroundSet;
  */
 public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData, IDataOnReload, IDataOnWorldUnload {
 
-    //private static final long IGNORE_SETBACK_Y = BlockProperties.F_SOLID | BlockProperties.F_GROUND | BlockProperties.F_CLIMBABLE | BlockProperties.F_LIQUID;
+    //private static final long IGNORE_SETBACK_Y = BlockFlags.F_SOLID | BlockFlags.F_GROUND | BlockFlags.F_CLIMBABLE | BlockFlags.F_LIQUID;
 
     //////////////////////////////////////////////
     // Violation levels                         //

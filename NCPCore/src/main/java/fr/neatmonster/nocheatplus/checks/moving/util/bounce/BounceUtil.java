@@ -41,6 +41,7 @@ import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.location.RichBoundsLocation;
 import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker.BlockChangeEntry;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker.Direction;
@@ -160,12 +161,12 @@ public class BounceUtil {
         final UUID worldId = from.getWorld().getUID();
         // Prepare (normal/extra) bounce.
         // Typical: a slime block has been there.
-        final BlockChangeEntry entryBelowAny = blockChangeTracker.getBlockChangeEntryMatchFlags(data.blockChangeRef, tick, worldId, to.getBlockX(), to.getBlockY() - 1, to.getBlockZ(), null, BlockProperties.F_BOUNCE25);
+        final BlockChangeEntry entryBelowAny = blockChangeTracker.getBlockChangeEntryMatchFlags(data.blockChangeRef, tick, worldId, to.getBlockX(), to.getBlockY() - 1, to.getBlockZ(), null, BlockFlags.F_BOUNCE25);
         if (entryBelowAny != null) {
             // TODO: Check preconditions for bouncing here at all (!).
             // Check if the/a block below the feet of the player got pushed into the feet of the player.
             final BlockChangeEntry entryBelowY_POS = entryBelowAny.direction == Direction.Y_POS ? entryBelowAny 
-                                                    : blockChangeTracker.getBlockChangeEntryMatchFlags(data.blockChangeRef, tick, worldId, to.getBlockX(), to.getBlockY() - 1, to.getBlockZ(), Direction.Y_POS, BlockProperties.F_BOUNCE25);
+                                                    : blockChangeTracker.getBlockChangeEntryMatchFlags(data.blockChangeRef, tick, worldId, to.getBlockX(), to.getBlockY() - 1, to.getBlockZ(), Direction.Y_POS, BlockFlags.F_BOUNCE25);
             if (entryBelowY_POS != null) {
                 // TODO: Can't know if used... data.blockChangeRef.updateSpan(entryBelowY_POS);
                 // TODO: So far, doesn't seem to be followed by violations.
@@ -207,13 +208,13 @@ public class BounceUtil {
         // TODO: Work around 0-dist?
         // TODO: Adjust amount based on side conditions (center push or off center, distance to block top).
         double amount = -1.0;
-        final BlockChangeEntry entryBelowY_POS = blockChangeTracker.getBlockChangeEntryMatchFlags(data.blockChangeRef, tick, worldId, from.getBlockX(), from.getBlockY() - 1, from.getBlockZ(), Direction.Y_POS, BlockProperties.F_BOUNCE25);
+        final BlockChangeEntry entryBelowY_POS = blockChangeTracker.getBlockChangeEntryMatchFlags(data.blockChangeRef, tick, worldId, from.getBlockX(), from.getBlockY() - 1, from.getBlockZ(), Direction.Y_POS, BlockFlags.F_BOUNCE25);
 
         if (
                 // Center push.
                 entryBelowY_POS != null
                 // Off center push.
-                || thisMove.yDistance < 1.515 && from.matchBlockChangeMatchResultingFlags(blockChangeTracker, data.blockChangeRef, Direction.Y_POS, Math.min(.415, thisMove.yDistance), BlockProperties.F_BOUNCE25)
+                || thisMove.yDistance < 1.515 && from.matchBlockChangeMatchResultingFlags(blockChangeTracker, data.blockChangeRef, Direction.Y_POS, Math.min(.415, thisMove.yDistance), BlockFlags.F_BOUNCE25)
             ) {
 
             amount = Math.min(Math.max(0.505, 1.0 + (double) from.getBlockY() - from.getY() + 1.515), 1.915); // Old: 2.525
@@ -233,7 +234,7 @@ public class BounceUtil {
                 && Math.abs(from.getY() - (double) from.getBlockY() - lastMove.yDistance) < 0.205 // from.getY() - (double) from.getBlockY() == lastMove.yDistance
             ) {
 
-            final BlockChangeEntry entry2BelowY_POS = blockChangeTracker.getBlockChangeEntryMatchFlags(data.blockChangeRef, tick, worldId, from.getBlockX(), from.getBlockY() - 2, from.getBlockZ(), Direction.Y_POS, BlockProperties.F_BOUNCE25);
+            final BlockChangeEntry entry2BelowY_POS = blockChangeTracker.getBlockChangeEntryMatchFlags(data.blockChangeRef, tick, worldId, from.getBlockX(), from.getBlockY() - 2, from.getBlockZ(), Direction.Y_POS, BlockFlags.F_BOUNCE25);
             if (entry2BelowY_POS != null) {
                 // TODO: Does off center push exist with this very case?
                 amount = Math.min(Math.max(0.505, 1.0 + (double) from.getBlockY() - from.getY() + 1.515),  1.915 - lastMove.yDistance); // TODO: EXACT MAGIC.
@@ -302,7 +303,7 @@ public class BounceUtil {
         // A better way to do this would to get the maxY through another method, just can't seem to find it :/
         // Collect block flags at the current location as they may not already be there, and cause NullPointer errors.
         to.collectBlockFlags();
-        double blockY = ((to.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0) 
+        double blockY = ((to.getBlockFlags() & BlockFlags.F_BOUNCE25) != 0) 
                         && ((to.getY() + 0.4375) % 1 == 0) ? to.getY() : to.getBlockY();
         return 
                 // 0: Normal envelope (forestall NoFall).

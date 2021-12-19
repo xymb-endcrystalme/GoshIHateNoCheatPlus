@@ -39,6 +39,7 @@ import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.MaterialUtil;
 
 public class MCAccessBukkitBase implements MCAccess {
@@ -75,17 +76,17 @@ public class MCAccessBukkitBase implements MCAccess {
             return false;
         }
         // Fully solid/ground blocks.
-        final long flags = BlockProperties.getBlockFlags(mat);
+        final long flags = BlockFlags.getBlockFlags(mat);
         /*
          * Skip fully passable blocks (partially passable blocks may be itchy,
          * though slabs will be easy to handle).
          */
-        if (BlockFlags.hasAnyFlag(flags, BlockProperties.F_IGN_PASSABLE)) {
+        if (BlockFlags.hasAnyFlag(flags, BlockFlags.F_IGN_PASSABLE)) {
             // TODO: Blocks with min_height may actually be ok, if xz100 and some height are set.
             if (BlockFlags.hasNoFlags(flags, 
-                    BlockProperties.F_GROUND_HEIGHT 
-                    | BlockProperties.F_GROUND
-                    | BlockProperties.F_SOLID)) {
+                    BlockFlags.F_GROUND_HEIGHT 
+                    | BlockFlags.F_GROUND
+                    | BlockFlags.F_SOLID)) {
                 // Explicitly passable.
                 return false;
             }
@@ -94,9 +95,9 @@ public class MCAccessBukkitBase implements MCAccess {
                 return true;
             }
         }
-        long testFlags1 = (BlockProperties.F_SOLID | BlockProperties.F_XZ100);
-        long testFlags2 = (BlockProperties.F_HEIGHT100 
-                | BlockProperties.F_HEIGHT16_15);
+        long testFlags1 = (BlockFlags.F_SOLID | BlockFlags.F_XZ100);
+        long testFlags2 = (BlockFlags.F_HEIGHT100 
+                | BlockFlags.F_HEIGHT16_15);
         if (BlockFlags.hasAllFlags(flags, testFlags1)
                 && BlockFlags.hasAnyFlag(flags, testFlags2)) {
             // Solid blocks with explicitly set bounds.

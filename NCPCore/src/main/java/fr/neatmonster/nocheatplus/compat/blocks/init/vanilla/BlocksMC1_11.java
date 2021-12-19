@@ -37,7 +37,7 @@ public class BlocksMC1_11 implements BlockPropertiesSetup {
         BlockProperties.setBlockProps("OBSERVER", 
                 new BlockProps(BlockProperties.woodPickaxe, 6,
                         BlockProperties.secToMs(15.0, 2.2, 1.1, 0.7, 0.55, 0.5, 0.45)));
-        BlockProperties.setBlockFlags("OBSERVER", 
+        BlockFlags.setBlockFlags("OBSERVER", 
                 BlockFlags.FULLY_SOLID_BOUNDS);
         // ALL SORTS OF SHULKER BOXES
 

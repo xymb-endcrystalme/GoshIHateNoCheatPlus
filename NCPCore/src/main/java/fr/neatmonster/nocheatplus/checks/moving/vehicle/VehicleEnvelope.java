@@ -52,6 +52,7 @@ import fr.neatmonster.nocheatplus.utilities.StringUtil;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.location.RichEntityLocation;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 
 /**
  * Vehicle moving envelope check, for Minecraft 1.9 and higher.
@@ -253,7 +254,7 @@ public class VehicleEnvelope extends Check {
             debugDetails.add("inair: " + data.sfJumpPhase);
         }
 
-        if ((moveInfo.from.getBlockFlags() & BlockProperties.F_BUBBLECOLUMN) != 0
+        if ((moveInfo.from.getBlockFlags() & BlockFlags.F_BUBBLECOLUMN) != 0
             // Should use BlockTraceTracker instead blind leniency
             //|| (isBouncingBlock(moveInfo.from) && thisMove.yDistance >= 0.0 && thisMove.yDistance <= 1.0)
             ) {
@@ -461,7 +462,7 @@ public class VehicleEnvelope extends Check {
     *
     */
     private boolean isBouncingBlock(RichEntityLocation from) {
-        return (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0;
+        return (from.getBlockFlags() & BlockFlags.F_BOUNCE25) != 0;
     }
 
 
@@ -675,6 +676,6 @@ public class VehicleEnvelope extends Check {
     *
     */
     private boolean ColliesHoneyBlock(RichEntityLocation from) {
-        return (from.getBlockFlags() & BlockProperties.F_STICKY) != 0;
+        return (from.getBlockFlags() & BlockFlags.F_STICKY) != 0;
     }
 }

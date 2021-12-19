@@ -22,6 +22,7 @@ import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.utilities.build.BuildParameters;
 import fr.neatmonster.nocheatplus.utilities.collision.PassableRayTracing;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.FakeBlockCache;
 
 public class TestPassableRayTracing {
@@ -152,7 +153,7 @@ public class TestPassableRayTracing {
         FakeBlockCache bc = new FakeBlockCache();
         // Ground using 0.5 high step blocks.
         final double[] stepBounds = new double[]{0.0, 0.0, 0.0, 1.0, 0.5, 1.0};
-        BlockProperties.setBlockFlags(BridgeMaterial.STONE_SLAB, BlockProperties.F_SOLID | BlockProperties.F_GROUND);
+        BlockFlags.setBlockFlags(BridgeMaterial.STONE_SLAB, BlockFlags.F_SOLID | BlockFlags.F_GROUND);
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 bc.set(x, 65, z, BridgeMaterial.STONE_SLAB, stepBounds);

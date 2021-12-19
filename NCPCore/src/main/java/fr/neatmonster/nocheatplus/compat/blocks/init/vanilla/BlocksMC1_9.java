@@ -37,7 +37,7 @@ public class BlocksMC1_9 implements BlockPropertiesSetup {
     @Override
     public void setupBlockProperties(WorldConfigProvider<?> worldConfigProvider) {
 
-        final long ground = BlockFlags.SOLID_GROUND; // BlockProperties.F_GROUND;
+        final long ground = BlockFlags.SOLID_GROUND; // BlockFlags.F_GROUND;
         final BlockProps instant = BlockProperties.instantType;
 
         // 198(END_ROD)
@@ -80,10 +80,10 @@ public class BlocksMC1_9 implements BlockPropertiesSetup {
         // 208(GRASS_PATH / SOLID+GROUND) 
         BlockInit.setPropsAs(BridgeMaterial.GRASS_PATH, BridgeMaterial.GRASS_BLOCK);
         BlockFlags.addFlags(BridgeMaterial.GRASS_PATH, 
-                BlockProperties.F_MIN_HEIGHT16_15 
-                | BlockProperties.F_XZ100
+                BlockFlags.F_MIN_HEIGHT16_15 
+                | BlockFlags.F_XZ100
                 | BlockFlags.SOLID_GROUND
-                | BlockProperties.F_GROUND_HEIGHT);
+                | BlockFlags.F_GROUND_HEIGHT);
 
         // 209(END_GATEWAY) 
         // -> Leave flags as is (like air).

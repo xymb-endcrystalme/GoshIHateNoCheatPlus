@@ -33,6 +33,7 @@ import fr.neatmonster.nocheatplus.utilities.TickTask;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 
 
 /**
@@ -65,7 +66,7 @@ public class LostGround {
         // TODO: Some workarounds allow step height (0.6 on MC 1.8).
         // TODO: yDistance limit does not seem to be appropriate.
         // Temporary let it here
-        data.snowFix = (from.getBlockFlags() & BlockProperties.F_HEIGHT_8_INC) != 0;
+        data.snowFix = (from.getBlockFlags() & BlockFlags.F_HEIGHT_8_INC) != 0;
         if (yDistance >= -0.7 && yDistance <= Math.max(cc.sfStepHeight, LiftOffEnvelope.NORMAL.getMaxJumpGain(data.jumpAmplifier) + 0.174)) {
 
             // "Mild" Ascending / descending.
@@ -160,8 +161,8 @@ public class LostGround {
                     
                     to.collectBlockFlags();
                     // (Doesn't seem to be a problem with carpets)
-                    if ((to.getBlockFlags() & BlockProperties.F_ATTACHED_LOW2_SNEW) != 0
-                        && (to.getBlockFlags() & BlockProperties.F_HEIGHT150) != 0) {
+                    if ((to.getBlockFlags() & BlockFlags.F_ATTACHED_LOW2_SNEW) != 0
+                        && (to.getBlockFlags() & BlockFlags.F_HEIGHT150) != 0) {
 
                         if (to.isOnGround(0.003, thisMove.hAllowedDistanceBase, 0.0)) {
                             // (No safe place to set setback. Keep it on the ground)
@@ -256,7 +257,7 @@ public class LostGround {
     private static boolean noobTowerStillCommon(final PlayerLocation to, final double yDistance) {
         // TODO: Block recently placed underneath (xz box with 0.025 down, Direction.NONE).
         return yDistance < 0.025 && to.getY() - to.getBlockY() < 0.025
-               && to.isOnGround(0.025, Bridge1_17.hasLeatherBootsOn(to.getPlayer()) ? 0 : BlockProperties.F_POWDERSNOW);
+               && to.isOnGround(0.025, Bridge1_17.hasLeatherBootsOn(to.getPlayer()) ? 0 : BlockFlags.F_POWDERSNOW);
     }
 
 
