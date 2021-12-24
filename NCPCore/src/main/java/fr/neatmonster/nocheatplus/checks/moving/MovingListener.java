@@ -64,12 +64,10 @@ import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckListener;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.ViolationData;
-import fr.neatmonster.nocheatplus.checks.combined.BedLeave;
 import fr.neatmonster.nocheatplus.checks.combined.Combined;
 import fr.neatmonster.nocheatplus.checks.combined.CombinedConfig;
 import fr.neatmonster.nocheatplus.checks.combined.CombinedData;
 import fr.neatmonster.nocheatplus.checks.moving.magic.Magic;
-import fr.neatmonster.nocheatplus.checks.fight.FightConfig;
 import fr.neatmonster.nocheatplus.checks.moving.model.ModelFlying;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveInfo;
@@ -158,9 +156,6 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
     /** The Passable check.*/
     private final Passable passable = addCheck(new Passable());
-
-    /** Combined check but handled here (subject to change!) */
-    private final BedLeave bedLeave  = addCheck(new BedLeave());
     
     /** Store events by player name, in order to invalidate moving processing on higher priority level in case of teleports. */
     private final Map<String, PlayerMoveEvent> processingEvents = new HashMap<String, PlayerMoveEvent>();
@@ -276,7 +271,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerBedEnter(final PlayerBedEnterEvent event) {
-        DataManager.getGenericInstance(event.getPlayer(), CombinedData.class).wasInBed = true;
+        DataManager.getGenericInstance(event.getPlayer(), MovingData.class).wasInBed = true;
     }
 
 
@@ -293,25 +288,23 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         final IPlayerData pData = DataManager.getPlayerData(player);
         if (!pData.isCheckActive(CheckType.MOVING, player)) return;
         final MovingData data = pData.getGenericInstance(MovingData.class);
+        final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
     
-        if (pData.isCheckActive(bedLeave.getType(), player) && bedLeave.checkBed(player, pData)) {
+        if (pData.isCheckActive(CheckType.MOVING_SURVIVALFLY, player) && survivalFly.checkBed(player, pData, cc, data)) {
 
-            final MovingConfig cc = pData.getGenericInstance(MovingConfig.class);
             // Check if the player has to be reset.
             // To "cancel" the event, we teleport the player.
+            Location newTo = null;
             final Location loc = player.getLocation(useLoc);
-            Location target = null;
             final PlayerMoveInfo moveInfo = aux.usePlayerMoveInfo();
             moveInfo.set(player, loc, null, cc.yOnGround);
             final boolean sfCheck = MovingUtil.shouldCheckSurvivalFly(player, moveInfo.from, moveInfo.to, data, cc, pData);
             aux.returnPlayerMoveInfo(moveInfo);
             if (sfCheck) {
-                target = MovingUtil.getApplicableSetBackLocation(player, loc.getYaw(), loc.getPitch(), moveInfo.from, data, cc);
+                newTo = MovingUtil.getApplicableSetBackLocation(player, loc.getYaw(), loc.getPitch(), moveInfo.from, data, cc);
             }
-
-             // TODO: Add something to guess the best set back location (possibly data.guessSetBack(Location)).
-            if (target == null) {
-                target = LocUtil.clone(loc);
+            if (newTo == null) {
+                newTo = LocUtil.clone(loc);
             }
 
             if (sfCheck && cc.sfSetBackPolicyFallDamage && noFall.isEnabled(player, pData)) {
@@ -323,11 +316,11 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             // Cleanup
             useLoc.setWorld(null);
             // Teleport.
-            data.prepareSetBack(target); // Should be enough. 
-            player.teleport(target, BridgeMisc.TELEPORT_CAUSE_CORRECTION_OF_POSITION);
+            data.prepareSetBack(newTo); // Should be enough. 
+            player.teleport(newTo, BridgeMisc.TELEPORT_CAUSE_CORRECTION_OF_POSITION);
         }
         // Reset bed ...
-        else pData.getGenericInstance(CombinedData.class).wasInBed = false;
+        else data.wasInBed = false;
     }
 
 

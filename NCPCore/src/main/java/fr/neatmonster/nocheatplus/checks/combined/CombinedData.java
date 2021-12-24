@@ -25,13 +25,12 @@ import fr.neatmonster.nocheatplus.utilities.ds.count.ActionFrequency;
 public class CombinedData extends ACheckData implements IDataOnRemoveSubCheckData {
 
     // VLs
-    public double bedLeaveVL = 0;
     public double improbableVL = 0;
     public double munchHausenVL = 0;
 
     // Invulnerable management:
     /** This is the tick from which on the player is vulnerable again. */
-    public int            invulnerableTick = Integer.MIN_VALUE;
+    public int invulnerableTick = Integer.MIN_VALUE;
 
     // Yawrate check.
     public float lastYaw;
@@ -41,9 +40,6 @@ public class CombinedData extends ACheckData implements IDataOnRemoveSubCheckDat
 
     // General penalty time. Used for fighting mainly, but not only close combat (!), set by yawrate check.
     public final PenaltyTime timeFreeze = new PenaltyTime();
-
-    // Bedleave check
-    public boolean wasInBed = false;
 
     // Improbable check
     public final ActionFrequency improbableCount = new ActionFrequency(20, 3000);
@@ -67,10 +63,6 @@ public class CombinedData extends ACheckData implements IDataOnRemoveSubCheckDat
                     break;
                 case COMBINED_YAWRATE:
                     yawFreq.clear(System.currentTimeMillis()); // TODO: Document there, which to use.
-                    break;
-                case COMBINED_BEDLEAVE:
-                    bedLeaveVL = 0;
-                    wasInBed = false; // wasInBed is probably better kept?
                     break;
                 case COMBINED_MUNCHHAUSEN:
                     munchHausenVL = 0;

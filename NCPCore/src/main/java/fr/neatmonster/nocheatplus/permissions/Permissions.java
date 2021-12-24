@@ -125,14 +125,12 @@ public class Permissions {
 
     public static final RegisteredPermission  CHAT                         = add(CHECKS + ".chat");
     public static final RegisteredPermission  CHAT_CAPTCHA                 = add(CHAT + ".captcha");
-    public static final RegisteredPermission  CHAT_COLOR                   = add(CHAT + ".color");
     public static final RegisteredPermission  CHAT_COMMANDS                = add(CHAT + ".commands");
     public static final RegisteredPermission  CHAT_LOGINS                  = add(CHAT + ".logins");
     public static final RegisteredPermission  CHAT_RELOG                   = add(CHAT + ".relog");
     public static final RegisteredPermission  CHAT_TEXT                    = add(CHAT + ".text");
 
     public static final RegisteredPermission  COMBINED                     = add(CHECKS + ".combined");
-    public static final RegisteredPermission  COMBINED_BEDLEAVE            = add(COMBINED + ".bedleave");
     public static final RegisteredPermission  COMBINED_IMPROBABLE          = add(COMBINED + ".improbable");
     public static final RegisteredPermission  COMBINED_MUNCHHAUSEN         = add(COMBINED + ".munchhausen");
 
@@ -149,7 +147,6 @@ public class Permissions {
     public static final RegisteredPermission  FIGHT_SPEED                  = add(FIGHT + ".speed");
 
     public static final RegisteredPermission  INVENTORY                    = add(CHECKS + ".inventory");
-    public static final RegisteredPermission  INVENTORY_DROP               = add(INVENTORY + ".drop");
     public static final RegisteredPermission  INVENTORY_FASTCLICK          = add(INVENTORY + ".fastclick");
     public static final RegisteredPermission  INVENTORY_FASTCONSUME        = add(INVENTORY + ".fastconsume");
     public static final RegisteredPermission  INVENTORY_GUTENBERG          = add(INVENTORY + ".gutenberg");

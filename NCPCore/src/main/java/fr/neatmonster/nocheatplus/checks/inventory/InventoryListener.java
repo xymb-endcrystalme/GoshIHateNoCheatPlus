@@ -85,9 +85,6 @@ import fr.neatmonster.nocheatplus.worlds.WorldFactoryArgument;
  * @see InventoryEvent
  */
 public class InventoryListener  extends CheckListener implements JoinLeaveListener{
-
-    /** The drop check. */
-    private final Drop drop = addCheck(new Drop());
     
     /** Inventory Move check */
     private final InventoryMove invMove = addCheck(new InventoryMove());
@@ -463,22 +460,6 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
         if (item != null) {
             // No cancel here.
             Items.checkIllegalEnchantments(player, item.getItemStack(), pData);
-        }
-
-        // If the player died, all their items are dropped so ignore them.
-        if (event.getPlayer().isDead())
-            return;
-
-        if (pData.isCheckActive(CheckType.INVENTORY_DROP, player)) {
-            if (drop.check(player)) {
-                // TODO: Is the following command still correct? If so, adapt actions.
-                /*
-                 * Cancelling drop events is not save (in certain circumstances
-                 * items will disappear completely). So don't
-                 */
-                // do it and kick players instead by default.
-                event.setCancelled(true);
-            }
         }
     }
 

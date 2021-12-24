@@ -26,7 +26,6 @@ import fr.neatmonster.nocheatplus.utilities.ds.count.ActionFrequency;
 public class InventoryData extends ACheckData {
 
     // Violation levels.
-    public double   dropVL;
     public double   invMoveVL;
     public double   fastClickVL;
     public double   instantBowVL;
@@ -44,10 +43,6 @@ public class InventoryData extends ACheckData {
     * See: https://www.spigotmc.org/threads/detecting-when-player-opens-their-own-inv.397535/#post-3563623
     */
     public long firstClickTime;
-
-    // Data of the drop check.
-    public int      dropCount;
-    public long     dropLastTime;
 
     // Data of the fast click check.
     //    public boolean  fastClickLastCancelled;

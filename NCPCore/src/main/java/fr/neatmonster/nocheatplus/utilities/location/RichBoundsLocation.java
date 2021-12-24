@@ -76,6 +76,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     // TODO: Check if onGround can be completely replaced by onGroundMinY and notOnGroundMaxY.
     /** Minimal yOnGround for which the player is on ground. No extra xz/y margin.*/
     double onGroundMinY = Double.MAX_VALUE;
+    
     /** Maximal yOnGround for which the player is not on ground. No extra xz/y margin.*/
     double notOnGroundMaxY = Double.MIN_VALUE;
 

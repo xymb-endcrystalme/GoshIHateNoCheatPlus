@@ -273,6 +273,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public final ActionAccumulator stepAcc = new ActionAccumulator(1, 3);
     /** Workarounds (InAirRules,LiquidWorkarounds). */
     public final WorkaroundSet ws;
+    /** Bed-flying flag */
+    public boolean wasInBed = false;
 
     // *----------Data of the vehicles checks----------*
     /** Default value for the VehicleMP buffer. */
@@ -1528,6 +1530,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
                     survivalFlyVL = 0;
                     clearFlyData(); // TODO: ...
                     resetSetBack(); // TODO: Not sure this is really best for compatibility.
+                    wasInBed = false;
                     // TODO: other?
                     break;
                 case MOVING_CREATIVEFLY:
@@ -1600,5 +1603,4 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         trace.adjustSettings(cc.traceMaxAge, cc.traceMaxSize, TickTask.getTick());
         return false;
     }
-
 }

@@ -38,10 +38,6 @@ import fr.neatmonster.nocheatplus.worlds.IWorldData;
  */
 public class InventoryConfig extends ACheckConfig {
 
-    public final int        dropLimit;
-    public final long       dropTimeFrame;
-    public final ActionList dropActions;
-
     public final boolean    fastClickSpareCreative;
     public final boolean 	fastClickTweaks1_5;
     public final float		fastClickShortTermLimit;
@@ -88,9 +84,6 @@ public class InventoryConfig extends ACheckConfig {
     public InventoryConfig(final IWorldData worldData) {
         super(worldData);
         final ConfigFile data = worldData.getRawConfiguration();
-        dropLimit = data.getInt(ConfPaths.INVENTORY_DROP_LIMIT);
-        dropTimeFrame = data.getLong(ConfPaths.INVENTORY_DROP_TIMEFRAME);
-        dropActions = data.getOptimizedActionList(ConfPaths.INVENTORY_DROP_ACTIONS, Permissions.INVENTORY_DROP);
 
         fastClickSpareCreative = data.getBoolean(ConfPaths.INVENTORY_FASTCLICK_SPARECREATIVE);
         fastClickTweaks1_5 = data.getBoolean(ConfPaths.INVENTORY_FASTCLICK_TWEAKS1_5);

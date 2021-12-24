@@ -61,10 +61,7 @@ public class ChatListener extends CheckListener implements INotifyReload, JoinLe
     // Checks.
 
     /** Captcha handler. */
-    private final Captcha captcha		= addCheck(new Captcha());
-
-    /** The color check. */
-    private final Color    color    	= addCheck(new Color());    
+    private final Captcha captcha		= addCheck(new Captcha());  
 
     /** Commands repetition check. */
     private final Commands commands 	= addCheck(new Commands()); 
@@ -146,10 +143,6 @@ public class ChatListener extends CheckListener implements INotifyReload, JoinLe
         final IPlayerData pData = DataManager.getPlayerData(player);
         final ChatConfig cc = pData.getGenericInstance(ChatConfig.class);
 
-        // First the color check.
-        if (!alreadyCancelled && color.isEnabled(player, pData)) {
-            event.setMessage(color.check(player, event.getMessage(), false));
-        }
 
         // Then the no chat check.
         // TODO: isMainThread: Could consider event.isAsync ?
@@ -172,12 +165,6 @@ public class ChatListener extends CheckListener implements INotifyReload, JoinLe
         // Tell TickTask to update cached permissions.
         final IPlayerData pData = DataManager.getPlayerData(player);
         final ChatConfig cc = pData.getGenericInstance(ChatConfig.class);
-
-        // Checks that replace parts of the message (color).
-        if (color.isEnabled(player, pData)) {
-            event.setMessage(color.check(player, event.getMessage(), true));
-        }
-
         // Left-trim is necessary because the server accepts leading spaces with commands.
         final String message = event.getMessage();
         final String lcMessage = StringUtil.leftTrim(message).toLowerCase();

@@ -74,8 +74,6 @@ permissions:
         default: false
     nocheatplus.checks.chat.captcha.silent:
         default: false
-    nocheatplus.checks.chat.color.silent:
-        default: false
     nocheatplus.checks.chat.commands.silent:
         default: false
     nocheatplus.checks.chat.text.silent:
@@ -83,8 +81,6 @@ permissions:
     nocheatplus.checks.chat.logins.silent:
         default: false
     nocheatplus.checks.chat.relog.silent:
-        default: false
-    nocheatplus.checks.combined.bedleave.silent:
         default: false
     nocheatplus.checks.combined.improbable.silent:
         default: false
@@ -109,8 +105,6 @@ permissions:
     nocheatplus.checks.fight.selfhit.silent:
         default: false
     nocheatplus.checks.fight.speed.silent:
-        default: false
-    nocheatplus.checks.inventory.drop.silent:
         default: false
     nocheatplus.checks.inventory.fastclick.silent:
         default: false
@@ -220,8 +214,6 @@ permissions:
                 children:
                     nocheatplus.checks.chat.captcha:
                         description: Allow the player to bypass the captcha check (currently the text/commands violation handling would replace it!).
-                    nocheatplus.checks.chat.color:
-                        description: Allow the player to bypass the Color check.
                     nocheatplus.checks.chat.commands:
                         description: Allow the player to bypass the commands check.
                     nocheatplus.checks.chat.logins:
@@ -233,8 +225,6 @@ permissions:
             nocheatplus.checks.combined:
                 description: Allow the player to bypass all combined checks.
                 children:
-                     nocheatplus.checks.combined.bedleave:
-                         description: Allow to bypass the bedleave check (fly, god).
                      nocheatplus.checks.combined.improbable:
                          description: Allow the player to bypass the Improbable check.
                      nocheatplus.checks.combined.munchhausen:
@@ -265,8 +255,6 @@ permissions:
             nocheatplus.checks.inventory:
                 description: Allow the player to bypass all Inventory checks.
                 children:
-                    nocheatplus.checks.inventory.drop:
-                        description: Allow the player to bypass the Drop check.
                     nocheatplus.checks.inventory.fastclick:
                         description: Allow the player to bypass the FastClick check.
                     nocheatplus.checks.inventory.fastconsume:

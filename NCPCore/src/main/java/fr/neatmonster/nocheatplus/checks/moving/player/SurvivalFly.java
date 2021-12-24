@@ -648,8 +648,34 @@ public class SurvivalFly extends Check {
     }
     
 
- 
 
+
+
+ 
+    /**
+     * A check to prevent players from bed-flying.
+     * (This increases VL and sets tag only. Setback is done in MovingListener).
+     * 
+     * @param player
+     *            the player
+     * @return If to prevent action (use the set back location of survivalfly).
+     */
+    public boolean checkBed(final Player player, final IPlayerData pData, final MovingConfig cc, final MovingData data) {
+
+        boolean cancel = false;
+        // Check if the player had been in bed at all.
+        if (!data.wasInBed) {
+            // Violation ...
+            tags.add("bedfly");
+            data.survivalFlyVL += 100D;
+            final ViolationData vd = new ViolationData(this, player, data.survivalFlyVL, 100D, cc.survivalFlyActions);
+            if (vd.needsParameters()) vd.setParameter(ParameterName.TAGS, StringUtil.join(tags, "+"));
+            cancel = executeActions(vd).willCancel();
+        } 
+        // Nothing detected.
+        else data.wasInBed = false;
+        return cancel;
+    }
 
     
    /**
