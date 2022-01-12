@@ -183,7 +183,7 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
                 BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.75)));
 
         // Conduit.
-        BlockProperties.setBlockProps("CONDUIT", new BlockProps(BlockProperties.noTool, 3f, BlockProperties.secToMs(4.5)));
+       BlockProperties.setBlockProps(Material.CONDUIT, new BlockProperties.BlockProps(BlockProperties.stonePickaxe, 3.0f, BlockProperties.secToMs(4.5, 2.25, 1.15, 0.75, 0.6, 0.5, 0.4)));
         
         // Sea Pickle.
         BlockProperties.setBlockProps("SEA_PICKLE", BlockProperties.instantType);
