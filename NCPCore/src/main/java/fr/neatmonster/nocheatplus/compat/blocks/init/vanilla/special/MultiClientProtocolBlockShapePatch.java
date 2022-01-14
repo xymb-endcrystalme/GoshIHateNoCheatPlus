@@ -32,7 +32,7 @@ import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 
 /**
- * Multi client protocol support between since 1.7, roughly.
+ * Multi client protocol support since 1.7, roughly.
  * 
  * @author asofold
  *

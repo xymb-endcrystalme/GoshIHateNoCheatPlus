@@ -461,7 +461,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             token = "dead";
         }
         else if (player.isSleeping()) {
-            // Ignore sleeping playerrs.
+            // Ignore sleeping players.
             data.sfHoverTicks = -1;
             earlyReturn = true;
             token = "sleeping";
@@ -2218,7 +2218,9 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 }
             }
             // Be sure not to lose that block.
-            data.noFallFallDistance += 1.0; // TODO: What is this and why is it right here?
+            // TODO: What is this and why is it right here?
+            // Answer: https://github.com/NoCheatPlus/NoCheatPlus/commit/50ebbb01fb3998f5e4ebba741ed6cbd318de00c5
+            data.noFallFallDistance += 1.0; 
             // TODO: Account for liquid too?
             // Cheat: set ground to true in-air. Cancel the event and restore fall distance. NoFall data will not be reset 
             if (!pLoc.isOnGround(1.0, 0.3, 0.1) && !pLoc.isResetCond() && !pLoc.isAboveLadder() && !pLoc.isAboveStairs()) {

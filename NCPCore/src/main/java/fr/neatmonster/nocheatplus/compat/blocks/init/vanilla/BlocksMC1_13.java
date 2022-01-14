@@ -68,12 +68,12 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
             BlockFlags.setBlockFlags(mat, BlockFlags.F_IGN_PASSABLE);
         }
 
-        // Kelp.
-
-        // Fern.
+        // Water plants
+        for (final Material mat : MaterialUtil.WATER_PLANTS) {
+            BlockFlags.setFlag(mat, BlockFlags.F_XZ100 | BlockFlags.F_WATER_PLANT | BlockFlags.F_LIQUID | BlockFlags.F_WATER);
+        }
 
         // Bubble column.
-        // TODO: Drag down effect: probably not using velocity.
         BlockInit.setAs("BUBBLE_COLUMN", Material.WATER);
         BlockFlags.addFlags("BUBBLE_COLUMN", BlockFlags.F_BUBBLECOLUMN);
 
@@ -85,8 +85,7 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         // Shulker boxes.
         for (Material mat : MaterialUtil.SHULKER_BOXES) {
             BlockFlags.addFlags(mat, BlockFlags.F_XZ100 | BlockFlags.SOLID_GROUND);
-            BlockProperties.setBlockProps(mat, new BlockProps(BlockProperties.woodPickaxe, 2,
-                    BlockProperties.secToMs(3.0, 1.45, 0.7, 0.45, 0.3, 0.25, 0.2)));
+            BlockProperties.setBlockProps(mat, new BlockProps(BlockProperties.woodPickaxe, 2, BlockProperties.secToMs(3.0, 1.45, 0.7, 0.45, 0.3, 0.25, 0.2)));
         }
         
         for (Material mat : MaterialUtil.INFESTED_BLOCKS) {
@@ -190,15 +189,18 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         BlockFlags.addFlags("SEA_PICKLE", BlockFlags.F_GROUND | BlockFlags.F_GROUND_HEIGHT);
 
         // Turtle egg.
-        BlockProperties.setBlockProps("TURTLE_EGG", new BlockProps(
-                BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.7)));
+        BlockProperties.setBlockProps("TURTLE_EGG", new BlockProps(BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.7)));
 
         BlockFlags.setBlockFlags(Material.HOPPER, BlockFlags.SOLID_GROUND);
 
         // Farm land. (Just in case not having multiversion plugin installed)
         BlockFlags.removeFlags(BridgeMaterial.FARMLAND, BlockFlags.F_HEIGHT100);
-        BlockFlags.addFlags(BridgeMaterial.FARMLAND,
-                BlockFlags.F_XZ100 | BlockFlags.F_MIN_HEIGHT16_15);
+        BlockFlags.addFlags(BridgeMaterial.FARMLAND, BlockFlags.F_XZ100 | BlockFlags.F_MIN_HEIGHT16_15);
+
+        // Lava, remove the flag.
+        for (final Material mat : MaterialUtil.LAVA) {
+            BlockFlags.removeFlags(mat, BlockFlags.F_HEIGHT_8SIM_DEC);
+        }
 
         BlockFlags.setBlockFlags("BREWING_STAND", BlockFlags.SOLID_GROUND);
         BlockFlags.setBlockFlags(BridgeMaterial.PISTON_HEAD, BlockFlags.SOLID_GROUND);

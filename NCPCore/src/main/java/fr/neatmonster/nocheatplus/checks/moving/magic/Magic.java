@@ -67,28 +67,29 @@ public class Magic {
     public static final double modSlime             = 0.131D / WALK_SPEED;
     public static final double modBush              = 0.134D / WALK_SPEED;
     public static final double modSoulSand          = 0.16D / WALK_SPEED;
+    public static final double modClimbable         = 0.17D / WALK_SPEED;
     public static final double modLanding           = 0.25194D / WALK_SPEED;
     public static final double modHopTick           = 0.25415D / WALK_SPEED;
     public static final double modSprint            = 0.27D / WALK_SPEED; 
     public static final double modSlope             = 0.3069D / WALK_SPEED; 
-    public static final double[] modSurface         = new double [] {0.23426D / WALK_SPEED, 0.29835D / WALK_SPEED};
+    public static final double[] modSurface         = new double [] {0.23426D / WALK_SPEED, 0.29835D / WALK_SPEED, 0.31835 / WALK_SPEED}; // last one, for bubble columns.
     public static final double modCollision         = 0.3006D / WALK_SPEED;
     public static final double modSoulSpeed         = 0.3094D / WALK_SPEED;
     public static final double modBounce            = 0.3125D / WALK_SPEED;
     public static final double modIce               = 0.5525D / WALK_SPEED; 
     public static final double modDolphinsGrace     = 0.9945D / WALK_SPEED; // TODO: Adjust value to be more stricter and closer to actual movement speed, and use different value from in water vs above water
-    /** 0.044D for horizontal SWIMMING(1.13), 0.3 for vertical swimming,  0.115 for horizontal TO MULTIPLY WALKSPEED WITH and with body fully in water, 0.145 for moving on the surface horizotally */
     // Observed around 2021/11: 0.115 for whatever reason now flags even with legacy clients. It wasn't a problem before but it is now. Very fun game indeed.
-    // I have no clue on why this is happening... (Checking commit history doesn't show any recent change)
     public static final double[] modSwim            = new double[] {
-            // Horizontal with body fully in water
+            // Horizontal AND vertical with body fully in water
             0.115D / WALK_SPEED,  
-            // Horizontal swimming (Do not multiply with thisMove.walkSpeed)
+            // Horizontal swimming only, 1.13 (Do not multiply with thisMove.walkSpeed)
             0.044D / WALK_SPEED,  
-            // Vertical swimming
+            // Vertical swimming only, 1.13 
             0.3D / WALK_SPEED, 
-            // Horizontal surface level (body out of water) 
-            0.146D / WALK_SPEED}; 
+            // Horizontal with body out of water (surface level)
+            0.146D / WALK_SPEED,
+            // Horizontal with bubble streams (upwards)
+            0.195 / WALK_SPEED}; 
     public static final double modDownStream        = 0.19D / (WALK_SPEED * modSwim[0]);
     public static final double[] modDepthStrider    = new double[] {
             1.0,
@@ -111,12 +112,14 @@ public class Magic {
     public static final double webSpeedDescendDefault  = -0.032;
     public static final double bushSpeedAscend         = 0.315;
     public static final double bushSpeedDescend        = -0.09;
+    public static final double bubbleStreamDescend     = 0.28; // 0.245, with sneaking down .271
+    public static final double bubbleStreamAscend      = 0.6; // 0.555, with pressing space bar .595
 
     /**
      * Get the speed modifier, for debugging purposes.
      */
     public static void getModifier(final Player player, final double hDistance, final PlayerMoveData thisMove) {
-        player.sendMessage("Mod: " + (hDistance / thisMove.walkSpeed * Magic.WALK_SPEED));
+        player.sendMessage("Mod: " + ((hDistance / thisMove.hAllowedDistanceBase) * Magic.WALK_SPEED));
     }
 
     /**
@@ -454,6 +457,16 @@ public class Magic {
      */
     public static boolean inAir(final PlayerMoveData thisMove) {
         return !thisMove.touchedGround && !thisMove.from.resetCond && !thisMove.to.resetCond;
+    }
+
+    /**
+     * Test if the player has lifted off from the ground or is landing (not in air, not walking on ground)
+     * (Does not check for resetCond)
+     * 
+     * @return 
+     */
+    public static boolean XORonGround(final PlayerMoveData move) {
+        return move.from.onGround ^ move.to.onGround;
     }
 
     /**

@@ -347,9 +347,6 @@ public class BlockFlags {
     
     /** Like powder snow: climbable and ground with leather shoes on. */
     public static final long F_POWDERSNOW                   = f_flag();
-    
-    /** Ray-tracing flag: air-like. Fully passable and non interactable (interaction goes through this medium/block) */
-    public static final long F_NON_VISIBLE                  = f_flag();
 
     /** Explicitly set full bounds. */
     public static final long FULL_BOUNDS                    = F_XZ100 | F_HEIGHT100;

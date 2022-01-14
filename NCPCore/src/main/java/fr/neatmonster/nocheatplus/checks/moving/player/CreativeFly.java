@@ -1154,8 +1154,7 @@ public class CreativeFly extends Check {
         if (secondPastMove.modelFlying != null && lastMove.modelFlying != null
             && secondPastMove.modelFlying == model && model != lastMove.modelFlying) {
             if (debug) debug(player, "Invalidate this move on too fast model switch: " + (secondPastMove.modelFlying.getId().toString() + " -> " + lastMove.modelFlying.getId().toString() + " -> " + model.getId().toString()));
-            thisMove.toIsValid = false;
-            // thisMove.invalidate();
+            thisMove.invalidate();
         }
     }
 
@@ -1255,6 +1254,7 @@ public class CreativeFly extends Check {
 
         // Adjust false
         allowedElytraHDistance += Math.sqrt(x*x + z*z) + 0.1;
+        useLoc.setWorld(null);
         return new double[] {allowedElytraHDistance, allowedElytraYDistance};
     }
 

@@ -511,7 +511,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_MOREPACKETS_EPSIDEAL, 20, 785); // Ordinary packet frequency
         set(ConfPaths.MOVING_MOREPACKETS_EPSMAX, 22, 785); // Tolereted packets
         set(ConfPaths.MOVING_MOREPACKETS_BURST_PACKETS, 15, 785); // Amount of packets within half a second to generate a single burst event. (15= 1).
-        set(ConfPaths.MOVING_MOREPACKETS_BURST_DIRECT, 15, 785); // Maximum burst events within 500ms (Max packets allowed: 15*15=225 within 500ms)
+        set(ConfPaths.MOVING_MOREPACKETS_BURST_DIRECT, 10, 785); // Maximum burst events within 500ms (Max packets allowed: 15*10=150 within 500ms)
         set(ConfPaths.MOVING_MOREPACKETS_BURST_EPM, 95, 1154); // Maximum burst events per minute
         set(ConfPaths.MOVING_MOREPACKETS_SETBACKAGE, 110, 1154); // Quite harsh. 
         set(ConfPaths.MOVING_MOREPACKETS_ACTIONS, "cancel vl>2 cancel log:morepackets:10:9:i vl>100 cancel log:morepackets:0:2:ifc cmdc:kickpackets:0:10", 1154);
@@ -536,7 +536,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_SURVIVALFLY_STEPHEIGHT, "default", 785);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_VACC, true, 785);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_HACC, true, 1154);
-        set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_STEP, false, 785);
+        set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_STEP, true, 1154);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_NOSLOW, true, 1154);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_RESETITEM, true, 1154);
         set(ConfPaths.MOVING_SURVIVALFLY_LENIENCY_HBUFMAX, 1.0, 1154);

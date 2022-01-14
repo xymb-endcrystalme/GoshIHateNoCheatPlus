@@ -99,6 +99,7 @@ public class WRPT extends SimpleWorkaroundRegistry {
     public static final String W_M_SF_ODDFRICTION_4 = "m.sf.oddfriction.4";
     public static final String W_M_SF_ODDFRICTION_5 = "m.sf.oddfriction.5";
     public static final String W_M_SF_ODDFRICTION_6 = "m.sf.oddfriction.6";
+    public static final String W_M_SF_ODDFRICTION_7 = "m.sf.oddfriction.7";
 
     // fast falling (Sf)
     public static final String W_M_SF_FASTFALL_1 = "m.sf.fastfall.1";
@@ -221,6 +222,7 @@ public class WRPT extends SimpleWorkaroundRegistry {
                 W_M_SF_ODDFRICTION_4,
                 W_M_SF_ODDFRICTION_5,
                 W_M_SF_ODDFRICTION_6,
+                W_M_SF_ODDFRICTION_7,
                 // FastFalling
                 W_M_SF_FASTFALL_1,
                 W_M_SF_FASTFALL_2,

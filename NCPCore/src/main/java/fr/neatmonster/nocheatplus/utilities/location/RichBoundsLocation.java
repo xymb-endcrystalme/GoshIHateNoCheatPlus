@@ -979,8 +979,6 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         return onBouncyBlock;
     }
 
-
-
     /**
      * Check the location is on honey block.
      *
@@ -999,7 +997,6 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         return onHoneyBlock;
     }
 
-
     /**
      * Check the location is a bubblestream
      *
@@ -1009,13 +1006,23 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         if (inBubblestream == null) {
             if (blockFlags != null && (blockFlags.longValue() & BlockFlags.F_BUBBLECOLUMN) == 0) {
                 inBubblestream = false;
-            } else {
+            } 
+            else {
                 inBubblestream = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockFlags.F_BUBBLECOLUMN);
             }
         }
         return inBubblestream;
     }
 
+    /**
+     * Check the location is in bubblestram and the player is dragged by it
+     *
+     * @return true, if is an bubblestream
+     */
+    public boolean isDraggedByBubbleStream() {
+        if (!isInBubbleStream()) return false; // not even in a column, skip checking for drag.
+        return BlockProperties.isDraggableBubbleStream(world, blockCache, minX, minY, minZ, maxX, maxY, maxZ);
+    }
 
     /**
      * Test if the location is on rails (assuming minecarts with some magic

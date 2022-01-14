@@ -293,17 +293,16 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                     check = true; //...
                 }
                 
-                // First check for too fast inventory clicking
-                if (check && fastClick.check(player, now, event.getView(), slot, cursor, clicked, event.isShiftClick(), 
-                                             inventoryAction, data, cc, pData)) {  
-                    cancel = true;
-                }
-
-                // Check for too quick interactions.
+                // Check for too quick interactions first.
                 if (check && InventoryUtil.isContainterInventory(event.getInventory().getType())
                     && fastClick.fastClickChest(player, data, cc)) {
                     cancel = true;
                     keepCancel = true;
+                }
+                // Then check for too fast inventory clicking
+                if (check && fastClick.check(player, now, event.getView(), slot, cursor, clicked, event.isShiftClick(), 
+                                            inventoryAction, data, cc, pData)) {  
+                    cancel = true;
                 }
             }
         }

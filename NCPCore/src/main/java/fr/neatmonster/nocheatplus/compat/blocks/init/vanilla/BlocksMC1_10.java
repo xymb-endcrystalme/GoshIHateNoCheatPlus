@@ -41,15 +41,15 @@ public class BlocksMC1_10 implements BlockPropertiesSetup {
 
     @Override
     public void setupBlockProperties(WorldConfigProvider<?> worldConfigProvider) {
-        // 213 MAGMA
+
         BlockInit.setAs(BridgeMaterial.MAGMA_BLOCK, BridgeMaterial.MAGMA_BLOCK);
-        // 214 NETHER_WART_BLOCK
+
         BlockInit.setPropsAs("NETHER_WART_BLOCK", BridgeMaterial.SKELETON_SKULL);
-        // 215 RED_NETHER_BRICK
+
         BlockInit.setAs(BridgeMaterial.RED_NETHER_BRICKS, BridgeMaterial.NETHER_BRICKS);
-        // 216 BONE_BLOCK
+
         BlockInit.setAs("BONE_BLOCK", Material.COBBLESTONE);
-        // 217 STRUCTURE_VOID
+
         BlockInit.setInstantPassable("STRUCTURE_VOID");
 
         // Not sure when: structure block is solid.
@@ -59,5 +59,4 @@ public class BlocksMC1_10 implements BlockPropertiesSetup {
         if (config.getBoolean(ConfPaths.BLOCKBREAK_DEBUG, config.getBoolean(ConfPaths.CHECKS_DEBUG, false)))
         StaticLog.logInfo("Added block-info for Minecraft 1.10 blocks.");
     }
-
 }

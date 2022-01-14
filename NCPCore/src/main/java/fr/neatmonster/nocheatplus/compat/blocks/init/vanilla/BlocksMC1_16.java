@@ -127,6 +127,11 @@ public class BlocksMC1_16 implements BlockPropertiesSetup{
                 BridgeMaterial.PISTON_HEAD, BridgeMaterial.STICKY_PISTON}) {
             BlockProperties.setBlockProps(mat, new BlockProps(BlockProperties.woodPickaxe, 1.5f, BlockProperties.secToMs(2.25, 1.15, 0.6, 0.4, 0.3, 0.25, 0.15)));
         }
+        
+        // Re-add the decrease 8ism flag to lava. (See BlocksMC1_13)
+        for (final Material mat : MaterialUtil.LAVA) {
+            BlockFlags.addFlags(mat, BlockFlags.F_HEIGHT_8SIM_DEC);
+        }
 
         ConfigFile config = ConfigManager.getConfigFile();
         if (config.getBoolean(ConfPaths.BLOCKBREAK_DEBUG, config.getBoolean(ConfPaths.CHECKS_DEBUG, false)))

@@ -35,6 +35,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Waterlogged;
+import org.bukkit.block.data.type.BubbleColumn;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -804,18 +805,6 @@ public class BlockProperties {
             BlockFlags.setFlag(mat, stepFlags);
         }
 
-        // Non visible blocks (passable and can interact through)
-        for (final Material mat : new Material[]{BridgeMaterial.VOID_AIR, BridgeMaterial.CAVE_AIR, Material.AIR}) {
-            if (mat != null) {
-               BlockFlags.addFlags(mat, BlockFlags.F_NON_VISIBLE);
-            }
-        }
-
-        // Water plants 1.13+
-        for (final Material mat : MaterialUtil.WATER_PLANTS) {
-            BlockFlags.setFlag(mat, BlockFlags.F_XZ100 | BlockFlags.F_WATER_PLANT | BlockFlags.F_LIQUID | BlockFlags.F_WATER);
-        }
-
         // Rails
         for (final Material mat : MaterialUtil.RAILS) {
             BlockFlags.setFlag(mat, BlockFlags.F_RAILS);
@@ -828,7 +817,7 @@ public class BlockProperties {
 
         // Lava
         for (final Material mat : MaterialUtil.LAVA) {
-            BlockFlags.setFlag(mat, BlockFlags.F_LIQUID | BlockFlags.F_LAVA | BlockFlags.F_FALLDIST_HALF);
+            BlockFlags.setFlag(mat, BlockFlags.F_LIQUID | BlockFlags.F_LAVA | BlockFlags.F_FALLDIST_HALF | BlockFlags.F_HEIGHT_8SIM_DEC); // Minecraft 1.13 will remove this flag.
         }
 
         // Snow (1.4.x)
@@ -1030,7 +1019,7 @@ public class BlockProperties {
         // Beds
         for (Material mat : MaterialUtil.BEDS) { 
             setBlock(mat, leafType);
-            BlockFlags.setFlag(mat, BlockFlags.F_GROUND | BlockFlags.F_SOLID | BlockFlags.F_BOUNCE25 | BlockFlags.F_BED);
+            BlockFlags.setFlag(mat, BlockFlags.F_GROUND | BlockFlags.F_SOLID | BlockFlags.F_BED);
         }
 
         // Cobweb
@@ -3487,6 +3476,52 @@ public class BlockProperties {
                      BlockData bd = world.getBlockAt(x,y,z).getBlockData();
                      if (bd instanceof Waterlogged) {
                          if (((Waterlogged)bd).isWaterlogged()) return true;
+                     }
+                 }
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * Check if the given bounding box collides with a bubble stream that can drag the player.
+     *
+     * @param world
+     *            the world
+     * @param access
+     *            the access
+     * @param minX
+     *            the min x
+     * @param minY
+     *            the min y
+     * @param minZ
+     *            the min z
+     * @param maxX
+     *            the max x
+     * @param maxY
+     *            the max y
+     * @param maxZ
+     *            the max z
+     * @return true, if successful
+     */
+    public static final boolean isDraggableBubbleStream(final World world, final BlockCache access, 
+                                                        final double minX, final double minY, final double minZ, 
+                                                        final double maxX, final double maxY, final double maxZ) {
+        if (!Bridge1_13.hasIsSwimming()) return false;
+        final int iMinX = Location.locToBlock(minX);
+        final int iMaxX = Location.locToBlock(maxX);
+        final int iMinY = Location.locToBlock(minY);
+        final int iMaxY = Math.min(Location.locToBlock(maxY), access.getMaxBlockY());
+        final int iMinZ = Location.locToBlock(minZ);
+        final int iMaxZ = Location.locToBlock(maxZ);
+
+        for (int x = iMinX; x <= iMaxX; x++) {
+            for (int z = iMinZ; z <= iMaxZ; z++) {
+                 for (int y = iMaxY; y >= iMinY; y--) {
+                     BlockData data = world.getBlockAt(x,y,z).getBlockData();
+                     if (data instanceof BubbleColumn) {
+                         if (((BubbleColumn)data).isDrag()) return true;
                      }
                  }
             }

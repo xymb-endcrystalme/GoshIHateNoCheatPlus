@@ -462,16 +462,29 @@ public class InAirRules {
                 )
                 // 0: Odd normal envelope set.
                 // TODO: Replace special case with splash move in SurvivalFly.check by a new style workaround.
-                || data.liftOffEnvelope == LiftOffEnvelope.NORMAL && data.sfJumpPhase == 1 && Magic.inAir(thisMove)
-                //                                && data.isVelocityJumpPhase()
-                // Velocity very fast into water above.
-                && (Magic.splashMoveNonStrict(lastMove, pastMove1) || Magic.inLiquid(pastMove1) && Magic.leavingLiquid(lastMove))
-                && yDistance < lastMove.yDistance - Magic.GRAVITY_MAX 
-                && yDistance > lastMove.yDistance - 2.0 * Magic.GRAVITY_MAX
-                && (Math.abs(lastMove.yDistance - pastMove1.yDistance) > 4.0 * Magic.GRAVITY_MAX
-                        || pastMove1.yDistance > 3.0 && lastMove.yDistance > 3.0 && Math.abs(lastMove.yDistance - pastMove1.yDistance) < 2.0 * Magic.GRAVITY_MAX)
-                && data.ws.use(WRPT.W_M_SF_ODDFRICTION_6)
-                ;
+                || data.liftOffEnvelope == LiftOffEnvelope.NORMAL && data.sfJumpPhase == 1 && Magic.inAir(thisMove) 
+                && (
+                    //                                && data.isVelocityJumpPhase()
+                    // 1: Velocity very fast into water above.
+                    (Magic.splashMoveNonStrict(lastMove, pastMove1) || Magic.inLiquid(pastMove1) && Magic.leavingLiquid(lastMove))
+                    && yDistance < lastMove.yDistance - Magic.GRAVITY_MAX 
+                    && yDistance > lastMove.yDistance - 2.0 * Magic.GRAVITY_MAX
+                    && (
+                        Math.abs(lastMove.yDistance - pastMove1.yDistance) > 4.0 * Magic.GRAVITY_MAX
+                        || pastMove1.yDistance > 3.0 && lastMove.yDistance > 3.0 && Math.abs(lastMove.yDistance - pastMove1.yDistance) < 2.0 * Magic.GRAVITY_MAX
+                    ) && data.ws.use(WRPT.W_M_SF_ODDFRICTION_6)
+                    // 1: Skimming/hopping over lava, too small decrease from last to thisMove. 
+                    // Observed with lower levels, with lava pool of depth of 1 block. Rather rare case; was able to catch it only one time.
+                    || yDistDiffEx < 0.19 && pastMove1.yDistance < data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier) + 0.005 
+                    && pastMove1.yDistance > 0.41 && lastMove.yDistance < Magic.GRAVITY_MAX * 4.3 && lastMove.yDistance > Magic.GRAVITY_MAX 
+                    && Math.abs(yDistance - lastMove.yDistance) > Magic.GRAVITY_ODD 
+                    && Math.abs(yDistance - lastMove.yDistance) < (Magic.GRAVITY_MAX + 0.009)
+                    && pastMove1.from.onGround && pastMove1.to.inLava && lastMove.from.inLava && !lastMove.to.onGround
+                    && yDistance <= pastMove1.yDistance / 1.6 && yDistance > Magic.GRAVITY_MAX + Magic.GRAVITY_MIN
+                    && data.insideMediumCount < 4
+                    && data.ws.use(WRPT.W_M_SF_ODDFRICTION_7)
+                )
+            ;
     }
 
 
