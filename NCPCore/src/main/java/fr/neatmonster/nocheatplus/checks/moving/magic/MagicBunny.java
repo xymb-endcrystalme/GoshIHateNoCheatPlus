@@ -108,6 +108,7 @@ public class MagicBunny {
             && thisMove.headObstructed && hDistance > baseSpeed && lastMove.toIsValid && !data.hasQueuedHorVel()) {
             final double velocity = thisMove.hDistance * Magic.FRICTION_MEDIUM_AIR;
             data.clearActiveHorVel();
+            data.clearHAccounting(); // Clear accounting here as it could easily yield false positives.
             data.addHorizontalVelocity(new AccountEntry(velocity, 1, MovingData.getHorVelValCount(velocity)));
             tags.add("bunnyvel");
             // Reset delay if active?
@@ -143,6 +144,7 @@ public class MagicBunny {
                     final double allowedSpeed = maxSpeed * Math.pow(BUNNY_FRICTION, hopTime); 
                     // Speed is decreasing properly, allow the move.
                     // TODO: ActionAccumulator based bunnyfly? Sort of an "accounting-bunny" check.
+                    // TODO: Bunnyhopping in waterlogged blocks and on soulsand increases air friction: demand players to immediately lose the acceleration gain after hop.
                     if (hDistance <= allowedSpeed) {
                         tags.add("bunnyfriction");
                         hDistanceAboveLimit = 0.0;
@@ -223,7 +225,7 @@ public class MagicBunny {
         // Hit ground but slipped away by somehow and still remain bunny friction
         // TODO: Why not simply fix resetbunny instead of adding this?
         final double inc = ServerIsAtLeast1_13 ? 0.03 : 0;
-        final double hopMargin = Magic.wasOnIceRecently(data) ? 1.4 : (data.bunnyhopTick > 0 ? (data.bunnyhopTick > 2 ? 1.0 + inc : 1.11 + inc) : 1.22 + inc);
+        final double hopMargin = Magic.wasOnIceRecently(data) ? 1.4 : (data.momentumTick > 0 ? (data.momentumTick > 2 ? 1.0 + inc : 1.11 + inc) : 1.22 + inc);
 
         if (lastMove.toIsValid && data.bunnyhopDelay <= 0 && data.lastbunnyhopDelay > 0
             && lastMove.hDistance > hDistance && baseSpeed > 0.0 && hDistance / baseSpeed < hopMargin) {
@@ -260,35 +262,23 @@ public class MagicBunny {
         //////////////////////////////////////////////////////////////////////////////////////////////
         // TODO: Test bunny spike over all sorts of speeds + attributes.
         final double MinAccelMod = needLowerMultiplier ? 1.0274 : (!lastMove.toIsValid || lastMove.hDistance == 0.0 && lastMove.yDistance == 0.0) ? 1.11 : 1.314;
-        final double MaxAccelMod = data.bunnyhopTick > 0 ? (data.bunnyhopTick > 2 ? 1.76 : 1.96) : 2.15;
-        final double MaxAccelMod1 = data.bunnyhopTick > 0 ? (data.bunnyhopTick > 2 ? 1.9 : 2.1) : 2.3;
+        final double MaxAccelMod = data.momentumTick > 0 ? (data.momentumTick > 2 ? 1.76 : 1.96) : 2.15;
+        final double MaxAccelMod1 = data.momentumTick > 0 ? (data.momentumTick > 2 ? 1.9 : 2.1) : 2.3;
 
         // 0: Proceed only if we allow hopping and hDistance is higher than the allowed speed.
         if (allowHop && hDistance >= baseSpeed
             // 0: Acceleration envelope. 
+            // NOTE: According to MCP, bunnyhopping adds 0.2 unit of acceleration. Could replace the accel envelope by Minecraft's.
             && (hDistance > MinAccelMod * baseSpeed) && (hDistance < MaxAccelMod * baseSpeed)
             // 0: More lenient acceleration envelope, relates to actual speed. Currently needed for head obstruction. 
             || (yDistance > from.getyOnGround() || hDistance < MaxAccelMod1 * baseSpeed) && lastMove.toIsValid
-            && hDistance > MinAccelMod * lastMove.hDistance && hDistance < 2.15 * lastMove.hDistance // Always use 2.15.
+            && hDistance > MinAccelMod * lastMove.hDistance && hDistance < 2.15 * lastMove.hDistance // Always use 2.15 (Context: ice, slopes (...))
             && (!pastMove2.bunnyHop || !pastMove3.bunnyHop && !pastMove4.bunnyHop || !thisMove.headObstructed) // Needed to prevent ice friction abuse. Can happen legitimately but not consecutively (hop-> - -> hop -> - -> -).
             ) {
             
             if (
                 // 0: Lift-off envelope conditions
-                (   
-                    // 1: Duh...
-                    data.liftOffEnvelope == LiftOffEnvelope.NORMAL 
-                    // 1: Edge cases with restrained envelope (liquid)
-                    || data.liftOffEnvelope.name().startsWith("LIMIT") 
-                    && (
-                        // 2: Skimming over lava (touching lava once, immediately in air after (bunnyfly))
-                        // TODO: This might be a bounding box issue... Nasty.
-                        (data.insideMediumCount < 4 || thisMove.downStream) && thisMove.from.inLava 
-                        && (!lastMove.from.inLava || !pastMove2.from.inLava)
-                        // 2: Players can bunnyhop in waterlogged blocks 
-                        || (from.isInWaterLogged() || to.isInWaterLogged())
-                    )
-                )
+                data.liftOffEnvelope == LiftOffEnvelope.NORMAL 
                 // 0: Can't bunnyhop if lowjumping.
                 && (!data.sfLowJump || data.sfNoLowJump) 
                 // 0: Y-distance envelope.
@@ -304,8 +294,8 @@ public class MagicBunny {
                     // TODO: Confine by typical gravity change from last to this move.
                     || yDistance < 0.0 && (from.getBlockFlags() & BlockFlags.F_BOUNCE25) != 0 
                     // 1: Bunnyhop after jumping up 1 block
-                    || Magic.jumpedUpSlope(data, from, 11) && !lastMove.bunnyHop
-                    && yDistance >= from.getyOnGround() && yDistance <= minJumpGain - Magic.GRAVITY_SPAN
+                    || Magic.jumpedUpSlope(data, from, 9) && !lastMove.bunnyHop
+                    && yDistance > from.getyOnGround() && yDistance <= minJumpGain - Magic.GRAVITY_SPAN
                     // 1: Ice-slope-slide-down (sprint-jumping on a single block then sliding back down)
                     || Magic.wasOnIceRecently(data) && (hDistance / baseSpeed < 1.32 || hDistance / lastMove.hDistance < 1.27) && !headObstructed
                     && (
@@ -334,11 +324,7 @@ public class MagicBunny {
                    // 1: Can't bunnyhop if in reset condition, unless in waterlogged (lift-off acceleration is already taken care of in setAllowedhDist)
                    !from.isResetCond() && !to.isResetCond() 
                    // 1: Allow this one
-                   || data.isHalfGroundHalfWater
-                   // 1: Touching lava once on the first move (ground->resetcond | resetcond->air | air->(...)
-                   || !lastMove.bunnyHop && (fromData == 6 || fromData == 0 && !from.isBodySubmerged(0.701)) && (from.isInLava() || to.isInLava())
-                   // 1: Waterlogged blocks allow bunnyhop, despite the stronger air friction
-                   || (from.isInWaterLogged() || to.isInWaterLogged())
+                   || from.isHalfGroundHalfWater()
                 )) {
                 // Set the maximum delay before the player will be allowed to bunnyhop again. Bunnyfly starts.
                 data.bunnyhopDelay = BUNNYHOP_MAX_DELAY;
@@ -418,7 +404,7 @@ public class MagicBunny {
                 // Slimes / beds
                 Magic.wasOnBouncyBlockRecently(data) ? (headObstructed ? 1.9 : 1.4467) :
                 // Ordinary
-                headObstructed ? 1.474 : (data.bunnyhopTick > 0 ? 1.09 : 1.255)
+                headObstructed ? 1.474 : (data.momentumTick > 0 ? 1.09 : 1.255)
             ;
     }
 }

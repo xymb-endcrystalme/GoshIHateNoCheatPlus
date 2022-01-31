@@ -146,7 +146,6 @@ public class LostGround {
                 // Half block step up (definitive).
                 if (to.isOnGround() && setBackYMargin >= yDistance && hDistance <= thisMove.hAllowedDistanceBase * 2.2) {
                     if (lastMove.yDistance < 0.0 || yDistance <= cc.sfStepHeight && from.isOnGround(cc.sfStepHeight - yDistance)) {
-                        // data.clearStepAcc();
                         return applyLostGround(player, from, true, thisMove, data, "step", tags);
                     }
                 }
@@ -203,8 +202,6 @@ public class LostGround {
                 // TODO: Possibly confine margin depending on side, moving direction (see client code).
                 if (from.isOnGround(1.0) 
                     && BlockProperties.isOnGroundShuffled(to.getBlockCache(), from.getX(), from.getY() + cc.sfStepHeight, from.getZ(), to.getX(), to.getY(), to.getZ(), 0.1 + from.getBoxMarginHorizontal(), to.getyOnGround(), 0.0)) {
-                    // Might be safer to clear here... Need to review potential exploits.
-                    data.clearStepAcc();
                     return applyLostGround(player, from, false, thisMove, data, "couldstep", tags);
                 }
 
@@ -427,15 +424,14 @@ public class LostGround {
             return false;
         }
         
-        // TODO: Since 1.17, after a setback has happened, players will trigger hSpeed VLs with lostground_pyramid...
         if (data.sfJumpPhase <= 7) {
                    
             // Check for sprinting down blocks etc.
             if (lastMove.yDistance <= yDistance && setBackYDistance < 0 && !to.isOnGround()) {
                 // TODO: setbackydist: <= - 1.0 or similar
                  // TODO: <= 7 might work with speed II, not sure with above.
-                if (from.isOnGround(0.6, 0.4, 0.0, 0L) ) {
-                    // Temporary "fix".
+                if (from.isOnGround(0.6, 0.4, 0.0, 0L)) {
+                    // Temporary "fix". (Not so temporary. It's been 6 years... :))
                     // TODO: Seems to virtually always be preceded by a "vcollide" move.
                     return applyLostGround(player, from, true, thisMove, data, "pyramid", tags);
                 }
@@ -449,9 +445,7 @@ public class LostGround {
                 
                 // TODO: confine by block types ?
                 if (from.isOnGround(0.25, 0.4, 0, 0L)) {
-                    // Legitimate step, clear accounting
-                    data.clearStepAcc();
-                    return applyLostGround(player, from, true, thisMove, data, "ministep", tags); // Maybe set to false to prevent setback resetting at the step point, which will cause a lowjump.
+                    return applyLostGround(player, from, false, thisMove, data, "ministep", tags); // Maybe set to false to prevent setback resetting at the step point, which will cause a lowjump.
                 }
             }
         }

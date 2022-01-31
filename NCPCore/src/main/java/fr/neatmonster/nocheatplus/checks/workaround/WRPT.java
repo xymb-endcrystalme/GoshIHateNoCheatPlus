@@ -53,14 +53,22 @@ public class WRPT extends SimpleWorkaroundRegistry {
     public static final String W_M_SF_SLOPE2 = "m.sf.slope2";
 
     // oddLiquid
-    public static final String W_M_SF_ODDLIQUID_BADFRICTION = "m.sf.oddliquid.badfriction";
-    public static final String W_M_SF_ODDLIQUID_OUT_OF_LAVA_VEL = "m.sf.oddliquid.ou_of_lava_vel";
-    public static final String W_M_SF_ODDLIQUID_ODDJUMPGAIN = "m.sf.oddliquid.oddjumpgain";
-    public static final String W_M_SF_ODDLIQUID_OUTOFWATER_1 = "m.sf.oddliquid.outofwater_1";
-    public static final String W_M_SF_ODDLIQUID_OUTOFWATER_2 = "m.sf.oddliquid.outofwater_2";
-    public static final String W_M_SF_ODDLIQUID_OUTOFWATER_3 = "m.sf.oddliquid.outofwater_3";
-    public static final String W_M_SF_ODDLIQUID_OUTOFWATER_4 = "m.sf.oddliquid.outofwater_4";
-    public static final String W_M_SF_ODDLIQUID_OUTOFWATER_5_VEL = "m.sf.oddliquid.outofwater_5_vel";
+    public static final String W_M_SF_ODDLIQUID_1 = "m.sf.oddliquid.1";
+    public static final String W_M_SF_ODDLIQUID_2 = "m.sf.oddliquid.2";
+    public static final String W_M_SF_ODDLIQUID_3 = "m.sf.oddliquid.3";
+    public static final String W_M_SF_ODDLIQUID_4 = "m.sf.oddliquid.4";
+    public static final String W_M_SF_ODDLIQUID_5 = "m.sf.oddliquid.5";
+    public static final String W_M_SF_ODDLIQUID_6 = "m.sf.oddliquid.6";
+    public static final String W_M_SF_ODDLIQUID_7 = "m.sf.oddliquid.7";
+    public static final String W_M_SF_ODDLIQUID_8 = "m.sf.oddliquid.8";
+    public static final String W_M_SF_ODDLIQUID_9 = "m.sf.oddliquid.9";
+    public static final String W_M_SF_ODDLIQUID_10 = "m.sf.oddliquid.10";
+    public static final String W_M_SF_ODDLIQUID_11 = "m.sf.oddliquid.11";
+    public static final String W_M_SF_ODDLIQUID_12 = "m.sf.oddliquid.12";
+    public static final String W_M_SF_ODDLIQUID_13 = "m.sf.oddliquid.13";
+    public static final String W_M_SF_ODDLIQUID_14 = "m.sf.oddliquid.14";
+    public static final String W_M_SF_ODDLIQUID_15 = "m.sf.oddliquid.15";
+    public static final String W_M_SF_ODDLIQUID_16 = "m.sf.oddliquid.16";
 
     // oddGravity
     public static final String W_M_SF_ODDGRAVITY_1 = "m.sf.oddgravity.1";
@@ -80,12 +88,6 @@ public class WRPT extends SimpleWorkaroundRegistry {
     public static final String W_M_SF_ODDGRAVITY_SETBACK = "m.sf.oddgravity.setback";
     public static final String W_M_SF_ODDGRAVITY_JUMPEFFECT = "m.sf.oddgravity.jumpeffect";
     public static final String W_M_SF_ODDGRAVITY_NEAR_0 = "m.sf.oddgravity.near.0";
-    public static final String W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_1 = "m.sf.oddgravity.not.normal.envelope.1";
-    public static final String W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_2 = "m.sf.oddgravity.not.normal.envelope.2";
-    public static final String W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_3 = "m.sf.oddgravity.not.normal.envelope.3";
-    public static final String W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_4 = "m.sf.oddgravity.not.normal.envelope.4";
-    public static final String W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_5 = "m.sf.oddgravity.not.normal.envelope.5";
-    public static final String W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_6 = "m.sf.oddgravity.not.normal.envelope.6";
 
     // Sf-related not categorized.
     public static final String W_M_SF_OUT_OF_ENVELOPE_NODATA1 = "m.sf.out.of.envelope.nodata1";
@@ -108,15 +110,12 @@ public class WRPT extends SimpleWorkaroundRegistry {
     public static final String W_M_SF_FASTFALL_4 = "m.sf.fastfall.4";
     public static final String W_M_SF_FASTFALL_5 = "m.sf.fastfall.5";
     public static final String W_M_SF_FASTFALL_6 = "m.sf.fastfall.6";
-    public static final String W_M_SF_FASTFALL_7 = "m.sf.fastfall.7";
 
     // Bigger move than expected yDistDiffEx > 0.0
     public static final String W_M_SF_OUT_OF_ENVELOPE_1 = "m.sf.out.of.envelope.1";
     public static final String W_M_SF_OUT_OF_ENVELOPE_2 = "m.sf.out.of.envelope.2";
     public static final String W_M_SF_OUT_OF_ENVELOPE_3 = "m.sf.out.of.envelope.3";
     public static final String W_M_SF_OUT_OF_ENVELOPE_4 = "m.sf.out.of.envelope.4";
-    public static final String W_M_SF_OUT_OF_ENVELOPE_5 = "m.sf.out.of.envelope.5";
-    public static final String W_M_SF_OUT_OF_ENVELOPE_6 = "m.sf.out.of.envelope.6";
 
     // Short move
     public static final String W_M_SF_SHORTMOVE_1 = "m.sf.shortmove.1";
@@ -183,14 +182,22 @@ public class WRPT extends SimpleWorkaroundRegistry {
                 W_M_SF_SLOPE1,
                 W_M_SF_SLOPE2,
                 // OddLiquid
-                W_M_SF_ODDLIQUID_BADFRICTION,
-                W_M_SF_ODDLIQUID_OUT_OF_LAVA_VEL,
-                W_M_SF_ODDLIQUID_ODDJUMPGAIN,
-                W_M_SF_ODDLIQUID_OUTOFWATER_1,
-                W_M_SF_ODDLIQUID_OUTOFWATER_2,
-                W_M_SF_ODDLIQUID_OUTOFWATER_3,
-                W_M_SF_ODDLIQUID_OUTOFWATER_4,
-                W_M_SF_ODDLIQUID_OUTOFWATER_5_VEL,
+                W_M_SF_ODDLIQUID_1,
+                W_M_SF_ODDLIQUID_2,
+                W_M_SF_ODDLIQUID_3,
+                W_M_SF_ODDLIQUID_4,
+                W_M_SF_ODDLIQUID_5,
+                W_M_SF_ODDLIQUID_6,
+                W_M_SF_ODDLIQUID_7,
+                W_M_SF_ODDLIQUID_8,
+                W_M_SF_ODDLIQUID_9,
+                W_M_SF_ODDLIQUID_10,
+                W_M_SF_ODDLIQUID_11,
+                W_M_SF_ODDLIQUID_12,
+                W_M_SF_ODDLIQUID_13,
+                W_M_SF_ODDLIQUID_14,
+                W_M_SF_ODDLIQUID_15,
+                W_M_SF_ODDLIQUID_16,
                 // OddGravity
                 W_M_SF_ODDGRAVITY_1,
                 W_M_SF_ODDGRAVITY_2,
@@ -209,12 +216,6 @@ public class WRPT extends SimpleWorkaroundRegistry {
                 W_M_SF_ODDGRAVITY_SETBACK,
                 W_M_SF_ODDGRAVITY_JUMPEFFECT,
                 W_M_SF_ODDGRAVITY_NEAR_0,
-                W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_1,
-                W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_2,
-                W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_3,
-                W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_4,
-                W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_5,
-                W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_6,
                 // oddFriction
                 W_M_SF_ODDFRICTION_1,
                 W_M_SF_ODDFRICTION_2,
@@ -230,7 +231,6 @@ public class WRPT extends SimpleWorkaroundRegistry {
                 W_M_SF_FASTFALL_4,
                 W_M_SF_FASTFALL_5,
                 W_M_SF_FASTFALL_6,
-                W_M_SF_FASTFALL_7,
                 // Shortmove
                 W_M_SF_SHORTMOVE_1,
                 W_M_SF_SHORTMOVE_2,
@@ -241,8 +241,6 @@ public class WRPT extends SimpleWorkaroundRegistry {
                 W_M_SF_OUT_OF_ENVELOPE_2,
                 W_M_SF_OUT_OF_ENVELOPE_3,
                 W_M_SF_OUT_OF_ENVELOPE_4,
-                W_M_SF_OUT_OF_ENVELOPE_5,
-                W_M_SF_OUT_OF_ENVELOPE_6,
                 // Misc. Sf-related
                 W_M_SF_OUT_OF_ENVELOPE_NODATA1,
                 W_M_SF_OUT_OF_ENVELOPE_NODATA2,

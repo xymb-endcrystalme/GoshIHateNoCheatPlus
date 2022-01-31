@@ -90,7 +90,6 @@ public class LocationData implements IGetLocationWithLook {
      */
     public void setExtraProperties(final RichBoundsLocation loc) {
         loc.collectBlockFlags(); // Just ensure.
-        aboveStairs = loc.isAboveStairs();
         onClimbable = loc.isOnClimbable();
         inWeb = loc.isInWeb();
         onSoulSand = loc.isOnSoulSand();
@@ -114,6 +113,10 @@ public class LocationData implements IGetLocationWithLook {
         onGroundOrResetCond = onGround || resetCond;
         inBubbleStream = loc.isInBubbleStream();
         draggedByBubbleStream = loc.isDraggedByBubbleStream();
+        if (!onGround && !resetCond) {
+            aboveStairs = loc.isAboveStairs();
+        }
+        else aboveStairs = false;
         // Set valid flag last.
         extraPropertiesValid = true;
     }

@@ -96,7 +96,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     /** bunnyHopDelay phase before applying a LostGround case (set in SurvivalFly.bunnyHop()) */ 
     public int lastbunnyhopDelay = 0;
     /** Ticks after landing on ground (InAir->Ground). Mainly used in SurvivalFly. */
-    public int bunnyhopTick = 0;
+    public int momentumTick = 0;
     /** Count set back (re-) setting. */
     private int playerMoveCount = 0;
     /** setBackResetCount (incremented) at the time of (re-) setting the ordinary set back. */
@@ -122,8 +122,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     /** Represents how long a vehicle has been tossed up by a bubble column */
     // TODO: Deprecate and use the blockChangeTracker, rather.
     public long timeVehicletoss = 0;
-    /** Moving half on 15/16 height block and half on water. Set in Survivalfly.check. */
-    public boolean isHalfGroundHalfWater = false;
     /** If is Bedrock Player. This is set if CompatNoCheatPlus is present. */
     public boolean bedrockPlayer = false;
     /** Temporary snow fix flag */
@@ -269,9 +267,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public final ActionAccumulator vDistAcc = new ActionAccumulator(3, 3); // 3 buckets with max capacity of 3 events
     /** Horizontal accounting: tracker of actual speed / allowed base speed */
     public final ActionAccumulator hDistAcc = new ActionAccumulator(1, 100); // 1 bucket capable of holding a maximum of 100 events.
-    /** Step accounting: accumulates Y-distances on slope-jumping and checks if accumulated value is higher than step height.*/
-    public final ActionAccumulator stepAcc = new ActionAccumulator(1, 3);
-    /** Workarounds (InAirRules,LiquidWorkarounds). */
+    /** Workarounds (AirWorkarounds,LiquidWorkarounds). */
     public final WorkaroundSet ws;
     /** Bed-flying flag */
     public boolean wasInBed = false;
@@ -332,10 +328,10 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     /**
      * Tick counters to be adjusted after having checked horizontal speed in Sf.
      */
-    public void adjustPostHorCheckingCounters() {
+    public void setHorDataExPost() {
         // Decrease bhop tick after checking
-        if (bunnyhopTick > 0) {
-            bunnyhopTick-- ;
+        if (momentumTick > 0) {
+            momentumTick-- ;
         }
 
         // Count down for the soul speed enchant motion
@@ -382,7 +378,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         sfZeroVdistRepeat = 0;
         clearAccounting();
         clearHAccounting();
-        clearStepAcc();
         clearNoFallData();
         removeAllPlayerSpeedModifiers();
         lostSprintCount = 0;
@@ -395,7 +390,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         lastFrictionHorizontal = lastFrictionVertical = 0.0;
         verticalBounce = null;
         blockChangeRef.valid = false;
-        bunnyhopTick = 0;
+        momentumTick = 0;
         liqtick = 0;
         insideBubbleStreamCount = 0;
     }
@@ -421,13 +416,13 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         // Keep bunny-hop delay. Harsher on bunnyhop cheats.
         // keep jump phase.
         // Keep hAcc ?
-        // Keep stepAcc.
         lostSprintCount = 0;
         sfHoverTicks = -1; // 0 ?
         sfDirty = false;
         sfLowJump = false;
         liftOffEnvelope = defaultLiftOffEnvelope;
         insideMediumCount = 0;
+        insideBubbleStreamCount = 0;
         removeAllPlayerSpeedModifiers();
         vehicleConsistency = MoveConsistency.INCONSISTENT; // Not entirely sure here.
         lastFrictionHorizontal = lastFrictionVertical = 0.0;
@@ -640,14 +635,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      */
     public void clearHAccounting() {
         hDistAcc.clear();
-    }
-
-
-    /**
-     * Clear step accounting
-     */
-    public void clearStepAcc() {
-        stepAcc.clear();
     }
 
 

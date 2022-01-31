@@ -25,6 +25,8 @@ import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties.BlockProps;
 import fr.neatmonster.nocheatplus.utilities.map.MaterialUtil;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
+
 
 @SuppressWarnings("deprecation")
 public class BlocksMC1_13 implements BlockPropertiesSetup {
@@ -178,11 +180,15 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         BlockInit.setPropsAs("QUARTZ_PILLAR", "QUARTZ_BLOCK");
 
         // Dried kelp block.
-        BlockProperties.setBlockProps("DRIED_KELP_BLOCK", new BlockProps(
-                BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.75)));
+        BlockProperties.setBlockProps("DRIED_KELP_BLOCK", new BlockProps(BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.75)));
 
         // Conduit.
-        BlockProperties.setBlockProps("CONDUIT", new BlockProps(BlockProperties.noTool, 3f, BlockProperties.secToMs(4.5)));
+        // 1.18 - conduit was assigned to the pickaxe in 1.18
+        if (ServerVersion.compareMinecraftVersion("1.18") >= 0) {
+            BlockProperties.setBlockProps(Material.CONDUIT, new BlockProperties.BlockProps(BlockProperties.stonePickaxe, 3.0f, BlockProperties.secToMs(4.5, 2.25, 1.15, 0.75, 0.6, 0.5, 0.4)));        
+        }
+        // Pre 1.18
+        else BlockProperties.setBlockProps("CONDUIT", new BlockProps(BlockProperties.noTool, 3f, BlockProperties.secToMs(4.5)));
         
         // Sea Pickle.
         BlockProperties.setBlockProps("SEA_PICKLE", BlockProperties.instantType);

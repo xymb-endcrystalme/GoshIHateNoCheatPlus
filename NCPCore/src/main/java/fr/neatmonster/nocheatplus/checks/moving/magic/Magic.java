@@ -72,7 +72,7 @@ public class Magic {
     public static final double modHopTick           = 0.25415D / WALK_SPEED;
     public static final double modSprint            = 0.27D / WALK_SPEED; 
     public static final double modSlope             = 0.3069D / WALK_SPEED; 
-    public static final double[] modSurface         = new double [] {0.23426D / WALK_SPEED, 0.29835D / WALK_SPEED, 0.31835 / WALK_SPEED}; // last one, for bubble columns.
+    public static final double[] modSurface         = new double [] {0.23426D / WALK_SPEED, 0.29835D / WALK_SPEED};
     public static final double modCollision         = 0.3006D / WALK_SPEED;
     public static final double modSoulSpeed         = 0.3094D / WALK_SPEED;
     public static final double modBounce            = 0.3125D / WALK_SPEED;
@@ -87,9 +87,7 @@ public class Magic {
             // Vertical swimming only, 1.13 
             0.3D / WALK_SPEED, 
             // Horizontal with body out of water (surface level)
-            0.146D / WALK_SPEED,
-            // Horizontal with bubble streams (upwards)
-            0.195 / WALK_SPEED}; 
+            0.146D / WALK_SPEED,}; 
     public static final double modDownStream        = 0.19D / (WALK_SPEED * modSwim[0]);
     public static final double[] modDepthStrider    = new double[] {
             1.0,
@@ -112,8 +110,8 @@ public class Magic {
     public static final double webSpeedDescendDefault  = -0.032;
     public static final double bushSpeedAscend         = 0.315;
     public static final double bushSpeedDescend        = -0.09;
-    public static final double bubbleStreamDescend     = 0.28; // 0.245, with sneaking down .271
-    public static final double bubbleStreamAscend      = 0.6; // 0.555, with pressing space bar .595
+    public static final double bubbleStreamDescend     = 0.49; // from wiki.
+    public static final double bubbleStreamAscend      = 0.9; // 1.1 from wiki. Wiki is too fast 
 
     /**
      * Get the speed modifier, for debugging purposes.
@@ -230,44 +228,6 @@ public class Magic {
     * Test (using the past move tracking) if the player has jumped up a slope.
     * No tight checking.
     * @param data
-    * @param to
-    * @param limit
-    *             How many past moves should be tracked
-    * @param distance
-    *             Distance to ground. Current use is rather meant to forestall
-    *             lowjump on slope-jumping.
-    * @return 
-    */
-    public static boolean jumpedUpSlope(final MovingData data, final PlayerLocation loc, int limit, double distance) {
-        limit = Math.min(limit, data.playerMoves.getNumberOfPastMoves());
-        final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
-        
-        // Don't care about jump potions.
-        if (data.jumpAmplifier != 0.0){
-            return false;
-        }
-        
-        for (int i = 0; i < limit; i++) {
-            final PlayerMoveData pastMove = data.playerMoves.getPastMove(i);
-            // Stairs are for now skipped, need to fix on ground logic.
-            if (!pastMove.toIsValid || thisMove.from.aboveStairs) {
-                 return false;
-            }
-            // Past move was on ground and with smaller altitude than the current move, which is within distance to ground.
-            else if (loc.isOnGround(distance)
-                    && (loc.getY() - pastMove.to.getY()) <= distance
-                    && (loc.getY() - pastMove.to.getY()) >= data.liftOffEnvelope.getMinJumpHeight(0.0)
-                    && (pastMove.to.onGround || pastMove.from.onGround)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-   /**
-    * Test (using the past move tracking) if the player has jumped up a slope.
-    * No tight checking.
-    * @param data
     * @param currentLoc
     *             From/To location
     * @param limit
@@ -277,7 +237,7 @@ public class Magic {
     public static boolean jumpedUpSlope(final MovingData data, final PlayerLocation loc, int limit) {
         limit = Math.min(limit, data.playerMoves.getNumberOfPastMoves());
         final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
-        
+
         // Don't care about jump potions.
         if (data.jumpAmplifier != 0.0){
             return false;
@@ -292,9 +252,26 @@ public class Magic {
             // Past move was on ground with smaller altitude than the current move which is on ground
             else if (loc.isOnGround()
                     // Prevent regular jumps from being seen as slopes.
-                    && (loc.getY() - pastMove.to.getY()) <= 1.0
-                    && (loc.getY() - pastMove.to.getY()) > 0.99
-                    && (pastMove.to.onGround || pastMove.from.onGround)) {
+                    && (loc.getY() - pastMove.to.getY()) < data.liftOffEnvelope.getMaxJumpHeight(data.jumpAmplifier)
+                    && (loc.getY() - pastMove.to.getY()) >= 0.90
+                    && pastMove.touchedGround && !pastMove.touchedGroundWorkaround) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Check for past lift off states via the past move tracking.
+     * @return
+     */
+    public static boolean searchForPastLiftOffState(int limit, final MovingData data, final Player player) {
+        limit = Math.min(limit, data.playerMoves.getNumberOfPastMoves());
+        final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
+        for (int i = 0; i < limit; i++) {
+            final PlayerMoveData pastMove = data.playerMoves.getPastMove(i);
+            if (pastMove.from.onGround && !pastMove.to.onGround 
+                && pastMove.toIsValid && pastMove.yDistance > data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier) - GRAVITY_MAX - Y_ON_GROUND_MIN) {
                 return true;
             }
         }

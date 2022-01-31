@@ -208,7 +208,7 @@ public class BlockFlags {
     /** Like slime block: bounce back 25% of fall height without taking fall damage [TODO: Check/adjust]. */
     public static final long F_BOUNCE25                     = f_flag();
     
-    /** Like the honey block: fall damage is / 5 when landing on this block. Also allows player to stick to it (slower speed and can stick to its sides). */
+    /** Like the honey block: fall damage is / 5 when landing on this block. Also allows player to stick to its sides with slower falling speed. */
     public static final long F_STICKY                       = f_flag();
 
     /**
@@ -294,13 +294,13 @@ public class BlockFlags {
      * Minimum height 1/4 (0.25). <br>
      * Only applies with F_GROUND_HEIGHT set.
      */
-    public static final long F_MIN_HEIGHT4_1               = f_flag();
+    public static final long F_MIN_HEIGHT4_1                = f_flag();
 
     /**
      * Minimum height 1/8 (0.125). <br>
      * Only applies with F_GROUND_HEIGHT set.
      */
-    public static final long F_MIN_HEIGHT8_1               = f_flag();
+    public static final long F_MIN_HEIGHT8_1                = f_flag();
     
     /**
      * Minimum height 1/16 (0.0625). <br>

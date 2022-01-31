@@ -28,7 +28,7 @@ import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
  * @author asofold
  *
  */
-public class InLiquidRules {
+public class LiquidWorkarounds {
 
     /**
      * 
@@ -57,6 +57,11 @@ public class InLiquidRules {
                 if (lastMove.toIsValid && yDistance < lastMove.yDistance && lastMove.yDistance - yDistance > Math.max(0.001, yDistance - baseSpeed)) {
                     return yDistance;
                 }
+
+                // Jump out water near edge ground
+                if (lastMove.yDistance < -0.5 && yDistance > 0.4 && yDistance < frictDist - Magic.GRAVITY_MAX && from.isOnGround(0.6)) {
+                    return frictDist - Magic.GRAVITY_MAX;
+                }
                 
                 // Asc by water level
                 if (!(data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID && Double.isInfinite(Bridge1_13.getDolphinGraceAmplifier(from.getPlayer()))) 
@@ -73,18 +78,17 @@ public class InLiquidRules {
                         return vAllowedDistance;
                     }
                 }
-
-                // Jumping in lava on the 6th level normally.
-                if (lastMove.yDistance >= LiftOffEnvelope.NORMAL.getMaxJumpGain(data.jumpAmplifier) && lastMove.yDistance <= LiftOffEnvelope.NORMAL.getMaxJumpGain(data.jumpAmplifier) + 0.005
-                    && yDistance < lastMove.yDistance - Magic.GRAVITY_SPAN 
-                    && thisMove.from.inLava && thisMove.to.inLava && lastMove.from.onGround
-                    && (from.getData(from.getBlockX(), from.getBlockY(), from.getBlockZ()) == 6 || (thisMove.downStream || lastMove.downStream))
-                    && data.insideMediumCount < 3 && ServerVersion.compareMinecraftVersion("1.16") >= 0) {
-                    return yDistance;
-                }
             }
 
             if (lastMove.toIsValid) {
+
+                // Launched in liquid by a bubble column with space bar kept pressed.
+                // (This is called after having used up all velocity and this move does not fit in the friction envelope)
+                if (data.insideBubbleStreamCount > 0 && yDistance > 0.0 && lastMove.yDistance > 0.0
+                    && !data.isVelocityJumpPhase() && yDistance < lastMove.yDistance * data.lastFrictionVertical
+                    && yDistance < Magic.bubbleStreamAscend) {
+                    return yDistance;
+                }
 
                 // Lenient on marginal violation if speed decreases by 'enough'.
                 // (Observed on 'dirty' phase. Then why not confining by isVelocityJumpPhase?)
@@ -138,6 +142,7 @@ public class InLiquidRules {
                     && yDistance > lastMove.yDistance - Magic.GRAVITY_MAX
                     && (
                         // Ordinary (some old case).
+                        // See: https://github.com/NoCheatPlus/NoCheatPlus/commit/ca7186558967d3370d1c1176929691a44a337a2d
                         lastMove.yDistance < 0.8 && yDistance < lastMove.yDistance - Magic.GRAVITY_SPAN
                         // Check with three moves, rather shortly touching water.
                         || lastMove.yDistance < -0.5 // Arbitrary, actually observed has been < -1.0

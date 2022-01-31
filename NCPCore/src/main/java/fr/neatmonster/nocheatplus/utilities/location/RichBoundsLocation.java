@@ -705,7 +705,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isInLiquid() {
         // TODO: optimize (check liquid first and only if liquid check further)
-        if (!isInWaterLogged() && blockFlags != null && (blockFlags.longValue() & BlockFlags.F_LIQUID) == 0 ) return false;
+        if (!isInWaterLogged() && blockFlags != null && (blockFlags.longValue() & BlockFlags.F_LIQUID) == 0) return false;
         // TODO: This should check for F_LIQUID too, Use a method that returns all found flags (!).
         return isInWater() || isInLava();
     }
@@ -745,13 +745,22 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     }
 
     /**
-     * Check if the player's mid-box is in liquid within a given margin.
-     * Rather meant to test if the player's body is in water by enough, currently.
+     * Check if the player is in liquid within a given margin.
      * @param yMargin
      * @return 
      */
-    public boolean isBodySubmerged(final double yMargin) {
+    public boolean isSubmerged(final double yMargin) {
         return BlockProperties.collides(blockCache, minX, minY + yMargin, minZ, maxX, maxY, maxZ, BlockFlags.F_LIQUID);
+    }
+    
+    /**
+     * Moving half on farmland(or end_potal_frame) and half on water
+     * @return 
+     */
+    public boolean isHalfGroundHalfWater() {
+        return (getBlockFlags() & BlockFlags.F_MIN_HEIGHT16_15) != 0 
+               && isInWater() && !BlockProperties.isLiquid(getTypeId(getBlockX(), Location.locToBlock(getY() + 0.3), getBlockZ()))
+               && (getBlockFlags() & BlockFlags.F_STICKY) == 0;
     }
 
     /**
@@ -802,7 +811,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      * @return If so.
      */
     public boolean isAboveLadder() {
-        if (blockFlags != null && (blockFlags.longValue() & BlockFlags.F_CLIMBABLE) == 0 ) return false;
+        if (blockFlags != null && (blockFlags.longValue() & BlockFlags.F_CLIMBABLE) == 0) return false;
         // TODO: bounding box ?
         return (BlockFlags.getBlockFlags(getTypeIdBelow()) & BlockFlags.F_CLIMBABLE) != 0;
     }
@@ -1684,7 +1693,8 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     /* (non-Javadoc)
      * @see java.lang.Object#hashCode()
      */
-    @Override    public int hashCode() {
+    @Override    
+    public int hashCode() {
         return LocUtil.hashCode(this);
     }
 

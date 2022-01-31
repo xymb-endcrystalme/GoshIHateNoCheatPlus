@@ -35,6 +35,11 @@ public class PlayerMoveData extends MoveData {
      * SurvivalFly.check.
      */
     public double walkSpeed;
+    
+    /**
+     * Traveled vertical setback distance, set in Survivalfly.check
+     */
+    public double setBackYDistance;
 
     // Bounds set by checks.
 
@@ -66,6 +71,9 @@ public class PlayerMoveData extends MoveData {
     /** This move was allowed to jump. Set in SurvivalFly.check(vdistrel) */
     public boolean allowjump;
 
+    /** Landing on ground but still moving up (yDistance > 0.0). Set in Survivalfly.check, used to update the setback location */
+    public boolean lowJumpSlope;
+
     // TODO: verVel/horvel used?
 
     // Meta stuff.
@@ -78,16 +86,10 @@ public class PlayerMoveData extends MoveData {
     public int multiMoveCount;
 
     /**
-     * Since 1.17, the client will send a duplicate position packet on right clicking (use item)
-     * which we need to ignore (Thanks Mojang).
-     */
-    public boolean isDuplicate;
-
-    /**
      * Just the used vertical velocity. Could be overridden multiple times
      * during processing of moving checks.
      */
-    public SimpleEntry  verVelUsed = null;
+    public SimpleEntry verVelUsed = null;
 
     @Override
     protected void resetBase() {
@@ -104,7 +106,7 @@ public class PlayerMoveData extends MoveData {
         // Meta stuff.
         //flyCheck = null;
         //modelFlying = null;
-        isDuplicate = false;
+        lowJumpSlope = false;
         multiMoveCount = 0;
         verVelUsed = null;
         // Super class last, because it'll set valid to true in the end.

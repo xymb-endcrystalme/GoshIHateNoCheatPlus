@@ -68,6 +68,7 @@ import fr.neatmonster.nocheatplus.checks.combined.Combined;
 import fr.neatmonster.nocheatplus.checks.combined.CombinedConfig;
 import fr.neatmonster.nocheatplus.checks.combined.CombinedData;
 import fr.neatmonster.nocheatplus.checks.moving.magic.Magic;
+import fr.neatmonster.nocheatplus.checks.moving.model.LiftOffEnvelope;
 import fr.neatmonster.nocheatplus.checks.moving.model.ModelFlying;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveInfo;
@@ -780,15 +781,37 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             }
             else data.fireworksBoostDuration --;
         }
-
-        // 3: Liquid tick time. Do set.
+        
+        // 3: Set time resolutions and various counters.
+        // 3.1: Liquid tick time.
         if (pFrom.isInLiquid()) data.liqtick = data.liqtick < 10 ? data.liqtick + 1 : data.liqtick > 0 ? data.liqtick - 1 : 0; 
         else data.liqtick = data.liqtick > 0 ? data.liqtick - 2 : 0;
 
-        // 4: Set time resolutions 
+        // 3.2: Set riptiding time.
         if (Bridge1_13.isRiptiding(player)) data.timeRiptiding = System.currentTimeMillis();
+
+        // 3.3: Set bubble stream counter
+        // Count how long one is getting pushed by a bubble stream (cap at 50)
+        if (!pFrom.isDraggedByBubbleStream() && !pTo.isDraggedByBubbleStream() 
+            && (pFrom.isInBubbleStream() || pTo.isInBubbleStream()) 
+            && thisMove.yDistance > 0.0 && data.insideBubbleStreamCount <= 50) {
+            data.insideBubbleStreamCount++ ;
+        }
+        // Decrease counter
+        if (data.insideBubbleStreamCount > 0) {
+            // Invalidate
+            if (!lastMove.valid || lastMove.flyCheck != CheckType.MOVING_SURVIVALFLY
+                || !data.liftOffEnvelope.name().startsWith("LIMIT")) {
+                data.insideBubbleStreamCount = 0;
+            }
+            // Left stream or player is descending, decrease.
+            else if (!pFrom.isInBubbleStream() && !pTo.isInBubbleStream() || thisMove.yDistance < 0.0) {
+                data.insideBubbleStreamCount-- ; 
+            }
+            // (else keep)
+        }
         
-        // 5: Workaround for 1.14+ vehicles.
+        // 4: Workaround for 1.14+ vehicles.
         if (data.waspreInVehicle) {
             data.setSetBack(from);
             if (thisMove.hDistance <= 1.1 && thisMove.yDistance <= 0.8) {
@@ -799,12 +822,12 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             data.waspreInVehicle = false;
         }
         
-        // 6: Pre-checks relevant to Sf or Cf.
+        // 5: Pre-checks relevant to Sf or Cf.
         if (checkSf || checkCf) {
             previousSetBackY = data.hasSetBack() ? data.getSetBackY() : Double.NEGATIVE_INFINITY;
             MovingUtil.checkSetBack(player, pFrom, data, pData, this); // Ensure we have a set back set.
 
-            // 6.1: Check for special cross world teleportation issues with the end.
+            // 5.1: Check for special cross world teleportation issues with the end.
             if (data.crossWorldFrom != null) {
                 if (!TrigUtil.isSamePosAndLook(pFrom, pTo) && TrigUtil.isSamePosAndLook(pTo, data.crossWorldFrom)) {
                     // Assume to (and possibly the player location) to be set to the location the player teleported from within the other world.
@@ -816,7 +839,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 data.crossWorldFrom = null;
             }
 
-            // 6.2: Extreme move check (sf or cf is precondition, should have their own config/actions later).
+            // 5.2: Extreme move check (sf or cf is precondition, should have their own config/actions later).
             if (newTo == null && ((Math.abs(thisMove.yDistance) > Magic.EXTREME_MOVE_DIST_VERTICAL) || thisMove.hDistance > Magic.EXTREME_MOVE_DIST_HORIZONTAL)) {
                 // Test for friction and velocity.
                 newTo = checkExtremeMove(player, pFrom, pTo, data, cc);
@@ -825,11 +848,11 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 }
             }
             
-            // 6.3: Set BCT
+            // 5.3: Set BCT
             // NOTE: Block change activity has to be checked *after* the extreme move checks run.
             useBlockChangeTracker = newTo == null && cc.trackBlockMove && (checkPassable || checkSf || checkCf) && blockChangeTracker.hasActivityShuffled(from.getWorld().getUID(), pFrom, pTo, 1.5625);
 
-            // 6.4: Check jumping on things like slime blocks.
+            // 5.4: Check jumping on things like slime blocks.
             // Detect bounce type / use prepared bounce.
             if (newTo == null) {
                 // TODO: Mixed ground (e.g. slime blocks + slabs), specifically on pushing.
@@ -883,7 +906,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             previousSetBackY = Double.NEGATIVE_INFINITY;
         }
 
-        // 7: Check passable first to prevent set back override.
+        // 6: Check passable first to prevent set back override.
         // Passable is checked first to get the original set back locations from the other checks, if needed. 
         // TODO: Redesign to set set backs later (queue + invalidate).
         boolean mightSkipNoFall = false; // If to skip nofall check (mainly on violation of other checks).
@@ -893,7 +916,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             if (newTo != null) mightSkipNoFall = true;
         }
         
-        // 8: Recalculate explosion velocity as PlayerVelocityEvent can't handle well on 1.13+
+        // 7: Recalculate explosion velocity as PlayerVelocityEvent can't handle well on 1.13+
         // TODO: Merge with velocity entries that were added at the same time with this one!
         if (data.shouldApplyExplosionVelocity) {
             data.shouldApplyExplosionVelocity = false;
@@ -940,6 +963,34 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             data.explosionVelAxisY = 0.0;
             data.explosionVelAxisZ = 0.0;
         }
+
+        // 8: Handle the launch effect of bubble columns, coarse.
+        // (NOTE: Bubble columns are possible only with source blocks, not flowing water.)
+        if (checkSf && data.liftOffEnvelope == LiftOffEnvelope.LIMIT_LIQUID && !lastMove.headObstructed
+            && !pFrom.isDraggedByBubbleStream()) {
+            
+            if (!thisMove.from.inBubbleStream && lastMove.from.inBubbleStream
+                && !data.hasQueuedVerVel() && data.insideBubbleStreamCount > 1 && thisMove.yDistance > 0.0
+                && lastMove.yDistance > 0.0) {
+                final double velocity = (0.05 * data.insideBubbleStreamCount) * data.lastFrictionVertical;
+                data.addVerticalVelocity(new SimpleEntry(tick, velocity, data.insideBubbleStreamCount));
+                data.setFrictionJumpPhase();
+                if (debug) {
+                    debug(player, "Add vertical velocity for bubble stream launch effect.");
+                }
+            }
+            if (!data.hasQueuedHorVel() && thisMove.yDistance != 0.0
+                && thisMove.hDistance > 0.1 && thisMove.hDistance < thisMove.walkSpeed && thisMove.from.inBubbleStream
+                && BlockProperties.isAir(pFrom.getTypeIdAbove()) && data.insideBubbleStreamCount < 7
+                && !Magic.inAir(thisMove)) {
+                data.addHorizontalVelocity(new AccountEntry(0.5, 0, MovingData.getHorVelValCount(0.5)));
+                data.addHorizontalVelocity(new AccountEntry(0.7, 1, MovingData.getHorVelValCount(0.7)));
+                if (debug) {
+                    debug(player, "Add horizontal velocity for bubble stream bounce effect on the surface.");
+                }
+            }
+        }
+
         
 
         ////////////////////////////////////////////////////////////////////////
@@ -947,11 +998,11 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         ////////////////////////////////////////////////////////////////////////
         // 1: SurvivalFly first
         if (checkSf) {
-            // Prepare from, to, thisMove for full checking.
+            // 1.1: Prepare from, to, thisMove for full checking.
             // TODO: Could further differentiate if really needed to (newTo / NoFall).
             MovingUtil.prepareFullCheck(pFrom, pTo, thisMove, Math.max(cc.noFallyOnGround, cc.yOnGround));
 
-            // HACK: Add velocity for transitions between creativefly and survivalfly.
+            // 1.2: HACK: Add velocity for transitions between creativefly and survivalfly.
             if (lastMove.toIsValid && lastMove.flyCheck == CheckType.MOVING_CREATIVEFLY) { 
                 final long tickHasLag = data.delayWorkaround + Math.round(200 / TickTask.getLag(200, true));
                 if (data.delayWorkaround > time || tickHasLag < time) {
@@ -960,19 +1011,19 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 }
             }
 
-            // Actual check.
+            // 1.3: Actual check.
             // Only check if passable has not already set back.
             if (newTo == null) {
                 thisMove.flyCheck = CheckType.MOVING_SURVIVALFLY;
                 newTo = survivalFly.check(player, pFrom, pTo, multiMoveCount, data, cc, pData, tick, time, useBlockChangeTracker);
             }
 
-            // Only check NoFall, if not already vetoed.
+            // 1.4: Only check NoFall, if not already vetoed.
             if (checkNf) {
                 checkNf = noFall.isEnabled(player, pData);
             }
             
-            // Hover subcheck.
+            // 1.5: Hover subcheck.
             if (newTo == null) {
                 // TODO: Could reset for from-on-ground as well, for not too big moves.
                 if (cc.sfHoverCheck && !(lastMove.toIsValid && lastMove.to.extraPropertiesValid && lastMove.to.onGroundOrResetCond) && !pTo.isOnGround()) {
@@ -1317,6 +1368,16 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                                       final MovingData data, final MovingConfig cc) {
 
         // TODO: Find out why only CreativeFly does actually trigger.
+        // TODO: Recent Minecraft versions allow a lot of unhealthy moves. Observed so far:
+        // - Riptide + gliding (+ firework !?)
+        // - Really high levitation levels
+        // - Bouncing while riptiding
+        // (- High jump amplifiers might be a problem as well)
+        // One could also let Extreme_move block this stuff anyway, reason being: 
+        // 1) we cannot support vanilla Minecraft features to arbitrary depths.
+        // 2) Why would one let players perform such moves anyway (which is usually bad news for server-sided chunk loading)? 
+        // [In fact, even Mojang attempted to mitigate this: https://www.minecraft.net/en-us/article/new-world-generation-java-available-testing]
+        // Thinkble: configurable option to block such moves (cc.blockUnealthyMove / cc.blockLegitExtremeMoves)
 
         final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
         final PlayerMoveData lastMove = data.playerMoves.getFirstPastMove(); 
@@ -1413,7 +1474,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         data.addVerticalVelocity(new SimpleEntry(lastMove.yDistance, cc.velocityActivationCounter));
         data.addVerticalVelocity(new SimpleEntry(0.0, cc.velocityActivationCounter));
         data.setFrictionJumpPhase();
-        if (debug) debug(player, "*** Fly check transition: Add velocity.");
+        if (debug) debug(player, "*** Transition from CreativeFly to SurvivalFly: Add velocity.");
     }
 
 
