@@ -4335,7 +4335,7 @@ public class BlockProperties {
                 if (data < 7 && BlockProperties.isLiquid(access.getType(x + 1, y, z)) && access.getData(x + 1, y, z) > data) {
                     return true;
                 }
-                else if (data > 0  && BlockProperties.isLiquid(access.getType(x - 1, y, z)) && access.getData(x - 1, y, z) < data) {
+                else if (data > 0 && BlockProperties.isLiquid(access.getType(x - 1, y, z)) && access.getData(x - 1, y, z) < data) {
                     // reverse direction.
                     return true;
                 }
@@ -4343,7 +4343,7 @@ public class BlockProperties {
                 if (data < 7 && BlockProperties.isLiquid(access.getType(x - 1, y, z)) && access.getData(x - 1, y, z) > data) {
                     return true;
                 }
-                else if (data > 0  && BlockProperties.isLiquid(access.getType(x + 1, y, z)) && access.getData(x + 1, y, z) < data) {
+                else if (data > 0 && BlockProperties.isLiquid(access.getType(x + 1, y, z)) && access.getData(x + 1, y, z) < data) {
                     // reverse direction.
                     return true;
                 }
@@ -4352,16 +4352,70 @@ public class BlockProperties {
                 if (data < 7 && BlockProperties.isLiquid(access.getType(x, y, z + 1)) && access.getData(x, y, z + 1) > data) {
                     return true;
                 }
-                else if (data > 0  && BlockProperties.isLiquid(access.getType(x , y, z - 1)) && access.getData(x, y, z - 1) < data) {
+                else if (data > 0 && BlockProperties.isLiquid(access.getType(x , y, z - 1)) && access.getData(x, y, z - 1) < data) {
                     // reverse direction.
                     return true;
                 }
             }
-            else if (dZ < 0 ) {
+            else if (dZ < 0) {
                 if (data < 7 && BlockProperties.isLiquid(access.getType(x, y, z - 1)) && access.getData(x, y, z - 1) > data) {
                     return true;
                 }
-                else if (data > 0  && BlockProperties.isLiquid(access.getType(x , y, z + 1)) && access.getData(x, y, z + 1) < data) {
+                else if (data > 0 && BlockProperties.isLiquid(access.getType(x , y, z + 1)) && access.getData(x, y, z + 1) < data) {
+                    // reverse direction.
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @param from
+     *            the from
+     * @param to
+     *            the to
+     * @return true, if is in waterfall
+     */
+    public static final boolean isWaterfall(final PlayerLocation from, final PlayerLocation to) {
+        return isWaterfall(from.getBlockCache(), from.getBlockX(), from.getBlockY(), from.getBlockZ(), 
+                            from.getData(), to.getY() - from.getY());
+    }
+
+    /**
+     * Check if a player is moving inside a waterfall, determined by the yDistance
+     *
+     * @param access
+     *            the access
+     * @param x
+     *            the x
+     * @param y
+     *            the y
+     * @param z
+     *            the z
+     * @param data
+     *            the data
+     * @param dY
+     *            the d y
+     * @return true, if is moving in a waterfall
+     */
+    public static final boolean isWaterfall(final BlockCache access, final int x, final int y, final int z, final int data, final double dY) {
+        if ((data & 0x8) == 0) {
+            if ((dY > 0)) {
+                if (data < 7 && BlockProperties.isLiquid(access.getType(x, y + 1, z)) && access.getData(x, y + 1, z) > data) {
+                    return true;
+                }
+                else if (data > 0 && BlockProperties.isLiquid(access.getType(x, y - 1, z)) && access.getData(x, y - 1, z) < data) {
+                    // reverse direction.
+                    return true;
+                }
+            } 
+            else if (dY < 0) {
+                if (data < 7 && BlockProperties.isLiquid(access.getType(x, y - 1, z)) && access.getData(x, y + 1, z) > data) {
+                    return true;
+                }
+                else if (data > 0  && BlockProperties.isLiquid(access.getType(x, y + 1, z)) && access.getData(x, y + 1, z) < data) {
                     // reverse direction.
                     return true;
                 }

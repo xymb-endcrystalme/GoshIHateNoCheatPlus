@@ -57,42 +57,21 @@ public class MultiClientProtocolBlockShapePatch extends AbstractBlockPropertiesP
         final List<String> done = new LinkedList<String>();
 
         //This freaks out with 1.8 using viaversion
-        BlockFlags.addFlags(BridgeMaterial.LILY_PAD, 
-                BlockFlags.F_GROUND 
-                | BlockFlags.F_HEIGHT8_1 
-                | BlockFlags.F_GROUND_HEIGHT);
+        BlockFlags.addFlags(BridgeMaterial.LILY_PAD, BlockFlags.F_GROUND | BlockFlags.F_HEIGHT8_1 | BlockFlags.F_GROUND_HEIGHT);
         done.add("water_lily");
 
-        BlockFlags.addFlags(BridgeMaterial.FARMLAND, 
-                BlockFlags.F_MIN_HEIGHT16_15 
-                | BlockFlags.F_HEIGHT100 
-                | BlockFlags.F_GROUND_HEIGHT);
+        BlockFlags.addFlags(BridgeMaterial.FARMLAND, BlockFlags.F_MIN_HEIGHT16_15 | BlockFlags.F_HEIGHT100 | BlockFlags.F_GROUND_HEIGHT);
         done.add("soil");
 
         BlockFlags.addFlags(Material.VINE, BlockFlags.F_CLIMBUPABLE);
         done.add("vine");
 
         try {
-            BlockFlags.addFlags("HONEY_BLOCK", BlockFlags.F_MIN_HEIGHT16_15 
-                | BlockFlags.F_HEIGHT100 
-                | BlockFlags.F_GROUND_HEIGHT);
+            BlockFlags.addFlags("HONEY_BLOCK", BlockFlags.F_MIN_HEIGHT16_15 | BlockFlags.F_HEIGHT100 | BlockFlags.F_GROUND_HEIGHT);
             done.add("honey_block");
         }
+        catch (Throwable t) {}
 
-        catch (Throwable t) {
-
-        }
-
-        try {
-            if (Bukkit.getServer().getPluginManager().getPlugin("ProtocolSupport") != null) {
-                BlockFlags.addFlags("SWEET_BERRY_BUSH", BlockFlags.F_ALLOW_LOWJUMP);
-                done.add("sweet_berry_bush");
-            }
-        }
-
-        catch (Throwable t)  {
-
-        }
 
         try {
             for (Material mat : MaterialUtil.SHULKER_BOXES) {
@@ -100,13 +79,9 @@ public class MultiClientProtocolBlockShapePatch extends AbstractBlockPropertiesP
             }
             done.add("shulker_box");
         }
+        catch (Throwable t) {}
 
-        catch (Throwable t) {
-
-        }
-
-        StaticLog.logInfo("Applied block patches for multi client protocol support: " 
-                + StringUtil.join(done, ", "));
+        StaticLog.logInfo("Applied block patches for multi client protocol support: " + StringUtil.join(done, ", "));
     }
 
 }

@@ -27,6 +27,8 @@ public enum LiftOffEnvelope {
     LIMIT_NEAR_GROUND(0.42, 1.35, 1.15, 6, false), // TODO: 0.385 / not jump on top of 1 high wall from water.
     /** Simple calm water surface. */
     LIMIT_LIQUID(0.1, 0.27, 0.1, 3, false),
+    /** Moving off water, having two in-air moves. Rather meant for 1.13+ clients but not necessarily */
+    LIMIT_SURFACE(0.1, 0.372, 0.1, 2, false),
     //    /** Flowing water / strong(-est) limit. */
     //    LIMIT_LIQUID_STRONG(...), // TODO
     /** No jumping at all (web). */
@@ -35,15 +37,13 @@ public enum LiftOffEnvelope {
     UNKNOWN(0.0, 0.0, 0.0, 0, false),
     /** Halfed jump gain, meant for the honey block, rather. */
     // NOTE: Jump height: 0.3 would trigger false positives. While 0.45 is too much
-    HALF_JUMP(0.21, 0.4, 0.2, 4, true), 
+    HALF_JUMP(0.21, 0.4, 0.21, 4, true), 
     /** Nearly ordinary jumping gain (meant for berry bushes)*/
     // TEST: Jumping height is random (but higher than the honeyblock), needs testing to be more strict.
-    BERRY_JUMP(0.35, 0.54, 0.34, 0, true), 
+    BERRY_JUMP(0.31, 0.5, 0.31, 0, true), 
     // Powder snow is considered as reset condition so we don't care about the jump phase.
     /** Special liftoff handling for powder snow: jump height is equal to lift-off speed. */
-    POWDER_SNOW(0.63, 0.63, 0.43, 0, true),
-    /** Jumping up stairs. Not ordinary ground-to-ground stepping because this game's movement mechanics are trash. */
-    STAIRS(0.5, 1.35, 1.15, 3, true)
+    POWDER_SNOW(0.63, 0.63, 0.63, 0, true)
     ;
 
     private double maxJumpGain;
@@ -108,7 +108,6 @@ public enum LiftOffEnvelope {
     /**
      * Minimal jump height in blocks.
      * @param jumpAmplifier
-     * @param factor
      * @return
      */
     public double getMinJumpHeight(double jumpAmplifier) {

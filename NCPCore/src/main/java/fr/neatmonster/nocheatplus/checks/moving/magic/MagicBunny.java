@@ -144,7 +144,7 @@ public class MagicBunny {
                     final double allowedSpeed = maxSpeed * Math.pow(BUNNY_FRICTION, hopTime); 
                     // Speed is decreasing properly, allow the move.
                     // TODO: ActionAccumulator based bunnyfly? Sort of an "accounting-bunny" check.
-                    // TODO: Bunnyhopping in waterlogged blocks and on soulsand increases air friction: demand players to immediately lose the acceleration gain after hop.
+                    // TODO: Bunnyhopping on soulsand increases air friction: demand players to immediately lose the acceleration gain after hop.
                     if (hDistance <= allowedSpeed) {
                         tags.add("bunnyfriction");
                         hDistanceAboveLimit = 0.0;
@@ -160,7 +160,7 @@ public class MagicBunny {
                 }
             } 
 
-            // Do allow hop for special cases (reset delay).
+            // Check for special cases where the delay is shorter than ordinary (10.
             if (!allowHop) { 
 
                 // Reset delay with head obstructed.
@@ -278,6 +278,7 @@ public class MagicBunny {
             
             if (
                 // 0: Lift-off envelope conditions
+                // TODO: Workaround bounding box issues (i.e.: bunnyhopping with pixels in water. Player can hop, but the change of envelope will negate it :p)
                 data.liftOffEnvelope == LiftOffEnvelope.NORMAL 
                 // 0: Can't bunnyhop if lowjumping.
                 && (!data.sfLowJump || data.sfNoLowJump) 
@@ -298,6 +299,7 @@ public class MagicBunny {
                     && yDistance > from.getyOnGround() && yDistance <= minJumpGain - Magic.GRAVITY_SPAN
                     // 1: Ice-slope-slide-down (sprint-jumping on a single block then sliding back down)
                     || Magic.wasOnIceRecently(data) && (hDistance / baseSpeed < 1.32 || hDistance / lastMove.hDistance < 1.27) && !headObstructed
+                    && Magic.jumpedUpSlope(data, from, 14)
                     && (
                         // 2: Keeping yDistance once or minimal change in gravity.
                         yDistance == 0.0 
@@ -321,7 +323,7 @@ public class MagicBunny {
                 )
                 // 0: Other conditions to confine further.
                 && (
-                   // 1: Can't bunnyhop if in reset condition, unless in waterlogged (lift-off acceleration is already taken care of in setAllowedhDist)
+                   // 1: Can't bunnyhop if in reset condition block (lift-off acceleration is already taken care of in setAllowedhDist)
                    !from.isResetCond() && !to.isResetCond() 
                    // 1: Allow this one
                    || from.isHalfGroundHalfWater()

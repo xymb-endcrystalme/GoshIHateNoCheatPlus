@@ -487,9 +487,19 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      *            the z distance
      * @return true, if is down stream
      */
-    public boolean isDownStream(final double xDistance, final double zDistance)
-    {
+    public boolean isDownStream(final double xDistance, final double zDistance) {
         return BlockProperties.isDownStream(blockCache, blockX, blockY, blockZ, getData(), xDistance, zDistance);
+    }
+
+    /**
+     * Convenience method: delegate to BlockProperties.isWaterfall.
+     *
+     * @param yDistance
+     *            the y distance
+     * @return true, if is in waterfall
+     */
+    public boolean isWaterfall(final double yDistance) {
+        return BlockProperties.isWaterfall(blockCache, blockX, blockY, blockZ, getData(), yDistance);
     }
 
     /**

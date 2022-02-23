@@ -139,7 +139,7 @@ public class LostGround {
         final double setBackYDistance = from.getY() - data.getSetBackY();
 
         // Step height related.
-        if (yDistance <= cc.sfStepHeight && hDistance <= 1.5) { // hDistance is arbitrary, just to confine.
+        if (yDistance <= cc.sfStepHeight && hDistance <= 1.5 && !from.isResetCond()) { // hDistance is arbitrary, just to confine.
 
             final double setBackYMargin = data.liftOffEnvelope.getMaxJumpHeight(data.jumpAmplifier) - setBackYDistance;
             if (setBackYMargin >= 0.0) {
@@ -151,20 +151,20 @@ public class LostGround {
                 }
 
                 // Check for sprint-jumping on fences with trapdoors above (missing trapdoor's edge touch on server-side, player lands directly onto the fence)
-                // TODO: Currently this is treated as a lostground case. Not sure if this is an actual bug within MC:
-                //       With an ordinary jump, the player lands on the trapdoor first, then steps up the 0.5 block-high slope of the fence (aka. the fence is still 1.5 blocks high),
-                //       but a bunnyhopping player will be able to sometimes hop right onto the fence as if it were 1 block high.
+                // TODO: This might be a flaw with the onGround judgement rather (though jumping up is fine, only bunnyhop poses problems)
                 if (setBackYDistance > 1.0 && setBackYDistance <= 1.5 
                     && setBackYMargin < 0.6 && data.bunnyhopDelay > 0 
-                    && yDistance > from.getyOnGround() && lastMove.yDistance <= Magic.GRAVITY_MAX) {
+                    && yDistance > from.getyOnGround() && lastMove.yDistance <= Magic.GRAVITY_MAX
+                    && yDistance < Magic.GRAVITY_MIN) {
                     
                     to.collectBlockFlags();
                     // (Doesn't seem to be a problem with carpets)
                     if ((to.getBlockFlags() & BlockFlags.F_ATTACHED_LOW2_SNEW) != 0
                         && (to.getBlockFlags() & BlockFlags.F_HEIGHT150) != 0) {
-
-                        if (to.isOnGround(0.003, thisMove.hAllowedDistanceBase, 0.0)) {
-                            // (No safe place to set setback. Keep it on the ground)
+                        
+                        // missing the trapdoor by 0.003
+                        if (to.isOnGround(0.003, 0.0, 0.0)) {
+                            // Setbacksafe: matter of taste.
                             return applyLostGround(player, from, false, thisMove, data, "fencestep", tags);
                         }
                     }
@@ -360,7 +360,6 @@ public class LostGround {
         if (Math.abs(x2) > hDistance2) {
             fMin = Math.min(fMin, hDistance2 / Math.abs(x2));
         }
-
         if (Math.abs(z2) > hDistance2) {
             fMin = Math.min(fMin, hDistance2 / Math.abs(z2));
         }
@@ -429,10 +428,10 @@ public class LostGround {
             // Check for sprinting down blocks etc.
             if (lastMove.yDistance <= yDistance && setBackYDistance < 0 && !to.isOnGround()) {
                 // TODO: setbackydist: <= - 1.0 or similar
-                 // TODO: <= 7 might work with speed II, not sure with above.
+                // NOTE: Doesn't seem to be relevant with speed potions.
                 if (from.isOnGround(0.6, 0.4, 0.0, 0L)) {
                     // Temporary "fix". (Not so temporary. It's been 6 years... :))
-                    // TODO: Seems to virtually always be preceded by a "vcollide" move.
+                    // NOTE: Seems to virtually always be preceded by a "vcollide" move.
                     return applyLostGround(player, from, true, thisMove, data, "pyramid", tags);
                 }
             }

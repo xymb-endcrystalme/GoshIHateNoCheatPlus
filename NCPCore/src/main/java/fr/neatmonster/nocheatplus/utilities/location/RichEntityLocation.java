@@ -270,6 +270,7 @@ public class RichEntityLocation extends RichBoundsLocation {
             throw new IllegalArgumentException("marginAboveEyeHeight must be greater than 0.");
         }
         // TODO: Add test for this bit of code.
+        // Step correction: see https://github.com/NoCheatPlus/NoCheatPlus/commit/f22bf88824372de2207e6dca5e1c264f3d251897
         if (stepCorrection) {
             double ref = maxY + marginAboveEyeHeight;
             ref = ref - (double) Location.locToBlock(ref) + 0.35;
