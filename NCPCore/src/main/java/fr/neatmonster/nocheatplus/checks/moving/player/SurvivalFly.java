@@ -1848,10 +1848,11 @@ public class SurvivalFly extends Check {
                 ItemStack stack = Bridge1_9.getItemInMainHand(player);
                 if (ServerIsAtLeast1_13) {
                     if (player.isHandRaised()) {
-                        data.oldItemSlot = player.getInventory().getHeldItemSlot();
-                        if (stack != null) player.setCooldown(stack.getType(), 10);
-                        player.getInventory().setHeldItemSlot((data.oldItemSlot + 1) % 9);
-                        data.slotChange = true;
+                        //data.olditemslot = player.getInventory().getHeldItemSlot();
+                        //if (stack != null) player.setCooldown(stack.getType(), 10);
+                        //player.getInventory().setHeldItemSlot((data.olditemslot + 1) % 9);
+                        //data.changeslot = true;
+                        // Does nothing
                     }
                     // False positive
                     else data.isUsingItem = false;

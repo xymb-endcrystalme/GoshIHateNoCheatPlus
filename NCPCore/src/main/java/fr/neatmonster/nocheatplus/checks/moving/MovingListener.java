@@ -16,12 +16,12 @@ package fr.neatmonster.nocheatplus.checks.moving;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -165,10 +165,10 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
     private final Map<String, PlayerMoveEvent> processingEvents = new HashMap<String, PlayerMoveEvent>();
 
     /** Player names to check hover for, case insensitive. */
-    private final Set<String> hoverTicks = new LinkedHashSet<String>(30); // TODO: Rename
+    private final Set<String> hoverTicks = ConcurrentHashMap.newKeySet(30); // TODO: Rename
 
     /** Player names to check enforcing the location for in onTick, case insensitive. */
-    private final Set<String> playersEnforce = new LinkedHashSet<String>(30);
+    private final Set<String> playersEnforce = ConcurrentHashMap.newKeySet(30);
 
     private int hoverTicksStep = 5;
 
@@ -482,10 +482,17 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             earlyReturn = handleTeleportedOnMove(player, event, data, cc, pData);
             token = "awaitsetback";
         }
+        else if (TrigUtil.isSamePos(from, to) && !data.lastMoveNoMove) {
+            //if (data.sfHoverTicks > 0) data.sfHoverTicks += hoverTicksStep;
+            earlyReturn = data.lastMoveNoMove = true;
+            token = "duplicate";
+        }
         else {
             earlyReturn = false;
             token = null;
         }
+
+        if (!TrigUtil.isSamePos(from, to)) data.lastMoveNoMove = false;
 
         if (earlyReturn) {
             if (debug) {

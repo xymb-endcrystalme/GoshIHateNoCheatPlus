@@ -15,7 +15,9 @@
 package fr.neatmonster.nocheatplus.compat.blocks.changetracker;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -38,20 +40,24 @@ import org.bukkit.material.Door;
 import org.bukkit.material.MaterialData;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
-import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import fr.neatmonster.nocheatplus.components.NoCheatPlusAPI;
 import fr.neatmonster.nocheatplus.components.registry.order.RegistrationOrder.RegisterMethodWithOrder;
 import fr.neatmonster.nocheatplus.event.mini.MiniListener;
 import fr.neatmonster.nocheatplus.logging.Streams;
 import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockProperties.ToolProps;
+import fr.neatmonster.nocheatplus.utilities.map.BlockProperties.ToolType;
 
 
 public class BlockChangeListener implements Listener {
 
     // TODO: Fine grained configurability (also switch flag in MovingListener to a sub-config).
     // TODO: Coarse player activity filter?
+    public final boolean is1_13 = ServerVersion.compareMinecraftVersion("1.13") >= 0;
+    public final boolean is1_9 = ServerVersion.compareMinecraftVersion("1.9") >= 0;
 
     /** These blocks certainly can't be pushed nor pulled. */
     public static long F_MOVABLE_IGNORE = BlockProperties.F_LIQUID;
@@ -64,6 +70,9 @@ public class BlockChangeListener implements Listener {
 
     /** Default tag for listeners. */
     private final String defaultTag = "system.nocheatplus.blockchangetracker";
+
+    /** Properties by dirt block type.*/
+    protected final Map<Material, ToolType> dirtblocks = init();
 
     /**
      * NOTE: Using MiniListenerWithOrder (and @Override before @EventHandler)
@@ -158,6 +167,21 @@ public class BlockChangeListener implements Listener {
         }
     }
 
+    @SuppressWarnings("deprecation")
+    private Map<Material, ToolType> init() {
+        Map<Material, ToolType> blocks = new HashMap<Material, ToolType>();
+        blocks.put(BridgeMaterial.GRASS_BLOCK, ToolType.HOE);
+        blocks.put(Material.DIRT, ToolType.HOE);
+        if (is1_13) {
+            blocks.put(Material.COARSE_DIRT, ToolType.SPADE);
+            blocks.put(Material.PODZOL, ToolType.SPADE);
+        }
+        if (ServerVersion.compareMinecraftVersion("1.17") >= 0) {
+            blocks.put(Material.ROOTED_DIRT, ToolType.SPADE);
+        }
+        return blocks;
+    }
+
     /**
      * Register actual listener(s).
      */
@@ -179,7 +203,7 @@ public class BlockChangeListener implements Listener {
 
     private BlockFace getDirection(final Block pistonBlock) {
         // TODO: Register/store a fetcher thing (DirectionalFromBlock)
-        if (Bridge1_13.hasIsSwimming()) {
+        if (is1_13) {
             final BlockData data = pistonBlock.getState().getBlockData();
             if (data instanceof org.bukkit.block.data.Directional) {
                 org.bukkit.block.data.Directional directional = (org.bukkit.block.data.Directional) data;
@@ -259,7 +283,7 @@ public class BlockChangeListener implements Listener {
         final Block block = event.getBlock();
         // TODO: Abstract method for a block and a set of materials (redstone, interact, ...).
         if (block == null 
-                || (BlockProperties.getBlockFlags(block.getType()) | BlockProperties.F_VARIABLE_REDSTONE) == 0) {
+                || (BlockProperties.getBlockFlags(block.getType()) & BlockProperties.F_VARIABLE_REDSTONE) == 0) {
             return;
         }
         addRedstoneBlock(block);
@@ -300,6 +324,7 @@ public class BlockChangeListener implements Listener {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void onRightClickBlock(final PlayerInteractEvent event) {
         final Result result = event.useInteractedBlock();
         if ((result == Result.ALLOW 
@@ -307,8 +332,25 @@ public class BlockChangeListener implements Listener {
             final Block block = event.getClickedBlock();
             if (block != null) {
                 final Material type = block.getType();
-                // TODO: Dirt/Grass (/Podzol+-spelling) -> flag. Add, if a hoe is used.
-                if ((BlockProperties.getBlockFlags(type) | BlockProperties.F_VARIABLE_USE) != 0L) {
+                // Dirt
+                final ToolType blocktool = dirtblocks.get(type);
+                if (blocktool != null) {
+                    final ToolProps tool = BlockProperties.getToolProps(event.getItem());
+                    if (is1_13) {
+                        if (tool.toolType == ToolType.SPADE ||
+                            blocktool == tool.toolType) {
+                            tracker.addBlocks(block);
+                        }
+                    } else {
+                        final boolean defdata = block.getData() == 0;
+                        if (is1_9 && type == BridgeMaterial.GRASS_BLOCK && tool.toolType == ToolType.SPADE ||
+                            defdata && tool.toolType == ToolType.HOE) {
+                            tracker.addBlocks(block);
+                        }
+                    }
+                }
+
+                if ((BlockProperties.getBlockFlags(type) & BlockProperties.F_VARIABLE_USE) != 0L) {
                     addBlockWithAttachedPotential(block, BlockProperties.F_VARIABLE_USE);
                 }
             }
@@ -331,7 +373,7 @@ public class BlockChangeListener implements Listener {
      * @param relevantFlags
      */
     private void addBlockWithAttachedPotential(final Block block, final long relevantFlags) {
-        if (Bridge1_13.hasIsSwimming()) {
+        if (is1_13) {
             final BlockData data = block.getState().getBlockData();
             if (data instanceof org.bukkit.block.data.type.Door) {
                 org.bukkit.block.data.type.Door door = (org.bukkit.block.data.type.Door) data;
@@ -343,7 +385,7 @@ public class BlockChangeListener implements Listener {
                  */
                 if (otherBlock != null // Top of the map / special case.
                         && (BlockProperties.getBlockFlags(otherBlock.getType()) 
-                                | relevantFlags) == 0) {
+                                & relevantFlags) != 0) {
                     tracker.addBlocks(block, otherBlock);
                     return;
                 }
@@ -362,7 +404,7 @@ public class BlockChangeListener implements Listener {
                  */
                 if (otherBlock != null // Top of the map / special case.
                         && (BlockProperties.getBlockFlags(otherBlock.getType()) 
-                                | relevantFlags) == 0) {
+                                & relevantFlags) != 0) {
                     tracker.addBlocks(block, otherBlock);
                     return;
                 }

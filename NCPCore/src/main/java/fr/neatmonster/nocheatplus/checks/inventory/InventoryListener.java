@@ -773,6 +773,7 @@ public class InventoryListener  extends CheckListener implements JoinLeaveListen
                     if (pData.isDebugActive(CheckType.INVENTORY_MOREINVENTORY)) {
                         debug(player, "Force-close inventory on MoreInv detection.");
                     }
+                    break;
                 }
             }
         }

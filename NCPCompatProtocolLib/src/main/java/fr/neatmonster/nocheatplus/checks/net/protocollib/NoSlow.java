@@ -20,13 +20,11 @@ import java.util.List;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -34,17 +32,20 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.plugin.Plugin;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
+import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
-import fr.neatmonster.nocheatplus.compat.BridgeEnchant;
 import fr.neatmonster.nocheatplus.components.NoCheatPlusAPI;
 import fr.neatmonster.nocheatplus.components.registry.order.RegistrationOrder.RegisterMethodWithOrder;
 import fr.neatmonster.nocheatplus.event.mini.MiniListener;
@@ -65,7 +66,7 @@ public class NoSlow extends BaseAdapter {
             }
         },
         new MiniListener<PlayerInteractEvent>() {
-            @EventHandler(priority = EventPriority.LOWEST)
+            @EventHandler(priority = EventPriority.MONITOR)
             @RegisterMethodWithOrder(tag = dftag)
             @Override
             public void onEvent(final PlayerInteractEvent event) {
@@ -87,27 +88,20 @@ public class NoSlow extends BaseAdapter {
             public void onEvent(final PlayerItemHeldEvent event) {
                 onChangeSlot(event);
             }
-        },
-        new MiniListener<BlockPlaceEvent>() {
-            @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-            @RegisterMethodWithOrder(tag = dftag)
-            @Override
-            public void onEvent(final BlockPlaceEvent event) {
-                onPlace(event);
-            }
         }
     };
 
     private static int timeBetweenRL = 70;
     private static PacketType[] initPacketTypes() {
         final List<PacketType> types = new LinkedList<PacketType>(Arrays.asList(
-                PacketType.Play.Client.BLOCK_DIG
+                PacketType.Play.Client.BLOCK_DIG,
+                PacketType.Play.Client.BLOCK_PLACE
                 ));
         return types.toArray(new PacketType[types.size()]);
     }
 
     public NoSlow(Plugin plugin) {
-        super(plugin, ListenerPriority.LOW, initPacketTypes());
+        super(plugin, ListenerPriority.MONITOR, initPacketTypes());
         final NoCheatPlusAPI api = NCPAPIProvider.getNoCheatPlusAPI();
         for (final MiniListener<?> listener : miniListeners) {
             api.addComponent(listener, false);
@@ -117,7 +111,11 @@ public class NoSlow extends BaseAdapter {
     @Override
     public void onPacketReceiving(final PacketEvent event) {
         if (event.isPlayerTemporary()) return;
-        handleDiggingPacket(event);
+        if (event.getPacketType().equals(PacketType.Play.Client.BLOCK_DIG)) {
+            handleDiggingPacket(event);
+        } else {
+            handleBlockPlacePacket(event);
+        }
     }
 
     private static void onItemConsume(final PlayerItemConsumeEvent e){
@@ -145,25 +143,21 @@ public class NoSlow extends BaseAdapter {
         final MovingData data = pData.getGenericInstance(MovingData.class);
         // Reset
         data.offHandUse = false;
-        Block b = e.getClickedBlock();
+        if (!data.mightUseItem) return;
+        data.mightUseItem = false;
+
+        if (e.useItemInHand().equals(Event.Result.DENY)) return;
+
         if (p.getGameMode() == GameMode.CREATIVE) {
             data.isUsingItem = false;
             return;
         }
-        if (b != null && (
-                b.getType().toString().endsWith("DOOR")
-             || b.getType().toString().endsWith("GATE")
-             || b.getType().toString().endsWith("BUTTON")
-             || b.getType().toString().endsWith("LEVER")
-             || (b.getType().name().startsWith("SWEET_BERRY_BUSH") && ((Ageable) b.getBlockData()).getAge() > 1)
-        )) {
-            data.isUsingItem = false;
-            return;
-        }
+
         if (e.hasItem()) {
-            ItemStack item = e.getItem();
-            Material m = item.getType();
+            final ItemStack item = e.getItem();
+            final Material m = item.getType();
             if (Bridge1_9.hasElytra() && p.hasCooldown(m)) return;
+
             if (InventoryUtil.isConsumable(item)) {
                 // pre1.9 splash potion
                 if (!Bridge1_9.hasElytra() && item.getDurability() > 16384) return;
@@ -178,17 +172,27 @@ public class NoSlow extends BaseAdapter {
                     return;
                 }
             }
-            if (m.toString().equals("BOW") && hasArrow(p.getInventory())) {
+
+            if (m == Material.BOW && hasArrow(p.getInventory(), false)) {
                 data.isUsingItem = true;
                 data.offHandUse = Bridge1_9.hasGetItemInOffHand() && e.getHand() == EquipmentSlot.OFF_HAND;
                 return;
             }
-            if (m.name().equals("SHIELD")) {
+
+            if (Bridge1_9.hasElytra() && m == Material.SHIELD) {
+                //data.isUsingItem = true;
                 data.offHandUse = e.getHand() == EquipmentSlot.OFF_HAND;
                 return;
             }
+
+            if (Bridge1_13.hasIsRiptiding() && m == Material.TRIDENT) {
+                //data.isUsingItem = true;
+                data.offHandUse = e.getHand() == EquipmentSlot.OFF_HAND;
+                return;
+            }
+
             if (m.toString().equals("CROSSBOW")) {
-                if (item.getItemMeta().serialize().get("charged").equals(false) && hasArrow(p.getInventory())) {
+                if (!((CrossbowMeta) item.getItemMeta()).hasChargedProjectiles() && hasArrow(p.getInventory(), true)) {
                     data.isUsingItem = true;
                     data.offHandUse = e.getHand() == EquipmentSlot.OFF_HAND;
                 }
@@ -200,32 +204,40 @@ public class NoSlow extends BaseAdapter {
         final Player p = e.getPlayer();
         final IPlayerData pData = DataManager.getPlayerData(p);
         final MovingData data = pData.getGenericInstance(MovingData.class);
-        if (data.slotChange) {
-            p.getInventory().setHeldItemSlot(data.oldItemSlot);
-            data.slotChange = false;
-        }
+        //if (data.changeslot) {
+        //    p.getInventory().setHeldItemSlot(data.olditemslot);
+        //    data.changeslot = false;
+        //}
         data.isUsingItem = false;
     }
 
-    private static void onPlace(final BlockPlaceEvent e) {
-        final Player p = e.getPlayer();
-        final IPlayerData pData = DataManager.getPlayerData(p);
-        final MovingData data = pData.getGenericInstance(MovingData.class);
-        if (InventoryUtil.isConsumable(e.getItemInHand())) data.isUsingItem = false;
-    }
-
-    private static boolean hasArrow(PlayerInventory i) {
+    private static boolean hasArrow(final PlayerInventory i, final boolean fw) {
         if (Bridge1_9.hasElytra()) {
-            Material m = i.getItemInOffHand().getType();
-            return i.contains(Material.ARROW) || m.toString().endsWith("ARROW") || i.contains(Material.TIPPED_ARROW) || i.contains(Material.SPECTRAL_ARROW);
+            final Material m = i.getItemInOffHand().getType();
+            return (fw && m == Material.FIREWORK_ROCKET) || m.toString().endsWith("ARROW") ||
+                   i.contains(Material.ARROW) || i.contains(Material.TIPPED_ARROW) || i.contains(Material.SPECTRAL_ARROW);
         }
         return i.contains(Material.ARROW);
     }
 
-    private void handleDiggingPacket(PacketEvent event)
-    {
-        if(event.getPacketType() != PacketType.Play.Client.BLOCK_DIG) return;
+    private void handleBlockPlacePacket(PacketEvent event) {
+        final Player p = event.getPlayer();
+        final IPlayerData pData = DataManager.getPlayerData(p);
+        final MovingData data = pData.getGenericInstance(MovingData.class);
+        final PacketContainer packet = event.getPacket();
+        final StructureModifier<Integer> ints = packet.getIntegers();
+        // Legacy: pre 1.9
+        if (ints.size() > 0) {
+            final int faceIndex = ints.read(0); // arg 3 if 1.7.10 below
+            if (faceIndex <= 5) {
+                data.mightUseItem = false;
+                return;
+            }
+        }
+        if (!event.isCancelled()) data.mightUseItem = true;
+    }
 
+    private void handleDiggingPacket(PacketEvent event) {
         Player p = event.getPlayer();       
         
         if (p == null) {
