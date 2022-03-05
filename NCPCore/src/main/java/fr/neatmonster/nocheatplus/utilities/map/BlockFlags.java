@@ -33,13 +33,9 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Waterlogged;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
 import fr.neatmonster.nocheatplus.checks.moving.util.MovingUtil;
@@ -58,12 +54,7 @@ import fr.neatmonster.nocheatplus.config.WorldConfigProvider;
 import fr.neatmonster.nocheatplus.logging.LogManager;
 import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.logging.Streams;
-import fr.neatmonster.nocheatplus.utilities.PotionUtil;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
-import fr.neatmonster.nocheatplus.utilities.collision.BlockPositionContainer;
-import fr.neatmonster.nocheatplus.utilities.collision.ICollidePassable;
-import fr.neatmonster.nocheatplus.utilities.collision.PassableAxisTracing;
-import fr.neatmonster.nocheatplus.utilities.collision.PassableRayTracing;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache.IBlockCacheNode;
 

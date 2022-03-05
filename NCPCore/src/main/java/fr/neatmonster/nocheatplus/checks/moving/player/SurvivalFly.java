@@ -284,7 +284,6 @@ public class SurvivalFly extends Check {
 
         // Run through all hDistance checks if the player has actually some horizontal distance
         if (HasHorizontalDistance) {
-            player.sendMessage("Mod: " + (hDistance / thisMove.walkSpeed) * Magic.WALK_SPEED);
             final double attrMod = attributeAccess.getHandle().getSpeedAttributeMultiplier(player);
             // Set the allowed distance and determine the distance above limit
             hAllowedDistance = setAllowedhDist(player, sprinting, thisMove, data, cc, pData, from, to, true);
@@ -1424,7 +1423,7 @@ public class SurvivalFly extends Check {
             if (attrMod == Double.MAX_VALUE) {
                 final double speedAmplifier = mcAccess.getHandle().getFasterMovementAmplifier(player);
                 if (!Double.isInfinite(speedAmplifier) && useBaseModifiersSprint) {
-                    hAllowedDistance *= 1.0D + 0.15D * (speedAmplifier + 1); // MC's would be 0.2. We use a lower value because the original doesn't much well with our bunnyhop detection mechanism
+                    hAllowedDistance *= 1.0D + 0.2D * speedAmplifier; 
                 }
             }
             else {
@@ -1447,7 +1446,7 @@ public class SurvivalFly extends Check {
                     final double speedAmplifier = mcAccess.getHandle().getFasterMovementAmplifier(player);
                     if (!Double.isInfinite(speedAmplifier)) {
                         hAllowedDistance /= attrMod;
-                        hAllowedDistance *= attrMod - 0.15D * (speedAmplifier + 1);
+                        hAllowedDistance *= attrMod - 0.15D * speedAmplifier;
                     }
                 }
             }
