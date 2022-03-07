@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -41,7 +42,7 @@ public class BridgeMaterial {
 
     static {
         for (Material mat : Material.values()) {
-            String name = mat.name().toLowerCase();
+            String name = mat.name().toLowerCase(Locale.ROOT);
             all.put(name, mat);
             if (name.startsWith("legacy_")) {
                 legacy.put(name.substring(7), mat);

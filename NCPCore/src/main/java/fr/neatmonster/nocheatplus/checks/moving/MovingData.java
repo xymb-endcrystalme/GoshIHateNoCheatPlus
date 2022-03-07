@@ -124,6 +124,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public long timeVehicletoss = 0;
     /** If is Bedrock Player. This is set if CompatNoCheatPlus is present. */
     public boolean bedrockPlayer = false;
+    /** Indicate there was a duplicate move */
+    public boolean lastMoveNoMove = false;
     /** Temporary snow fix flag */
     // TODO: remove.
     public boolean snowFix = false;
@@ -147,12 +149,10 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     // *----------No slowdown related data----------*
     /** Whether the player is using an item */
     public boolean isUsingItem = false;
-    /** TODO: */
+    /** TODO: Whether the player use the item on left hand */
     public boolean offHandUse = false;
-    /** TODO: */
-    public int oldItemSlot = 0;
-    /** TODO: */
-    public boolean slotChange = false;
+    /** TODO: Pre check conditions */
+    public boolean mightUseItem = false;
     /** TODO: */
     public long releaseItemTime = 0;
     /** Detection flag */
