@@ -1192,7 +1192,7 @@ public class BlockProperties {
                 BridgeMaterial.get("DIODE_BLOCK_ON"), 
                 BridgeMaterial.get("DIODE_BLOCK_OFF"),
                 // Compatibility.
-                Material.LADDER, 
+                //Material.LADDER, 
                 // Workarounds.
                 //				Material.COCOA,
         }) {

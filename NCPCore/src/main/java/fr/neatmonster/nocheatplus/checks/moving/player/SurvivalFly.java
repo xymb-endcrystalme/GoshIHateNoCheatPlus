@@ -2066,6 +2066,9 @@ public class SurvivalFly extends Check {
         double vAllowedDistance = waterStep ? yDistAbs : yDistance < 0.0 ? Magic.climbSpeedDescend : Magic.climbSpeedAscend;
         final double jumpHeight = LiftOffEnvelope.NORMAL.getMaxJumpHeight(0.0) + (data.jumpAmplifier > 0 ? (0.6 + data.jumpAmplifier - 1.0) : 0.0);
         final double maxJumpGain = data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier) + 0.005;
+        // Quick, temporary fix for scaffolding block
+        boolean scaffolding = from.isOnGround() && from.getBlockY() == Location.locToBlock(from.getY()) 
+                              && yDistance > 0.0 && yDistance < maxJumpGain;
 
         if (yDistAbs > vAllowedDistance) {
             // Catch insta-ladder quick.
@@ -2076,7 +2079,7 @@ public class SurvivalFly extends Check {
                 }
                 else tags.add("climbheight("+ StringUtil.fdec3.format(yDistance) +")");
             }
-            else {
+            else if (!scaffolding) {
                 vDistanceAboveLimit = yDistAbs - vAllowedDistance;
                 tags.add("climbspeed");
             }
