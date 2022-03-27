@@ -632,7 +632,7 @@ public class CreativeFly extends Check {
         final long now = System.currentTimeMillis();
         double resultV = 0.0;
         double resultH = 0.0;
-        if (!cc.elytraStrict || !Bridge1_9.isGlidingWithElytra(player) || player.isFlying() || data.timeRiptiding + 2500 > now) return new double[] {0.0, 0.0};
+        if (!cc.elytraStrict || !Bridge1_9.isGlidingWithElytra(player) || player.isFlying()) return new double[] {0.0, 0.0};
         double allowedElytraHDistance = 0.0;
         double allowedElytraYDistance = 0.0;
         double baseV = 0.0;
@@ -645,20 +645,7 @@ public class CreativeFly extends Check {
         else if (!from.isResetCond() && !isCollideWithHB(from)) {
             thisMove.elytrafly = true;
 
-            // Bug, strange 1.17 behavior, start using firework, ending riptide trident?, hit wall?
-            if (lastMove.toIsValid && lastMove.elytrafly && speed > 0.05 &&
-                !TrigUtil.isSamePos(lastMove.from, lastMove.to) &&
-                TrigUtil.isSamePos(from, to)) {
-                allowedElytraHDistance = allowedElytraYDistance = 0.0;
-                // Next move still use info from second past move not this one
-                thisMove.hAllowedDistance = lastMove.hDistance;
-                thisMove.yAllowedDistance = lastMove.yAllowedDistance;
-                thisMove.elytraNoMove = true;
-                if (debug) debug(player, "Elytra no move. Skipping!");
-                return new double[] {0.0, 0.0};
-            }
-
-            final double lastHdist = lastMove.toIsValid ? lastMove.elytrafly && lastMove.elytraNoMove ? lastMove.hAllowedDistance : lastMove.hDistance : 0.0;
+            final double lastHdist = lastMove.toIsValid ? lastMove.hDistance : 0.0;
             final Vector lookvec = to.getLocation().getDirection();
             final float radPitch = (float) Math.toRadians(to.getPitch());
             allowedElytraYDistance = lastMove.elytrafly ? lastMove.yAllowedDistance : lastMove.toIsValid ? lastMove.yDistance : 0.0;
@@ -671,11 +658,6 @@ public class CreativeFly extends Check {
             allowedElytraYDistance += speed * (-1.0D + squaredCos * 0.75D);
             double x = lastMove.to.getX() - lastMove.from.getX();
             double z = lastMove.to.getZ() - lastMove.from.getZ();
-            if (lastMove.elytrafly && lastMove.elytraNoMove) {
-                final PlayerMoveData secondPastMove = data.playerMoves.getSecondPastMove();
-                x = secondPastMove.to.getX() - secondPastMove.from.getX();
-                z = secondPastMove.to.getZ() - secondPastMove.from.getZ();
-            }
             if (Math.abs(x) < 0.003D) x = 0.0D;
             if (Math.abs(z) < 0.003D) z = 0.0D;
 

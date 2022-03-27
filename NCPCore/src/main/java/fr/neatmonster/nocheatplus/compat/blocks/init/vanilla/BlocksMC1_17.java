@@ -23,6 +23,7 @@ public class BlocksMC1_17 implements BlockPropertiesSetup {
     @Override
     public void setupBlockProperties(WorldConfigProvider<?> worldConfigProvider) {
         BlockProperties.setBlockProps("LIGHT", BlockProperties.indestructibleType);
+        BlockFlags.addFlags("LIGHT", BlockFlags.F_IGN_PASSABLE);
 
         for (Material mat : MaterialUtil.ALL_CANDLES) {
             BlockFlags.addFlags(mat, BlockFlags.SOLID_GROUND);
@@ -124,14 +125,12 @@ public class BlocksMC1_17 implements BlockPropertiesSetup {
         // This is temporary ground.
         BlockFlags.addFlags("BIG_DRIPLEAF", BlockFlags.F_GROUND);
         BlockProperties.setBlockProps("BIG_DRIPLEAF", new BlockProperties.BlockProps(BlockProperties.woodAxe, 0.1f, BlockProperties.secToMs(0.15, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0)));
-        BlockProperties.setBlockProps("SMALL_DRIPLEAF", new BlockProperties.BlockProps(BlockProperties.woodAxe, 0.1f, BlockProperties.secToMs(0.15, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0)));
         BlockProperties.setBlockProps("BIG_DRIPLEAF_STEM", new BlockProperties.BlockProps(BlockProperties.woodAxe, 0.1f, BlockProperties.secToMs(0.15, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0)));
+        BlockFlags.addFlags("BIG_DRIPLEAF_STEM", BlockFlags..F_IGN_PASSABLE);
         BlockProperties.setBlockProps("GLOW_LICHEN", BlockProperties.instantType);
-        BlockProperties.setBlockProps("CAVE_VINES", BlockProperties.instantType);
+        BlockFlags.addFlags("GLOW_LICHEN", BlockFlags.F_IGN_PASSABLE);
         BlockFlags.addFlags("CAVE_VINES", BlockFlags.F_CLIMBABLE);
         BlockFlags.addFlags("CAVE_VINES_PLANT", BlockFlags.F_CLIMBABLE);
-        BlockProperties.setBlockProps("CAVE_VINES_PLANT", BlockProperties.instantType);
-        BlockProperties.setBlockProps("SPORE_BLOSSOM", BlockProperties.instantType);
         BlockProperties.setBlockProps("HANGING_ROOTS", BlockProperties.instantType);
         BlockProperties.setBlockProps("ROOTED_DIRT", new BlockProperties.BlockProps(BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.75)));
 

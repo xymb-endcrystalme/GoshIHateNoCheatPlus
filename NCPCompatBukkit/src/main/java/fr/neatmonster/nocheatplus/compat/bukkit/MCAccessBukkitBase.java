@@ -95,9 +95,9 @@ public class MCAccessBukkitBase implements MCAccess {
                 return true;
             }
         }
-        long testFlags1 = (BlockFlags.F_SOLID | BlockFlags.F_XZ100);
-        long testFlags2 = (BlockFlags.F_HEIGHT100 
-                | BlockFlags.F_HEIGHT16_15);
+
+        long testFlags1 = (BlockProperties.F_SOLID | BlockProperties.F_XZ100);
+        long testFlags2 = (BlockProperties.F_HEIGHT100);
         if (BlockFlags.hasAllFlags(flags, testFlags1)
                 && BlockFlags.hasAnyFlag(flags, testFlags2)) {
             // Solid blocks with explicitly set bounds.

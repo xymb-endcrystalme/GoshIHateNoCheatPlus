@@ -51,7 +51,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         // Bottom rod
         0.0625, 0.0, 0.0625, 0.9375, 0.125, 0.9375,
         // Rod
-        0.4375, 0.125, 0.4375, 0.5625, 0.8749, 0.5625
+        0.4375, 0.125, 0.4375, 0.5625, 0.875, 0.5625
     );
     private static final BukkitShapeModel MODEL_CANDLE_CAKE = new BukkitStatic(
         // Cake
@@ -71,6 +71,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     private static final BukkitShapeModel MODEL_PISTON_HEAD = new BukkitPistonHead();
     private static final BukkitShapeModel MODEL_BELL = new BukkitBell();
     private static final BukkitShapeModel MODEL_ANVIL = new BukkitAnvil();
+    private static final BukkitShapeModel MODEL_GRIND_STONE = new BukkitGrindStone();
 
     // Blocks that change shape based on interaction or redstone.
     private static final BukkitShapeModel MODEL_DOOR = new BukkitDoor();
@@ -90,6 +91,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     private static final BukkitShapeModel MODEL_CAKE = new BukkitCake();
     private static final BukkitShapeModel MODEL_SLAB = new BukkitSlab();
     private static final BukkitShapeModel MODEL_STAIRS = new BukkitStairs();
+    private static final BukkitShapeModel MODEL_SNOW = new BukkitSnow();
     private static final BukkitShapeModel MODEL_PISTON = new BukkitPiston();
     private static final BukkitShapeModel MODEL_LEVELLED = new BukkitLevelled();
     private static final BukkitShapeModel MODEL_LADDER = new BukkitLadder();
@@ -105,11 +107,14 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     // Static blocks (various height and inset values).
     private static final BukkitShapeModel MODEL_CAMPFIRE = new BukkitStatic(0.0, 0.4375);
     private static final BukkitShapeModel MODEL_BAMBOO = new BukkitBamboo();
+    private static final BukkitShapeModel MODEL_WATER_PLANTS = new BukkitStatic(0.875 + 0.015625);
     private static final BukkitShapeModel MODEL_LILY_PAD = new BukkitStatic(0.09375);
-    private static final BukkitShapeModel MODEL_FLOWER_POT = new BukkitStatic(0.33, 0.375); // TODO: XZ really?
+    private static final BukkitShapeModel MODEL_FLOWER_POT = new BukkitStatic(0.3125, 0.375);
     private static final BukkitShapeModel MODEL_LANTERN = new BukkitLantern();
-    private static final BukkitShapeModel MODEL_CONDUIT = new BukkitStatic(0.33, 0.6875);
-    private static final BukkitShapeModel MODEL_GROUND_HEAD = new BukkitStatic(0.25, 0.5); // TODO: XZ-really? 275 ?
+    private static final BukkitShapeModel MODEL_CONDUIT = new BukkitStatic(
+        0.3125, 0.3125, 0.3125, 0.6875, 0.6875, 0.6875
+    );
+    private static final BukkitShapeModel MODEL_GROUND_HEAD = new BukkitStatic(0.25, 0.5);
     private static final BukkitShapeModel MODEL_SINGLE_CHEST = new BukkitStatic(0.0625, 0.875);
     private static final BukkitShapeModel MODEL_HONEY_BLOCK = new BukkitStatic(0.0625, 0.9375);
 
@@ -123,11 +128,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     private static final BukkitShapeModel MODEL_XZ100_HEIGHT16_9 = new BukkitStatic(0.5625);
     private static final BukkitShapeModel MODEL_XZ100_HEIGHT4_3 = new BukkitStatic(0.75);
     private static final BukkitShapeModel MODEL_XZ100_HEIGHT16_15 = new BukkitStatic(0.9375);
-
-    /*
-     * TODO:
-     * CONDUIT
-     */
+    private static final BukkitShapeModel MODEL_XZ100_HEIGHT8_7 = new BukkitStatic(0.875);
 
     public MCAccessBukkitModern() {
         super();
@@ -159,20 +160,29 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
     @Override
     public void setupBlockProperties(final WorldConfigProvider<?> worldConfigProvider) {
+        /*
+         * TODO: Incomplete blocks bounds still use workarounds(not affect movement):
+         * All fences, glass pane, iron bar, chorus plant, hopper
+         * 
+         * Legacy blocks still use workarounds(not affect movement):
+         * All fences, glass pane, iron bar, chorus plant, hopper, cauldron
+         *
+         * Scaffolding(affect fall dmg)
+         * 
+         */
 
-        // TODO: Also consider removing flags (passable_x4 etc).
-    	// Variables for repeated flags (Temporary flags, these should be fixed later so that they are not added here)
-    	final long blockFix = BlockFlags.SOLID_GROUND;
-    	// Adjust flags for individual blocks.
-        BlockFlags.setBlockFlags(Material.COCOA, blockFix);
-        BlockFlags.setBlockFlags(Material.TURTLE_EGG, blockFix);
-        BlockFlags.setBlockFlags(Material.CHORUS_PLANT, blockFix);
-        BlockFlags.setBlockFlags(Material.CREEPER_WALL_HEAD, blockFix);
-        BlockFlags.setBlockFlags(Material.ZOMBIE_WALL_HEAD, blockFix);
-        BlockFlags.setBlockFlags(Material.PLAYER_WALL_HEAD, blockFix);
-        BlockFlags.setBlockFlags(Material.DRAGON_WALL_HEAD, blockFix);
-        BlockFlags.setBlockFlags(Material.WITHER_SKELETON_WALL_SKULL, blockFix);
-        BlockFlags.setBlockFlags(Material.SKELETON_WALL_SKULL, blockFix);
+        // Variables for repeated flags (Temporary flags, these should be fixed later so that they are not added here)
+        final long blockFix = BlockFlags.SOLID_GROUND;
+        // Adjust flags for individual blocks.
+        BlockProperties.setBlockFlags(Material.COCOA, blockFix);
+        BlockProperties.setBlockFlags(Material.TURTLE_EGG, blockFix);
+        BlockProperties.setBlockFlags(Material.CHORUS_PLANT, blockFix);
+        BlockProperties.setBlockFlags(Material.CREEPER_WALL_HEAD, blockFix);
+        BlockProperties.setBlockFlags(Material.ZOMBIE_WALL_HEAD, blockFix);
+        BlockProperties.setBlockFlags(Material.PLAYER_WALL_HEAD, blockFix);
+        BlockProperties.setBlockFlags(Material.DRAGON_WALL_HEAD, blockFix);
+        BlockProperties.setBlockFlags(Material.WITHER_SKELETON_WALL_SKULL, blockFix);
+        BlockProperties.setBlockFlags(Material.SKELETON_WALL_SKULL, blockFix);
 
         // Directly keep blocks as is.
         for (final Material mat : new Material[] {
@@ -182,6 +192,12 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             Material.BEACON,
             Material.VINE,
             Material.CHORUS_FLOWER}) {
+            processedBlocks.add(mat);
+        }
+        for (final Material mat : BridgeMaterial.getAllBlocks(
+            "light", "glow_lichen", "big_dripleaf_stem",
+            // TODO: Not fully tested
+            "scaffolding", "powder_snow")) {
             processedBlocks.add(mat);
         }
 
@@ -217,10 +233,10 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
         //Anvil
         for (Material mat : new Material[] {
-        	Material.ANVIL,
-        	Material.CHIPPED_ANVIL,
-        	Material.DAMAGED_ANVIL}) {
-        	addModel(mat, MODEL_ANVIL);
+            Material.ANVIL,
+            Material.CHIPPED_ANVIL,
+            Material.DAMAGED_ANVIL}) {
+            addModel(mat, MODEL_ANVIL);
         }
         
         // Lily pad
@@ -242,6 +258,9 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
         // Ladder
         addModel(Material.LADDER, MODEL_LADDER);
+
+        // BrewingStand
+        addModel(Material.BREWING_STAND, MODEL_BREWING_STAND);
 
         // 1/16 inset at full height.
         for (Material mat : new Material[] {
@@ -275,8 +294,8 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
         // 7/8 height.
         for (Material mat : new Material[] {
-            Material.BREWING_STAND}) {
-            addModel(mat, MODEL_BREWING_STAND);
+            Material.SOUL_SAND}) {
+            addModel(mat, MODEL_XZ100_HEIGHT8_7);
         }
 
         // 16/15 height, full xz bounds.
@@ -322,26 +341,26 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         
         // Turtle Eggs.
         for (Material mat : new Material[] {
-        	Material.TURTLE_EGG}) {
-        	addModel(mat, MODEL_TURTLE_EGG);
+            Material.TURTLE_EGG}) {
+            addModel(mat, MODEL_TURTLE_EGG);
         }
         
         // Conduit
         for (Material mat : new Material[] {
-        	Material.CONDUIT}) {
-        	addModel(mat, MODEL_CONDUIT);
+            Material.CONDUIT}) {
+            addModel(mat, MODEL_CONDUIT);
         }
         
         // Cocoa
         for (Material mat : new Material[] {
-        	Material.COCOA}) {
-        	addModel(mat, MODEL_COCOA);
+            Material.COCOA}) {
+            addModel(mat, MODEL_COCOA);
         }
         
         // Sea Pickles
         for (Material mat : new Material[] {
-        	Material.SEA_PICKLE}) {
-        	addModel(mat, MODEL_SEA_PICKLE);
+            Material.SEA_PICKLE}) {
+            addModel(mat, MODEL_SEA_PICKLE);
         }
         
         // Carpets.
@@ -356,7 +375,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
 
         // Heads on walls.
         for (final Material mat : MaterialUtil.HEADS_WALL) {
-        	addModel(mat, MODEL_WALL_HEAD);
+            addModel(mat, MODEL_WALL_HEAD);
         }
 
         // Doors.
@@ -371,8 +390,8 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         
         // Chorus Plant.
         for (Material mat : new Material[] {
-        	Material.CHORUS_PLANT}) {
-        	addModel(mat, MODEL_CHORUS_PLANT);
+            Material.CHORUS_PLANT}) {
+            addModel(mat, MODEL_CHORUS_PLANT);
         }
 
         // Lantern.
@@ -390,10 +409,19 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         // Piston Head.
         addModel(BridgeMaterial.PISTON_HEAD, MODEL_PISTON_HEAD);
 
+        // Snow.
+        addModel(Material.SNOW, MODEL_SNOW);
+
         // Levelled blocks.
-        for (Material mat : BridgeMaterial.getAllBlocks(
-            "snow", "water", "lava")) {
+        for (Material mat : MaterialUtil.WATER) {
             addModel(mat, MODEL_LEVELLED);
+        }
+        for (Material mat : MaterialUtil.LAVA) {
+            addModel(mat, MODEL_LEVELLED);
+        }
+
+        for (Material mat : MaterialUtil.WATER_PLANTS) {
+            addModel(mat, MODEL_WATER_PLANTS);
         }
 
         // Rails.
@@ -403,6 +431,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         
         // Walls.
         for (Material mat : MaterialUtil.ALL_WALLS) {
+            BlockProperties.setBlockFlags(mat, BlockFlags.SOLID_GROUND | BlockProperties.F_VARIABLE);
             addModel(mat, MODEL_THICK_FENCE2);
         }
 
@@ -429,6 +458,10 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         // Big DripLeaf.
         mt = BridgeMaterial.getBlock("big_dripleaf");
         if (mt != null) addModel(mt, MODEL_DRIP_LEAF);
+
+        // Grindstone.
+        mt = BridgeMaterial.getBlock("grindstone");
+        if (mt != null) addModel(mt, MODEL_GRIND_STONE);
 
         // Sort to processed by flags.
         for (final Material mat : Material.values()) {

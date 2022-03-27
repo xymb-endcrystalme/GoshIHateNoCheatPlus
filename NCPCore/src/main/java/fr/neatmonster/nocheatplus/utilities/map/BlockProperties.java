@@ -791,7 +791,7 @@ public class BlockProperties {
         BlockProps props;
 
         // Stairs.
-        final long stairFlags = BlockFlags.F_STAIRS | BlockFlags.F_XZ100 | BlockFlags.F_GROUND | BlockFlags.F_GROUND_HEIGHT;
+        final long stairFlags = BlockFlags.F_STAIRS | BlockFlags.F_GROUND | BlockFlags.F_SOLID;
         for (final Material mat : MaterialUtil.ALL_STAIRS) {
             BlockFlags.setFlag(mat, stairFlags);
         }
@@ -820,9 +820,6 @@ public class BlockProperties {
             BlockFlags.setFlag(mat, BlockFlags.F_LIQUID | BlockFlags.F_LAVA | BlockFlags.F_FALLDIST_HALF | BlockFlags.F_HEIGHT_8SIM_DEC); // Minecraft 1.13 will remove this flag.
         }
 
-        // Snow (1.4.x)
-        BlockFlags.setFlag(Material.SNOW, BlockFlags.F_HEIGHT_8SIM_INC);
-
         // Climbable
         for (final Material mat : new Material[]{Material.VINE, Material.LADDER,}) {
             BlockFlags.setFlag(mat, BlockFlags.F_CLIMBABLE);
@@ -850,25 +847,17 @@ public class BlockProperties {
         
         // Pistons
         setBlockProps(BridgeMaterial.MOVING_PISTON, indestructibleType); // TODO: really?
-        BlockFlags.setFlag(BridgeMaterial.MOVING_PISTON, BlockFlags.F_IGN_PASSABLE | BlockFlags.F_GROUND | BlockFlags.F_GROUND_HEIGHT | BlockFlags.FULL_BOUNDS);
-        BlockFlags.setFlag(BridgeMaterial.PISTON_HEAD, BlockFlags.F_IGN_PASSABLE);
+        BlockFlags.BlockFlags.setFlag(BridgeMaterial.MOVING_PISTON, BlockFlags.F_IGN_PASSABLE | BlockFlags.F_GROUND | BlockFlags.F_GROUND_HEIGHT 
+                | BlockFlags.FULL_BOUNDS);
 
         // Full block height.
         for (final Material mat : new Material[]{
-            Material.BREWING_STAND,
-            BridgeMaterial.PISTON_HEAD,
-            BridgeMaterial.FARMLAND,}) { // Server reports the visible shape 0.9375, client moves on full block height.
+            BridgeMaterial.FARMLAND // Server reports the visible shape 0.9375, client moves on full block height.
+        }) {
             BlockFlags.setFlag(mat, BlockFlags.F_HEIGHT100);
         }
 
-        // Full width/xz-bounds.
-        for (final Material mat : new Material[]{
-            BridgeMaterial.PISTON_HEAD,
-            BridgeMaterial.END_PORTAL_FRAME}) {
-            BlockFlags.setFlag(mat, BlockFlags.F_XZ100);
-        }
-
-        // Ice
+        // ICE
         BlockFlags.setFlag(Material.ICE, BlockFlags.F_ICE);
 
         // Not ground (!).
@@ -876,16 +865,18 @@ public class BlockProperties {
         BlockFlags.maskFlag(BridgeMaterial.SIGN, ~(BlockFlags.F_GROUND | BlockFlags.F_SOLID));
 
         // Ignore for passable.
-        for (final Material mat : new Material[]{
-            // More strictly needed.
-            BridgeMaterial.STONE_PRESSURE_PLATE,
-            BridgeMaterial.WOODEN_PRESSURE_PLATE,
-            BridgeMaterial.SIGN,
-            BridgeMaterial.get("DIODE_BLOCK_ON"), 
-            BridgeMaterial.get("DIODE_BLOCK_OFF"),
-            Material.BREWING_STAND,
-            // Compatibility. TODO: Really?
-            Material.LADDER,}) {
+        for (final Material mat : new Material[] {
+                // More strictly needed.
+                BridgeMaterial.STONE_PRESSURE_PLATE,
+                BridgeMaterial.WOODEN_PRESSURE_PLATE,
+                BridgeMaterial.SIGN,
+                BridgeMaterial.get("DIODE_BLOCK_ON"), 
+                BridgeMaterial.get("DIODE_BLOCK_OFF"),
+                // Compatibility.
+                //Material.LADDER, 
+                // Workarounds.
+                //				Material.COCOA,
+        }) {
             if (mat != null) {
                 BlockFlags.setFlag(mat, BlockFlags.F_IGN_PASSABLE);
             }
@@ -927,6 +918,9 @@ public class BlockProperties {
                         BlockFlags.setFlag(material, BlockFlags.F_VARIABLE_USE);
                     }
                 }
+                if (name.equals("iron_door_block")) {
+                    BlockFlags.setFlag(material, BlockFlags.F_VARIABLE_REDSTONE);
+                }
             }
         }
 
@@ -946,7 +940,7 @@ public class BlockProperties {
             BlockFlags.setFlag(mat, paneFlags);
         }
         for (final Material mat : MaterialUtil.GLASS_PANES) {
-            BlockFlags.setFlag(mat, paneFlags | BlockFlags.F_FAKEBOUNDS);
+            BlockFlags.setFlag(mat, paneFlags);
         }
         
         // Cake
@@ -955,23 +949,17 @@ public class BlockProperties {
         // Flexible ground (height):
         for (final Material mat : new Material[]{
             // Strictly needed (multiple boxes otherwise).
-            BridgeMaterial.PISTON_HEAD,
-            Material.BREWING_STAND,
-            BridgeMaterial.END_PORTAL_FRAME,
             // Already worked around with isPassableWorkaround (kept for dev-reference).
-            //              Material.ANVIL,
-            //              Material.SKULL, Material.FLOWER_POT,
-            //              Material.DRAGON_EGG,
-            //              Material.COCOA,
+            //				Material.ANVIL,
+            //				Material.SKULL, Material.FLOWER_POT,
+            //				Material.DRAGON_EGG,
+            //				Material.COCOA,
             // 1.10.2 +- client uses the reported height.
             BridgeMaterial.FARMLAND,}) {
-            BlockFlags.setFlag(mat, BlockFlags.F_GROUND_HEIGHT);
+            BlockFlags.setFlag(mat, F_GROUND_HEIGHT);
         }
-
-        // End portal
-        BlockFlags.setFlag(BridgeMaterial.END_PORTAL_FRAME, BlockFlags.F_MIN_HEIGHT16_13);
-
-        // Issues standing on with BlockFlags.F_PASSABLE_X4. Note getGroundMinHeight.
+        BlockFlags.setFlag(BridgeMaterial.END_PORTAL_FRAME, BlockFlags.SOLID_GROUND);
+        // Issues standing on with F_PASSABLE_X4. Note getGroundMinHeight.
         for (Material mat : MaterialUtil.WOODEN_TRAP_DOORS) {
             BlockFlags.setFlag(mat, BlockFlags.F_GROUND_HEIGHT);
         }
@@ -1024,9 +1012,9 @@ public class BlockProperties {
 
         // Cobweb
         BlockFlags.setFlag(BridgeMaterial.COBWEB, BlockFlags.F_COBWEB | BlockFlags.FULL_BOUNDS | BlockFlags.F_IGN_PASSABLE);
-        
+
         // Soulsand
-        BlockFlags.setFlag(Material.SOUL_SAND, BlockFlags.F_SOULSAND | BlockFlags.FULL_BOUNDS);
+        BlockFlags.setFlag(Material.SOUL_SAND, BlockFlags.F_SOULSAND | BlockFlags.SOLID_GROUND);
 
         // Huge mushroom type (...)
         for (Material mat : new Material[]{ Material.VINE, Material.COCOA}) {
@@ -2740,35 +2728,27 @@ public class BlockProperties {
      * @param dT
      *            Time to cover from given position in [0..1], relating to dX,
      *            dY, dZ.
+     * @param minX bound to test
+     * @param minY bound to test
+     * @param minZ bound to test
+     * @param maxX bound to test
+     * @param maxY bound to test
+     * @param maxZ bound to test
      * @return true, if is passable workaround
      */
-    public static final boolean isPassableWorkaround(final BlockCache access, final int bx, final int by, final int bz, 
-                                                     final double fx, final double fy, final double fz, 
-                                                     final IBlockCacheNode node, 
-                                                     final double dX, final double dY, final double dZ, final double dT) {
+    public static final boolean isPassableWorkaround(final BlockCache access, 
+            final int bx, final int by, final int bz, 
+            final double fx, final double fy, final double fz, 
+            final IBlockCacheNode node, 
+            final double dX, final double dY, final double dZ,
+            final double minX, final double minY, final double minZ,
+            final double maxX, final double maxY, final double maxZ,
+            final double dT) {
         // Note: Since this is only called if the bounding box collides, out-of-bounds checks should not be necessary.
         // TODO: Add a flag if a workaround exists (!), might store the type of workaround extra (generic!), or extra flags.
         final Material id = node.getType();
         final long flags = BlockFlags.getBlockFlags(id);
-        if ((flags & BlockFlags.F_STAIRS) != 0) {
-            if ((access.getData(bx, by, bz) & 0x4) != 0) {
-                if (Math.max(fy, fy + dY * dT) < 0.5) {
-                    return true;
-                }
-            }
-            else {
-                // what with >= 1?
-                if (Math.min(fy, fy + dY * dT) >= 0.5) {
-                    return true;
-                }
-            }
-        }
-        else if (id == Material.SOUL_SAND) {
-            if (Math.min(fy, fy + dY * dT) >= 0.875) {
-                return true; // 0.125
-            }
-        }
-        else if ((flags & BlockFlags.F_PASSABLE_X4) != 0 && (access.getData(bx, by, bz) & 0x4) != 0) {
+        if ((flags & BlockFlags.F_PASSABLE_X4) != 0 && (access.getData(bx, by, bz) & 0x4) != 0) {
             // (Allow checking further entries.)
             return true; 
         }
@@ -2781,10 +2761,13 @@ public class BlockProperties {
             if (!collidesFence(fx, fz, dX, dZ, dT, 0.0625)) {
                 return true;
             }
-        } else if ((flags & BlockFlags.F_ANVIL) != 0) {
-            if (!collidesCenter(fx, fz, dX, dZ, dT, 0.1875)) {
+            // NOTE: 0.975 is depend on Y_ON_GROUND_DEFAULT
+            if (Math.min(fy, fy + dY * dT) < 0.975 && !collidesBlock(access, 
+                    minX, minY, minZ, maxX, maxY, maxZ, 
+                    bx, by, bz, node, null, flags | BlockFlags.F_FAKEBOUNDS)) {
                 return true;
             }
+            return false;
         }
         else if (id == Material.CAULDRON || id == Material.HOPPER) {
             if (Math.min(fy, fy + dY * dT) >= getGroundMinHeight(
@@ -2794,17 +2777,7 @@ public class BlockProperties {
                 return isInsideCenter(fx, fz, dX, dZ, dT, 0.125);
             }
         }
-        else if (id == Material.CACTUS) {
-            if (Math.min(fy, fy + dY * dT) >= 0.9375) {
-                return true;
-            }
-            return !collidesCenter(fx, fz, dX, dZ, dT, 0.0625);
-        }
-        else if (!Bridge1_13.hasBoundingBox() && id == BridgeMaterial.PISTON_HEAD) {
-            if (Math.min(fy, fy + dY * dT) >= 0.625) {
-                return true;
-            }
-        }
+
         else if ((flags & BlockFlags.F_GROUND_HEIGHT) != 0
             && getGroundMinHeight(access, bx, by, bz, node, flags) <= Math.min(fy, fy + dY * dT)) {
             return true;
@@ -2812,9 +2785,52 @@ public class BlockProperties {
         else if (id.toString().equals("CHORUS_PLANT") && !collidesFence(fx, fz, dX, dZ, dT, 0.3)) {
              return true;
         }
-        else if (id.toString().equals("BAMBOO")) return true;
+        //else if (id.toString().equals("BAMBOO")) return true;
         // Nothing found.
         return false;
+    }
+
+    /**
+     * Convenient method.
+     *
+     * @param access
+     *            the access
+     * @param bx
+     *            Block-coordinates.
+     * @param by
+     *            the by
+     * @param bz
+     *            the bz
+     * @param fx
+     *            Offset from block-coordinates in [0..1].
+     * @param fy
+     *            the fy
+     * @param fz
+     *            the fz
+     * @param node
+     *            The IBlockCacheNode instance for the given block coordinates.
+     * @param dX
+     *            Total ray distance for coordinated (see dT).
+     * @param dY
+     *            the d y
+     * @param dZ
+     *            the d z
+     * @param dT
+     *            Time to cover from given position in [0..1], relating to dX,
+     *            dY, dZ.
+     * @return true, if is passable workaround
+     */
+    public static final boolean isPassableWorkaround(final BlockCache access, 
+            final int bx, final int by, final int bz, 
+            final double fx, final double fy, final double fz, 
+            final IBlockCacheNode node, 
+            final double dX, final double dY, final double dZ,
+            final double dT) {
+        return isPassableWorkaround(access,
+                bx, by, bz, fx, fy, fz, node, dX, dY, dZ,
+                fx + bx, fy + by, fz + bz,
+                fx + bx, fy + by, fz + bz,
+                dT);
     }
 
     /**
@@ -2960,17 +2976,8 @@ public class BlockProperties {
                                             final IBlockCacheNode node, final long flags) {
         final Material id = node.getType();
         final double[] bounds = node.getBounds(access, x, y, z);
-        // TODO: Check which ones are really needed !
-        if ((flags & BlockFlags.F_HEIGHT_8SIM_INC) != 0) {
-            final int data = (node.getData(access, x, y, z) & 0xF) % 8;
-            if (data < 3) {
-                return 0;
-            }
-            else {
-                return 0.5;
-            }
-        }
-        else if ((flags & BlockFlags.F_HEIGHT_8_INC) != 0) {
+
+        if ((flags & BlockFlags.F_HEIGHT_8_INC) != 0) {
             final int data = (node.getData(access, x, y, z) & 0xF) % 8;
             return 0.125 * (double) data;
         }
@@ -2978,27 +2985,9 @@ public class BlockProperties {
         else if (((flags & BlockFlags.F_HEIGHT150) != 0)) {
             return 1.5;
         }
-        else if ((flags & BlockFlags.F_STAIRS) != 0) {
-            if ((node.getData(access, x, y, z) & 0x4) != 0) {
-                return 1.0;
-            }
-            else {
-                // what with >= 1?
-                return 0.5;
-            }
-        }
         else if ((flags & BlockFlags.F_THICK_FENCE) != 0) {
            return Math.min(1.0, bounds[4]);
         }
-        else if (id == Material.SOUL_SAND) {
-            return 0.875;
-        }
-        else if (id == Material.CACTUS) {
-            return 0.9375;
-        }
-        //else if (id == BridgeMaterial.PISTON_HEAD) {
-        //    return 0.625;
-        //}
         else if (bounds == null) {
             return 0.0;
         }
@@ -3062,7 +3051,11 @@ public class BlockProperties {
         else {
             // Nothing found.
             // TODO: Consider using Math.min(1.0, bounds[4]) for compatibility rather?
-            return bounds[4];
+            double minHeight = bounds[4];
+            for (int i = 2; i <= (int)bounds.length / 6; i++) {
+                minHeight = Math.min(minHeight, bounds[i*6-2]);
+            }
+            return minHeight;
         }
     }
 
@@ -3472,12 +3465,27 @@ public class BlockProperties {
 
         for (int x = iMinX; x <= iMaxX; x++) {
             for (int z = iMinZ; z <= iMaxZ; z++) {
-                 for (int y = iMaxY; y >= iMinY; y--) {
-                     BlockData bd = world.getBlockAt(x,y,z).getBlockData();
-                     if (bd instanceof Waterlogged) {
-                         if (((Waterlogged)bd).isWaterlogged()) return true;
-                     }
-                 }
+                for (int y = iMaxY; y >= iMinY; y--) {
+                    BlockData bd = world.getBlockAt(x,y,z).getBlockData();
+                    if (bd instanceof Waterlogged) {
+                        if (((Waterlogged)bd).isWaterlogged()) return true;
+                    // TODO: ???
+                    //if (bd instanceof Waterlogged && ((Waterlogged)bd).isWaterlogged()) {
+                        // Clearly outside of bounds. (liquid)
+                    //    if (minX > 1.0 + x || maxX < 0.0 + x
+                    //            || minY > 0.890625 + y || maxY < 0.0 + y
+                    //            || minZ > 1.0 + z || maxZ < 0.0 + z) {
+                    //        continue;
+                    //    }
+                    //    System.out.println(minY + " a ");
+                        // Hitting the max-edges (if allowed).
+                    //    if (minX == 1.0 + x || minY == 0.890625 + y || minZ == 1.0 + z) {
+                    //        System.out.println("fire here");
+                    //        continue;
+                    //    }
+                    //    return true;
+                    }
+                }
             }
         }
         return false;
@@ -3673,111 +3681,83 @@ public class BlockProperties {
         }
         double bminX, bminZ, bminY;
         double bmaxX, bmaxY, bmaxZ;
-        // TODO: Consider a quick shortcut checks flags == BlockFlags.F_NORMAL_GROUND
-        if ((flags & BlockFlags.F_STAIRS) != 0) { // TODO: make this a full block flag ?
-            // Mainly for on ground style checks, would not go too well with passable.
-            // TODO: change this to something like BlockFlags.F_FULLBOX probably.
-            bminX = bminY = bminZ = 0D;
-            bmaxX = bmaxY = bmaxZ = 1D;
+
+        // TODO: Consider a quick shortcut checks flags == F_NORMAL_GROUND
+        // xz-bounds
+        if ((flags & BlockFlags.F_XZ100) != 0) {
+            bminX = bminZ = 0;
+            bmaxX = bmaxZ = 1;
         }
         else {
-            // xz-bounds
-            if ((flags & BlockFlags.F_XZ100) != 0) {
-                bminX = bminZ = 0;
-                bmaxX = bmaxZ = 1;
-            }
-            else {
-                bminX = bounds[0]; // block.v(); // minX
-                bminZ = bounds[2]; // block.z(); // minZ
-                bmaxX = bounds[3]; //block.w(); // maxX
-                bmaxZ = bounds[5]; //block.A(); // maxZ
-            }
-            // y-bounds
-            if ((flags & BlockFlags.F_HEIGHT_8SIM_INC) != 0) {
-                // TODO: remove / solve differently ?
-                bminY = 0;
-                final int data = (node.getData(access, x, y, z) & 0xF) % 8;
-                //              bmaxY = (double) (1 +  data) / 8.0;
-                bmaxY = data < 3 ? 0 : 0.5;
-            }
-            else if ((flags & BlockFlags.F_HEIGHT_8_INC) != 0) {
-                bminY = 0;
-                final int data = (node.getData(access, x, y, z) & 0xF) % 8;
-                bmaxY = 0.125 * data;
-            }
-            else if ((flags & BlockFlags.F_HEIGHT150) != 0) {
-                bminY = 0;
-                bmaxY = 1.5;
-            }
-            else if ((flags & BlockFlags.F_HEIGHT100) != 0) {
-                bminY = 0;
-                bmaxY = 1.0;
-            }
-            else if ((flags & BlockFlags.F_HEIGHT16_15) != 0) {
-                bminY = 0;
-                bmaxY = 0.9375;
-            }
-            else if ((flags & BlockFlags.F_HEIGHT_8SIM_DEC) != 0) {
-                bminY = 0;
-                final int data = node.getData(access, x, y, z);
-                if ((data & 0x8) == 0) {
-                    // This box works for jumping over flowing water.
-                    //                  bmaxY = (0.8 - (double) ((data & 0xF) % 8) / 9.8);
-                    final int data8 = (data & 0xF) % 8;
-                    if (data8 > 4) {
-                        // TODO: With block breaking and data8 == 7 this would be too high.
-                        bmaxY = 0.5;
-                    }
-                    else {
-                        //bmaxY = 1.0; // - (double) data8 / 9.0;
-                        bmaxY = shouldLiquidBelowBeFullHeight(access, x, y + 1, z, nodeAbove) ? 1.0 : LIQUID_HEIGHT_LOWERED;
-                    }
+            bminX = bounds[0]; // block.v(); // minX
+            bminZ = bounds[2]; // block.z(); // minZ
+            bmaxX = bounds[3]; //block.w(); // maxX
+            bmaxZ = bounds[5]; //block.A(); // maxZ
+        }
+
+        if ((flags & BlockFlags.F_HEIGHT_8_INC) != 0) {
+            bminY = 0;
+            final int data = (node.getData(access, x, y, z) & 0xF) % 8;
+            bmaxY = 0.125 * data;
+        }
+        else if ((flags & BlockFlags.F_HEIGHT150) != 0) {
+            bminY = 0;
+            bmaxY = 1.5;
+        }
+        else if ((flags & BlockFlags.F_HEIGHT100) != 0) {
+            bminY = 0;
+            bmaxY = 1.0;
+        }
+        else if ((flags & BlockFlags.F_HEIGHT_8SIM_DEC) != 0) {
+            bminY = 0;
+            final int data = node.getData(access, x, y, z);
+            if ((data & 0x8) == 0) {
+                // This box works for jumping over flowing water.
+                //                  bmaxY = (0.8 - (double) ((data & 0xF) % 8) / 9.8);
+                final int data8 = (data & 0xF) % 8;
+                if (data8 > 4) {
+                    // TODO: With block breaking and data8 == 7 this would be too high.
+                    bmaxY = 0.5;
                 }
                 else {
-                    //bmaxY = 1.0;
-                    bmaxY = shouldLiquidBelowBeFullHeight(access, x, y + 1, z, nodeAbove) ? 1.0 : LIQUID_HEIGHT_LOWERED;
-                }
-            }
-            else if ((flags & BlockFlags.F_HEIGHT8_1) != 0) {
-                bminY = 0.0;
-                bmaxY = 0.125;
-            }
-            else if (node.getType() == BridgeMaterial.END_PORTAL_FRAME) {
-                // TODO: Test
-                // TODO: Other concepts ...
-                bminY = 0;
-                if ((node.getData(access, x, y, z) & 0x04) != 0) {
-                    bmaxY = 1.0;
-                } else {
-                    bmaxY = 0.8125;
+                    //bmaxY = 1.0; // - (double) data8 / 9.0;
+                    bmaxY = shouldLiquidBelowBeFullHeight(access, x, y + 1, z, nodeAbove) ? 1.0 : 0.890625;
                 }
             }
             else {
-                bminY = bounds[1]; // minY
-                bmaxY = bounds[4]; // maxY
+                //bmaxY = 1.0;
+                bmaxY = shouldLiquidBelowBeFullHeight(access, x, y + 1, z, nodeAbove) ? 1.0 : 0.890625;
             }
         }
-        // Fake the bound of thin glass or anvil
-        if ((flags & BlockFlags.F_FAKEBOUNDS) != 0) {
-            if ((flags & BlockFlags.F_THIN_FENCE) != 0) {
-                if (bmaxZ - bminZ == 0.125 && bmaxX - bminX != 1.0) {
-                    if (bminX == 0.0) bmaxX = 0.5;
-                    if (bmaxX == 1.0) bminX = 0.5;
-                } 
-                else if (bmaxX - bminX == 0.125 && bmaxZ - bminZ != 1.0) {
-                    if (bminZ == 0.0) bmaxZ = 0.5;
-                    if (bmaxZ == 1.0) bminZ = 0.5;
-                }
-            }
+        else if ((flags & BlockFlags.F_HEIGHT8_1) != 0) {
+            bminY = 0.0;
+            bmaxY = 0.125;
+        }
+        else {
+            bminY = bounds[1]; // minY
+            bmaxY = bounds[4]; // maxY
+        }
 
-            if ((flags & BlockFlags.F_ANVIL) != 0) {
-                if (bminX == 0.125) {
-                    bminZ = 0.125;
-                    bmaxZ = 0.875;
-                } else if (bminZ == 0.125) {
-                    bminX = 0.125;
-                    bmaxX = 0.875;
-                }
+        // Fake the bound of thin glass
+        if ((flags & BlockFlags.F_FAKEBOUNDS) != 0) {
+            final double dz = bmaxZ - bminZ;
+            final double dx = bmaxX - bminX;
+            if (dz == 0.125 && dx != 1.0) {
+                if (bminX == 0.0) bmaxX = 0.5;
+                if (bmaxX == 1.0) bminX = 0.5;
+            } 
+            else if (dx == 0.125 && dz != 1.0) {
+                if (bminZ == 0.0) bmaxZ = 0.5;
+                if (bmaxZ == 1.0) bminZ = 0.5;
+            } 
+            else if (dx == dz && dx != 1.0) {
+                if (bmaxX == 0.5625) bmaxX = 0.5;
+                else
+                if (bmaxZ == 0.5625) bmaxZ = 0.5;
+                else
+                if (bminX == 0.4375) bminX = 0.5;
+                else
+                if (bminZ == 0.4375) bminZ = 0.5;
             }
         }
 
@@ -4129,7 +4109,9 @@ public class BlockProperties {
 
         // TODO: Make this one work (passable workaround).
         // Check if the block can be passed through with the bounding box (disregard the ignore flag).
-        if (isPassableWorkaround(access, x, y, z, minX - x, minY - y, minZ - z, node, maxX - minX, maxY - minY, maxZ - minZ, 1.0)) {
+        if (isPassableWorkaround(access, x, y, z, minX - x, minY - y, minZ - z, node, maxX - minX, maxY - minY, maxZ - minZ, 
+                minX, minY, minZ, maxX, maxY, maxZ,
+                1.0)) {
             // Spider !
             // Not nice but...
             // TODO: GROUND_HEIGHT: would have to check passable workaround again ?
@@ -4217,7 +4199,9 @@ public class BlockProperties {
         }
 
         // Check passable workaround without checking ignore flag.
-        if (isPassableWorkaround(access, x, y + 1, z, minX - x, minY - (y + 1), minZ - z, nodeAbove, maxX - minX, maxY - minY, maxZ - minZ, 1.0)) {
+        if (isPassableWorkaround(access, x, y + 1, z, minX - x, minY - (y + 1), minZ - z, nodeAbove, maxX - minX, maxY - minY, maxZ - minZ,
+                minX, minY, minZ, maxX, maxY, maxZ, 
+                1.0)) {
             return AlmostBoolean.YES;
         }
 
@@ -4597,7 +4581,8 @@ public class BlockProperties {
 
         // Check for workarounds.
         // TODO: check f_itchy once exists.
-        if (BlockProperties.isPassableWorkaround(access, blockX, blockY, blockZ, oX, oY, oZ, node, dX, dY, dZ, dT)) {
+        if (BlockProperties.isPassableWorkaround(access, blockX, blockY, blockZ, oX, oY, oZ, node, dX, dY, dZ,
+                minX, minY, minZ, maxX, maxY, maxZ, dT)) {
             return true;
         }
         // Does collide (most likely).
@@ -4652,7 +4637,9 @@ public class BlockProperties {
         // Check for workarounds.
         // TODO: Adapted to use the version initially intended for ray-tracing. Should have an explicit thing for the box, and let the current ray-tracing variant use that, until THEY implement something real.
         // TODO: check f_itchy once exists.
-        if (BlockProperties.isPassableWorkaround(access, blockX, blockY, blockZ, minX - blockX, minY - blockY, minZ - blockZ, node, maxX - minX, maxY - minY, maxZ - minZ, 1.0)) {
+        if (BlockProperties.isPassableWorkaround(access, blockX, blockY, blockZ, minX - blockX, minY - blockY, minZ - blockZ, node, maxX - minX, maxY - minY, maxZ - minZ, 
+                minX, minY, minZ, maxX, maxY, maxZ,
+                1.0)) {
             return true;
         }
         // Does collide (most likely).
@@ -4729,7 +4716,7 @@ public class BlockProperties {
         int added = 0;
         final int iMinX = Location.locToBlock(minX);
         final int iMaxX = Location.locToBlock(maxX);
-        final int iMinY = Location.locToBlock(minY); // Include height150 blocks.
+        final int iMinY = Location.locToBlock(minY);
         final int iMaxY = Location.locToBlock(maxY);
         final int iMinZ = Location.locToBlock(minZ);
         final int iMaxZ = Location.locToBlock(maxZ);
@@ -4743,14 +4730,20 @@ public class BlockProperties {
                 }
             }
         }
-        /*
-         * Consider doing an xz iteration here for HEIGHT150, if y-offset <= 0.5
-         * (and possibly a flag is set). Note that collision behavior of fences
-         * can be peculiar, with barriers at 1.5 and 1.0 height (1.5 height only
-         * applies with non solid blocks above, thus ignore air/liquid/certain
-         * blocks if initially colliding with fence underneath (!)), for a
-         * convention.
-         */
+        final int iMinY2 = Location.locToBlock(minY - 0.5); // Include height150 blocks.
+        if (iMinY != iMinY2) {
+            for (int x = iMinX; x <= iMaxX; x++) {
+                for (int z = iMinZ; z <= iMaxZ; z++) {
+                    final IBlockCacheNode node = access.getOrCreateBlockCacheNode(x, iMinY2, z, false);
+                    if ((BlockFlags.getBlockFlags(node.getType()) & BlockFlags.F_HEIGHT150) != 0) {
+                        if (!isPassableBox(access, x, iMinY2, z, minX, minY, minZ, maxX, maxY, maxZ)) {
+                            results.addBlockPosition(x, iMinY2, z);
+                            added ++;
+                        }
+                    }
+                }
+            }
+        }
         return added;
     }
 

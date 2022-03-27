@@ -23,6 +23,7 @@ import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_11_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 
+import fr.neatmonster.nocheatplus.compat.blocks.LegacyBlocks;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 import net.minecraft.server.v1_11_R1.AxisAlignedBB;
 import net.minecraft.server.v1_11_R1.BlockPosition;
@@ -36,6 +37,7 @@ import net.minecraft.server.v1_11_R1.TileEntity;
 public class BlockCacheSpigotCB1_11_R1 extends BlockCache {
 
     protected net.minecraft.server.v1_11_R1.World world;
+
     protected World bukkitWorld;
 
     private final IBlockAccess iBlockAccess = new IBlockAccess() {
@@ -94,13 +96,16 @@ public class BlockCacheSpigotCB1_11_R1 extends BlockCache {
 
     @Override
     public double[] fetchBounds(final int x, final int y, final int z){
-        final Material id = getType(x, y, z);
+        final Material mat = getType(x, y, z);
         @SuppressWarnings("deprecation")
-        final net.minecraft.server.v1_11_R1.Block block = net.minecraft.server.v1_11_R1.Block.getById(id.getId());
+        final int id = mat.getId();
+        final net.minecraft.server.v1_11_R1.Block block = net.minecraft.server.v1_11_R1.Block.getById(id);
         if (block == null) {
             // TODO: Convention for null blocks -> full ?
             return null;
         }
+        final double[] shape = LegacyBlocks.getShape(this, mat, x, y, z, false);
+        if (shape != null) return shape;
         final BlockPosition pos = new BlockPosition(x, y, z);
         // TODO: Deprecation warning below (reason / substitute?).
         @SuppressWarnings("deprecation")
