@@ -174,15 +174,15 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         // Variables for repeated flags (Temporary flags, these should be fixed later so that they are not added here)
         final long blockFix = BlockFlags.SOLID_GROUND;
         // Adjust flags for individual blocks.
-        BlockProperties.setBlockFlags(Material.COCOA, blockFix);
-        BlockProperties.setBlockFlags(Material.TURTLE_EGG, blockFix);
-        BlockProperties.setBlockFlags(Material.CHORUS_PLANT, blockFix);
-        BlockProperties.setBlockFlags(Material.CREEPER_WALL_HEAD, blockFix);
-        BlockProperties.setBlockFlags(Material.ZOMBIE_WALL_HEAD, blockFix);
-        BlockProperties.setBlockFlags(Material.PLAYER_WALL_HEAD, blockFix);
-        BlockProperties.setBlockFlags(Material.DRAGON_WALL_HEAD, blockFix);
-        BlockProperties.setBlockFlags(Material.WITHER_SKELETON_WALL_SKULL, blockFix);
-        BlockProperties.setBlockFlags(Material.SKELETON_WALL_SKULL, blockFix);
+        BlockFlags.setBlockFlags(Material.COCOA, blockFix);
+        BlockFlags.setBlockFlags(Material.TURTLE_EGG, blockFix);
+        BlockFlags.setBlockFlags(Material.CHORUS_PLANT, blockFix);
+        BlockFlags.setBlockFlags(Material.CREEPER_WALL_HEAD, blockFix);
+        BlockFlags.setBlockFlags(Material.ZOMBIE_WALL_HEAD, blockFix);
+        BlockFlags.setBlockFlags(Material.PLAYER_WALL_HEAD, blockFix);
+        BlockFlags.setBlockFlags(Material.DRAGON_WALL_HEAD, blockFix);
+        BlockFlags.setBlockFlags(Material.WITHER_SKELETON_WALL_SKULL, blockFix);
+        BlockFlags.setBlockFlags(Material.SKELETON_WALL_SKULL, blockFix);
 
         // Directly keep blocks as is.
         for (final Material mat : new Material[] {
@@ -431,7 +431,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         
         // Walls.
         for (Material mat : MaterialUtil.ALL_WALLS) {
-            BlockProperties.setBlockFlags(mat, BlockFlags.SOLID_GROUND | BlockProperties.F_VARIABLE);
+            BlockFlags.setBlockFlags(mat, BlockFlags.SOLID_GROUND | BlockFlags.F_VARIABLE);
             addModel(mat, MODEL_THICK_FENCE2);
         }
 

@@ -847,7 +847,7 @@ public class BlockProperties {
         
         // Pistons
         setBlockProps(BridgeMaterial.MOVING_PISTON, indestructibleType); // TODO: really?
-        BlockFlags.BlockFlags.setFlag(BridgeMaterial.MOVING_PISTON, BlockFlags.F_IGN_PASSABLE | BlockFlags.F_GROUND | BlockFlags.F_GROUND_HEIGHT 
+        BlockFlags.setFlag(BridgeMaterial.MOVING_PISTON, BlockFlags.F_IGN_PASSABLE | BlockFlags.F_GROUND | BlockFlags.F_GROUND_HEIGHT 
                 | BlockFlags.FULL_BOUNDS);
 
         // Full block height.
@@ -956,7 +956,7 @@ public class BlockProperties {
             //				Material.COCOA,
             // 1.10.2 +- client uses the reported height.
             BridgeMaterial.FARMLAND,}) {
-            BlockFlags.setFlag(mat, F_GROUND_HEIGHT);
+            BlockFlags.setFlag(mat, BlockFlags.F_GROUND_HEIGHT);
         }
         BlockFlags.setFlag(BridgeMaterial.END_PORTAL_FRAME, BlockFlags.SOLID_GROUND);
         // Issues standing on with F_PASSABLE_X4. Note getGroundMinHeight.
