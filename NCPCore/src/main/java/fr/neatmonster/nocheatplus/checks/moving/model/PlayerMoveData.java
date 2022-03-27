@@ -71,9 +71,6 @@ public class PlayerMoveData extends MoveData {
     /** This move was allowed to jump. Set in SurvivalFly.check(vdistrel) */
     public boolean allowjump;
 
-    /** Landing on ground but still moving up (yDistance > 0.0). Set in Survivalfly.check, used to update the setback location */
-    public boolean lowJumpSlope;
-
     // TODO: verVel/horvel used?
 
     // Meta stuff.
@@ -94,7 +91,7 @@ public class PlayerMoveData extends MoveData {
     @Override
     protected void resetBase() {
         // Properties of the player.
-        walkSpeed = 0.2;
+        walkSpeed = 0.287;
         // Properties involving the environment.
         bunnyHop = false;
         allowstep = false;
@@ -106,7 +103,6 @@ public class PlayerMoveData extends MoveData {
         // Meta stuff.
         //flyCheck = null;
         //modelFlying = null;
-        lowJumpSlope = false;
         multiMoveCount = 0;
         verVelUsed = null;
         // Super class last, because it'll set valid to true in the end.

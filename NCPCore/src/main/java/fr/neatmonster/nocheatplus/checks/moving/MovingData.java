@@ -124,8 +124,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public long timeVehicletoss = 0;
     /** If is Bedrock Player. This is set if CompatNoCheatPlus is present. */
     public boolean bedrockPlayer = false;
-    /** Indicate there was a duplicate move */
-    public boolean lastMoveNoMove = false;
     /** Temporary snow fix flag */
     // TODO: remove.
     public boolean snowFix = false;
@@ -299,6 +297,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int lastSetBackHash = 0;
     /** Position teleported from into another world. Only used for certain contexts for workarounds. */
     public IPositionWithLook crossWorldFrom = null;
+    /** Indicate there was a duplicate move */
+    public boolean lastMoveNoMove = false;
 
     // *----------Vehicles----------*
     /** Inconsistency-flag. Set on moving inside of vehicles, reset on exiting properly. Workaround for VehicleLeaveEvent missing. */

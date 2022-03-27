@@ -151,7 +151,7 @@ public class LostGround {
                 }
 
                 // Check for sprint-jumping on fences with trapdoors above (missing trapdoor's edge touch on server-side, player lands directly onto the fence)
-                // TODO: This might be a flaw with the onGround judgement rather (though jumping up is fine, only bunnyhop poses problems)
+                // This is rather a false negative: NCP's collision differs from MC's; NCP won't detect this specific collision while MC does.
                 if (setBackYDistance > 1.0 && setBackYDistance <= 1.5 
                     && setBackYMargin < 0.6 && data.bunnyhopDelay > 0 
                     && yDistance > from.getyOnGround() && lastMove.yDistance <= Magic.GRAVITY_MAX
@@ -162,10 +162,11 @@ public class LostGround {
                     if ((to.getBlockFlags() & BlockFlags.F_ATTACHED_LOW2_SNEW) != 0
                         && (to.getBlockFlags() & BlockFlags.F_HEIGHT150) != 0) {
                         
-                        // missing the trapdoor by 0.003
+                        // Missing the trapdoor by 0.003
                         if (to.isOnGround(0.003, 0.0, 0.0)) {
                             // Setbacksafe: matter of taste.
-                            return applyLostGround(player, from, false, thisMove, data, "fencestep", tags);
+                            // With false, in case of a cheating attempt, the player will be setbacked on the ground instead of the trapdoor.
+                            return applyLostGround(player, from, false, thisMove, data, "trapfence", tags);
                         }
                     }
                 }
@@ -192,7 +193,8 @@ public class LostGround {
                                 )
                         ) {
                     // TODO: Ensure set back is slightly lower, if still on ground.
-                    return applyLostGround(player, from, true, thisMove, data, "nbtwr", tags);
+                    // setBackSafe: false to prevent a lowjump due to the setback reset.
+                    return applyLostGround(player, from, false, thisMove, data, "nbtwr", tags);
                 }
             }
 
@@ -289,7 +291,8 @@ public class LostGround {
                 && noobTowerStillCommon(to, yDistance)) {
             // TODO: Ensure set back is slightly lower, if still on ground.
             final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
-            return applyLostGround(player, from, true, thisMove, data, "nbtwr", tags);
+            // setBackSafe: false to prevent a lowjump due to the setback reset.
+            return applyLostGround(player, from, false, thisMove, data, "nbtwr", tags);
         }
         return false;
     }
@@ -438,7 +441,7 @@ public class LostGround {
 
             // Check for jumping up strange blocks like flower pots on top of other blocks.
             if (yDistance == 0.0 && lastMove.yDistance > 0.0 && lastMove.yDistance < 0.25 
-                && data.sfJumpPhase <= Math.max(0, 6 + data.jumpAmplifier * 3.0) 
+                && data.sfJumpPhase <= data.liftOffEnvelope.getMaxJumpPhase(data.jumpAmplifier)
                 && setBackYDistance > 1.0 && setBackYDistance < Math.max(0.0, 1.5 + 0.2 * data.jumpAmplifier) 
                 && !to.isOnGround()) {
                 

@@ -477,17 +477,28 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             earlyReturn = handleTeleportedOnMove(player, event, data, cc, pData);
             token = "awaitsetback";
         }
-        else if (TrigUtil.isSamePos(from, to) && !data.lastMoveNoMove) {
+        else if (TrigUtil.isSamePos(from, to) && !data.lastMoveNoMove
+                && ServerVersion.compareMinecraftVersion("1.17") >= 0) { 
             //if (data.sfHoverTicks > 0) data.sfHoverTicks += hoverTicksStep;
             earlyReturn = data.lastMoveNoMove = true;
             token = "duplicate";
+            // Ignore 1.17+ duplicate position packets.
+            // Context: Mojang attempted to fix a bucket placement desync issue by re-sending the previous position on right clicking...
+            // On the server-side, this translates in a duplicate move which we need to ignore (i.e.: players can have 0 distance in air, MorePackets will trigger due to the extra packet if the button is pressed for long enough etc...)
+            // You would think that this would AT LEAST fix the issue, but it doesn't. However it surely does complicate things on our side.
+            // Thanks Mojang as always.
+            // TODO: Micro moves can be detected as duplicate !
+            // NOTE: on ground status does not seem to change
         }
         else {
             earlyReturn = false;
             token = null;
         }
 
-        if (!TrigUtil.isSamePos(from, to)) data.lastMoveNoMove = false;
+        // Reset duplicate move flag.
+        if (!TrigUtil.isSamePos(from, to)) {
+            data.lastMoveNoMove = false;
+        }
 
         if (earlyReturn) {
             if (debug) {
@@ -510,15 +521,19 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
 
 
-        ////////////////////////////////////////
-        // Fire one or two moves here.        //
-        ////////////////////////////////////////
-        // newTo should be null here.
+        //////////////////////////////////////////////////////////////
+        // Fire one or two moves here (Split move handling).        //
+        //////////////////////////////////////////////////////////////
+        // (newTo should be null here)
         final PlayerMoveInfo moveInfo = aux.usePlayerMoveInfo();
         final Location loc = player.getLocation(moveInfo.useLoc);
         final PlayerMoveData lastMove = data.playerMoves.getFirstPastMove();
         if (cc.loadChunksOnMove) MovingUtil.ensureChunksLoaded(player, from, to, lastMove, "move", cc, pData);
         
+        // Ordinary: Fire move from -> to
+        // This was reported and supposedely fixed by the Spigot team, however asofold decided to keep this active anyway. No reason is given from the commit.
+        // @See: https://github.com/NoCheatPlus/NoCheatPlus/commit/7d2c1ce1f8b40fac554cdef8040576d9f88503ef
+        // @See: https://hub.spigotmc.org/jira/browse/SPIGOT-1646
         if (
                 // Handling split moves has been disabled.
                 !cc.splitMoves ||
@@ -529,13 +544,12 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 // TODO: On pistons pulling the player back: -1.15 yDistance for split move 1 (untracked position > 0.5 yDistance!).
                 // (Could also be other envelopes (0.9 velocity upwards), too tedious to research.)
             ) {
-            // Fire move from -> to
-            // (Special case: Location has not been updated last moving event.)
+            // 0: Fire move from -> to
             moveInfo.set(player, from, to, cc.yOnGround);
-            // Run checks
             checkPlayerMove(player, from, to, 0, moveInfo, debug, data, cc, pData, event);
         }
         else {
+            // (Special case: Location has not been updated last moving event.)
             // Split into two moves.
             // 1. Process from -> loc.
             if (debug) debug(player, "Split move 1 (from -> loc):");
@@ -547,9 +561,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                 data.joinOrRespawn = false;
                 // 2. Process loc -> to.
                 if (debug) debug(player, "Split move 2 (loc -> to):");
-                // Set move info
                 moveInfo.set(player, loc, to, cc.yOnGround);
-                // Run checks
                 checkPlayerMove(player, loc, to, 2, moveInfo, debug, data, cc, pData, event);
             }
         }

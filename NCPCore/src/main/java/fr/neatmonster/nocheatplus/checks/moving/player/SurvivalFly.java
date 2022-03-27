@@ -220,11 +220,13 @@ public class SurvivalFly extends Check {
         ////////////////////////////////////
         // Mixed checks (lost ground)    ///
         ////////////////////////////////////
-        final boolean resetFrom;
-        if (fromOnGround || from.isResetCond()) resetFrom = true;
         // TODO: Extra workarounds for toOnGround (step-up is a case with to on ground)?
         // TODO: This isn't correct, needs redesign.
         // TODO: Quick addition. Reconsider entry points etc.
+        final boolean resetFrom;
+        if (fromOnGround || from.isResetCond()) {
+            resetFrom = true;
+        }
         else if (isSamePos) {
 
             if (useBlockChangeTracker && from.isOnGroundOpportune(cc.yOnGround, 0L, blockChangeTracker, data.blockChangeRef, tick)) {
@@ -249,10 +251,14 @@ public class SurvivalFly extends Check {
                 data.resetVelocityJumpPhase(tags);
             }
             // Ground somehow appeared out of thin air (block place).
-            else if (multiMoveCount == 0 && thisMove.from.onGround && !lastMove.touchedGround
+            else if (multiMoveCount == 0 && thisMove.from.onGround && Magic.inAir(lastMove)
                     && TrigUtil.isSamePosAndLook(thisMove.from, lastMove.to)) {
                 data.setSetBack(from);
-                if (debug) debug(player, "Adjust set back on move: from is now on ground.");
+                // Schedule a no low jump flag because the setback update will then cause a low-jump with the subsequent descending phase
+                data.sfNoLowJump = true;
+                if (debug) {
+                    debug(player, "Ground appeared due to a block-place: schedule sfNoLowJump and adjust set-back location.");
+                }
             }
         }
 
@@ -332,7 +338,8 @@ public class SurvivalFly extends Check {
         // No horizontal distance present
         else {
             // Prevent way too easy abuse by simply collecting queued entries while standing still with no-knockback on. (Experimental, likely too strict)
-            if (cc.velocityStrictInvalidation && lastMove.hAllowedDistanceBase == 0.0 && data.hasQueuedHorVel()) {
+            if (cc.velocityStrictInvalidation && lastMove.hAllowedDistanceBase == 0.0 
+                && data.hasQueuedHorVel()) {
                 data.clearAllHorVel();
                 hFreedom = 0.0;  
             }
@@ -474,7 +481,8 @@ public class SurvivalFly extends Check {
                 // Relax VL.
                 data.survivalFlyVL *= 0.95;
                 // Finally check horizontal buffer regain.
-                if (hDistanceAboveLimit < 0.0  && result <= 0.0 && !isSamePos && data.sfHorizontalBuffer < cc.hBufMax) {
+                if (hDistanceAboveLimit < 0.0 && result <= 0.0 && !isSamePos && data.sfHorizontalBuffer < cc.hBufMax
+                    && !data.sfLowJump) {
                     // TODO: max min other conditions ?
                     hBufRegain(hDistance, Math.min(0.2, Math.abs(hDistanceAboveLimit)), data, cc);
                 }
@@ -579,31 +587,32 @@ public class SurvivalFly extends Check {
         if (resetTo) {
             // The player has moved onto ground.
             if (toOnGround) {
-                // Update setback location and reset bunny-hop-delay:
-                // Moving onto ground but still moving up (jumping next to a block). Do not update setback location in this phase
-                if (yDistance > 0.0 && to.getY() > data.getSetBackY() + 0.12 // 0.15 ?
-                    && !from.isResetCond() && !to.isResetCond() && !to.isAboveStairs()
-                    && !((to.getBlockFlags() & BlockFlags.F_HEIGHT_8_INC) != 0)) { // Ignore snow for now.
+                // Moving onto ground but still ascending (jumping next to a block).
+                if (yDistance > 0.0 && to.getY() > data.getSetBackY() + 0.13 // 0.15 ?
+                    && !from.isResetCond() && !to.isResetCond()) { 
+
                     // Too early abort, remember when the delay was reset (see MagicBunny.bunnyHop)
                     if (data.bunnyhopDelay > 0) {
                         if (data.bunnyhopDelay > 6) {
                             data.lastbunnyhopDelay = data.bunnyhopDelay;
                         }
                         data.bunnyhopDelay = 0;
-                        tags.add("resetbunny");
-                    }                    
-                    thisMove.lowJumpSlope = true;
-                    // (Keep old setback for this phase)
+                    }
+                    // Schedule a no low jump flag, because this low descending phase is legit
+                    data.sfNoLowJump = true;
+                    if (debug) {
+                        debug(player, "Slope: schedule sfNoLowJump and reset bunnyfly.");
+                    }
                 }
-                // Update setback
-                else data.setSetBack(to);
+                // Ordinary
+                else data.sfNoLowJump = false;
             }
-            // Moving into resetcond
-            else data.setSetBack(to);
+            // Lost ground or reset condition
+            else data.sfNoLowJump = false;
             // Reset data.
+            data.setSetBack(to);
             data.sfJumpPhase = 0;
             data.clearAccounting();
-            data.sfNoLowJump = false;
             if (data.sfLowJump && resetFrom) {
                 // Prevent reset if coming from air (purpose of the flag).
                 data.sfLowJump = false;
@@ -615,7 +624,7 @@ public class SurvivalFly extends Check {
         // The player moved from ground.
         else if (resetFrom) {
             // Keep old setback if coming from a 1 block high slope.
-            if (!lastMove.lowJumpSlope) data.setSetBack(from);
+            data.setSetBack(from);
             data.sfJumpPhase = 1; // This event is already in air.
             data.clearAccounting();
             data.sfLowJump = false;
@@ -1280,7 +1289,7 @@ public class SurvivalFly extends Check {
         else if (!from.isHalfGroundHalfWater() && !sfDirty && (!checkPermissions || !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_WATERWALK, player))
                 && (Magic.leavingLiquid(thisMove) || data.surfaceId == 1) && data.liftOffEnvelope.name().startsWith("LIMIT")
                 && !from.isInWaterLogged()) {
-            tags.add("hsurface");
+            tags.add("hliquidexit");
             final int StriderLevel = BridgeEnchant.getDepthStriderLevel(player);
             hAllowedDistance = Bridge1_13.isSwimming(player) ? Magic.modSwim[1] : Magic.modSwim[0] * thisMove.walkSpeed * Magic.modSurface[0] * cc.survivalFlySwimmingSpeed / 100D;
             useBaseModifiersSprint = false;
@@ -1754,7 +1763,6 @@ public class SurvivalFly extends Check {
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Check on change of Y direction: prevent players from jumping lower than normal, also includes an air-jump check. //
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        final Material blockBelow = from.getTypeId(from.getBlockX(), Location.locToBlock(from.getY() - 1.0), from.getBlockZ());
         final boolean InAirPhase = !VEnvHack && !resetFrom && !resetTo;
         final boolean ChangedYDir = lastMove.toIsValid && lastMove.yDistance != yDistance && (yDistance <= 0.0 && lastMove.yDistance >= 0.0 || yDistance >= 0.0 && lastMove.yDistance <= 0.0); 
 
@@ -1763,8 +1771,8 @@ public class SurvivalFly extends Check {
             // (Does this account for velocity in a sufficient way?)
             if (yDistance > 0.0) {
                 // TODO: Demand consuming queued velocity for valid change (!).
-                // Increase
                 if (lastMove.touchedGround || lastMove.to.extraPropertiesValid && lastMove.to.resetCond) {
+                    // Change to increasing phase
                     tags.add("ychinc");
                 }
                 else {
@@ -1780,29 +1788,34 @@ public class SurvivalFly extends Check {
                 }
             }
             else {
-                // Decrease
+                // Change to decreasing phase.
                 tags.add("ychdec");
-                // Detect low jumping.
+                // Catch low jump between last ascending phase and current descend phase
+                // NOTE: this only checks jump height, not motion speed.
                 // TODO: sfDirty: Account for actual velocity (demands consuming queued for dir-change(!))!
                 if (!data.sfLowJump && !data.sfNoLowJump && lastMove.toIsValid && lastMove.yDistance > 0.0 
                     && !data.isVelocityJumpPhase()) {
                     
                     /** Only count it if the player has actually been jumping (higher than setback). */
                     final double setBackYDistance = from.getY() - data.getSetBackY();
+                    /** Estimation of minimal jump height */
                     final double minJumpHeight = data.liftOffEnvelope.getMinJumpHeight(data.jumpAmplifier);
                     if (setBackYDistance > 0.0 && setBackYDistance < minJumpHeight) {
 
-                        // TODO: Actual fix for stairs, then let's actually punish players for lowjumping (un-comment code below)
-                        // TODO: Thinkable: feed the Improbable on too high occurance of low jumping
-                        if (thisMove.headObstructed || yDistance <= 0.0 && lastMove.headObstructed && lastMove.yDistance >= 0.0
-                            // TODO: Jumping on the lower edge with off-centered (almost outside block) bounding box will still flag...
-                            || BlockProperties.isStairs(blockBelow) || tags.contains("lostground_nbtwr")) {
+                        if (
+                            // Head obstruction obviously allows to lowjump
+                            thisMove.headObstructed 
+                            || yDistance <= 0.0 && lastMove.headObstructed && lastMove.yDistance >= 0.0) {
                             // Exempt.
                             tags.add("lowjump_skip");
                         }
                         else {
-                            // vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(minJumpHeight - jumpHeight));
+                            // Violation
+                            vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(minJumpHeight - setBackYDistance));
+                            // Set a flag to tell us that from here, this whole descending phase is due to a lowjump
                             data.sfLowJump = true;
+                            // Feed the Improbable.
+                            Improbable.feed(player, (float) cc.yOnGround, System.currentTimeMillis());
                         }
                     }
                 } 
@@ -1845,7 +1858,7 @@ public class SurvivalFly extends Check {
         } 
 
 
-        // Join the lowjump tag
+        // Add lowjump tag for the whole descending phase.
         if (data.sfLowJump) {
             tags.add("lowjump");
         }
@@ -2320,7 +2333,7 @@ public class SurvivalFly extends Check {
                 vAllowedDistance = lastMove.yDistance * Magic.FRICTION_MEDIUM_AIR - Magic.GRAVITY_MAX;
             }
             // Ordinary.
-            // We could be stricter but spamming WASD  in a tower of webs results in random falling speed changes: ca. observed -0.058 (!? Mojang...)
+            // We could be stricter but spamming WASD in a tower of webs results in random falling speed changes: ca. observed -0.058 (!? Mojang...)
             else vAllowedDistance = -Magic.GRAVITY_MIN * Magic.FRICTION_MEDIUM_AIR;
             vDistanceAboveLimit = yDistance < vAllowedDistance ? Math.abs(yDistance - vAllowedDistance) : 0.0;
         }

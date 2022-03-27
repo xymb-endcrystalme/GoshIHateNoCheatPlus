@@ -137,7 +137,7 @@ public class MagicBunny {
                     hDistanceAboveLimit = 0.0;
                 }
                 // Bunny friction: very few air friction than ordinary.
-                else if (bunnyFrictionEnvelope(hDistDiff, lastMove.hDistance, hDistanceAboveLimit, hDistance, baseSpeed)) {
+                else if (bunnyFrictionEnvelope(hDistDiff, lastMove.hDistance, hDistanceAboveLimit, hDistance, baseSpeed, data)) {
                     
                     // Now, speed needs to decrease by some minimal amount per event. 
                     final double maxSpeed = baseSpeed * modBunny(headObstructed, data); 
@@ -224,6 +224,7 @@ public class MagicBunny {
         //or bunnyhop-> ground-> slidedown-> bunnyfriction
         // Hit ground but slipped away by somehow and still remain bunny friction
         // TODO: Why not simply fix resetbunny instead of adding this?
+        // TODO: This workaround should be now obsolete.
         final double inc = ServerIsAtLeast1_13 ? 0.03 : 0;
         final double hopMargin = Magic.wasOnIceRecently(data) ? 1.4 : (data.momentumTick > 0 ? (data.momentumTick > 2 ? 1.0 + inc : 1.11 + inc) : 1.22 + inc);
 
@@ -231,7 +232,7 @@ public class MagicBunny {
             && lastMove.hDistance > hDistance && baseSpeed > 0.0 && hDistance / baseSpeed < hopMargin) {
             
             final double hDistDiff = lastMove.hDistance - hDistance;
-            if (bunnyFrictionEnvelope(hDistDiff, lastMove.hDistance, hDistanceAboveLimit, hDistance, baseSpeed)) {
+            if (bunnyFrictionEnvelope(hDistDiff, lastMove.hDistance, hDistanceAboveLimit, hDistance, baseSpeed, data)) {
                 //if (data.lastbunnyhopDelay == 8 && thisMove.from.onGround && !thisMove.to.onGround) {
                 //    data.lastbunnyhopDelay++;
                 //    tags.add("bunnyfriction(keep)"); // TODO: Never happen?
@@ -280,7 +281,7 @@ public class MagicBunny {
                 // 0: Lift-off envelope conditions
                 // TODO: Workaround bounding box issues (i.e.: bunnyhopping with pixels in water. Player can hop, but the change of envelope will negate it :p)
                 data.liftOffEnvelope == LiftOffEnvelope.NORMAL 
-                // 0: Can't bunnyhop if lowjumping.
+                // 0: Can't bunnyhop if in low-jump phase.
                 && (!data.sfLowJump || data.sfNoLowJump) 
                 // 0: Y-distance envelope.
                 && (
@@ -296,7 +297,7 @@ public class MagicBunny {
                     || yDistance < 0.0 && (from.getBlockFlags() & BlockFlags.F_BOUNCE25) != 0 
                     // 1: Bunnyhop after jumping up 1 block
                     || Magic.jumpedUpSlope(data, from, 9) && !lastMove.bunnyHop
-                    && yDistance > from.getyOnGround() && yDistance <= minJumpGain - Magic.GRAVITY_SPAN
+                    && yDistance > Magic.GRAVITY_MIN && yDistance <= minJumpGain - Magic.GRAVITY_SPAN
                     // 1: Ice-slope-slide-down (sprint-jumping on a single block then sliding back down)
                     || Magic.wasOnIceRecently(data) && (hDistance / baseSpeed < 1.32 || hDistance / lastMove.hDistance < 1.27) && !headObstructed
                     && Magic.jumpedUpSlope(data, from, 14)
@@ -357,10 +358,15 @@ public class MagicBunny {
      * @return
      */
     public static boolean bunnyFrictionEnvelope(final double hDistDiff, final double lastHDistance, final double hDistanceAboveLimit, 
-                                                final double currentHDistance, final double currentAllowedBaseSpeed) {
+                                                final double currentHDistance, final double currentAllowedBaseSpeed, final MovingData data) {
 
         // TODO: Conditions may be too loose as of now. Could be more strict.
+        // Clearly not in a friction phase :p
         if (currentHDistance > lastHDistance) {
+            return false;
+        }
+        // Ensure low-jumps don't allow bunnyhops to get through.
+        if (data.sfLowJump) {
             return false;
         }
         return  hDistDiff >= lastHDistance / bunnyDivFriction 
