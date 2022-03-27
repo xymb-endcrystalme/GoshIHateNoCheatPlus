@@ -95,7 +95,7 @@ public class BlocksMC1_14 implements BlockPropertiesSetup{
 
 		BlockProperties.setBlockProps("BAMBOO", new BlockProperties.BlockProps(BlockProperties.woodAxe, 1f, BlockProperties.secToMs(1.45, 0.7, 0.35, 0.2, 0.15, 0.1, 0.05)));
 		BlockProperties.setBlockProps("BAMBOO_SAPLING", new BlockProperties.BlockProps(BlockProperties.woodSword, 0.7f, BlockProperties.secToMs(1.3, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01)));
-		BlockFlags.addFlags("BAMBOO", BlockProperties.F_GROUND | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_VARIABLE);
+		BlockFlags.addFlags("BAMBOO", BlockProperties.F_GROUND);
 		BlockFlags.addFlags("BAMBOO_SAPLING", BlockProperties.F_IGN_PASSABLE);
 
 		BlockFlags.addFlags("WITHER_ROSE", BlockProperties.F_IGN_PASSABLE);
@@ -111,7 +111,7 @@ public class BlocksMC1_14 implements BlockPropertiesSetup{
 		}
 
 		BlockInit.setPropsAs("GRINDSTONE", Material.COBBLESTONE);
-		BlockFlags.addFlags("GRINDSTONE", BlockFlags.SOLID_GROUND | BlockProperties.F_GROUND_HEIGHT);
+		BlockFlags.addFlags("GRINDSTONE", BlockFlags.SOLID_GROUND | BlockProperties.F_VARIABLE);
 
 		BlockInit.setPropsAs("CAMPFIRE", Material.OAK_PLANKS);
 		BlockFlags.addFlags("CAMPFIRE", BlockFlags.SOLID_GROUND);

@@ -191,7 +191,8 @@ public class MCAccessCB2922 implements MCAccess{
 
     @Override
     public boolean resetActiveItem(Player player) {
-        return false;
+        ((CraftPlayer) player).getHandle().by();
+        return true;
     }
 
 }

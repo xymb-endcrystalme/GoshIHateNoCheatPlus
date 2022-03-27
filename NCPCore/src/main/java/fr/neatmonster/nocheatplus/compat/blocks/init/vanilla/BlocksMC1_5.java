@@ -114,7 +114,6 @@ public class BlocksMC1_5 implements BlockPropertiesSetup {
 
         // 78 Snow
         BlockFlags.addFlags("SNOW", BlockProperties.F_HEIGHT_8_INC | BlockProperties.F_XZ100 | BlockProperties.F_GROUND_HEIGHT | BlockProperties.F_GROUND);
-        BlockFlags.removeFlags("SNOW", BlockProperties.F_HEIGHT_8SIM_INC);
 
         ConfigFile config = ConfigManager.getConfigFile();
         if (config.getBoolean(ConfPaths.BLOCKBREAK_DEBUG, config.getBoolean(ConfPaths.CHECKS_DEBUG, false)))

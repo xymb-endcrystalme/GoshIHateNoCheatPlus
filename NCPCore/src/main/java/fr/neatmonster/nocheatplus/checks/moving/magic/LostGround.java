@@ -135,6 +135,11 @@ public class LostGround {
                                             final boolean sprinting, final PlayerMoveData lastMove, final MovingData data, final MovingConfig cc, final Collection<String> tags) {
 
         final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
+        // Micro lost ground, appear when respawn, lantern
+        // TODO: hDistance is to confine, need to test
+        if (hDistance <= 0.03 && from.isOnGround(0.03)) {
+            return applyLostGround(player, from, true, thisMove , data, "micro", tags);
+        }
         final double setBackYDistance = from.getY() - data.getSetBackY();
 
         // Step height related.

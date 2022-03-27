@@ -38,10 +38,6 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
     public void setupBlockProperties(WorldConfigProvider<?> worldConfigProvider) {
         // Flag for anvil
         BlockProperties.setBlockFlags("ANVIL", BlockFlags.SOLID_GROUND);
-        // Change flag for walls
-        for (Material mat : MaterialUtil.ALL_WALLS) {
-            BlockProperties.setBlockFlags(mat, BlockFlags.SOLID_GROUND);
-        }
 
         // Workaround for ladder
         // BlockFlags.addFlags(Material.LADDER, BlockProperties.F_GROUND_HEIGHT);
@@ -193,15 +189,10 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         BlockProperties.setBlockProps("TURTLE_EGG", new BlockProps(
                 BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.7)));
 
-        BlockProperties.setBlockFlags(Material.HOPPER, BlockFlags.SOLID_GROUND);
-
         // Farm land. (Just in case not having multiversion plugin installed)
         BlockFlags.removeFlags(BridgeMaterial.FARMLAND, BlockProperties.F_HEIGHT100);
         BlockFlags.addFlags(BridgeMaterial.FARMLAND,
                 BlockProperties.F_XZ100 | BlockProperties.F_MIN_HEIGHT16_15);
-
-        BlockProperties.setBlockFlags("BREWING_STAND", BlockFlags.SOLID_GROUND);
-        BlockProperties.setBlockFlags(BridgeMaterial.PISTON_HEAD, BlockFlags.SOLID_GROUND);
         ConfigFile config = ConfigManager.getConfigFile();
         if (config.getBoolean(ConfPaths.BLOCKBREAK_DEBUG, config.getBoolean(ConfPaths.CHECKS_DEBUG, false)))
         StaticLog.logInfo("Added block-info for Minecraft 1.13 blocks.");

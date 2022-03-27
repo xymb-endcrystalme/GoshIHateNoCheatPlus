@@ -116,11 +116,6 @@ public class MoveData {
     public boolean elytrafly;
 
     /**
-     * Elytra no move
-     */
-    public boolean elytraNoMove;
-
-    /**
      * The fly check that was using the current data. One of MOVING_SURVIVALFLY,
      * MOVING_CREATIVEFLY, UNKNOWN.
      */
@@ -140,7 +135,6 @@ public class MoveData {
         distanceSquared = yDistance * yDistance + hDistance * hDistance;
         toIsValid = true;
         elytrafly = false;
-        elytraNoMove = false;
         flyCheck = null;
         modelFlying = null;
     }

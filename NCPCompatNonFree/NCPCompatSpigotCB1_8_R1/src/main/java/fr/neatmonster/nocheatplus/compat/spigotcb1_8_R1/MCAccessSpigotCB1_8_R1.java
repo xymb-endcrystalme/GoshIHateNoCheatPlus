@@ -216,7 +216,7 @@ public class MCAccessSpigotCB1_8_R1 implements MCAccess {
 
     @Override
     public boolean resetActiveItem(Player player) {
-        ((CraftPlayer) player).getHandle().bU();
+        ((CraftPlayer) player).getHandle().bT();
         return true;
     }
 

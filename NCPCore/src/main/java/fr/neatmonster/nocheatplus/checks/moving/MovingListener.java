@@ -2250,7 +2250,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
                                                      : NoFall.getDamage(Math.max(yDiff, Math.max(data.noFallFallDistance, fallDistance))) + (allowReset ? 0.0 : Magic.FALL_DAMAGE_DIST);
         if (maxD > damage) {
             // TODO: respect dealDamage ?
-            double damageafter = NoFall.calcDamagewithfeatherfalling(player, NoFall.calcReducedDamageByHB(player, data, maxD), mcAccess.getHandle().dealFallDamageFiresAnEvent().decide());
+            double damageafter = NoFall.calcDamagewithfeatherfalling(player, NoFall.calcReducedDamageByBlock(player, data, maxD), mcAccess.getHandle().dealFallDamageFiresAnEvent().decide());
             BridgeHealth.setRawDamage(event, damageafter);
             if (debug) debug(player, "Adjust fall damage to: " + (damageafter != maxD ? damageafter : maxD));
         }
@@ -2458,7 +2458,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         if (!player.isSleeping() && !player.isDead()) {
             // Check for missed moves.
             // TODO: Force-load chunks [log if (!)] ?
-            if (!BlockProperties.isPassable(loc)) {
+            // Check only from the old versions, newer versions don't seem like a problem to account for
+            if (!BlockProperties.isPassable(loc) && !Bridge1_13.hasIsSwimming()) {
 
                 final PlayerMoveData lastMove = data.playerMoves.getFirstPastMove();
                 final PlayerMoveData lastMove2 = data.playerMoves.getNumberOfPastMoves() > 1 ? data.playerMoves.getSecondPastMove() : null;

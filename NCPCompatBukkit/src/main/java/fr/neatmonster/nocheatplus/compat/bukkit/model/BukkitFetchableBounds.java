@@ -16,30 +16,37 @@ package fr.neatmonster.nocheatplus.compat.bukkit.model;
 
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Levelled;
+import org.bukkit.util.BoundingBox;
+import org.bukkit.util.VoxelShape;
 
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 
-public class BukkitLevelled implements BukkitShapeModel {
+public class BukkitFetchableBounds implements BukkitShapeModel {
 
     @Override
     public double[] getShape(BlockCache blockCache, World world, int x, int y, int z) {
-        // TODO: Check liquid above for full bounds.
-        // TODO: Fix liquid model in BlockProperties#collidesBlock
-        return new double[] {0.0, 0.0, 0.0, 1.0, 0.875 + 0.015625, 1.0};
+        final Block block = world.getBlockAt(x, y, z);
+        final VoxelShape blockshape = block.getCollisionShape();
+        double[] res = {};
+        for (BoundingBox box : blockshape.getBoundingBoxes()) {
+            res = add(res, toArray(box));
+        }
+        return res;
+    }
+
+    private double[] add(final double[] array1, final double[] array2) {
+        final double[] newArray = new double[array1.length + array2.length];
+        System.arraycopy(array1, 0, newArray, 0, array1.length);
+        System.arraycopy(array2, 0, newArray, array1.length, array2.length);
+        return newArray;
+    }
+
+    private double[] toArray(BoundingBox box) {
+        return new double[] {box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ()};
     }
 
     @Override
     public int getFakeData(BlockCache blockCache, World world, int x, int y, int z) {
-        final Block block = world.getBlockAt(x, y, z);
-        final BlockState state = block.getState();
-        final BlockData blockData = state.getBlockData();
-        if (blockData instanceof Levelled) {
-            return ((Levelled)blockData).getLevel();
-        }
         return 0;
     }
-
 }

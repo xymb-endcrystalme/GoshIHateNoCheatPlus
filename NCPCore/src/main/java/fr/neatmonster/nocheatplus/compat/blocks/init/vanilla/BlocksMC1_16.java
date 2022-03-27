@@ -101,13 +101,9 @@ public class BlocksMC1_16 implements BlockPropertiesSetup{
         BlockInit.setPropsAs("POLISHED_BLACKSTONE_BRICK_WALL",Material.STONE);
 
         // Climbable plants
-        BlockProperties.setBlockProps("TWISTING_VINES", BlockProperties.instantType);
         BlockFlags.addFlags("TWISTING_VINES", BlockProperties.F_CLIMBABLE);
-        BlockProperties.setBlockProps("TWISTING_VINES_PLANT", BlockProperties.instantType);
         BlockFlags.addFlags("TWISTING_VINES_PLANT", BlockProperties.F_CLIMBABLE);
-        BlockProperties.setBlockProps("WEEPING_VINES", BlockProperties.instantType);
         BlockFlags.addFlags("WEEPING_VINES", BlockProperties.F_CLIMBABLE);
-        BlockProperties.setBlockProps("WEEPING_VINES_PLANT", BlockProperties.instantType);
         BlockFlags.addFlags("WEEPING_VINES_PLANT", BlockProperties.F_CLIMBABLE);
 
         // Stem, Hyphae, Nylium

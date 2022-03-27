@@ -23,6 +23,7 @@ import org.bukkit.craftbukkit.v1_9_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_9_R2.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 
+import fr.neatmonster.nocheatplus.compat.blocks.LegacyBlocks;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 import net.minecraft.server.v1_9_R2.AxisAlignedBB;
 import net.minecraft.server.v1_9_R2.BlockPosition;
@@ -65,13 +66,16 @@ public class BlockCacheSpigotCB1_9_R2 extends BlockCache {
 
     @Override
     public double[] fetchBounds(final int x, final int y, final int z){
+        final Material mat = getType(x, y, z);
         @SuppressWarnings("deprecation")
-        final int id = getType(x, y, z).getId();		
+        final int id = mat.getId();	
         final net.minecraft.server.v1_9_R2.Block block = net.minecraft.server.v1_9_R2.Block.getById(id);
         if (block == null) {
             // TODO: Convention for null blocks -> full ?
             return null;
         }
+        final double[] shape = LegacyBlocks.getShape(this, mat, x, y, z, false);
+        if (shape != null) return shape;
         final BlockPosition pos = new BlockPosition(x, y, z);
         // TODO: Deprecation warning below (reason / substitute?).
         @SuppressWarnings("deprecation")

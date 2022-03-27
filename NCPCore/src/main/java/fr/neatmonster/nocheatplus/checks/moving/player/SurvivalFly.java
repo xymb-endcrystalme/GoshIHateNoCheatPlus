@@ -1516,7 +1516,7 @@ public class SurvivalFly extends Check {
         else if (yDistDiffEx > 0.0) { 
             
             if (TooBigMove || TooBigMoveNoData || GravityEffects 
-                || (lastMove.toIsValid && (honeyBlockCollision || isLanternUpper(to)))) {
+                || (lastMove.toIsValid && honeyBlockCollision)) {
                 // Several types of odd in-air moves, mostly with gravity near its maximum, friction and medium change.
             }
             else vDistRelVL = true;
@@ -1524,7 +1524,7 @@ public class SurvivalFly extends Check {
         // Smaller move than expected (yDistDiffEx <= 0.0 && yDistance >= 0.0)
         else if (yDistance >= 0.0) { 
 
-            if (TooShortMove || GravityEffects || isLanternUpper(to)) {
+            if (TooShortMove || GravityEffects) {
                 // Several types of odd in-air moves, mostly with gravity near its maximum, friction and medium change.
             }
             else vDistRelVL = true;
@@ -1532,7 +1532,7 @@ public class SurvivalFly extends Check {
         // Too fast fall (yDistDiffEx <= 0.0 && yDistance < 0.0)
         else { 
 
-            if (TooFastFall || GravityEffects || isLanternUpper(to) || honeyBlockCollision) {
+            if (TooFastFall || GravityEffects || honeyBlockCollision) {
                 // Several types of odd in-air moves, mostly with gravity near its maximum, friction and medium change.
             }
             else vDistRelVL = true;
@@ -1612,8 +1612,7 @@ public class SurvivalFly extends Check {
 
                     // Moving upwards after falling without having touched the ground.
                     if (data.bunnyhopDelay < 9 && !((lastMove.touchedGround || lastMove.from.onGroundOrResetCond)
-                        && lastMove.yDistance == 0D) && data.getOrUseVerticalVelocity(yDistance) == null
-                        && !isLanternUpper(to)) {
+                        && lastMove.yDistance == 0D) && data.getOrUseVerticalVelocity(yDistance) == null) {
                         vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(yDistance));
                         tags.add("airjump");
                     }
@@ -1723,7 +1722,7 @@ public class SurvivalFly extends Check {
                 data.vDistAcc.add((float) yDistance);
             }
             else if (thisMove.verVelUsed == null // Only skip if just used.
-                    && !(isLanternUpper(to) || lastMove.from.inLiquid && Math.abs(yDistance) < 0.31 
+                    && !(lastMove.from.inLiquid && Math.abs(yDistance) < 0.31 
                     || data.timeRiptiding + 1000 > now)) { 
                 
                 // Here yDistance can be negative and positive.
@@ -2349,22 +2348,6 @@ public class SurvivalFly extends Check {
     public void setReallySneaking(final Player player, final boolean sneaking) {
         if (sneaking) reallySneaking.add(player.getName());
         else reallySneaking.remove(player.getName());
-    }
-
-
-    // Model now correct but still flags
-    // Reproduce : hanging lantern with 2 block space below, spam jump
-    // TODO: Soul lantern too; research this magic thing
-    // Left notes on Discord: NCP doesn't see the player touching the ground again after headObstr.
-    // Rather than an actual lostground case this might also be tied to the onGround logic, since NCP also checks the block above against spider
-    // cheats and the like. Probably something is causing the check to return false when landing back after headObstr (?)
-    private boolean isLanternUpper(PlayerLocation from) {
-        World w = from.getWorld();
-        final int x = from.getBlockX();
-        final int y = from.getBlockY() + 2;
-        final int z = from.getBlockZ();
-        if (w.getBlockAt(x, y, z).getType().toString().equals("LANTERN")) return true;
-        return false;
     }
 
 

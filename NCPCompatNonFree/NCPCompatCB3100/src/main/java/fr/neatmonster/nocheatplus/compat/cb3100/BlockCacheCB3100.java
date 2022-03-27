@@ -23,6 +23,7 @@ import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 
+import fr.neatmonster.nocheatplus.compat.blocks.LegacyBlocks;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 import net.minecraft.server.v1_7_R4.AxisAlignedBB;
 import net.minecraft.server.v1_7_R4.Block;
@@ -91,13 +92,16 @@ public class BlockCacheCB3100 extends BlockCache {
 
     @Override
     public double[] fetchBounds(final int x, final int y, final int z){
+        final Material mat = getType(x, y, z);
         @SuppressWarnings("deprecation")
-        final int id = getType(x, y, z).getId();		
+        final int id = mat.getId();
         final net.minecraft.server.v1_7_R4.Block block = net.minecraft.server.v1_7_R4.Block.getById(id);
         if (block == null) {
             // TODO: Convention for null bounds -> full ?
             return null;
         }
+        final double[] shape = LegacyBlocks.getShape(this, mat, x, y, z, true);
+        if (shape != null) return shape;
         block.updateShape(iBlockAccess, x, y, z); // getData from cache.
 
         // minX, minY, minZ, maxX, maxY, maxZ

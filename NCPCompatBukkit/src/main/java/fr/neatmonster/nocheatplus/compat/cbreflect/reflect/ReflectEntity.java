@@ -40,6 +40,8 @@ public class ReflectEntity extends ReflectGetHandleBase<Entity> {
 
     public final Method nmsDamageEntity;
 
+    private final Method nmsDamageEntityNew;
+
     @MostlyHarmless()
     public final Method nmsclearActiveItem;
 
@@ -62,14 +64,17 @@ public class ReflectEntity extends ReflectGetHandleBase<Entity> {
         nmsDead = ReflectionUtil.getField(nmsClass, "dead", boolean.class);
 
         // damageEntity(...)
-        nmsDamageEntity = ReflectionUtil.getMethod(nmsClass, "damageEntity", 
-                new Class<?>[]{damageSource.nmsClass, float.class}, new Class<?>[]{damageSource.nmsClass, int.class});
+        nmsDamageEntityNew = ReflectionUtil.getMethod(nmsClass, "a", new Class<?>[]{damageSource.nmsClass, float.class});
+        nmsDamageEntity = nmsDamageEntityNew != null ? nmsDamageEntityNew : 
+        	              ReflectionUtil.getMethod(nmsClass, "damageEntity", 
+                          new Class<?>[]{damageSource.nmsClass, float.class}, new Class<?>[]{damageSource.nmsClass, int.class});
         if (nmsDamageEntity != null) {
             nmsDamageEntityInt = nmsDamageEntity.getParameterTypes()[1] == int.class;
         } else {
             nmsDamageEntityInt = true; // Uncertain.
         }
-        nmsclearActiveItem = ReflectionUtil.getMethodNoArgs(nmsClass, "clearActiveItem");
+        nmsclearActiveItem = ReflectionUtil.getMethodNoArgs(nmsClass, "clearActiveItem") == null ? 
+        ReflectionUtil.getMethodNoArgs(nmsClass, "eR") : ReflectionUtil.getMethodNoArgs(nmsClass, "clearActiveItem");
 
         // getBoundingBox
         if (reflectAxisAlignedBB == null) {

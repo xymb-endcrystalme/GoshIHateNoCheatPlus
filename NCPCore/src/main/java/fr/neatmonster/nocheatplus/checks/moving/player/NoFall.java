@@ -25,6 +25,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.type.TurtleEgg;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
@@ -47,10 +48,12 @@ import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeEnchant;
 import fr.neatmonster.nocheatplus.compat.BridgeHealth;
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.MaterialUtil;
 
 /**
  * A check to see if people cheat by tricking the server to not deal them fall damage.
@@ -70,8 +73,10 @@ public class NoFall extends Check {
 
     /** For temporary use: LocUtil.clone before passing deeply, call setWorld(null) after use. */
     private final Location useLoc = new Location(null, 0, 0, 0);
+    private final Location useLoc2 = new Location(null, 0, 0, 0);
     private final Random random = new Random();
 
+    private final static boolean ServerIsAtLeast1_12 = ServerVersion.compareMinecraftVersion("1.12") >= 0;
 
     /**
      * Instantiates a new no fall check.
@@ -110,7 +115,7 @@ public class NoFall extends Check {
         // Damage to be dealt.
         final float fallDist = (float) getApplicableFallHeight(player, y, previousSetBackY, data);
         double maxD = getDamage(fallDist);
-        maxD = calcDamagewithfeatherfalling(player, calcReducedDamageByHB(player, data, maxD), 
+        maxD = calcDamagewithfeatherfalling(player, calcReducedDamageByBlock(player, data, maxD), 
                                             mcAccess.getHandle().dealFallDamageFiresAnEvent().decide());
         fallOn(player, fallDist);
 
@@ -148,15 +153,29 @@ public class NoFall extends Check {
      */
     private void fallOn(final Player player, final double fallDist) {
 
-        // TODO: Turtle eggs too?
         // TODO: Need move data pTo, this location isn't updated
-        Block block = player.getLocation().subtract(0.0, 1.0, 0.0).getBlock();
-        if (block.getType() == BridgeMaterial.FARMLAND && fallDist > 0.5 && random.nextFloat() < fallDist - 0.5 && ShouldChangeBlock(player, block)) {
-            // Move up a little bit in order not to stuck in a block
-            // Smoother?
-            player.setVelocity(new Vector(player.getVelocity().getX() * -1, 0.062501, player.getVelocity().getZ() * -1));
-            block.setType(Material.DIRT);  
+        Block block = player.getLocation(useLoc2).subtract(0.0, 1.0, 0.0).getBlock();
+        if (block.getType() == BridgeMaterial.FARMLAND && fallDist > 0.5 && random.nextFloat() < fallDist - 0.5) {
+            final BlockState newState = block.getState();
+            newState.setType(Material.DIRT);
+            //if (Bridge1_13.hasIsSwimming()) newState.setBlockData(Bukkit.createBlockData(newState.getType()));
+            if (canChangeBlock(player, block, newState, true, true, true)) {
+                // Move up a little bit in order not to stuck in a block
+                player.setVelocity(new Vector(player.getVelocity().getX() * -1, 0.062501, player.getVelocity().getZ() * -1));
+                block.setType(Material.DIRT);
+            }
+            return;
         }
+        if (Bridge1_13.hasIsSwimming() && block.getType() == Material.TURTLE_EGG && random.nextInt(3) == 0) {
+            final TurtleEgg egg = (TurtleEgg) block.getBlockData();
+            final BlockState newState = block.getState();
+            if (canChangeBlock(player, block, newState, true, false, false)) {
+                if (egg.getEggs() - 1 > 0) {
+                    egg.setEggs(egg.getEggs() - 1);
+                } else block.setType(Material.AIR);
+            }
+        }
+        useLoc2.setWorld(null);
     }
     
 
@@ -165,34 +184,43 @@ public class NoFall extends Check {
      * 
      * @param player
      * @param block
-     * @return boolean
+     * @param newState the BlockState of new block
+     * @param interact if fire PlayerInteractEvent
+     * @param entityChangeBlock if fire EntityChangeBlockEvent
+     * @param fade if fire BlockFadeEvent
+     * @return if can change the block
      */
-    private boolean ShouldChangeBlock(final Player player, final Block block) {
+    private boolean canChangeBlock(final Player player, final Block block, final BlockState newState,
+            final boolean interact, final boolean entityChangeBlock, final boolean fade) {
 
-        final PlayerInteractEvent interactevent = new PlayerInteractEvent(player, Action.PHYSICAL, null, block, BlockFace.SELF);
-        Bukkit.getPluginManager().callEvent(interactevent);
-        if (interactevent.isCancelled()) return false;
+        if (interact) {
+            final PlayerInteractEvent interactevent = new PlayerInteractEvent(player, Action.PHYSICAL, null, block, BlockFace.SELF);
+            Bukkit.getPluginManager().callEvent(interactevent);
+            if (interactevent.isCancelled()) return false;
+        }
 
-        if (!Bridge1_13.hasIsSwimming()) {
-            // 1.6.4-1.12.2 backward compatibility
-            Object o = ReflectionUtil.newInstance(
-               ReflectionUtil.getConstructor(EntityChangeBlockEvent.class, Entity.class, Block.class, Material.class, byte.class),
-               player, block, Material.DIRT, (byte)0
-            );
-            if (o instanceof EntityChangeBlockEvent) {
-                EntityChangeBlockEvent event = (EntityChangeBlockEvent)o;
-                Bukkit.getPluginManager().callEvent(event);
-                if (event.isCancelled()) return false;
+        if (entityChangeBlock) {
+            if (!Bridge1_13.hasIsSwimming()) {
+                // 1.6.4-1.12.2 backward compatibility
+                Object o = ReflectionUtil.newInstance(
+                    ReflectionUtil.getConstructor(EntityChangeBlockEvent.class, Entity.class, Block.class, Material.class, byte.class),
+                    player, block, Material.DIRT, (byte)0
+                );
+                if (o instanceof EntityChangeBlockEvent) {
+                    EntityChangeBlockEvent event = (EntityChangeBlockEvent)o;
+                    Bukkit.getPluginManager().callEvent(event);
+                    if (event.isCancelled()) return false;
+                }
+            } 
+            else {
+                final EntityChangeBlockEvent blockevent = new EntityChangeBlockEvent(player, block, newState.getBlockData()); 
+                Bukkit.getPluginManager().callEvent(blockevent);
+                if (blockevent.isCancelled()) return false;
             }
-        } 
-        else {
-            final EntityChangeBlockEvent blockevent = new EntityChangeBlockEvent(player, block, Bukkit.createBlockData(Material.DIRT)); 
-            Bukkit.getPluginManager().callEvent(blockevent);
-            if (blockevent.isCancelled()) return false;
         }
 
         // Not fire on 1.8 below
-        if (Bridge1_9.hasGetItemInOffHand()) {
+        if (fade && Bridge1_9.hasGetItemInOffHand()) {
             final BlockState newstate = block.getState();
             newstate.setType(Material.DIRT);
             final BlockFadeEvent fadeevent = new BlockFadeEvent(block, newstate);
@@ -227,14 +255,14 @@ public class NoFall extends Check {
     
 
     /**
-     * Reduce the fall damage if the player lands on an honey block
+     * Reduce the fall damage if the player lands on a specific block
      * 
      * @param player
      * @param data
      * @param damage
      * @return reduced damage
      */
-    public static double calcReducedDamageByHB(final Player player, final MovingData data,final double damage) {
+    public static double calcReducedDamageByBlock(final Player player, final MovingData data,final double damage) {
 
         final PlayerMoveData validmove = data.playerMoves.getLatestValidMove();
         if (validmove != null && validmove.toIsValid) {
@@ -243,7 +271,13 @@ public class NoFall extends Check {
                     Location.locToBlock(validmove.to.getX()), Location.locToBlock(validmove.to.getY()), Location.locToBlock(validmove.to.getZ())
                     ).getType();
             if ((BlockProperties.getBlockFlags(blockmat) & BlockProperties.F_STICKY) != 0) {
-                return Math.round(damage / 5);
+                return damage / 5D;
+            }
+            if (ServerIsAtLeast1_12 && MaterialUtil.BEDS.contains(blockmat)) {
+                return damage / 2D;
+            }
+            if (Bridge1_9.hasEndRod() && blockmat == Material.HAY_BLOCK) {
+                return damage / 5D;
             }
         }
         return damage;
@@ -403,13 +437,8 @@ public class NoFall extends Check {
          * F_FALLDIST_HALF). Resetcond as trigger: if (resetFrom) { ...
          */
         // TODO: Also handle from and to independently (rather fire twice than wait for next time).
-        boolean onClimbableFrom = false;
-        boolean onClimbableTo = false;
-        // TODO: Possibly fixed by removing the GROUND_HEIGHT block flag?
-        if (pFrom.getBlockFlags() != null) onClimbableFrom = (pFrom.getBlockFlags() & BlockProperties.F_CLIMBABLE) != 0;
-        if (pTo.getBlockFlags() != null) onClimbableTo = (pTo.getBlockFlags() & BlockProperties.F_CLIMBABLE) != 0;
-        final boolean fromReset = from.resetCond || onClimbableFrom && !BlockProperties.isGround(pFrom.getTypeIdBelow());
-        final boolean toReset = to.resetCond || onClimbableTo && !BlockProperties.isGround(pTo.getTypeIdBelow());
+        final boolean fromReset = from.resetCond;
+        final boolean toReset = to.resetCond;
 
         final boolean fromOnGround, toOnGround;
         // Adapt yOnGround if necessary (sf uses another setting).

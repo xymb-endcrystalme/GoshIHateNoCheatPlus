@@ -507,7 +507,10 @@ public class MaterialUtil {
                     "double_plant", "fern", "kelp", "kelp_plant", "large_fern", 
                     "lilac", "melon_stem", "nether_wart", "nether_warts", 
                     "oxeye_daisy", "peony", "poppy", "red_rose", "rose_red", 
-                    "seagrass", "sunflower", "tall_seagrass", "yellow_flower"
+                    "seagrass", "sunflower", "tall_seagrass", "yellow_flower",
+                    "spore_blossom", "small_dripleaf", "cave_vines", "cave_vines_plant",
+                    "weeping_vines", "weeping_vines_plant",
+                    "twisting_vines", "twisting_vines_plant"
                     ),
             new HashSet<Material>(Arrays.asList(BridgeMaterial.TALL_GRASS, 
                     BridgeMaterial.WHEAT_CROPS, BridgeMaterial.CARROTS, 
