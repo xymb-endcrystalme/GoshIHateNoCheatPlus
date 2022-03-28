@@ -3247,8 +3247,8 @@ public class BlockProperties {
             if (!collidesFence(fx, fz, dX, dZ, dT, 0.0625)) {
                 return true;
             }
-            // NOTE: 0.975 is depend on Y_ON_GROUND_DEFAULT
-            if (Math.min(fy, fy + dY * dT) < 0.975 && !collidesBlock(access, 
+            // NOTE: 0.974 is depend on Y_ON_GROUND_DEFAULT
+            if (Math.min(fy, fy + dY * dT) < 0.974 && !collidesBlock(access, 
                     minX, minY, minZ, maxX, maxY, maxZ, 
                     bx, by, bz, node, null, flags | F_FAKEBOUNDS)) {
                 return true;
