@@ -727,9 +727,6 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
             }
             final long thisFlags = BlockProperties.getBlockFlags(typeId);
             onClimbable = (thisFlags & BlockProperties.F_CLIMBABLE) != 0;
-            // TODO: maybe use specialized bounding box.
-            //          final double d = 0.1d;
-            //          onClimbable = BlockProperties.collides(getBlockAccess(), minX - d, minY - d, minZ - d, maxX + d, minY + 1.0, maxZ + d, BlockProperties.F_CLIMBABLE);
             if (!onClimbable) {
                 // Special case trap door (simplified preconditions check).
                 // TODO: Distance to the wall?
@@ -950,9 +947,9 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
                 onSlimeBlock = false;
             } 
             else { 
-                // MC applies slime properties only with at least half the box on the block
-                final double xzMargin = getBoxMarginHorizontal();
-                onSlimeBlock = isOnGround() && BlockProperties.collides(blockCache, minX+xzMargin, minY - yOnGround, minZ+xzMargin, maxX-xzMargin, minY, maxZ-xzMargin, BlockProperties.F_SLIME); 
+                final Material typeId = getTypeId();
+                final long thisFlags = BlockProperties.getBlockFlags(typeId);
+                onSlimeBlock = isOnGround() && (thisFlags & BlockProperties.F_SLIME) != 0;  
             }
         }
         return onSlimeBlock;
