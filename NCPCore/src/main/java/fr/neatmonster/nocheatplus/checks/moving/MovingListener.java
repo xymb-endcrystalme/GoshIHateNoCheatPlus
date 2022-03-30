@@ -478,7 +478,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             token = "awaitsetback";
         }
         else if (TrigUtil.isSamePos(from, to) && !data.lastMoveNoMove
-                && ServerVersion.compareMinecraftVersion("1.17") >= 0) { 
+                // && ServerVersion.compareMinecraftVersion("1.17") >= 0
+                ) { 
             //if (data.sfHoverTicks > 0) data.sfHoverTicks += hoverTicksStep;
             earlyReturn = data.lastMoveNoMove = true;
             token = "duplicate";

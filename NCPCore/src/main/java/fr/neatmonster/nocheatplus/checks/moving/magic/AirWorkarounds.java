@@ -45,6 +45,8 @@ public class AirWorkarounds {
 
     // ONGOING: Tighten/Review all workarounds: some of them date back to the pre past-move-tracking framework period. They're likely too generic by now.
     // OBSERVED: Review all "landing-on-ground-allows-a-shoter-move" workarounds. They can be exploited for 1-block step cheats.
+    // TODO: Review stairs workarounds due to the new shape rework
+    // TODO: Review venvHacks,at least cobwebs. (Still needed?)
     /**
      * REMOVED AND TESTED: 
      *  
