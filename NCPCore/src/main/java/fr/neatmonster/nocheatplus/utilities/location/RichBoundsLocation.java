@@ -641,14 +641,11 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isAboveStairs() {
         if (aboveStairs == null) {
-            if (blockFlags != null && (blockFlags.longValue() & BlockFlags.F_STAIRS) == 0 ) {
+            if (blockFlags != null && (blockFlags.longValue() & BlockFlags.F_STAIRS) == 0) {
                 aboveStairs = false;
                 return false;
             }
-            // TODO: Distinguish based on actual height off .0 ?
-            // TODO: diff still needed ?
-            final double diff = 0; // 0.001;
-            aboveStairs = BlockProperties.collides(blockCache, minX - diff, minY - 1.0, minZ - diff, maxX + diff, minY + 0.25, maxZ + diff, BlockFlags.F_STAIRS);
+            aboveStairs = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, minY, maxZ, BlockFlags.F_STAIRS);
         }
         return aboveStairs;
     }
@@ -664,11 +661,6 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
                 inLava = false;
                 return false;
             }
-            // TODO: ...
-            //          final double dX = -0.10000000149011612D;
-            //          final double dY = -0.40000000596046448D;
-            //          final double dZ = dX;
-            //          inLava = BlockProperties.collides(blockCache, minX - dX, minY - dY, minZ - dZ, maxX + dX, maxY + dY, maxZ + dZ, BlockFlags.F_LAVA);
             inLava = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockFlags.F_LAVA);
         }
         return inLava;
@@ -685,11 +677,6 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
                 inWater = false;
                 return false;
             }
-            // TODO: ...
-            //          final double dX = -0.001D;
-            //          final double dY = -0.40000000596046448D - 0.001D;
-            //          final double dZ = dX;
-            //          inWater = BlockProperties.collides(blockCache, minX - dX, minY - dY, minZ - dZ, maxX + dX, maxY + dY, maxZ + dZ, BlockFlags.F_WATER);
             inWater = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockFlags.F_WATER) || isInWaterLogged();
 
         }
@@ -731,20 +718,19 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
             // Early return with flags set and no climbable nearby.
             final Material typeId = getTypeId();
             if (blockFlags != null && (blockFlags & BlockFlags.F_CLIMBABLE) == 0
-                    // Special case trap doors: // Better than increasing maxYOnGround.
-                    && (blockFlags & BlockFlags.F_PASSABLE_X4) == 0
-                    ) {
+                // Special case trap doors: // Better than increasing maxYOnGround.
+                && (blockFlags & BlockFlags.F_PASSABLE_X4) == 0) {
                 onClimbable = false;
                 return false;
             }
-
-            final long thisFlags = BlockProperties.getBlockFlags(typeId);
-            onClimbable = (thisFlags & BlockProperties.F_CLIMBABLE) != 0;
+            
+            final long thisFlags = BlockFlags.getBlockFlags(typeId);
+            onClimbable = (thisFlags & BlockFlags.F_CLIMBABLE) != 0;
             if (!onClimbable) {
                 // Special case trap door (simplified preconditions check).
                 // TODO: Distance to the wall?
                 if ((thisFlags & BlockFlags.F_PASSABLE_X4) != 0
-                        && BlockProperties.isTrapDoorAboveLadderSpecialCase(blockCache, blockX, blockY, blockZ)) {
+                    && BlockProperties.isTrapDoorAboveLadderSpecialCase(blockCache, blockX, blockY, blockZ)) {
                     onClimbable = true;
                 }
             }
@@ -831,12 +817,8 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isInWeb() {
         if (inWeb == null) {
-            if (blockFlags == null || (blockFlags & BlockFlags.F_COBWEB) != 0L ) {
-                // TODO: inset still needed / configurable?
-                final double inset = 0.001d;
-                inWeb = BlockProperties.collides(blockCache, minX + inset, minY + inset, minZ + inset, 
-                        maxX - inset, maxY - inset, maxZ - inset, 
-                        BlockFlags.F_COBWEB);
+            if (blockFlags == null || (blockFlags & BlockFlags.F_COBWEB) != 0L) {
+                inWeb = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockFlags.F_COBWEB);
             }
             else {
                 inWeb = false;
@@ -870,8 +852,6 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     public boolean isInBerryBush() {
         if (inBerryBush == null) {
             if (blockFlags == null || (blockFlags & BlockFlags.F_BERRY_BUSH) != 0L) {
-                // TODO: inset still needed / configurable? -> Nope :)
-                //final double inset = 0.001d;
                 inBerryBush = BlockProperties.collides(blockCache, minX, minY, minZ, maxX, maxY, maxZ, BlockFlags.F_BERRY_BUSH);
             }
             else {
@@ -971,7 +951,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
             else { 
                 final Material typeId = getTypeId();
                 final long thisFlags = BlockFlags.getBlockFlags(typeId);
-                onSlimeBlock = isOnGround() && (thisFlags & BlockProperties.F_SLIME) != 0;  
+                onSlimeBlock = isOnGround() && (thisFlags & BlockFlags.F_SLIME) != 0;  
             }
         }
         return onSlimeBlock;
@@ -1085,7 +1065,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
                     if (bounds != null && y - bY >= bounds[4] && BlockProperties.collidesBlock(blockCache, x, minY - yOnGround, z, x, minY, z, blockX, bY, blockZ, useNode, null, flags)) {
                         // TODO: BlockHeight is needed for fences, use right away (above)?
                         if (!BlockProperties.isPassableWorkaround(blockCache, blockX, bY, blockZ, minX - blockX, minY - yOnGround - bY, minZ - blockZ, useNode, maxX - minX, yOnGround, maxZ - minZ,  1.0)
-                                || (flags & BlockFlags.F_GROUND_HEIGHT) != 0 &&  BlockProperties.getGroundMinHeight(blockCache, blockX, bY, blockZ, useNode, flags) <= y - bY) {
+                            || (flags & BlockFlags.F_GROUND_HEIGHT) != 0 &&  BlockProperties.getGroundMinHeight(blockCache, blockX, bY, blockZ, useNode, flags) <= y - bY) {
                            //  NCPAPIProvider.getNoCheatPlusAPI().getLogManager().debug(Streams.TRACE_FILE, "*** onground SHORTCUT");
                             onGround = true;
                         }
@@ -1396,7 +1376,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      * @return Returns true, iff an entry was found.
      */
     public boolean matchBlockChange(final BlockChangeTracker blockChangeTracker, final BlockChangeReference ref, 
-            final Direction direction, final double coverDistance) {
+                                    final Direction direction, final double coverDistance) {
         final int tick = TickTask.getTick();
         final UUID worldId = world.getUID();
         final int iMinX = Location.locToBlock(minX);
@@ -1472,16 +1452,16 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         final int iMinZ = Location.locToBlock(minZ) - blockFace.getModZ();
         final int iMaxZ = Location.locToBlock(maxZ) - blockFace.getModZ();
         BlockChangeEntry minEntry = null;
+        
         for (int x = iMinX; x <= iMaxX; x++) {
             for (int z = iMinZ; z <= iMaxZ; z++) {
                 for (int y = iMinY; y <= iMaxY; y++) {
-                    final BlockChangeEntry entry = blockChangeTracker.getBlockChangeEntryMatchFlags(
-                            ref, tick, worldId, x, y, z, direction, matchFlags);
+                    final BlockChangeEntry entry = blockChangeTracker.getBlockChangeEntryMatchFlags(ref, tick, worldId, x, y, z, direction, matchFlags);
                     if (entry != null && (minEntry == null || entry.id < minEntry.id)) {
                         // Check vs. coverDistance, exclude cases where the piston can't push that far.
-                        if (coverDistance > 0.0 && coversDistance(
-                                x + blockFace.getModX(), y + blockFace.getModY(), z + blockFace.getModZ(), 
-                                direction, coverDistance)) {
+                        if (coverDistance > 0.0 
+                            && coversDistance(x + blockFace.getModX(), y + blockFace.getModY(), z + blockFace.getModZ(), 
+                                              direction, coverDistance)) {
                             minEntry = entry;
                         }
                     }

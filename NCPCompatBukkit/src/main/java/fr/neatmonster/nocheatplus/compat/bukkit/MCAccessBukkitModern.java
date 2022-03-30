@@ -111,9 +111,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     private static final BukkitShapeModel MODEL_LILY_PAD = new BukkitStatic(0.09375);
     private static final BukkitShapeModel MODEL_FLOWER_POT = new BukkitStatic(0.3125, 0.375);
     private static final BukkitShapeModel MODEL_LANTERN = new BukkitLantern();
-    private static final BukkitShapeModel MODEL_CONDUIT = new BukkitStatic(
-        0.3125, 0.3125, 0.3125, 0.6875, 0.6875, 0.6875
-    );
+    private static final BukkitShapeModel MODEL_CONDUIT = new BukkitStatic(0.3125, 0.3125, 0.3125, 0.6875, 0.6875, 0.6875);
     private static final BukkitShapeModel MODEL_GROUND_HEAD = new BukkitStatic(0.25, 0.5);
     private static final BukkitShapeModel MODEL_SINGLE_CHEST = new BukkitStatic(0.0625, 0.875);
     private static final BukkitShapeModel MODEL_HONEY_BLOCK = new BukkitStatic(0.0625, 0.9375);
@@ -481,7 +479,6 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
                 }
             }
         }
-
         super.setupBlockProperties(worldConfigProvider);
     }
 

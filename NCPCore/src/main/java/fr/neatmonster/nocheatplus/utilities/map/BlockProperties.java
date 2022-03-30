@@ -87,25 +87,18 @@ public class BlockProperties {
      * @deprecated Will be replaced by a generic way to define tools.
      */
     public static enum ToolType {
-
         /** The none. */
         NONE,
-
         /** The sword. */
         SWORD,
-
         /** The shears. */
         SHEARS,
-
         /** The spade. */
         SPADE,
-
         /** The axe. */
         AXE,
-
         /** The pickaxe. */
         PICKAXE,
-
         /** The hoe. */
         HOE,
     }
@@ -117,25 +110,18 @@ public class BlockProperties {
      * @deprecated Will be replaced by a generic way to define tools.
      */
     public static enum MaterialBase {
-
         /** The none. */
         NONE(0, 1f),
-
         /** The wood. */
         WOOD(1, 2f),
-
         /** The stone. */
         STONE(2, 4f),
-
         /** The iron. */
         IRON(3, 6f),
-
         /** The diamond. */
         DIAMOND(4, 8f),
-
         /** The netherite */
         NETHERITE(5, 9f),
-
         /** The gold. */
         GOLD(6, 12f);
 
@@ -194,7 +180,7 @@ public class BlockProperties {
      * @deprecated Will be replaced by a generic way to define tools.
      */
     public static class ToolProps {
-
+        
         /** The tool type. */
         public final ToolType toolType;
 
@@ -284,7 +270,10 @@ public class BlockProperties {
             breakingTimes[0] = (long) (1000f * 5f * hardness);
             boolean notool = tool.materialBase == null || tool.toolType == null || tool.toolType == ToolType.NONE;//|| tool.materialBase == MaterialBase.NONE;
 
-            if (notool) breakingTimes[0] *= 0.3;
+            if (notool) {
+                breakingTimes[0] *= 0.3;
+            }
+
             for (int i = 1; i < 7; i++) {
                 if (notool) {
                     breakingTimes[i] = breakingTimes[0];
@@ -466,7 +455,6 @@ public class BlockProperties {
 
         @Override
         public int hashCode() {
-            // TODO: ...
             return (blockType == null ? 0 : blockType.hashCode() * 11)
                     ^ (toolType == null ? 0 : toolType.hashCode() * 137)
                     ^ (materialBase == null ? 0 : materialBase.hashCode() * 1193)
@@ -493,6 +481,281 @@ public class BlockProperties {
         public String toString() {
             return "BlockBreakKey(blockType=" + blockType + "toolType=" + toolType + "materialBase=" + materialBase + " efficiency=" + efficiency + ")";
         }
+    }
+
+    /**
+     * Convenience method excluding null as air result.
+     *
+     * @param mat
+     *            the mat.
+     * @return true, if is air
+     */
+    public static final boolean isActuallyAir(final Material mat) {
+        // TODO: Flags rather?
+        return mat != null && isAir(mat);
+    }
+
+    /**
+     * Convenience method including null checks.
+     *
+     * @param mat
+     *            the mat.
+     * @return true, if is air
+     */
+    public static final boolean isAir(final Material mat) {
+        // TODO: Flags rather?
+        return mat == null || mat == Material.AIR
+                // Assume the compiler throws away further null values.
+                || mat == BridgeMaterial.VOID_AIR
+                || mat == BridgeMaterial.CAVE_AIR
+                ;
+    }
+
+    /**
+     * Convenience method including null checks.
+     *
+     * @param stack
+     *            the stack
+     * @return true, if is air
+     */
+    public static final boolean isAir(final ItemStack stack) {
+        return stack == null || isAir(stack.getType());
+    }
+
+    /**
+     * Test if the id is rails and if data means ascending.
+     *
+     * @param mat
+     *            the mat.
+     * @param data
+     *            the data
+     * @return true, if is ascending rails
+     */
+    public static final boolean isAscendingRails(final Material mat, final int data) {
+        return isRails(mat) && (data & 7) > 1;
+    }
+
+    /**
+     * Climbable material that needs to be attached to a block, to allow players
+     * to climb up.<br>
+     * Currently only applies to vines. There is no flag for such, yet.
+     *
+     * @param mat
+     *            the mat.
+     * @return true, if is attached climbable
+     */
+    public static final boolean isAttachedClimbable(final Material mat) {
+        if ((BlockFlags.getBlockFlags(mat) & BlockFlags.F_CLIMBUPABLE) != 0) return false;
+        return mat == Material.VINE;
+    }
+
+    /**
+     * Checks if is blue ice.
+     *
+     * @param mat
+     *            the mat.
+     * @return true, if is blue ice
+     */
+    public static final boolean isBlueIce(final Material mat) {
+        return (BlockFlags.getBlockFlags(mat) & BlockFlags.F_BLUE_ICE) != 0;
+    }
+
+    /**
+     * Checks if is carpet.
+     *
+     * @param mat
+     *            the mat.
+     * @return true, if is carpet
+     */
+    public static final boolean isCarpet(final Material mat) {
+        return (BlockFlags.getBlockFlags(mat) & BlockFlags.F_CARPET) != 0;
+    }
+
+    /**
+     * Test if is chest
+     * 
+     * @param mat
+     *            the mat
+     * @return true, if is chest
+     */
+    public static final boolean isChest(final Material mat) {
+        return mat != null && (mat == Material.CHEST || mat == Material.TRAPPED_CHEST || mat == Material.ENDER_CHEST);
+    }
+
+    /**
+     * Checks if is climbable.
+     *
+     * @param mat
+     *            the mat.
+     * @return true, if is climbable
+     */
+    public static final boolean isClimbable(final Material mat) {
+        return (BlockFlags.getBlockFlags(mat) & BlockFlags.F_CLIMBABLE) != 0;
+    }
+
+    /**
+     * Test if the block is a containter.
+     *
+     * @param mat
+     *            the mat.
+     * @return true, if is container
+     */
+    public static boolean isContainer(final Material mat) {
+        return mat != null && (mat == Material.CHEST
+                            || mat == Material.ENDER_CHEST
+                            || mat == Material.DISPENSER
+                            || mat == Material.DROPPER
+                            || mat == Material.TRAPPED_CHEST
+                            || mat == Material.HOPPER
+                            || mat == BridgeMaterial.BARREL
+                            // Ugly.
+                            || mat.toString().endsWith("SHULKER_BOX"));
+    }
+
+    /**
+     * Might hold true for liquids too. TODO: ENSURE IT DOESN'T.
+     *
+     * @param mat
+     *            the mat.
+     * @return true, if is ground
+     */
+    public static final boolean isGround(final Material mat) {
+        return (BlockFlags.getBlockFlags(mat) & BlockFlags.F_GROUND) != 0;
+    }
+
+    /**
+     * Might hold true for liquids too. TODO: ENSURE IT DOESN'T.
+     *
+     * @param mat
+     *            the mat.
+     * @param ignoreFlags
+     *            flags to ignore
+     * @return true, if is ground
+     */
+    public static final boolean isGround(final Material mat, final long ignoreFlags) {
+        final long flags = BlockFlags.getBlockFlags(mat);
+        return (flags & BlockFlags.F_GROUND) != 0 && (flags & ignoreFlags) == 0;
+    }
+
+    /**
+     * Checks if is ice.
+     *
+     * @param mat
+     *            the mat.
+     * @return true, if is ice
+     */
+    public static final boolean isIce(final Material mat) {
+        return (BlockFlags.getBlockFlags(mat) & BlockFlags.F_ICE) != 0;
+    }
+
+    /**
+     * Checks if is leaves.
+     *
+     * @param mat
+     *            the mat.
+     * @return true, if is leaves
+     */
+    public static final boolean isLeaves(final Material mat) {
+        return (BlockFlags.getBlockFlags(mat) & BlockFlags.F_LEAVES) != 0;
+    }
+
+    /**
+     * Checks if is liquid.
+     *
+     * @param mat
+     *            the mat.
+     * @return true, if is liquid
+     */
+    public static final boolean isLiquid(final Material mat) {
+        return (BlockFlags.getBlockFlags(mat) & BlockFlags.F_LIQUID) != 0;
+    }
+
+    /**
+     * Checks if is PowderSnow.
+     *
+    * @param mat
+     *            the mat.
+     * @return true, if is powder now
+     */
+    public static final boolean isPowderSnow(final Material mat) {
+        return (BlockFlags.getBlockFlags(mat) & BlockFlags.F_POWDERSNOW) != 0;
+    }
+
+    /**
+     * All rail types a minecart can move on.
+     *
+     * @param mat
+     *            the mat.
+     * @return true, if is rails
+     */
+    public static final boolean isRails(final Material mat) {
+        return (BlockFlags.getBlockFlags(mat) & BlockFlags.F_RAILS) != 0; 
+    }
+
+    /**
+     * Convenience method including null check.
+     *
+     * @param mat
+     *            the mat.
+     * @return true, if is Scaffolding
+     */
+    public static final boolean isScaffolding(final Material mat) {
+        return mat != null && mat == BridgeMaterial.SCAFFOLDING;
+    }
+
+    /**
+     * Convenience method including null check.
+     *
+     * @param type
+     *            the type
+     * @return true, if is Scaffolding
+     */
+    public static final boolean isScaffolding(final ItemStack stack) {
+        return stack != null && isScaffolding(stack.getType());
+    }
+
+    /**
+     * Might hold true for liquids too.
+     *
+     * @param mat
+     *            the mat.
+     * @return true, if is solid
+     */
+    public static final boolean isSolid(final Material mat) {
+        return (BlockFlags.getBlockFlags(mat) & BlockFlags.F_SOLID) != 0;
+    }
+
+    /**
+     * Checks if is stairs.
+     *
+     * @param mat
+     *            the mat.
+     * @return true, if is stairs
+     */
+    public static final boolean isStairs(final Material mat) {
+        return (BlockFlags.getBlockFlags(mat) & BlockFlags.F_STAIRS) != 0;
+    }
+
+    /**
+     * Test for water type of blocks.
+     * 
+     * @param mat
+     *            the mat.
+     * @return true, if is water
+     */
+    public static final boolean isWater(final Material mat) {
+        return (BlockFlags.getBlockFlags(mat) & BlockFlags.F_WATER) != 0;
+    }
+
+    /**
+     * Checks if is apart of 1.13 water blocks.
+     *
+     * @param mat
+     *            the mat.
+     * @return true, if is liquid
+     */
+    public static final boolean isWaterPlant(final Material mat) {
+        return (BlockFlags.getBlockFlags(mat) & BlockFlags.F_WATER_PLANT) != 0;
     }
 
     /** Liquid height if no solid/full blocks are above. */
@@ -773,11 +1036,18 @@ public class BlockProperties {
         final MCAccess mcAccess = mcAccessHandle.getHandle();
         // Reset tool props.
         blocks.clear();
-        // Initialize block flags
+        
+        /**
+         * Clean up pending.
+         * Move 1.14 and 1.12 blocks to to an extra setup class.
+         * 
+         */
+        //////////////////////////////////////////////////////
+        // Initialize block flags                           //
+        //////////////////////////////////////////////////////
         // Generic initialization.
         for (Material mat : Material.values()) {
             BlockFlags.blockFlags.put(mat, 0L);
-
             if (mcAccess.isBlockLiquid(mat).decide()) {
                 // TODO: do not set BlockFlags.F_GROUND for liquids ?
                 BlockFlags.setFlag(mat, BlockFlags.F_LIQUID);
@@ -828,61 +1098,53 @@ public class BlockProperties {
         // Workarounds.
         // Ground (can stand on).
         for (final Material mat : new Material[]{
-            BridgeMaterial.get("DIODE_BLOCK_OFF"), 
-            BridgeMaterial.get("DIODE_BLOCK_ON"),
-            BridgeMaterial.getBlock("comparator"),
-            BridgeMaterial.getBlock("daylight_detector"),
             Material.COCOA, 
             Material.SNOW, 
             Material.LADDER,
             Material.BREWING_STAND,
+            BridgeMaterial.get("DIODE_BLOCK_OFF"), 
+            BridgeMaterial.get("DIODE_BLOCK_ON"),
+            BridgeMaterial.getBlock("comparator"),
+            BridgeMaterial.getBlock("daylight_detector"),
             BridgeMaterial.LILY_PAD, 
             BridgeMaterial.PISTON_HEAD,
             BridgeMaterial.STONE_SLAB,
             BridgeMaterial.REPEATER}) {
-            if (mat != null) {
-                BlockFlags.setFlag(mat, BlockFlags.F_GROUND);
-            }
+            if (mat != null) BlockFlags.setFlag(mat, BlockFlags.F_GROUND);
         }
         
-        // Pistons
+        // Moving piston
         setBlockProps(BridgeMaterial.MOVING_PISTON, indestructibleType); // TODO: really?
-        BlockFlags.setFlag(BridgeMaterial.MOVING_PISTON, BlockFlags.F_IGN_PASSABLE | BlockFlags.F_GROUND | BlockFlags.F_GROUND_HEIGHT 
-                | BlockFlags.FULL_BOUNDS);
+        BlockFlags.setFlag(BridgeMaterial.MOVING_PISTON, BlockFlags.F_IGN_PASSABLE | BlockFlags.F_GROUND | BlockFlags.F_GROUND_HEIGHT | BlockFlags.FULL_BOUNDS);
 
         // Full block height.
-        for (final Material mat : new Material[]{
-            BridgeMaterial.FARMLAND // Server reports the visible shape 0.9375, client moves on full block height.
-        }) {
+        // Server reports the visible shape 0.9375, client moves on full block height.
+        for (final Material mat : new Material[]{BridgeMaterial.FARMLAND}) {
             BlockFlags.setFlag(mat, BlockFlags.F_HEIGHT100);
         }
 
-        // ICE
-        BlockFlags.setFlag(Material.ICE, BlockFlags.F_ICE);
-
-        // Not ground (!).
-        // TODO: Might keep solid since it is meant to be related to block shapes rather ("original mc value").
+        // Not ground, despite the game claiming they are solid. Remove flag.
         BlockFlags.maskFlag(BridgeMaterial.SIGN, ~(BlockFlags.F_GROUND | BlockFlags.F_SOLID));
 
         // Ignore for passable.
         for (final Material mat : new Material[] {
-                // More strictly needed.
-                BridgeMaterial.STONE_PRESSURE_PLATE,
-                BridgeMaterial.WOODEN_PRESSURE_PLATE,
-                BridgeMaterial.SIGN,
-                BridgeMaterial.get("DIODE_BLOCK_ON"), 
-                BridgeMaterial.get("DIODE_BLOCK_OFF"),
-                // Compatibility.
-                //Material.LADDER, 
-                // Workarounds.
-                //				Material.COCOA,
-        }) {
-            if (mat != null) {
-                BlockFlags.setFlag(mat, BlockFlags.F_IGN_PASSABLE);
-            }
+            // More strictly needed.
+            // Plates are passable? ...
+            // ^ They are not, this is part of a workaround
+            //@See: https://github.com/Updated-NoCheatPlus/NoCheatPlus/commit/e377abe3427a6f971185fdb9ba2024c1f7803141
+            BridgeMaterial.STONE_PRESSURE_PLATE, 
+            BridgeMaterial.WOODEN_PRESSURE_PLATE,
+            BridgeMaterial.SIGN,
+            BridgeMaterial.get("DIODE_BLOCK_ON"), 
+            BridgeMaterial.get("DIODE_BLOCK_OFF"),}) {
+            // Compatibility.
+            //Material.LADDER, 
+            // Workarounds.
+            //				Material.COCOA,
+            if (mat != null) BlockFlags.setFlag(mat, BlockFlags.F_IGN_PASSABLE);
         }
 
-        // Fences, 1.5 block high.
+        // 1.5 high blocks (fences, walls, gates)
         final long flags150 = BlockFlags.F_HEIGHT150 | BlockFlags.F_VARIABLE | BlockFlags.F_THICK_FENCE;
         for (final Material mat : new Material[]{BridgeMaterial.NETHER_BRICK_FENCE, BridgeMaterial.COBBLESTONE_WALL,}) {
             BlockFlags.setFlag(mat, flags150);
@@ -902,9 +1164,8 @@ public class BlockProperties {
         for (final Material mat : MaterialUtil.WOODEN_TRAP_DOORS) {
             BlockFlags.setFlag(mat, BlockFlags.F_PASSABLE_X4 | BlockFlags.F_VARIABLE);
         }
-
-        // BlockFlags.F_VARIABLE_REDSTONE, BlockFlags.F_VARIABLE_USE
-        // TODO: Use collections.
+        
+        // Blocks that vary with redstone or interaction.
         for (Material material : Material.values()) {
             if (material.isBlock()) {
                 
@@ -912,8 +1173,8 @@ public class BlockProperties {
                 if (name.endsWith("_door") 
                     || name.endsWith("_trapdoor")
                     || name.endsWith("fence_gate")) {
-                    BlockFlags.setFlag(material, BlockFlags.F_VARIABLE_REDSTONE);
 
+                    BlockFlags.setFlag(material, BlockFlags.F_VARIABLE_REDSTONE);
                     if (!name.contains("iron")) {
                         BlockFlags.setFlag(material, BlockFlags.F_VARIABLE_USE);
                     }
@@ -942,31 +1203,78 @@ public class BlockProperties {
         for (final Material mat : MaterialUtil.GLASS_PANES) {
             BlockFlags.setFlag(mat, paneFlags);
         }
-        
-        // Cake
-        BlockFlags.setFlag(BridgeMaterial.CAKE, BlockFlags.F_GROUND);
 
         // Flexible ground (height):
-        for (final Material mat : new Material[]{
-            // Strictly needed (multiple boxes otherwise).
-            // Already worked around with isPassableWorkaround (kept for dev-reference).
-            //				Material.ANVIL,
-            //				Material.SKULL, Material.FLOWER_POT,
-            //				Material.DRAGON_EGG,
-            //				Material.COCOA,
-            // 1.10.2 +- client uses the reported height.
-            BridgeMaterial.FARMLAND,}) {
+        // 1.10.2 +- client uses the reported height.
+        for (final Material mat : new Material[]{BridgeMaterial.FARMLAND,}) {
             BlockFlags.setFlag(mat, BlockFlags.F_GROUND_HEIGHT);
         }
-        BlockFlags.setFlag(BridgeMaterial.END_PORTAL_FRAME, BlockFlags.SOLID_GROUND);
 
         // Issues standing on with F_PASSABLE_X4. Note getGroundMinHeight.
         for (Material mat : MaterialUtil.WOODEN_TRAP_DOORS) {
             BlockFlags.setFlag(mat, BlockFlags.F_GROUND_HEIGHT);
         }
 
-        // Set block break properties.
-        // Instantly breakable.
+        // End portal frame
+        BlockFlags.setFlag(BridgeMaterial.END_PORTAL_FRAME, BlockFlags.SOLID_GROUND);
+
+        // Cobweb
+        BlockFlags.setFlag(BridgeMaterial.COBWEB, BlockFlags.F_COBWEB | BlockFlags.FULL_BOUNDS | BlockFlags.F_IGN_PASSABLE);
+
+        // Soulsand
+        BlockFlags.setFlag(Material.SOUL_SAND, BlockFlags.F_SOULSAND | BlockFlags.SOLID_GROUND);
+
+        // Ice
+        BlockFlags.setFlag(Material.ICE, BlockFlags.F_ICE);
+
+        // Cake
+        BlockFlags.setFlag(BridgeMaterial.CAKE, BlockFlags.F_GROUND);
+        
+        // Walls (cobblestone)
+        BlockFlags.setFlag(BridgeMaterial.COBBLESTONE_WALL, BlockFlags.F_HEIGHT150);
+
+
+
+        
+        //////////////////////////////////////////////////////////////////
+        // Set block break properties.                                  //
+        //////////////////////////////////////////////////////////////////
+        setBlock(Material.LADDER, new BlockProps(noTool, 0.4f, secToMs(0.6), 2.5f));
+
+        setBlock(Material.CACTUS, new BlockProps(noTool, 0.4f, secToMs(0.6)));
+
+        setBlock(Material.BEACON, new BlockProps(noTool, 25f, secToMs(4.45))); 
+
+        setBlock(Material.DRAGON_EGG, new BlockProps(noTool, 3f, secToMs(4.5))); // Former: coalType.
+
+        setBlock(BridgeMaterial.MELON, new BlockProps(noTool, 1, secToMs(1.45), 3));
+
+        setBlock(Material.SPONGE, new BlockProps(noTool, 0.6f, secToMs(0.85)));
+
+        setBlock(Material.NETHERRACK, new BlockProps(woodPickaxe, 0.4f, secToMs(2, 0.3, 0.15, 0.1, 0.1, 0.05, 0.05)));
+
+        setBlock(Material.STONE_BUTTON,new BlockProps(woodPickaxe, 0.5f, secToMs(0.7, 0.35, 0.15, 0.1, 0.06, 0.05, 0.05)));
+
+        setBlock(Material.ICE, new BlockProps(woodPickaxe, 0.5f, secToMs(0.7, 0.35, 0.18, 0.12, 0.09, 0.06, 0.05)));
+        
+        setBlock(Material.BREWING_STAND, new BlockProps(woodPickaxe, 0.5f, secToMs(2.5, 0.35, 0.175, 0.12, 0.075, 0.05, 0.05)));
+
+        setBlock(Material.ENDER_CHEST, new BlockProps(woodPickaxe, 22.5f));
+
+        setBlock(Material.SNOW, new BlockProps(getToolProps(BridgeMaterial.WOODEN_SHOVEL), 0.1f, secToMs(0.5, 0.1, 0.05, 0.05, 0.05, 0.05, 0.05)));
+
+        setBlock(Material.SNOW_BLOCK, new BlockProps(getToolProps(BridgeMaterial.WOODEN_SHOVEL), 0.1f, secToMs(1, 0.15, 0.1, 0.05, 0.05, 0.05, 0.05)));
+
+        setBlock(Material.NOTE_BLOCK, new BlockProps(woodAxe, 0.8f, secToMs(1.2, 0.6, 0.3, 0.2, 0.15, 0.1, 0.05)));
+
+        setBlock(Material.BOOKSHELF, new BlockProps(woodAxe, 1.5f, secToMs(2.25, 1.15, 0.6, 0.4, 0.3, 0.2, 0.1)));
+
+        setBlock(BridgeMaterial.COBWEB, new BlockProps(woodSword, 4, secToMs(20, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4)));
+
+        setBlock(Material.OBSIDIAN, new BlockProps(diamondPickaxe, 50, secToMs(250, 125, 62.5, 41.6, 9.4, 8.3, 20.8)));
+
+
+        // Instantly breakable types
         for (final Material mat : new Material[]{
             Material.TNT,
             BridgeMaterial.get("DIODE_BLOCK_ON"), 
@@ -975,14 +1283,13 @@ public class BlockProperties {
             BridgeMaterial.get("sea_pickle"),
             BridgeMaterial.LILY_PAD,
             BridgeMaterial.COMMAND_BLOCK,}) {
-            if (mat != null) {
-                setBlock(mat, instantType);
-            }
+            if (mat != null) setBlock(mat, instantType);
         }
         for (final Material mat : MaterialUtil.INSTANT_PLANTS) {
             setBlock(mat, instantType);
         }
-        // Instant break and fully passable.
+
+        // Instant break AND fully passable types
         for (Material mat : new Material[] {
             Material.REDSTONE_WIRE, 
             BridgeMaterial.get("REDSTONE_TORCH_ON"), 
@@ -999,45 +1306,33 @@ public class BlockProperties {
             }
         }
 
-        // Leaf type
+        // Leaf types
         for (final Material mat : MaterialUtil.LEAVES) {
             setBlock(mat, leafType);
             BlockFlags.setFlag(mat, BlockFlags.F_LEAVES);
         }
 
-        // Beds
+        // Bed types
         for (Material mat : MaterialUtil.BEDS) { 
             setBlock(mat, leafType);
             BlockFlags.setFlag(mat, BlockFlags.F_GROUND | BlockFlags.F_SOLID | BlockFlags.F_BED);
         }
 
-        // Cobweb
-        BlockFlags.setFlag(BridgeMaterial.COBWEB, BlockFlags.F_COBWEB | BlockFlags.FULL_BOUNDS | BlockFlags.F_IGN_PASSABLE);
-
-        // Soulsand
-        BlockFlags.setFlag(Material.SOUL_SAND, BlockFlags.F_SOULSAND | BlockFlags.SOLID_GROUND);
-
-        // Huge mushroom type (...)
+        // Huge mushroom types
         for (Material mat : new Material[]{ Material.VINE, Material.COCOA}) {
             setBlock(mat, hugeMushroomType);
         }
         for (Material mat : MaterialUtil.MUSHROOM_BLOCKS) {
             setBlock(mat, hugeMushroomType);
         }
-        
-        // Snow
-        setBlock(Material.SNOW, new BlockProps(getToolProps(BridgeMaterial.WOODEN_SHOVEL), 0.1f, secToMs(0.5, 0.1, 0.05, 0.05, 0.05, 0.05, 0.05)));
-        setBlock(Material.SNOW_BLOCK, new BlockProps(getToolProps(BridgeMaterial.WOODEN_SHOVEL), 0.1f, secToMs(1, 0.15, 0.1, 0.05, 0.05, 0.05, 0.05)));
 
         // Glass types
-        for (Material mat : new Material[]{ 
+        for (Material mat : new Material[] { 
             BridgeMaterial.get("REDSTONE_LAMP_ON"), 
             BridgeMaterial.get("REDSTONE_LAMP_OFF"),
             BridgeMaterial.get("REDSTONE_LAMP"),
             Material.GLOWSTONE,}) {
-            if (mat != null) {
-                setBlock(mat, glassType);
-            }
+            if (mat != null) setBlock(mat, glassType);
         }
         for (final Material mat : MaterialUtil.GLASS_BLOCKS) {
             setBlock(mat, glassType);
@@ -1045,15 +1340,22 @@ public class BlockProperties {
         for (final Material mat : MaterialUtil.GLASS_PANES) {
             setBlock(mat, glassType);
         }
-        setBlock(Material.NETHERRACK, new BlockProps(woodPickaxe, 0.4f, secToMs(2, 0.3, 0.15, 0.1, 0.1, 0.05, 0.05)));
-        setBlock(Material.LADDER, new BlockProps(noTool, 0.4f, secToMs(0.6), 2.5f));
-        setBlock(Material.CACTUS, new BlockProps(noTool, 0.4f, secToMs(0.6)));
+
+        // Plates
         for (Material mat : MaterialUtil.WOODEN_PRESSURE_PLATES) {
             setBlockProps(mat, new BlockProps(woodAxe, 0.5f, secToMs(0.75, 0.4, 0.2, 0.15, 0.1, 0.1, 0.1)));
         }
         setBlock(BridgeMaterial.STONE_PRESSURE_PLATE, new BlockProps(woodPickaxe, 0.5f, secToMs(2.5, 0.4, 0.2, 0.15, 0.1, 0.07, 0.05)));
+
+        // Sand types
         setBlock(Material.SAND, sandType);
         setBlock(Material.SOUL_SAND, sandType);
+        setBlock(Material.DIRT, sandType);
+        for (Material mat : MaterialUtil.CONCRETE_POWDER_BLOCKS) {
+            BlockInit.setAs(mat, Material.DIRT);
+        }
+
+        // Lever types
         for (Material mat: new Material[]{
             Material.LEVER, 
             BridgeMaterial.PISTON, 
@@ -1062,13 +1364,11 @@ public class BlockProperties {
             BridgeMaterial.PISTON}) {
             setBlock(mat, leverType);
         }
-        setBlock(Material.STONE_BUTTON,new BlockProps(woodPickaxe, 0.5f, secToMs(0.7, 0.35, 0.15, 0.1, 0.06, 0.05, 0.05)));
-        setBlock(Material.ICE, new BlockProps(woodPickaxe, 0.5f, secToMs(0.7, 0.35, 0.18, 0.12, 0.09, 0.06, 0.05)));
-        setBlock(Material.DIRT, sandType);
         setBlock(BridgeMaterial.CAKE, leverType);
-        setBlock(Material.BREWING_STAND, new BlockProps(woodPickaxe, 0.5f, secToMs(2.5, 0.35, 0.175, 0.12, 0.075, 0.05, 0.05)));
-        setBlock(Material.SPONGE, new BlockProps(noTool, 0.6f, secToMs(0.85)));
-        for (Material mat : new Material[]{
+
+
+        // Gravel types
+        for (Material mat : new Material[] {
             BridgeMaterial.MYCELIUM, 
             BridgeMaterial.FARMLAND,
             BridgeMaterial.GRASS_BLOCK,
@@ -1076,35 +1376,41 @@ public class BlockProperties {
             Material.CLAY,}) {
             setBlock(mat, gravelType);
         }
+        
+        // All rails
         for (Material mat : MaterialUtil.RAILS) {
             setBlock(mat, new BlockProps(woodPickaxe, 0.7f, railsTimes));
         }
+        
+        // Infested bricks
         for (Material mat : MaterialUtil.INFESTED_BLOCKS) {
             setBlock(mat, new BlockProps(noTool, 0.75f, secToMs(1.15)));
         }
+
+        // Wood blocks
         for (Material mat : MaterialUtil.WOOD_BLOCKS) {
             setBlock(mat, new BlockProps(noTool, 0.8f, secToMs(1.2), 3f));
         }
+
+        // Sandstone types
         setBlock(Material.SANDSTONE, sandStoneType);
         setBlock(Material.SANDSTONE_STAIRS, sandStoneType);
-        for (Material mat : new Material[]{
+
+        // Stone types
+        for (Material mat : new Material[] {
             Material.STONE, 
             BridgeMaterial.STONE_BRICKS, 
             BridgeMaterial.STONE_BRICK_STAIRS,}) {
             setBlock(mat, stoneType);
         }
-        setBlock(Material.NOTE_BLOCK, new BlockProps(woodAxe, 0.8f, secToMs(1.2, 0.6, 0.3, 0.2, 0.15, 0.1, 0.05)));
+
+        // Pumpkin types
         final BlockProps pumpkinType = new BlockProps(woodAxe, 1, secToMs(1.5, 0.75, 0.4, 0.25, 0.2, 0.15, 0.1));
         setBlock(BridgeMaterial.SIGN, pumpkinType);
         setBlock(Material.PUMPKIN, pumpkinType);
         setBlock(Material.JACK_O_LANTERN, pumpkinType);
-        setBlock(BridgeMaterial.MELON, new BlockProps(noTool, 1, secToMs(1.45), 3));
-        setBlock(Material.BOOKSHELF, new BlockProps(woodAxe, 1.5f, secToMs(2.25, 1.15, 0.6, 0.4, 0.3, 0.2, 0.1)));
-        for (Material mat : new Material[]{Material.JUKEBOX, BridgeMaterial.get("wood_double_step"),}) { // double slabs ?
-            if (mat != null) {
-                setBlock(mat,  woodType);
-            }
-        }
+
+        // Wood types
         final List<Set<Material>> woodTypes = Arrays.asList(
             MaterialUtil.WOODEN_FENCE_GATES, 
             MaterialUtil.WOODEN_FENCES,
@@ -1115,87 +1421,115 @@ public class BlockProperties {
             MaterialUtil.PLANKS);
         for (final Set<Material> set : woodTypes) {
             for (final Material mat : set) {
-                setBlock(mat,  woodType);
+                setBlock(mat, woodType);
             }
         }
+        for (Material mat : new Material[] {
+            Material.JUKEBOX, 
+            BridgeMaterial.get("wood_double_step"),}) { // double slabs ?
+            if (mat != null) setBlock(mat, woodType);
+        }
+        for (Material mat : MaterialUtil.STRIPPED_LOGS) {
+            BlockInit.setAs(mat, BridgeMaterial.OAK_LOG);
+        }
+        for (Material mat : MaterialUtil.STRIPPED_WOOD_BLOCKS) {
+            BlockInit.setAs(mat, BridgeMaterial.OAK_WOOD);
+        }
+
+        // Brick types
         for (Material mat : new Material[] {
             Material.CAULDRON, 
             Material.COBBLESTONE_STAIRS, 
             Material.COBBLESTONE, 
             Material.NETHER_BRICK_STAIRS, 
-            BridgeMaterial.NETHER_BRICK_FENCE,
             Material.MOSSY_COBBLESTONE,
-            BridgeMaterial.NETHER_BRICKS,  
-            BridgeMaterial.BRICKS, 
             Material.BRICK_STAIRS, 
             Material.BRICK_STAIRS, 
+            BridgeMaterial.NETHER_BRICK_FENCE,
             BridgeMaterial.BRICK_SLAB,
             BridgeMaterial.STONE_SLAB, 
-            BridgeMaterial.get("double_step"), // ?
-
-        }) {
-            if (mat != null) {
-                setBlock(mat,  brickType);
-            }
+            BridgeMaterial.NETHER_BRICKS,  
+            BridgeMaterial.BRICKS, 
+            BridgeMaterial.get("double_step"),}) {
+            if (mat != null) setBlock(mat, brickType);
         }
         BlockFlags.setBlockFlags(Material.CAULDRON, BlockFlags.SOLID_GROUND | BlockFlags.F_GROUND_HEIGHT | BlockFlags.F_MIN_HEIGHT16_5); // LEGACY
+        setBlock(BridgeMaterial.COBBLESTONE_WALL, brickType);
+
+        // Chest types
         setBlock(BridgeMaterial.CRAFTING_TABLE, chestType);
         setBlock(Material.CHEST, chestType);
+        if (BridgeMaterial.has("locked_chest")) {  // blocks[95] = indestructibleType; // Locked chest (prevent crash with 1.7).
+            BlockFlags.setFlagsAs("LOCKED_CHEST", Material.CHEST);
+            setBlockProps("LOCKED_CHEST", BlockProperties.chestType); // Breaks like chest later on.
+        }
+
+        // Wood door types
         for (Material mat : MaterialUtil.WOODEN_DOORS) {
             setBlock(mat, woodDoorType);
         }
         for (Material mat : MaterialUtil.WOODEN_TRAP_DOORS) {
             setBlock(mat, woodDoorType);
         }
-        for (Material mat : new Material[]{BridgeMaterial.END_STONE, Material.COAL_ORE,}) {
-            setBlock(mat,  coalType);
+
+        // Coal types
+        for (Material mat : new Material[] {
+            BridgeMaterial.END_STONE, 
+            Material.COAL_ORE,}) {
+            setBlock(mat, coalType);
         }
-        setBlock(Material.DRAGON_EGG, new BlockProps(noTool, 3f, secToMs(4.5))); // Former: coalType.
+
+        // Iron types
         final long[] ironTimes = secToMs(15, 7.5, 1.15, 0.75, 0.6, 0.5, 1.25);
         final BlockProps ironType = new BlockProps(stonePickaxe, 3, ironTimes);
-        for (Material mat : new Material[]{Material.LAPIS_ORE, Material.LAPIS_BLOCK, Material.IRON_ORE,}) {
+        for (Material mat : new Material[] {
+            Material.LAPIS_ORE, 
+            Material.LAPIS_BLOCK, 
+            Material.IRON_ORE,}) {
             setBlock(mat,  ironType);
         }
+
+        // Diamond types
         final long[] diamondTimes = secToMs(15, 7.5, 3.75, 0.75, 0.6, 0.5, 1.25);
         final BlockProps diamondType = new BlockProps(ironPickaxe, 3, diamondTimes);
-        for (Material mat : new Material[]{
-            BridgeMaterial.get("glowing_redstone_ore"),
+        for (Material mat : new Material[] {
             Material.REDSTONE_ORE, 
             Material.EMERALD_ORE, 
             Material.GOLD_ORE, 
-            Material.DIAMOND_ORE,}) {
-            if (mat != null) {
-                setBlock(mat,  diamondType);
-            }
+            Material.DIAMOND_ORE,
+            BridgeMaterial.get("glowing_redstone_ore"),}) {
+            if (mat != null) setBlock(mat,  diamondType);
         }
-        setBlock(Material.GOLD_BLOCK,  goldBlockType);
+
+        // Gold block types
+        setBlock(Material.GOLD_BLOCK, goldBlockType);
+
+        // Dispenser types
         setBlock(Material.FURNACE, dispenserType);
         if (BridgeMaterial.has("burning_furnace")) {
             setBlock(BridgeMaterial.get("burning_furnace"), dispenserType);
         }
         setBlock(Material.DISPENSER, dispenserType);
-        setBlock(BridgeMaterial.COBWEB, new BlockProps(woodSword, 4, secToMs(20, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4)));
 
-        for (Material mat : new Material[]{
+        // Iron door types
+        for (Material mat : new Material[] {
+            Material.EMERALD_BLOCK,
             BridgeMaterial.SPAWNER, 
             BridgeMaterial.IRON_DOOR,
             BridgeMaterial.IRON_BARS, 
-            BridgeMaterial.ENCHANTING_TABLE, 
-            Material.EMERALD_BLOCK,}) {
+            BridgeMaterial.ENCHANTING_TABLE,}) {
             setBlock(mat, ironDoorType);
         }
+        
+        // Iron block types
         setBlock(Material.IRON_BLOCK, ironBlockType);
-        setBreakingTimeOverridesByEfficiency(new BlockBreakKey().blockType(Material.IRON_BLOCK).toolType(ToolType.PICKAXE).materialBase(MaterialBase.WOOD),
-                                             ironBlockType.breakingTimes[1], 6200L, 3500L, 2050L, 1350L, 900L, 500L);
+        setBreakingTimeOverridesByEfficiency(new BlockBreakKey().blockType(Material.IRON_BLOCK).toolType(ToolType.PICKAXE).materialBase(MaterialBase.WOOD), ironBlockType.breakingTimes[1], 6200L, 3500L, 2050L, 1350L, 900L, 500L);
+        
+        // Diamond block types
         setBlock(Material.DIAMOND_BLOCK, diamondBlockType);
-        setBlock(Material.ENDER_CHEST, new BlockProps(woodPickaxe, 22.5f));
-        setBlock(Material.OBSIDIAN, new BlockProps(diamondPickaxe, 50, secToMs(250, 125, 62.5, 41.6, 9.4, 8.3, 20.8)));
 
         // More 1.4 (not insta).
         // TODO: Either move all to an extra setup class, or integrate above.
-        setBlock(Material.BEACON, new BlockProps(noTool, 25f, secToMs(4.45))); 
-        setBlock(BridgeMaterial.COBBLESTONE_WALL, brickType);
-        BlockFlags.setFlag(BridgeMaterial.COBBLESTONE_WALL, BlockFlags.F_HEIGHT150);
         for (Material mat : MaterialUtil.WOODEN_BUTTONS) {
             //setBlock(mat, leverType);
             setBlock(mat,new BlockProps(woodAxe, 0.5f, secToMs(0.7, 0.3, 0.15, 0.1, 0.06, 0.05, 0.05)));
@@ -1211,17 +1545,15 @@ public class BlockProperties {
             setBlockProps(mat, instantType);
         }
 
-        // Indestructible.
+        // Indestructible types
         for (Material mat : new Material[]{
             Material.AIR, 
+            Material.BEDROCK,
             BridgeMaterial.END_PORTAL, 
             BridgeMaterial.END_PORTAL_FRAME,
-            BridgeMaterial.NETHER_PORTAL, 
-            Material.BEDROCK,
+            BridgeMaterial.NETHER_PORTAL,
             BridgeMaterial.get("void_air")}) {
-            if (mat != null) {
-                setBlock(mat, indestructibleType); 
-            }
+            if (mat != null) setBlock(mat, indestructibleType); 
         }
         final List<Set<Material>> indestructible = new LinkedList<Set<Material>>(Arrays.asList(MaterialUtil.LAVA, MaterialUtil.WATER));
         for (Set<Material> set : indestructible) {
@@ -1230,13 +1562,6 @@ public class BlockProperties {
             }
         }
         BlockFlags.setBlockFlags(Material.BEDROCK, BlockFlags.FULLY_SOLID_BOUNDS);
-
-        // blocks[95] = indestructibleType; // Locked chest (prevent crash with 1.7).
-        if (BridgeMaterial.has("locked_chest")) {
-            BlockFlags.setFlagsAs("LOCKED_CHEST", Material.CHEST);
-            // Breaks like chest later on.
-            setBlockProps("LOCKED_CHEST", BlockProperties.chestType);
-        }
 
         // Terracotta (hard_clay).
         props = new BlockProps(BlockProperties.woodPickaxe, 1.25f, BlockProperties.secToMs(6.25, 0.95, 0.5, 0.35, 0.25, 0.2, 0.15));
@@ -1284,21 +1609,6 @@ public class BlockProperties {
         for (Material mat : MaterialUtil.CONCRETE_BLOCKS) {
             setBlockProps(mat, props);
             BlockFlags.setFlagsAs(mat, Material.COBBLESTONE);
-        }
-
-        // Concrete powder
-        for (Material mat : MaterialUtil.CONCRETE_POWDER_BLOCKS) {
-            BlockInit.setAs(mat, Material.DIRT);
-        }
-
-        // Stripped logs.
-        for (Material mat : MaterialUtil.STRIPPED_LOGS) {
-            BlockInit.setAs(mat, BridgeMaterial.OAK_LOG);
-        }
-
-        // Stripped wood blocks.
-        for (Material mat : MaterialUtil.STRIPPED_WOOD_BLOCKS) {
-            BlockInit.setAs(mat, BridgeMaterial.OAK_WOOD);
         }
 
         // Wool blocks.
@@ -1541,8 +1851,7 @@ public class BlockProperties {
      * @return the breaking duration
      */
     public static long getBreakingDuration(final Material BlockType, final Player player) {
-        final long res = getBreakingDuration(BlockType, Bridge1_9.getItemInMainHand(player), player.getInventory().getHelmet(), 
-                                             player, player.getLocation(useLoc));
+        final long res = getBreakingDuration(BlockType, Bridge1_9.getItemInMainHand(player), player.getInventory().getHelmet(), player, player.getLocation(useLoc));
         useLoc.setWorld(null);
         return res;
     }
@@ -1699,7 +2008,6 @@ public class BlockProperties {
     public static long getBreakingDuration(final Material blockId, final BlockProps blockProps, final ToolProps toolProps, 
                                            final  boolean onGround, final boolean inWater, boolean aquaAffinity, 
                                            int efficiency, int haste, int fatigue, int conduit) {
-
         // First check for direct breaking time overrides.
         final BlockBreakKey bbKey = new BlockBreakKey();
         // Add the basic properties.
@@ -1766,34 +2074,47 @@ public class BlockProperties {
         }
 
         if (duration > 0) {
+
             // Reverse version to get hardness base on time map
             float tick = duration / 50;
             double damage = 1 / tick;
             double hardness = 1 / damage / ((isRightTool ? 30 : 100) / (isValidTool ? getToolMultiplier(blockId, blockProps, toolProps) : 1.0));
-
             // Actual check
             if (hardness > 0.0) {
+
                 double speed = isValidTool ? getToolMultiplier(blockId, blockProps, toolProps) : 1.0;
-                if (isValidTool && efficiency > 0) speed += efficiency * efficiency + 1;
-                if (haste > 0 || conduit > 0) speed *= 1 + 0.2 * Math.max(haste, conduit);
+                if (isValidTool && efficiency > 0) {
+                    speed += efficiency * efficiency + 1;
+                }
+                if (haste > 0 || conduit > 0) {
+                    speed *= 1 + 0.2 * Math.max(haste, conduit);
+                }
                 if (fatigue > 0) {
                     switch (fatigue) {
-                    case 1: {speed *= 0.3; break;}
-                    case 2: {speed *= 0.09; break;}
-                    case 3: {speed *= 0.027; break;}
-                    default: speed *= 0.00081;
+                        case 1: {speed *= 0.3; break;}
+                        case 2: {speed *= 0.09; break;}
+                        case 3: {speed *= 0.027; break;}
+                        default: speed *= 0.00081;
                     }
                 }
                 speed /= getBlockBreakingPenaltyMultiplier(onGround, inWater, aquaAffinity);
                 damage = speed / hardness;
                 damage /= isRightTool ? 30.0 : 100.0;
-                if (damage > 1) return 0;
+                if (damage > 1) {
+                    return 0;
+                }
                 return (int) (1 / damage) * 50;
             }
         }
         return Math.max(0, duration);
     }
-
+    
+    /**
+     * @param onGround
+     * @param inWater
+     * @param aquaAffinity
+     * @return the multiplier
+     */
     private static float getBlockBreakingPenaltyMultiplier(final boolean onGround, final boolean inWater, final boolean aquaAffinity) {
         float mult = 1f;
         if (inWater && !aquaAffinity) {
@@ -2189,245 +2510,6 @@ public class BlockProperties {
     }
 
     /**
-     * Checks if is climbable.
-     *
-     * @param id
-     *            the id
-     * @return true, if is climbable
-     */
-    public static final boolean isClimbable(final Material id) {
-        return (BlockFlags.getBlockFlags(id) & BlockFlags.F_CLIMBABLE) != 0;
-    }
-
-    /**
-     * Climbable material that needs to be attached to a block, to allow players
-     * to climb up.<br>
-     * Currently only applies to vines. There is no flag for such, yet.
-     *
-     * @param id
-     *            the id
-     * @return true, if is attached climbable
-     */
-    public static final boolean isAttachedClimbable(final Material id) {
-        if ((BlockFlags.getBlockFlags(id) & BlockFlags.F_CLIMBUPABLE) != 0) return false;
-        return id == Material.VINE;
-    }
-
-    /**
-     * Checks if is stairs.
-     *
-     * @param id
-     *            the id
-     * @return true, if is stairs
-     */
-    public static final boolean isStairs(final Material id) {
-        return (BlockFlags.getBlockFlags(id) & BlockFlags.F_STAIRS) != 0;
-    }
-
-    /**
-     * Checks if is liquid.
-     *
-     * @param blockType
-     *            the block type
-     * @return true, if is liquid
-     */
-    public static final boolean isLiquid(final Material blockType) {
-        return (BlockFlags.getBlockFlags(blockType) & BlockFlags.F_LIQUID) != 0;
-    }
-    
-    /**
-     * Checks if is apart of 1.13 water blocks.
-     *
-     * @param blockType
-     *            the block type
-     * @return true, if is liquid
-     */
-    public static final boolean isWaterPlant(final Material blockType) {
-        return (BlockFlags.getBlockFlags(blockType) & BlockFlags.F_WATER_PLANT) != 0;
-    }
-
-    /**
-     * Test for water type of blocks.
-     * 
-     * @param blockType
-     * @return
-     */
-    public static final boolean isWater(final Material blockType) {
-        return (BlockFlags.getBlockFlags(blockType) & BlockFlags.F_WATER) != 0;
-    }
-
-    public static final boolean isChest(final Material blockType) {
-        return blockType != null && (blockType == Material.CHEST || blockType == Material.TRAPPED_CHEST);
-    }
-
-    /**
-     * Checks if is ice.
-     *
-     * @param id
-     *            the id
-     * @return true, if is ice
-     */
-    public static final boolean isIce(final Material id) {
-        return (BlockFlags.getBlockFlags(id) & BlockFlags.F_ICE) != 0;
-    }
-
-    /**
-     * Checks if is blue ice.
-     *
-     * @param id
-     *            the id
-     * @return true, if is blue ice
-     */
-    public static final boolean isBlueIce(final Material id) {
-        return (BlockFlags.getBlockFlags(id) & BlockFlags.F_BLUE_ICE) != 0;
-    }
-
-    /**
-     * Checks if is leaves.
-     *
-     * @param id
-     *            the id
-     * @return true, if is leaves
-     */
-    public static final boolean isLeaves(final Material id) {
-        return (BlockFlags.getBlockFlags(id) & BlockFlags.F_LEAVES) != 0;
-    }
-
-    /**
-     * Checks if is carpet.
-     *
-     * @param id
-     *            the id
-     * @return true, if is carpet
-     */
-    public static final boolean isCarpet(final Material id) {
-        return (BlockFlags.getBlockFlags(id) & BlockFlags.F_CARPET) != 0;
-    }
-
-    /**
-     * Checks if is PowderSnow.
-     *
-     * @param id
-     *            the id
-     * @return true, if is leaves
-     */
-    public static final boolean isPowderSnow(final Material id) {
-        return (BlockFlags.getBlockFlags(id) & BlockFlags.F_POWDERSNOW) != 0;
-    }
-
-    /**
-     * Might hold true for liquids too.
-     *
-     * @param blockType
-     *            the block type
-     * @return true, if is solid
-     */
-    public static final boolean isSolid(final Material blockType) {
-        return (BlockFlags.getBlockFlags(blockType) & BlockFlags.F_SOLID) != 0;
-    }
-
-    /**
-     * Might hold true for liquids too. TODO: ENSURE IT DOESN'T.
-     *
-     * @param blockType
-     *            the block type
-     * @return true, if is ground
-     */
-    public static final boolean isGround(final Material blockType) {
-        return (BlockFlags.getBlockFlags(blockType) & BlockFlags.F_GROUND) != 0;
-    }
-
-    /**
-     * Might hold true for liquids too. TODO: ENSURE IT DOESN'T.
-     *
-     * @param id
-     *            the id
-     * @return true, if is ground
-     */
-    public static final boolean isGround(final Material id, final long ignoreFlags) {
-        final long flags = BlockFlags.getBlockFlags(id);
-        return (flags & BlockFlags.F_GROUND) != 0 && (flags & ignoreFlags) == 0;
-    }
-
-    /**
-     * Test if the block is a containter.
-     *
-     * @param type
-     *            the type.
-     * @return true, if is container
-     */
-    public static boolean isContainer(final Material type) {
-        return type != null && (type == Material.CHEST
-                            || type == Material.ENDER_CHEST
-                            || type == Material.DISPENSER
-                            || type == Material.DROPPER
-                            || type == BridgeMaterial.BARREL
-                            // Ugly.
-                            || type.toString().endsWith("SHULKER_BOX"));
-    }
-
-    /**
-     * Convenience method including null checks.
-     *
-     * @param type
-     *            the type
-     * @return true, if is air
-     */
-    public static final boolean isAir(Material type) {
-        // TODO: Flags rather?
-        return type == null || type == Material.AIR
-                // Assume the compiler throws away further null values.
-                || type == BridgeMaterial.VOID_AIR
-                || type == BridgeMaterial.CAVE_AIR
-                ;
-    }
-
-    /**
-     * Convenience method excluding null as air result.
-     *
-     * @param type
-     *            the type
-     * @return true, if is air
-     */
-    public static final boolean isActuallyAir(Material type) {
-        // TODO: Flags rather?
-        return type != null && isAir(type);
-    }
-
-    /**
-     * Convenience method including null check.
-     *
-     * @param type
-     *            the type
-     * @return true, if is Scaffolding
-     */
-    public static final boolean isScaffolding(Material type) {
-        return type != null && type == BridgeMaterial.SCAFFOLDING;
-    }
-
-    /**
-     * Convenience method including null check.
-     *
-     * @param type
-     *            the type
-     * @return true, if is Scaffolding
-     */
-    public static final boolean isScaffolding(ItemStack stack) {
-        return stack != null && isScaffolding(stack.getType());
-    }
-
-    /**
-     * Convenience method including null checks.
-     *
-     * @param stack
-     *            the stack
-     * @return true, if is air
-     */
-    public static final boolean isAir(ItemStack stack) {
-        return stack == null || isAir(stack.getType());
-    }
-
-    /**
      * Get the facing direction as BlockFace, unified approach with attached to
      * = opposite of facing. Likely the necessary flags are just set where it's
      * been needed so far.
@@ -2551,31 +2633,6 @@ public class BlockProperties {
     }
 
     /**
-     * All rail types a minecart can move on.
-     *
-     * @param id
-     *            the id
-     * @return true, if is rails
-     */
-    public static final boolean isRails(final Material id) {
-        return (BlockFlags.getBlockFlags(id) & BlockFlags.F_RAILS) != 0; 
-    }
-
-    /**
-     * Test if the id is rails and if data means ascending.
-     *
-     * @param id
-     *            the id
-     * @param data
-     *            the data
-     * @return true, if is ascending rails
-     */
-    public static final boolean isAscendingRails(final Material id, final int data) {
-        // TODO: Configurable magic.
-        return isRails(id) && (data & 7) > 1;
-    }
-
-    /**
      * Test if a position can be passed through (collidesBlock + passable test,
      * no fences yet).<br>
      * NOTE: This is experimental.
@@ -2609,7 +2666,7 @@ public class BlockProperties {
         final int by = Location.locToBlock(y);
         final int bz = Location.locToBlock(z);
         if (node.hasNonNullBounds() == AlmostBoolean.NO
-                || !collidesBlock(access, x, y, z, x, y, z, bx, by, bz, node, nodeAbove, BlockFlags.getBlockFlags(id))) {
+            || !collidesBlock(access, x, y, z, x, y, z, bx, by, bz, node, nodeAbove, BlockFlags.getBlockFlags(id))) {
             return true;
         }
 
@@ -2729,22 +2786,27 @@ public class BlockProperties {
      * @param dT
      *            Time to cover from given position in [0..1], relating to dX,
      *            dY, dZ.
-     * @param minX bound to test
-     * @param minY bound to test
-     * @param minZ bound to test
-     * @param maxX bound to test
-     * @param maxY bound to test
-     * @param maxZ bound to test
+     * @param minX 
+     *            Bound to test
+     * @param minY 
+     *            Bound to test
+     * @param minZ 
+     *            Bound to test
+     * @param maxX 
+     *            Bound to test
+     * @param maxY 
+     *            Bound to test
+     * @param maxZ 
+     *            Bound to test
      * @return true, if is passable workaround
      */
-    public static final boolean isPassableWorkaround(final BlockCache access, 
-            final int bx, final int by, final int bz, 
-            final double fx, final double fy, final double fz, 
-            final IBlockCacheNode node, 
-            final double dX, final double dY, final double dZ,
-            final double minX, final double minY, final double minZ,
-            final double maxX, final double maxY, final double maxZ,
-            final double dT) {
+    public static final boolean isPassableWorkaround(final BlockCache access, final int bx, final int by, final int bz, 
+                                                     final double fx, final double fy, final double fz, 
+                                                     final IBlockCacheNode node, final double dX, 
+                                                     final double dY, final double dZ,
+                                                     final double minX, final double minY, final double minZ,
+                                                     final double maxX, final double maxY, final double maxZ,
+                                                     final double dT) {
         // Note: Since this is only called if the bounding box collides, out-of-bounds checks should not be necessary.
         // TODO: Add a flag if a workaround exists (!), might store the type of workaround extra (generic!), or extra flags.
         final Material id = node.getType();
@@ -2763,23 +2825,22 @@ public class BlockProperties {
                 return true;
             }
             // NOTE: 0.974 is depend on Y_ON_GROUND_DEFAULT
-            if (Math.min(fy, fy + dY * dT) < 0.974 && !collidesBlock(access, 
-                    minX, minY, minZ, maxX, maxY, maxZ, 
-                    bx, by, bz, node, null, flags | BlockFlags.F_FAKEBOUNDS)) {
+            if (Math.min(fy, fy + dY * dT) < 0.974
+                && !collidesBlock(access, minX, minY, minZ, maxX, maxY, maxZ, 
+                                  bx, by, bz, node, null, flags | BlockFlags.F_FAKEBOUNDS)) {
                 return true;
             }
             return false;
         }
         else if (id == Material.CAULDRON || id == Material.HOPPER) {
-            if (Math.min(fy, fy + dY * dT) >= getGroundMinHeight(
-                    access, bx, by, bz, node, flags)) {
+            if (Math.min(fy, fy + dY * dT) >= getGroundMinHeight(access, bx, by, bz, node, flags)) {
                 // Check for moving through walls or floor.
                 // TODO: Maybe this is too exact...
                 return isInsideCenter(fx, fz, dX, dZ, dT, 0.125);
             }
         }
         else if ((flags & BlockFlags.F_GROUND_HEIGHT) != 0
-            && getGroundMinHeight(access, bx, by, bz, node, flags) <= Math.min(fy, fy + dY * dT)) {
+                && getGroundMinHeight(access, bx, by, bz, node, flags) <= Math.min(fy, fy + dY * dT)) {
             return true;
         } 
         else if (id.toString().equals("CHORUS_PLANT") && !collidesFence(fx, fz, dX, dZ, dT, 0.3)) {
@@ -2820,17 +2881,12 @@ public class BlockProperties {
      *            dY, dZ.
      * @return true, if is passable workaround
      */
-    public static final boolean isPassableWorkaround(final BlockCache access, 
-            final int bx, final int by, final int bz, 
-            final double fx, final double fy, final double fz, 
-            final IBlockCacheNode node, 
-            final double dX, final double dY, final double dZ,
-            final double dT) {
-        return isPassableWorkaround(access,
-                bx, by, bz, fx, fy, fz, node, dX, dY, dZ,
-                fx + bx, fy + by, fz + bz,
-                fx + bx, fy + by, fz + bz,
-                dT);
+    public static final boolean isPassableWorkaround(final BlockCache access, final int bx, final int by, 
+                                                    final int bz, final double fx, final double fy, final double fz, 
+                                                    final IBlockCacheNode node, final double dX, final double dY, 
+                                                    final double dZ, final double dT) {
+        return isPassableWorkaround(access, bx, by, bz, fx, fy, fz, node, dX, dY, dZ,
+                                    fx + bx, fy + by, fz + bz, fx + bx, fy + by, fz + bz, dT);
     }
 
     /**
@@ -3232,7 +3288,8 @@ public class BlockProperties {
                     }
                     try {
                         flags |= BlockFlags.parseFlag(input);
-                    } catch(InputMismatchException e) {
+                    } 
+                    catch(InputMismatchException e) {
                         StaticLog.logWarning("Bad flag at " + pathPrefix + ConfPaths.SUB_OVERRIDEFLAGS + " for key " + key + " (skip setting flags for this block): " + input);
                         error = true;
                         hasErrors = true;
@@ -3739,25 +3796,39 @@ public class BlockProperties {
         }
 
         // Fake the bound of thin glass
+        // (Bugged blocks bounds around 1.8. Mojang...)
         if ((flags & BlockFlags.F_FAKEBOUNDS) != 0) {
             final double dz = bmaxZ - bminZ;
             final double dx = bmaxX - bminX;
             if (dz == 0.125 && dx != 1.0) {
-                if (bminX == 0.0) bmaxX = 0.5;
-                if (bmaxX == 1.0) bminX = 0.5;
+                if (bminX == 0.0) {
+                    bmaxX = 0.5;
+                }
+                if (bmaxX == 1.0) {
+                    bminX = 0.5;
+                }
             } 
             else if (dx == 0.125 && dz != 1.0) {
-                if (bminZ == 0.0) bmaxZ = 0.5;
-                if (bmaxZ == 1.0) bminZ = 0.5;
+                if (bminZ == 0.0) {
+                    bmaxZ = 0.5;
+                }
+                if (bmaxZ == 1.0) {
+                    bminZ = 0.5;
+                }
             } 
             else if (dx == dz && dx != 1.0) {
-                if (bmaxX == 0.5625) bmaxX = 0.5;
-                else
-                if (bmaxZ == 0.5625) bmaxZ = 0.5;
-                else
-                if (bminX == 0.4375) bminX = 0.5;
-                else
-                if (bminZ == 0.4375) bminZ = 0.5;
+                if (bmaxX == 0.5625) {
+                    bmaxX = 0.5;
+                }
+                else if (bmaxZ == 0.5625) {
+                    bmaxZ = 0.5;
+                }
+                else if (bminX == 0.4375) {
+                    bminX = 0.5;
+                }
+                else if (bminZ == 0.4375) {
+                    bminZ = 0.5;
+                }
             }
         }
 
@@ -3766,40 +3837,60 @@ public class BlockProperties {
         final boolean allowEdge = (flags & BlockFlags.F_COLLIDE_EDGES) == 0;
         // Still keep this primary bounds check stand alone with loop below for flags compatibility
         // Clearly outside of bounds.
-        if (minX > bmaxX + x || maxX < bminX + x
-            || minY > bmaxY + y || maxY < bminY + y
-            || minZ > bmaxZ + z || maxZ < bminZ + z) {
+        if (minX > bmaxX + x 
+            || maxX < bminX + x
+            || minY > bmaxY + y 
+            || maxY < bminY + y
+            || minZ > bmaxZ + z 
+            || maxZ < bminZ + z) {
             skip = true;
         }
         // Hitting the max-edges (if allowed).
-        if (!skip && (minX == bmaxX + x && (bmaxX < 1.0 || allowEdge)
-            || minY == bmaxY + y && (bmaxY < 1.0 || allowEdge)
-            || minZ == bmaxZ + z && (bmaxZ < 1.0 || allowEdge))) {
+        if (!skip 
+            && (
+                minX == bmaxX + x 
+                && (bmaxX < 1.0 || allowEdge)
+                || minY == bmaxY + y 
+                && (bmaxY < 1.0 || allowEdge)
+                || minZ == bmaxZ + z 
+                && (bmaxZ < 1.0 || allowEdge)
+            )) {
             skip = true;
         }
 
-        if (!skip) collide = true;
+        if (!skip) {
+            collide = true;
+        }
 
         if (!collide && bounds.length > 6 && bounds.length % 6 == 0) {
             for (int i = 2; i <= (int)bounds.length / 6; i++) {
 
                 // Clearly outside of bounds.
-                if (minX > bounds[i*6-3] + x || maxX < bounds[i*6-6] + x
-                   || minY > bounds[i*6-2] + y || maxY < bounds[i*6-5] + y
-                   || minZ > bounds[i*6-1] + z || maxZ < bounds[i*6-4] + z) {
+                if (minX > bounds[i*6-3] + x 
+                   || maxX < bounds[i*6-6] + x
+                   || minY > bounds[i*6-2] + y 
+                   || maxY < bounds[i*6-5] + y
+                   || minZ > bounds[i*6-1] + z 
+                   || maxZ < bounds[i*6-4] + z) {
                     continue;
                 }
                 // Hitting the max-edges (if allowed).
-                if (minX == bounds[i*6-3] + x && (bounds[i*6-3] < 1.0 || allowEdge)
-                   || minY == bounds[i*6-2] + y && (bounds[i*6-2] < 1.0 || allowEdge)
-                   || minZ == bounds[i*6-1] + z && (bounds[i*6-1] < 1.0 || allowEdge)) {
+                if (minX == bounds[i*6-3] + x 
+                    && (bounds[i*6-3] < 1.0 || allowEdge)
+                    || minY == bounds[i*6-2] + y 
+                    && (bounds[i*6-2] < 1.0 || allowEdge)
+                    || minZ == bounds[i*6-1] + z 
+                    && (bounds[i*6-1] < 1.0 || allowEdge)) {
                     continue;
                 }
                 collide = true;
                 break;
             }
         }
-        if (!collide) return false;
+
+        if (!collide) {
+            return false;
+        }
 
         // Collision.
         return true;
@@ -4100,25 +4191,24 @@ public class BlockProperties {
         // Might collide.
         final double[] bounds = node.getBounds(access, x, y, z);
         if (bounds == null) {
-            // TODO: Safety check, uncertain.
             return AlmostBoolean.YES;
         }
+
         if (!collidesBlock(access, minX, minY, minZ, maxX, maxY, maxZ, x, y, z, node, nodeAbove, flags)) {
             return AlmostBoolean.MAYBE;
         }
 
         // TODO: Make this one work (passable workaround).
         // Check if the block can be passed through with the bounding box (disregard the ignore flag).
+        // Spider !
+        // Not nice but...
+        // TODO: GROUND_HEIGHT: would have to check passable workaround again ?
+        // TODO: height >= ?
+        // TODO: Another concept is needed for the stand-on-passable !
+         // TODO: Add getMinGroundHeight, getMaxGroundHeight.
         if (isPassableWorkaround(access, x, y, z, minX - x, minY - y, minZ - z, node, maxX - minX, maxY - minY, maxZ - minZ, 
-                minX, minY, minZ, maxX, maxY, maxZ,
-                1.0)) {
-            // Spider !
-            // Not nice but...
-            // TODO: GROUND_HEIGHT: would have to check passable workaround again ?
-            // TODO: height >= ?
-            // TODO: Another concept is needed for the stand-on-passable !
-            // TODO: Add getMinGroundHeight, getMaxGroundHeight.
-            if ((flags & BlockFlags.F_GROUND_HEIGHT) == 0 ||  getGroundMinHeight(access, x, y, z, node, flags) > maxY - y) {
+                                 minX, minY, minZ, maxX, maxY, maxZ, 1.0)) {
+            if ((flags & BlockFlags.F_GROUND_HEIGHT) == 0 || getGroundMinHeight(access, x, y, z, node, flags) > maxY - y) {
                 // Don't break, though could for some cases (?), since a block below still can be ground.
                 return AlmostBoolean.MAYBE;
             }
@@ -4135,16 +4225,15 @@ public class BlockProperties {
                 return AlmostBoolean.MAYBE; 
             }
         }
-
+        
+        // No need to check the block above (half slabs, stairs).
         if (maxY - y < 1.0) {
-            // No need to check the block above (half slabs, stairs).
             return AlmostBoolean.YES;
         }
 
         // Check if the block above allows this to be ground. 
-
+        // Only air above.
         if (y >= access.getMaxBlockY()) {
-            // Only air above.
             return AlmostBoolean.YES;
         }
 
@@ -4200,13 +4289,12 @@ public class BlockProperties {
 
         // Check passable workaround without checking ignore flag.
         if (isPassableWorkaround(access, x, y + 1, z, minX - x, minY - (y + 1), minZ - z, nodeAbove, maxX - minX, maxY - minY, maxZ - minZ,
-                minX, minY, minZ, maxX, maxY, maxZ, 
-                1.0)) {
+                                 minX, minY, minZ, maxX, maxY, maxZ, 1.0)) {
             return AlmostBoolean.YES;
         }
-
+        
+        // Can not be ground at this x - z position.
         if (isFullBounds(aboveBounds)) {
-            // Can not be ground at this x - z position.
             return AlmostBoolean.NO;
         }
 
@@ -4582,7 +4670,7 @@ public class BlockProperties {
         // Check for workarounds.
         // TODO: check f_itchy once exists.
         if (BlockProperties.isPassableWorkaround(access, blockX, blockY, blockZ, oX, oY, oZ, node, dX, dY, dZ,
-                minX, minY, minZ, maxX, maxY, maxZ, dT)) {
+                                                 minX, minY, minZ, maxX, maxY, maxZ, dT)) {
             return true;
         }
         // Does collide (most likely).
@@ -4638,8 +4726,7 @@ public class BlockProperties {
         // TODO: Adapted to use the version initially intended for ray-tracing. Should have an explicit thing for the box, and let the current ray-tracing variant use that, until THEY implement something real.
         // TODO: check f_itchy once exists.
         if (BlockProperties.isPassableWorkaround(access, blockX, blockY, blockZ, minX - blockX, minY - blockY, minZ - blockZ, node, maxX - minX, maxY - minY, maxZ - minZ, 
-                minX, minY, minZ, maxX, maxY, maxZ,
-                1.0)) {
+                                                 minX, minY, minZ, maxX, maxY, maxZ, 1.0)) {
             return true;
         }
         // Does collide (most likely).

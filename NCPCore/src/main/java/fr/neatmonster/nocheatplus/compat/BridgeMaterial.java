@@ -196,6 +196,7 @@ public class BridgeMaterial {
     public static final Material BEETROOTS = getFirst("beetroots", "beetroot_block");
 
     public static final Material BRICKS = getFirst("bricks", "brick");
+    
     public static final Material BRICK_SLAB = getFirst("brick_slab");
 
     public static final Material CAKE = getFirstNotNull("cake_block", "cake");
@@ -204,8 +205,7 @@ public class BridgeMaterial {
 
     public static final Material CAVE_AIR = getFirst("cave_air");
 
-    public static final Material CHAIN_COMMAND_BLOCK = getFirst(
-            "chain_command_block", "command_chain");
+    public static final Material CHAIN_COMMAND_BLOCK = getFirst("chain_command_block", "command_chain");
 
     public static final Material COBBLESTONE_WALL = getFirstNotNull("cobblestone_wall", "cobble_wall");
 
@@ -220,8 +220,11 @@ public class BridgeMaterial {
     public static final Material ENCHANTING_TABLE = getFirstNotNull("enchanting_table", "enchantment_table");
 
     public static final Material END_PORTAL = getFirstNotNull("end_portal", "ender_portal");
+
     public static final Material END_PORTAL_FRAME = getFirstNotNull("end_portal_frame", "ender_portal_frame");
+
     public static final Material END_STONE = getFirstNotNull("end_stone", "ender_stone");
+    
     public static final Material END_STONE_BRICKS = getFirst("end_stone_bricks", "end_bricks");
 
     public static final Material FARMLAND = getFirstNotNull("farmland", "soil");
@@ -237,15 +240,14 @@ public class BridgeMaterial {
 
     public static final Material GRASS_PATH = getFirst("grass_path", "dirt_path");
 
-    public static final Material HEAVY_WEIGHTED_PRESSURE_PLATE = getFirstNotNull(
-            "heavy_weighted_pressure_plate", "iron_plate");
+    public static final Material HEAVY_WEIGHTED_PRESSURE_PLATE = getFirstNotNull("heavy_weighted_pressure_plate", "iron_plate");
 
     public static final Material IRON_BARS = getFirstNotNull("iron_bars", "iron_fence");
+
     /** (Block.) */
     public static final Material IRON_DOOR = getFirstNotNull("iron_door_block", "iron_door");
 
-    public static final Material LIGHT_WEIGHTED_PRESSURE_PLATE = getFirstNotNull(
-            "light_weighted_pressure_plate", "gold_plate");
+    public static final Material LIGHT_WEIGHTED_PRESSURE_PLATE = getFirstNotNull("light_weighted_pressure_plate", "gold_plate");
 
     public static final Material LILY_PAD = getFirstNotNull("lily_pad", "water_lily");
 
@@ -259,20 +261,27 @@ public class BridgeMaterial {
     public static final Material MYCELIUM = getFirstNotNull("mycelium", "mycel");
 
     public static final Material NETHER_BRICKS = getFirstNotNull("nether_bricks", "nether_brick");
+
     public static final Material NETHER_BRICK_FENCE = getFirstNotNull("nether_brick_fence", "nether_fence");
+
     public static final Material NETHER_PORTAL = getFirstNotNull("nether_portal", "portal");
+
     public static final Material NETHER_QUARTZ_ORE = getFirstNotNull("nether_quartz_ore", "quartz_ore");
+
     public static final Material NETHER_WARTS = getFirstNotNull("nether_warts", "nether_wart");
 
     /** For reference: ordinary log. */
     public static final Material OAK_LOG = getFirstNotNull("oak_log", "log");
+
     /** For reference: ordinary wood. */
     public static final Material OAK_WOOD = getFirstNotNull("oak_wood", "wood");
+
     /** For reference: the ordinary wooden trap door. */
     public static final Material OAK_TRAPDOOR = getFirstNotNull("oak_trapdoor", "trap_door");
 
     /** (Block.) */
     public static final Material PISTON = getFirstNotNull("piston_base", "piston");
+
     public static final Material PISTON_HEAD = getFirstNotNull("piston_head", "piston_extension");
 
     public static final Material POTATOES = getFirst("potatoes", "potato");
@@ -282,8 +291,7 @@ public class BridgeMaterial {
     /** For reference to have the breaking/shape. */
     public static final Material REPEATER = getFirstNotNull("repeater", "diode_block_off");
 
-    public static final Material REPEATING_COMMAND_BLOCK = getFirst(
-            "repeating_command_block", "command_repeating");
+    public static final Material REPEATING_COMMAND_BLOCK = getFirst("repeating_command_block", "command_repeating");
     
     public static final Material SCAFFOLDING = get("scaffolding");
 
@@ -299,12 +307,13 @@ public class BridgeMaterial {
     public static final Material STICKY_PISTON = getFirstNotNull("piston_sticky_base", "sticky_piston");
 
     public static final Material STONE_BRICKS = getFirstNotNull("stone_bricks", "smooth_brick");
-    public static final Material STONE_BRICK_STAIRS = getFirstNotNull(
-            "stone_brick_stairs", "smooth_stairs");
-    public static final Material STONE_PRESSURE_PLATE = getFirstNotNull(
-            "stone_pressure_plate", "stone_plate");
-    public static final Material WOODEN_PRESSURE_PLATE = getFirstNotNull(
-            "wooden_pressure_plate", "wood_plate", "acacia_pressure_plate", "birch_pressure_plate", "dark_oak_pressure_plate", "jungle_pressure_plate", "oak_pressure_plate", "spruce_pressure_plate");
+
+    public static final Material STONE_BRICK_STAIRS = getFirstNotNull("stone_brick_stairs", "smooth_stairs");
+
+    public static final Material STONE_PRESSURE_PLATE = getFirstNotNull("stone_pressure_plate", "stone_plate");
+
+    public static final Material WOODEN_PRESSURE_PLATE = getFirstNotNull("wooden_pressure_plate", "wood_plate", "acacia_pressure_plate", "birch_pressure_plate", "dark_oak_pressure_plate", "jungle_pressure_plate", "oak_pressure_plate", "spruce_pressure_plate");
+
     public static final Material STONE_SLAB = getFirstNotNull("stone_slab", "step");
 
     public static final Material SUGAR_CANE = getFirstNotNull("sugar_cane_block", "sugar_cane"); // Reversed

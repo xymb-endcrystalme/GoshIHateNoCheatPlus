@@ -263,7 +263,7 @@ public class InventoryUtil {
     }
 
     /**
-     * Test if the InventoryType is a container.
+     * Test if the inventory type can hold items.
      *
      * @param stack
      *            May be null.
@@ -274,6 +274,7 @@ public class InventoryUtil {
                             || type == InventoryType.ENDER_CHEST
                             || type == InventoryType.DISPENSER
                             || type == InventoryType.DROPPER
+                            || type == InventoryType.HOPPER
                             // For legacy servers... Ugly.
                             || type.toString().equals("SHULKER_BOX")
                             || type.toString().equals("BARREL"));

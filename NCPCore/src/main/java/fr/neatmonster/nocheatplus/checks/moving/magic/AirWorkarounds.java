@@ -768,7 +768,7 @@ public class AirWorkarounds {
                     // 1: Skip if the player could step up by lostground_couldstep.
                     yDistance <= cc.sfStepHeight && tags.contains("lostground_couldstep")
                     // 1: Server-sided-trapdoor-touch-miss: player lands directly onto the fence as if it were 1.0 block high
-                    || yDistance < data.liftOffEnvelope.getMaxJumpGain(0.0) && tags.contains("lostground_fencestep")
+                    || yDistance < data.liftOffEnvelope.getMaxJumpGain(0.0) && tags.contains("lostground_trapfence")
                 )
         ;
     }
