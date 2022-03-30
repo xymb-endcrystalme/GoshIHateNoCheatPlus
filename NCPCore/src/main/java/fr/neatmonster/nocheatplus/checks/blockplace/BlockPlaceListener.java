@@ -61,6 +61,7 @@ import fr.neatmonster.nocheatplus.stats.Counters;
 import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 import fr.neatmonster.nocheatplus.utilities.TickTask;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.MaterialUtil;
 import fr.neatmonster.nocheatplus.worlds.WorldFactoryArgument;
 
@@ -108,16 +109,16 @@ public class BlockPlaceListener extends CheckListener {
     private final FastPlace fastPlace = addCheck(new FastPlace());
 
     /** The no swing check. */
-    private final NoSwing   noSwing   = addCheck(new NoSwing());
+    private final NoSwing noSwing = addCheck(new NoSwing());
 
     /** The reach check. */
-    private final Reach     reach     = addCheck(new Reach());
+    private final Reach reach = addCheck(new Reach());
 
     /** The scaffold check. */
-    private final Scaffold   Scaffold = addCheck(new Scaffold());
+    private final Scaffold Scaffold = addCheck(new Scaffold());
 
     /** The speed check. */
-    private final Speed     speed     = addCheck(new Speed());
+    private final Speed speed = addCheck(new Speed());
 
     /** For temporary use: LocUtil.clone before passing deeply, call setWorld(null) after use. */
     private final Location useLoc = new Location(null, 0, 0, 0);
@@ -220,9 +221,7 @@ public class BlockPlaceListener extends CheckListener {
                 shouldSkipSome = false;
             }
         } 
-        else {
-            shouldSkipSome = BlockProperties.isScaffolding(placedMat);
-        }
+        else shouldSkipSome = BlockProperties.isScaffolding(placedMat);
 
         if (placedMat.toString().endsWith("SIGN")) {
             // Might move to MONITOR priority.
@@ -242,14 +241,20 @@ public class BlockPlaceListener extends CheckListener {
             if (fastPlace.check(player, block, tick, data, cc, pData)) {
                 cancelled = true;
             }
-            else if (cc.fastPlaceImprobableWeight > 0.0f && data.fastPlaceVL > 10) {
-
-                if (cc.fastPlaceImprobableFeedOnly) {
-                    Improbable.feed(player, cc.fastPlaceImprobableWeight, System.currentTimeMillis());
-                } 
-                else if (Improbable.check(player, cc.fastPlaceImprobableWeight, System.currentTimeMillis(), "blockplace.fastplace", pData)) {
-                    cancelled = true;
+            // Check for Improbable, whatever FastPlace says, provided the feature is enabled at all.
+            if (cc.fastPlaceImprobableWeight > 0.0f) {
+                // Check for higher frequencies
+                if (data.fastPlaceVL > 20) {
+                    // Don't check if set to only feed.
+                    if (!cc.fastPlaceImprobableFeedOnly) {
+                        if (Improbable.check(player, cc.fastPlaceImprobableWeight, System.currentTimeMillis(), "blockplace.fastplace", pData)) {
+                            cancelled = true;
+                        }
+                    }
+                    else Improbable.feed(player, cc.fastPlaceImprobableWeight, System.currentTimeMillis()); 
                 }
+                // Feed only for lower frequencies.
+                else Improbable.feed(player, cc.fastPlaceImprobableWeight, System.currentTimeMillis()); 
             }
         }
 
@@ -276,12 +281,12 @@ public class BlockPlaceListener extends CheckListener {
                 if (Combined.checkYawRate(player, loc.getYaw(), now, loc.getWorld().getName(), pData)) {
                     cancelled = true;
                 }
-                // Scaffold-like placement: check 
+                // Always check for Scaffold whatever yawrate says. 
                 if (data.cancelNextPlace && (Math.abs(data.currentTick - TickTask.getTick()) < 10)
                     || Scaffold.check(player, placedFace, pData, data, cc, event.isCancelled(), mData.playerMoves.getCurrentMove().yDistance, mData.sfJumpPhase)) {
                     cancelled = true;
                 }
-                // If not cancelled, do still feed the Improbable.
+                // If not cancelled, do feed the Improbable.
                 else if (cc.scaffoldImprobableWeight > 0.0f) {
 
                     if (cc.scaffoldImprobableFeedOnly) {
@@ -343,7 +348,6 @@ public class BlockPlaceListener extends CheckListener {
         if (cancelled) {
             event.setCancelled(cancelled);
         }
-        // Debug check breaks when checking blockAgainst is equal to something, disabled for now
         else {
             // Debug log (only if not cancelled, to avoid spam).
             if (debug) {
@@ -570,8 +574,8 @@ public class BlockPlaceListener extends CheckListener {
                 }
                 else {
                     final Material mat = player.getLocation(useLoc).getBlock().getType();
-                    final long flags = BlockProperties.F_CLIMBABLE | BlockProperties.F_LIQUID | BlockProperties.F_IGN_PASSABLE;
-                    if (!BlockProperties.isAir(mat) && (BlockProperties.getBlockFlags(mat) & flags) == 0 && !mcAccess.getHandle().hasGravity(mat)) {
+                    final long flags = BlockFlags.F_CLIMBABLE | BlockFlags.F_LIQUID | BlockFlags.F_IGN_PASSABLE;
+                    if (!BlockProperties.isAir(mat) && (BlockFlags.getBlockFlags(mat) & flags) == 0 && !mcAccess.getHandle().hasGravity(mat)) {
                         // Still fails on piston traps etc.
                         if (!BlockProperties.isPassable(player.getLocation(), projectile.getLocation()) 
                                 && !BlockProperties.isOnGroundOrResetCond(player, player.getLocation(), 

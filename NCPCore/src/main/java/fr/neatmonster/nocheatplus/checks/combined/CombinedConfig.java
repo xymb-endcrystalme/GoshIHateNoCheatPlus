@@ -34,9 +34,6 @@ import fr.neatmonster.nocheatplus.worlds.IWorldData;
 
 public class CombinedConfig extends ACheckConfig {
 
-    // Bedleave check.
-    public final ActionList     bedLeaveActions;
-
     // Ender pearl
     public final boolean enderPearlCheck;
     public final boolean enderPearlPreventClickBlock;
@@ -68,8 +65,6 @@ public class CombinedConfig extends ACheckConfig {
     public CombinedConfig(final IWorldData worldData) {
         super(worldData);
         final ConfigFile config = worldData.getRawConfiguration();
-
-        bedLeaveActions = config.getOptimizedActionList(ConfPaths.COMBINED_BEDLEAVE_ACTIONS, Permissions.COMBINED_BEDLEAVE);
 
         enderPearlCheck = config.getBoolean(ConfPaths.COMBINED_ENDERPEARL_CHECK);
         enderPearlPreventClickBlock = config.getBoolean(ConfPaths.COMBINED_ENDERPEARL_PREVENTCLICKBLOCK);

@@ -27,6 +27,8 @@ import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.checks.moving.util.MovingUtil;
 import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
+import fr.neatmonster.nocheatplus.checks.moving.model.LiftOffEnvelope;
+
 
 /**
  * Keeping some of the magic confined in here.
@@ -37,6 +39,7 @@ import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
 public class Magic {
 
     // TODO: Do any of these belong to MovingUtil?
+    // Might move some methods to another class (EnvironmentUtils (?))
     
     // CraftBukkit/Minecraft constants.
     public static final double DEFAULT_WALKSPEED = 0.2;
@@ -45,50 +48,48 @@ public class Magic {
     // Gravity.
     public static final double GRAVITY_MAX = 0.0834;
     public static final double GRAVITY_MIN = 0.0624; 
-    public static final double GRAVITY_SPAN = GRAVITY_MAX - GRAVITY_MIN; // 0.021
-    public static final double GRAVITY_ODD = 0.05; 
+    public static final double GRAVITY_ODD = 0.05;
     /** Assumed minimal average decrease per move, suitable for regarding 3 moves. */
     public static final float GRAVITY_VACC = (float) (GRAVITY_MIN * 0.6); // 0.03744
+    public static final double GRAVITY_SPAN = GRAVITY_MAX - GRAVITY_MIN; // 0.021
 
     // Friction factor by medium (move inside of).
     public static final double FRICTION_MEDIUM_AIR = 0.98;
-    /** Friction for water (default). */
     public static final double FRICTION_MEDIUM_WATER = 0.98;
-    /** Friction for lava. */
     public static final double FRICTION_MEDIUM_LAVA = 0.535;
+    public static final double FRICTION_MEDIUM_BERRY_BUSH = 0.98;
     public static final double FRICTION_MEDIUM_ELYTRA_AIR = 0.9800002;
 
     // Horizontal speeds/modifiers. 
     public static final double WALK_SPEED           = 0.221D;
-    public static final double modWeb               = 0.09D / WALK_SPEED; 
-    public static final double modPowderSnow        = 0.1252 / WALK_SPEED;
-    public static final double modBlock             = 0.1277D / WALK_SPEED;
-    public static final double modSneak             = 0.13D / WALK_SPEED;
-    public static final double modSlime             = 0.131D / WALK_SPEED;
-    public static final double modBush              = 0.134D / WALK_SPEED;
-    public static final double modSoulSand          = 0.16D / WALK_SPEED;
-    public static final double modLanding           = 0.25194D / WALK_SPEED;
-    public static final double modHopTick           = 0.25415D / WALK_SPEED;
-    public static final double modSprint            = 0.27D / WALK_SPEED; 
-    public static final double modSlope             = 0.3069D / WALK_SPEED; 
+    public static final double modWeb               = 0.09D / WALK_SPEED; // Actual would be 0.03. Takes into account lift-off acceleration directly.
+    public static final double modPowderSnow        = 0.1252 / WALK_SPEED; // Adjust 
+    public static final double modBlock             = 0.1277D / WALK_SPEED; // (OK)
+    public static final double modSneak             = 0.13D / WALK_SPEED; // Test
+    public static final double modSlime             = 0.0999D / WALK_SPEED; // (OK)
+    public static final double modBush              = 0.109D / WALK_SPEED; // Actual would be 0.101(...)
+    public static final double modSoulSand          = 0.16D / WALK_SPEED; // (OK)
+    public static final double modClimbable         = 0.17D / WALK_SPEED; // (OK)
+    public static final double modLanding           = 0.25194D / WALK_SPEED; //(OK)
+    public static final double modHopTick           = 0.25415D / WALK_SPEED; // (OK)
+    public static final double modSprint            = 0.27D / WALK_SPEED; // (OK)
+    public static final double modSlope             = 0.3069D / WALK_SPEED; // (OK)
     public static final double[] modSurface         = new double [] {0.23426D / WALK_SPEED, 0.29835D / WALK_SPEED};
-    public static final double modCollision         = 0.3006D / WALK_SPEED;
-    public static final double modSoulSpeed         = 0.3094D / WALK_SPEED;
-    public static final double modBounce            = 0.3125D / WALK_SPEED;
-    public static final double modIce               = 0.5525D / WALK_SPEED; 
-    public static final double modDolphinsGrace     = 0.9945D / WALK_SPEED; // TODO: Adjust value to be more stricter and closer to actual movement speed, and use different value from in water vs above water
-    /** 0.044D for horizontal SWIMMING(1.13), 0.3 for vertical swimming,  0.115 for horizontal TO MULTIPLY WALKSPEED WITH and with body fully in water, 0.145 for moving on the surface horizotally */
+    public static final double modCollision         = 0.3006D / WALK_SPEED; // Test
+    public static final double modSoulSpeed         = 0.3094D / WALK_SPEED; // Test
+    public static final double modIce               = 0.5525D / WALK_SPEED; // (OK)
+    public static final double modDolphinsGrace     = 0.9945D / WALK_SPEED; // Adjust
     // Observed around 2021/11: 0.115 for whatever reason now flags even with legacy clients. It wasn't a problem before but it is now. Very fun game indeed.
-    // I have no clue on why this is happening... (Checking commit history doesn't show any recent change)
+    // (OK)
     public static final double[] modSwim            = new double[] {
-            // Horizontal with body fully in water
+            // Horizontal AND vertical with body fully in water
             0.115D / WALK_SPEED,  
-            // Horizontal swimming (Do not multiply with thisMove.walkSpeed)
+            // Horizontal swimming only, 1.13 (Do not multiply with thisMove.walkSpeed)
             0.044D / WALK_SPEED,  
-            // Vertical swimming
+            // Vertical swimming only, 1.13 
             0.3D / WALK_SPEED, 
-            // Horizontal surface level (body out of water) 
-            0.146D / WALK_SPEED}; 
+            // Horizontal with body out of water (surface level)
+            0.146D / WALK_SPEED,}; 
     public static final double modDownStream        = 0.19D / (WALK_SPEED * modSwim[0]);
     public static final double[] modDepthStrider    = new double[] {
             1.0,
@@ -96,7 +97,6 @@ public class Magic {
             0.1995 / modSwim[0] / WALK_SPEED,
             1.0 / modSwim[0], // Results in walkspeed.
     };
-
     /**
      * Somewhat arbitrary horizontal speed gain maximum for advance glide phase.
      */
@@ -111,14 +111,8 @@ public class Magic {
     public static final double webSpeedDescendDefault  = -0.032;
     public static final double bushSpeedAscend         = 0.315;
     public static final double bushSpeedDescend        = -0.09;
-
-    /**
-     * Get the speed modifier, for debugging purposes.
-     */
-    public static void getModifier(final Player player, final double hDistance, final PlayerMoveData thisMove) {
-        player.sendMessage("Mod: " + (hDistance / thisMove.walkSpeed * Magic.WALK_SPEED));
-    }
-
+    public static final double bubbleStreamDescend     = 0.49; // from wiki.
+    public static final double bubbleStreamAscend      = 0.9; // 1.1 from wiki. Wiki is too fast 
     /**
      * Some kind of minimum y descend speed (note the negative sign), for an
      * already advanced gliding/falling phase with elytra.
@@ -142,7 +136,6 @@ public class Magic {
     // TODO: Model workarounds as lost ground, use Y_ON_GROUND_MIN?
     public static final double Y_ON_GROUND_DEFAULT = 0.025; // Jump upwards, while placing blocks. // Old 0.016
     //    public static final double Y_ON_GROUND_DEFAULT = 0.029; // Bounce off slime blocks.
-
     /** The lower bound of fall distance for taking fall damage. */
     public static final double FALL_DAMAGE_DIST = 3.0;
     /** The minimum damage amount that actually should get applied. */
@@ -224,45 +217,7 @@ public class Magic {
     }
     
    /**
-    * Test (using the past move tracking) if the player has jumped up a slope.
-    * No tight checking.
-    * @param data
-    * @param to
-    * @param limit
-    *             How many past moves should be tracked
-    * @param distance
-    *             Distance to ground. Current use is rather meant to forestall
-    *             lowjump on slope-jumping.
-    * @return 
-    */
-    public static boolean jumpedUpSlope(final MovingData data, final PlayerLocation loc, int limit, double distance) {
-        limit = Math.min(limit, data.playerMoves.getNumberOfPastMoves());
-        final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
-        
-        // Don't care about jump potions.
-        if (data.jumpAmplifier != 0.0){
-            return false;
-        }
-        
-        for (int i = 0; i < limit; i++) {
-            final PlayerMoveData pastMove = data.playerMoves.getPastMove(i);
-            // Stairs are for now skipped, need to fix on ground logic.
-            if (!pastMove.toIsValid || thisMove.from.aboveStairs) {
-                 return false;
-            }
-            // Past move was on ground and with smaller altitude than the current move, which is within distance to ground.
-            else if (loc.isOnGround(distance)
-                    && (loc.getY() - pastMove.to.getY()) <= distance
-                    && (loc.getY() - pastMove.to.getY()) >= data.liftOffEnvelope.getMinJumpHeight(0.0)
-                    && (pastMove.to.onGround || pastMove.from.onGround)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-   /**
-    * Test (using the past move tracking) if the player has jumped up a slope.
+    * Test (using the past move tracking) if the player has jumped at least 1 block up.
     * No tight checking.
     * @param data
     * @param currentLoc
@@ -274,7 +229,7 @@ public class Magic {
     public static boolean jumpedUpSlope(final MovingData data, final PlayerLocation loc, int limit) {
         limit = Math.min(limit, data.playerMoves.getNumberOfPastMoves());
         final PlayerMoveData thisMove = data.playerMoves.getCurrentMove();
-        
+
         // Don't care about jump potions.
         if (data.jumpAmplifier != 0.0){
             return false;
@@ -286,12 +241,30 @@ public class Magic {
             if (!pastMove.toIsValid || thisMove.from.aboveStairs) {
                 return false;
             }
-            // Past move was on ground with smaller altitude than the current move which is on ground
+            // this move is on ground
             else if (loc.isOnGround()
-                    // Prevent regular jumps from being seen as slopes.
-                    && (loc.getY() - pastMove.to.getY()) <= 1.0
-                    && (loc.getY() - pastMove.to.getY()) > 0.99
-                    && (pastMove.to.onGround || pastMove.from.onGround)) {
+                    // Sufficient (absolute) height difference
+                    && (loc.getY() - pastMove.to.getY()) < data.liftOffEnvelope.getMaxJumpHeight(data.jumpAmplifier)
+                    && (loc.getY() - pastMove.to.getY()) >= 0.90 // (needed to prevent regular jumps from being seen as as slope)
+                    // Past moves were on ground
+                    && pastMove.touchedGround && !pastMove.touchedGroundWorkaround) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Check for past lift off states via the past move tracking.
+     * Does not check if players may be able to lift off at all (i.e: in liquid)
+     * @return
+     */
+    public static boolean getPastLiftOffAvailable(int limit, final MovingData data) {
+        limit = Math.min(limit, data.playerMoves.getNumberOfPastMoves());
+        for (int i = 0; i < limit; i++) {
+            final PlayerMoveData pastMove = data.playerMoves.getPastMove(i);
+            if (pastMove.from.onGround && !pastMove.to.onGround 
+                && pastMove.toIsValid && pastMove.yDistance > LiftOffEnvelope.NORMAL.getMaxJumpGain(data.jumpAmplifier) - GRAVITY_MAX - Y_ON_GROUND_MIN) {
                 return true;
             }
         }
@@ -368,6 +341,20 @@ public class Magic {
                 return false;
             }
             else if (touchedBouncyBlock(pastMove)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean recentlyInWaterfall(final MovingData data, int limit) {
+        limit = Math.min(limit, data.playerMoves.getNumberOfPastMoves());
+        for (int i = 0; i < limit; i++) {
+            final PlayerMoveData move = data.playerMoves.getPastMove(i);
+            if (!move.toIsValid) {
+                return false;
+            }
+            else if (move.inWaterfall) {
                 return true;
             }
         }
@@ -457,6 +444,16 @@ public class Magic {
     }
 
     /**
+     * Test if the player has lifted off from the ground or is landing (not in air, not walking on ground)
+     * (Does not check for resetCond)
+     * 
+     * @return 
+     */
+    public static boolean XORonGround(final PlayerMoveData move) {
+        return move.from.onGround ^ move.to.onGround;
+    }
+
+    /**
      * A liquid -> liquid move. Exclude web and climbable.
      * 
      * @param thisMove
@@ -464,6 +461,16 @@ public class Magic {
      */
     static boolean inLiquid(final PlayerMoveData thisMove) {
         return thisMove.from.inLiquid && thisMove.to.inLiquid && excludeStaticSpeed(thisMove);
+    }
+
+    /**
+     * A water -> water move. Exclude web and climbable.
+     * 
+     * @param thisMove
+     * @return
+     */
+    public static boolean inWater(final PlayerMoveData thisMove) {
+        return thisMove.from.inWater && thisMove.to.inWater && excludeStaticSpeed(thisMove);
     }
 
     /**
@@ -487,6 +494,26 @@ public class Magic {
     }
 
     /**
+     * Moving out of water, might move onto ground. Exclude web and climbable.
+     * 
+     * @param thisMove
+     * @return
+     */
+    public static boolean leavingWater(final PlayerMoveData thisMove) {
+        return thisMove.from.inWater && !thisMove.to.inWater && excludeStaticSpeed(thisMove);
+    }
+
+    /**
+     * Moving into water, might move onto ground. Exclude web and climbable.
+     * 
+     * @param thisMove
+     * @return
+     */
+    public static boolean intoWater(final PlayerMoveData thisMove) {
+        return !thisMove.from.inWater && thisMove.to.inWater && excludeStaticSpeed(thisMove);
+    }
+
+    /**
      * Moving into liquid., might move onto ground. Exclude web and climbable.
      * 
      * @param thisMove
@@ -497,15 +524,15 @@ public class Magic {
     }
 
     /**
-     * Exclude moving from/to blocks with static (vertical) speed, such as web
-     * or climbable.
+     * Exclude moving from/to blocks with static (vertical) speed, such as web, climbable, berry bushes.
      * 
      * @param thisMove
      * @return
      */
     public static boolean excludeStaticSpeed(final PlayerMoveData thisMove) {
         return !thisMove.from.inWeb && !thisMove.to.inWeb
-                && !thisMove.from.onClimbable && !thisMove.to.onClimbable;
+                && !thisMove.from.onClimbable && !thisMove.to.onClimbable
+                && !thisMove.from.inBerryBush && !thisMove.to.inBerryBush;
     }
 
     /**

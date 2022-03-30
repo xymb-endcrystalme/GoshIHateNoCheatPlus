@@ -23,7 +23,7 @@ public class BlocksMC1_17 implements BlockPropertiesSetup {
     @Override
     public void setupBlockProperties(WorldConfigProvider<?> worldConfigProvider) {
         BlockProperties.setBlockProps("LIGHT", BlockProperties.indestructibleType);
-        BlockFlags.addFlags("LIGHT", BlockProperties.F_IGN_PASSABLE);
+        BlockFlags.addFlags("LIGHT", BlockFlags.F_IGN_PASSABLE);
 
         for (Material mat : MaterialUtil.ALL_CANDLES) {
             BlockFlags.addFlags(mat, BlockFlags.SOLID_GROUND);
@@ -119,24 +119,26 @@ public class BlocksMC1_17 implements BlockPropertiesSetup {
 
         // Flower Azalea
         BlockProperties.setBlockProps("AZALEA", BlockProperties.instantType);
-        BlockFlags.addFlags("AZALEA", BlockProperties.F_GROUND);
+        BlockFlags.addFlags("AZALEA", BlockFlags.F_GROUND);
         BlockProperties.setBlockProps("FLOWERING_AZALEA", BlockProperties.instantType);
-        BlockFlags.addFlags("FLOWERING_AZALEA", BlockProperties.F_GROUND);
+        BlockFlags.addFlags("FLOWERING_AZALEA", BlockFlags.F_GROUND);
         // This is temporary ground.
-        BlockFlags.addFlags("BIG_DRIPLEAF", BlockProperties.F_GROUND);
+        BlockFlags.addFlags("BIG_DRIPLEAF", BlockFlags.F_GROUND);
         BlockProperties.setBlockProps("BIG_DRIPLEAF", new BlockProperties.BlockProps(BlockProperties.woodAxe, 0.1f, BlockProperties.secToMs(0.15, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0)));
         BlockProperties.setBlockProps("BIG_DRIPLEAF_STEM", new BlockProperties.BlockProps(BlockProperties.woodAxe, 0.1f, BlockProperties.secToMs(0.15, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0)));
-        BlockFlags.addFlags("BIG_DRIPLEAF_STEM", BlockProperties.F_IGN_PASSABLE);
+
+        BlockFlags.addFlags("BIG_DRIPLEAF_STEM", BlockFlags.F_IGN_PASSABLE);
         BlockProperties.setBlockProps("GLOW_LICHEN", BlockProperties.instantType);
-        BlockFlags.addFlags("GLOW_LICHEN", BlockProperties.F_IGN_PASSABLE);
-        BlockFlags.addFlags("CAVE_VINES", BlockProperties.F_CLIMBABLE);
-        BlockFlags.addFlags("CAVE_VINES_PLANT", BlockProperties.F_CLIMBABLE);
+        BlockFlags.addFlags("GLOW_LICHEN", BlockFlags.F_IGN_PASSABLE);
+        BlockFlags.addFlags("CAVE_VINES", BlockFlags.F_CLIMBABLE);
+        BlockFlags.addFlags("CAVE_VINES_PLANT", BlockFlags.F_CLIMBABLE);
+        
         BlockProperties.setBlockProps("HANGING_ROOTS", BlockProperties.instantType);
         BlockProperties.setBlockProps("ROOTED_DIRT", new BlockProperties.BlockProps(BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.75)));
 
         //Dripstone
         BlockProperties.setBlockProps("DRIPSTONE_BLOCK", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 1.5f, BlockProperties.secToMs(7.5, 1.15, 0.6, 0.4, 0.3, 0.25, 0.2)));
-        BlockFlags.addFlags("POINTED_DRIPSTONE", BlockFlags.SOLID_GROUND | BlockProperties.F_VARIABLE);
+        BlockFlags.addFlags("POINTED_DRIPSTONE", BlockFlags.SOLID_GROUND | BlockFlags.F_VARIABLE);
         BlockProperties.setBlockProps("POINTED_DRIPSTONE", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 1.5f, BlockProperties.secToMs(2.25, 1.15, 0.6, 0.4, 0.3, 0.25, 0.2)));
 
         //Amethyst buds
@@ -155,14 +157,14 @@ public class BlocksMC1_17 implements BlockPropertiesSetup {
         // Not done
         //Candle cakes
         for (Material mat : MaterialUtil.ALL_CANDLE_CAKE) {
-            BlockFlags.addFlags(mat, BlockProperties.F_GROUND);
+            BlockFlags.addFlags(mat, BlockFlags.F_GROUND);
             BlockProperties.setBlockProps(mat, new BlockProperties.BlockProps(BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.75)));
         }
 
         //Other blocks
         BlockProperties.setBlockProps("CALCITE", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 0.75f, BlockProperties.secToMs(3.75, 0.6, 0.3, 0.2, 0.15, 0.15, 0.1)));
         BlockProperties.setBlockProps("TUFF", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 1.5f, BlockProperties.secToMs(7.5, 1.15, 0.6, 0.4, 0.3, 0.25, 0.2)));
-        BlockProperties.setBlockFlags("POWDER_SNOW", BlockProperties.F_POWDERSNOW | BlockProperties.F_IGN_PASSABLE | BlockProperties.F_GROUND | BlockProperties.F_GROUND_HEIGHT);
+        BlockFlags.setBlockFlags("POWDER_SNOW", BlockFlags.F_POWDERSNOW | BlockFlags.F_IGN_PASSABLE | BlockFlags.F_GROUND | BlockFlags.F_GROUND_HEIGHT);
         BlockProperties.setBlockProps("POWDER_SNOW", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 0.25f, BlockProperties.secToMs(0.4)));
         BlockInit.setPropsAs("POWDER_SNOW_CAULDRON", Material.CAULDRON);
         BlockInit.setPropsAs("WATER_CAULDRON", Material.CAULDRON);

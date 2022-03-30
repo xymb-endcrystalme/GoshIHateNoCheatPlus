@@ -23,6 +23,7 @@ import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import fr.neatmonster.nocheatplus.components.registry.event.IHandle;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 
 // TODO: Auto-generated Javadoc
@@ -269,6 +270,7 @@ public class RichEntityLocation extends RichBoundsLocation {
             throw new IllegalArgumentException("marginAboveEyeHeight must be greater than 0.");
         }
         // TODO: Add test for this bit of code.
+        // Step correction: see https://github.com/NoCheatPlus/NoCheatPlus/commit/f22bf88824372de2207e6dca5e1c264f3d251897
         if (stepCorrection) {
             double ref = maxY + marginAboveEyeHeight;
             ref = ref - (double) Location.locToBlock(ref) + 0.35;
@@ -281,7 +283,7 @@ public class RichEntityLocation extends RichBoundsLocation {
             }
         }
         return BlockProperties.collides(blockCache, minX , maxY, minZ, maxX, maxY + marginAboveEyeHeight, maxZ, 
-                BlockProperties.F_GROUND | BlockProperties.F_SOLID);
+                BlockFlags.F_GROUND | BlockFlags.F_SOLID);
     }
 
     /**

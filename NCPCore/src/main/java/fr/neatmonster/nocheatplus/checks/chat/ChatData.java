@@ -24,7 +24,6 @@ public class ChatData extends AsyncCheckData {
 
     // Violation levels.
     public double  captchaVL;
-    public double  colorVL;
     public double  commandsVL;
     public double  textVL;
     public double  relogVL;
@@ -61,7 +60,6 @@ public class ChatData extends AsyncCheckData {
     public synchronized void reset() {
         captchTries = relogWarnings = 0;
         captchaVL = 0D;
-        // colorVL <- is spared to avoid problems with spam + captcha success.
         textVL = 0;
         final long now = System.currentTimeMillis();
         chatFrequency.clear(now);

@@ -19,6 +19,7 @@ import org.bukkit.Material;
 
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.FakeBlockCache;
 
 
@@ -110,13 +111,14 @@ public class InteractRayTracing extends RayTracing {
      * @return
      */
     private boolean doesCollide(final int blockX, final int blockY, final int blockZ) {
-        final Material id = blockCache.getType(blockX, blockY, blockZ);
-        final long flags = BlockProperties.getBlockFlags(id);
-        if ((flags & BlockProperties.F_SOLID) == 0) {
+        final Material mat = blockCache.getType(blockX, blockY, blockZ);
+        final long flags = BlockFlags.getBlockFlags(mat);
+        if ((flags & BlockFlags.F_SOLID) == 0) {
             // Ignore non solid blocks anyway.
             return false;
         }
-        if ((flags & (BlockProperties.F_LIQUID | BlockProperties.F_IGN_PASSABLE | BlockProperties.F_STAIRS | BlockProperties.F_VARIABLE)) != 0) {
+        if ((flags & (BlockFlags.F_LIQUID | BlockFlags.F_IGN_PASSABLE | BlockFlags.F_STAIRS | BlockFlags.F_VARIABLE)) != 0) {
+
             // Special cases.
             // TODO: F_VARIABLE: Bounding boxes are roughly right ?
             return false;

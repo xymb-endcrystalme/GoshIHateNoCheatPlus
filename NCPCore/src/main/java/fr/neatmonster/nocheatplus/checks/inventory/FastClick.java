@@ -78,6 +78,7 @@ public class FastClick extends Check {
         final Material clickedMat = clicked == null ? Material.AIR : clicked.getType();
         final Material cursorMat;
         final int cursorAmount;
+        boolean cancel = false;
         tags.clear();
 
         if (cursor != null) {
@@ -97,9 +98,7 @@ public class FastClick extends Check {
             // Detect shift-click features indirectly.
             amount = detectTweaks1_5(view, slot, clicked, clickedMat, cursorMat, cursorAmount, isShiftClick, data, cc);
         }
-        else {
-            amount = 1f;
-        }
+        else amount = 1f;
 
         if (isShiftClick && inventoryAction.equals("MOVE_TO_OTHER_INVENTORY") && (cursorMat != null && cursorMat != Material.AIR) 
             && clickedMat != Material.AIR) {
@@ -107,24 +106,25 @@ public class FastClick extends Check {
         }
         
         data.fastClickFreq.add(now, amount);
-
+        
+        // Shor-term VL
         float shortTerm = data.fastClickFreq.bucketScore(0);
         if (shortTerm > cc.fastClickShortTermLimit) {
             // Check for lag.
             shortTerm /= (float) TickTask.getLag(data.fastClickFreq.bucketDuration(), true);
         }
         shortTerm -= cc.fastClickShortTermLimit;
-
+        
+        // Normal VL
         float normal = data.fastClickFreq.score(1f);
         if (normal > cc.fastClickNormalLimit) {
             // Check for lag.
             normal /= (float) TickTask.getLag(data.fastClickFreq.bucketDuration() * data.fastClickFreq.numberOfBuckets(), true);
         }
         normal -= cc.fastClickNormalLimit;
-
+        
+        // Process Violations.
         final double violation = Math.max(shortTerm, normal);
-        boolean cancel = false;
-
         if (violation > 0.0) {
             tags.add("clickspeed");
             data.fastClickVL += violation;
@@ -138,13 +138,14 @@ public class FastClick extends Check {
             player.sendMessage("FastClick: " + data.fastClickFreq.bucketScore(0) + " | " + data.fastClickFreq.score(1f) + " | cursor=" + cursor 
                                 + " | clicked=" + clicked + " | action=" + inventoryAction);
         }
-
+        
+        // Adjust data
         data.fastClickLastClicked = clickedMat;
         data.fastClickLastSlot = slot;
         data.fastClickLastCursor = cursorMat;
         data.fastClickLastCursorAmount = cursorAmount;
 
-        // Feed the improbable.
+        // Lastly, always feed the improbable.
         if (cc.fastClickImprobableWeight > 0.0f) {
             Improbable.feed(player, cc.fastClickImprobableWeight * amount, now);
         }

@@ -53,6 +53,7 @@ import fr.neatmonster.nocheatplus.players.IPlayerData;
 import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.MaterialUtil;
 
 /**
@@ -270,7 +271,7 @@ public class NoFall extends Check {
             final Material blockmat = player.getWorld().getBlockAt(
                     Location.locToBlock(validmove.to.getX()), Location.locToBlock(validmove.to.getY()), Location.locToBlock(validmove.to.getZ())
                     ).getType();
-            if ((BlockProperties.getBlockFlags(blockmat) & BlockProperties.F_STICKY) != 0) {
+            if ((BlockFlags.getBlockFlags(blockmat) & BlockFlags.F_STICKY) != 0) {
                 return damage / 5D;
             }
             if (ServerIsAtLeast1_12 && MaterialUtil.BEDS.contains(blockmat)) {
@@ -429,7 +430,6 @@ public class NoFall extends Check {
         final double toY = to.getY();
         final double yDiff = toY - fromY;
         final double oldNFDist = data.noFallFallDistance;
-
         // Reset-cond is not touched by yOnGround.
         // TODO: Distinguish water depth vs. fall distance ?
         /*
@@ -439,8 +439,8 @@ public class NoFall extends Check {
         // TODO: Also handle from and to independently (rather fire twice than wait for next time).
         final boolean fromReset = from.resetCond;
         final boolean toReset = to.resetCond;
-
         final boolean fromOnGround, toOnGround;
+        
         // Adapt yOnGround if necessary (sf uses another setting).
         if (yDiff < 0 && cc.yOnGround < cc.noFallyOnGround) {
             // In fact this is somewhat heuristic, but it seems to work well.

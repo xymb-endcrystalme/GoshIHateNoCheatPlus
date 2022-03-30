@@ -225,9 +225,6 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.CHAT_CAPTCHA_SUCCESS, "&c&l(!)&7 Antispam check passed.", 1154);
         set(ConfPaths.CHAT_CAPTCHA_TRIES, 3, 785);
         set(ConfPaths.CHAT_CAPTCHA_ACTIONS, "cancel cmdc:kickcaptcha vl>4 log:captcha:2:5:cf cancel cmdc:kickcaptcha", 785);
-        // Color, legacy
-        set(ConfPaths.CHAT_COLOR_CHECK, false, 1154);
-        set(ConfPaths.CHAT_COLOR_ACTIONS, "cancel", 1154);
         // Commands
         set(ConfPaths.CHAT_COMMANDS_CHECK, "default", 785);
         set(ConfPaths.CHAT_COMMANDS_EXCLUSIONS, Arrays.asList("undo", "redo"), 1154);
@@ -299,9 +296,6 @@ public class DefaultConfig extends ConfigFile {
 
         /* Combined */
         set(ConfPaths.COMBINED_ACTIVE, "default", 1144);
-        // BedLeave
-        set(ConfPaths.COMBINED_BEDLEAVE_CHECK, "default", 785);
-        set(ConfPaths.COMBINED_BEDLEAVE_ACTIONS, "cancel log:bedleave:0:5:if cmdc:kickbedleave:0:1", 1154);
         // Enderpearl
         set(ConfPaths.COMBINED_ENDERPEARL_CHECK, true, 1154); // 'default' activation flag bug
         set(ConfPaths.COMBINED_ENDERPEARL_PREVENTCLICKBLOCK, true, 785);
@@ -399,11 +393,6 @@ public class DefaultConfig extends ConfigFile {
 
         /* Inventory */
         set(ConfPaths.INVENTORY_ACTIVE, "default", 1144);
-        // Drop, legacy.
-        set(ConfPaths.INVENTORY_DROP_CHECK, "default", 785);
-        set(ConfPaths.INVENTORY_DROP_LIMIT, 10, 1154);
-        set(ConfPaths.INVENTORY_DROP_TIMEFRAME, 20L, 785);
-        set(ConfPaths.INVENTORY_DROP_ACTIONS, "log:drop:0:5:if cancel cmdc:dropkick:0:5", 1154);
         // FastClick
         set(ConfPaths.INVENTORY_FASTCLICK_CHECK, "default", 785);
         set(ConfPaths.INVENTORY_FASTCLICK_EXCLUDE, Arrays.asList("Inventory Name Here"), 1154);
@@ -519,11 +508,11 @@ public class DefaultConfig extends ConfigFile {
         // MorePackets
         set(ConfPaths.MOVING_MOREPACKETS_CHECK, "default", 785);
         set(ConfPaths.MOVING_MOREPACKETS_SECONDS, 6, 785);
-        set(ConfPaths.MOVING_MOREPACKETS_EPSIDEAL, 20, 785);
-        set(ConfPaths.MOVING_MOREPACKETS_EPSMAX, 22, 785); 
-        set(ConfPaths.MOVING_MOREPACKETS_BURST_PACKETS, 35, 785);
-        set(ConfPaths.MOVING_MOREPACKETS_BURST_DIRECT, 55, 785);
-        set(ConfPaths.MOVING_MOREPACKETS_BURST_EPM, 100, 1154);
+        set(ConfPaths.MOVING_MOREPACKETS_EPSIDEAL, 20, 785); // Ordinary packet frequency
+        set(ConfPaths.MOVING_MOREPACKETS_EPSMAX, 22, 785); // Tolereted packets
+        set(ConfPaths.MOVING_MOREPACKETS_BURST_PACKETS, 15, 785); // Amount of packets within half a second to generate a single burst event. (15= 1).
+        set(ConfPaths.MOVING_MOREPACKETS_BURST_DIRECT, 10, 785); // Maximum burst events within 500ms (Max packets allowed: 15*10=150 within 500ms)
+        set(ConfPaths.MOVING_MOREPACKETS_BURST_EPM, 95, 1154); // Maximum burst events per minute
         set(ConfPaths.MOVING_MOREPACKETS_SETBACKAGE, 110, 1154); // Quite harsh. 
         set(ConfPaths.MOVING_MOREPACKETS_ACTIONS, "cancel vl>2 cancel log:morepackets:10:9:i vl>100 cancel log:morepackets:0:2:ifc cmdc:kickpackets:0:10", 1154);
         // NoFall
@@ -541,13 +530,13 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_PASSABLE_UNTRACKED_TELEPORT_ACTIVE, true, 785);
         set(ConfPaths.MOVING_PASSABLE_UNTRACKED_CMD_ACTIVE, true, 785);
         set(ConfPaths.MOVING_PASSABLE_UNTRACKED_CMD_TRYTELEPORT, true, 785);
-        set(ConfPaths.MOVING_PASSABLE_UNTRACKED_CMD_PREFIXES, Arrays.asList("sethome", "home set", "setwarp", "warp set", "setback", "set back", "back set", "warp", "home", "tp", "tpa", "tpask"), 1154);
+        set(ConfPaths.MOVING_PASSABLE_UNTRACKED_CMD_PREFIXES, Arrays.asList("sethome", "home set", "setwarp", "warp set", "setback", "set back", "back set", "warp", "home", "tp", "tpa", "tpask", "tpyes", "tphere"), 1154);
         // SurvivalFly
         set(ConfPaths.MOVING_SURVIVALFLY_CHECK, "default", 785);
         set(ConfPaths.MOVING_SURVIVALFLY_STEPHEIGHT, "default", 785);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_VACC, true, 785);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_HACC, true, 1154);
-        set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_STEP, false, 785);
+        set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_STEP, true, 1154);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_NOSLOW, true, 1154);
         set(ConfPaths.MOVING_SURVIVALFLY_EXTENDED_RESETITEM, true, 1154);
         set(ConfPaths.MOVING_SURVIVALFLY_LENIENCY_HBUFMAX, 1.0, 1154);
@@ -667,7 +656,6 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".bautosign", start + "tried to use the autosign hack (Subcheck: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".bbfrequency", start + "tried to break too many blocks at once" + end, 1154);
         set(ConfPaths.STRINGS + ".bdirection", start + "tried to interact with a block outside their line of sight" + end, 1154);
-        set(ConfPaths.STRINGS + ".bedleave", start + "tried to send fake bed leave packets (was not in/near a bed)" + end, 1154);
         set(ConfPaths.STRINGS + ".bpspeed", start + "tried to throw projectiles too quickly" + end, 1154);
         set(ConfPaths.STRINGS + ".breach", start + "tried to interact with a block too far away" + end, 1154);
         set(ConfPaths.STRINGS + ".bspeed", start + "tried to interact with blocks beyond legit speeds" + end, 1154);
@@ -679,8 +667,6 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".commands", start + "issued too many commands too quickly" + end, 785);
         set(ConfPaths.STRINGS + ".creativefly", start + "tried to perform a move that deviates from the model (Model: &6[model]&7, Tags: &6[tags]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".critical", start + "tried to perform an illegal critical hit (Tags: &6[tags]&7)" + end, 1154);
-        set(ConfPaths.STRINGS + ".drop", start + "tried to drop more items than allowed" + end, 785);
-        set(ConfPaths.STRINGS + ".dropkick", kick + "Dropping items too fast.", 1154);
         set(ConfPaths.STRINGS + ".fastbreak", start + "tried to break a block faster than possible (Block: &6[blocktype]&7)" + end, 1154);
         set(ConfPaths.STRINGS + ".fastclick", start + "tried to move items in their inventory too quickly (Tags: &6[tags]&7)" + end, 785);
         set(ConfPaths.STRINGS + ".fastconsume", start + "tried to consume an item too quickly (Food: &6[food][tags]&7)" + end, 1154);
@@ -704,7 +690,6 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".kickagainst", kick + "Invalid block placements.", 1154);
         set(ConfPaths.STRINGS + ".kickalive", kick + "Too many keep-alive packets.", 1154);
         set(ConfPaths.STRINGS + ".kickattackfrequency", kick + "Unlikely fast clicking.", 1154);
-        set(ConfPaths.STRINGS + ".kickbedleave", kick + "Invalid bed-leave packets.", 1154);
         set(ConfPaths.STRINGS + ".kickbow", kick + "Shooting arrows too quickly.", 1154);
         set(ConfPaths.STRINGS + ".kickbspeed", kick + "Too fast block interactions.", 1154);
         set(ConfPaths.STRINGS + ".kickcaptcha", kick + "Enter the captcha!", 1154);

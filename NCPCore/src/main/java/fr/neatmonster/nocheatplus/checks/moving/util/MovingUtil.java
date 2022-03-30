@@ -49,6 +49,7 @@ import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.location.RichBoundsLocation;
 import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.MapUtil;
 
 /**
@@ -64,9 +65,9 @@ public class MovingUtil {
     private static final Location useLoc = new Location(null, 0, 0, 0);
     //    /** Fast scan flags for 'mostly air'. */
     //    private static final long FLAGS_SCAN_FOR_GROUND_OR_RESETCOND = 
-    //            BlockProperties.F_SOLID | BlockProperties.F_GROUND
-    //            | BlockProperties.F_LIQUID | BlockProperties.F_COBWEB
-    //            | BlockProperties.F_CLIMBABLE
+    //            BlockFlags.F_SOLID | BlockFlags.F_GROUND
+    //            | BlockFlags.F_LIQUID | BlockFlags.F_COBWEB
+    //            | BlockFlags.F_CLIMBABLE
     //            ;
 
 
@@ -133,12 +134,12 @@ public class MovingUtil {
      */
     public static boolean isCollideWithHB(PlayerLocation from, PlayerLocation to, MovingData data) {
 
-        final boolean isFlagCollected = (to.getBlockFlags() & BlockProperties.F_STICKY) != 0;
+        final boolean isFlagCollected = (to.getBlockFlags() & BlockFlags.F_STICKY) != 0;
         // Moving on side block, remove nofall data
         if (isFlagCollected && !to.isOnGround() && BlockProperties.collides(to.getBlockCache(),
                                                          to.getMinX() - 0.01, to.getMinY(), to.getMinZ() - 0.01, 
                                                          to.getMaxX() + 0.01, to.getMaxY(), to.getMaxZ() + 0.01, 
-                                                         BlockProperties.F_STICKY)
+                                                         BlockFlags.F_STICKY)
         ) {
             data.clearNoFallData();
         }
@@ -199,7 +200,7 @@ public class MovingUtil {
         return data.fireworksBoostDuration > 0 || !BlockProperties.collides(fromLocation.getBlockCache(), 
                 fromLocation.getMinX(), fromLocation.getMinY(), fromLocation.getMinZ(), 
                 fromLocation.getMaxX(), fromLocation.getMinY() + 0.6, fromLocation.getMaxZ(),
-                BlockProperties.F_COBWEB);
+                BlockFlags.F_COBWEB);
     }
 
 

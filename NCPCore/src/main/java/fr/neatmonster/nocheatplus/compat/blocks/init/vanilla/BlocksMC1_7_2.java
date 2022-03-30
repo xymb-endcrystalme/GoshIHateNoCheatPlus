@@ -35,39 +35,38 @@ public class BlocksMC1_7_2 implements BlockPropertiesSetup{
 
     @Override
     public void setupBlockProperties(WorldConfigProvider<?> worldConfigProvider) {
+        
+        ////////////////////
         // Block shapes.
-
-        // Stained glass
+        ////////////////////
         BlockInit.setAsIfExists("STAINED_GLASS", Material.GLASS);
-        // Stained glass pane
         // Collected otherwise: BlockInit.setAsIfExists("STAINED_GLASS_PANE", "THIN_GLASS");
-        // Leaves 2
+
         BlockInit.setAsIfExists("LEAVES_2", "LEAVES");
-        // Log 2
+
         BlockInit.setAsIfExists("LOG_2", "LOG");
-        // Acacia wood stairs
-        //        BlockInit.setAsIfExists("ACACIA_STAIRS", "WOOD_STAIRS");
-        //        // Oak wood stairs
-        //        BlockInit.setAsIfExists("DARK_OAK_STAIRS", "WOOD_STAIRS");
-        // Packed ice
+
         BlockInit.setAsIfExists("PACKED_ICE", Material.ICE);
-        // Large flowers
+
         BlockInit.setAsIfExists("DOUBLE_PLANT", BridgeMaterial.DANDELION);
 
+
+        ////////////////////
         // Block breaking.
+        ////////////////////
         final long[] ironTimes = BlockProperties.secToMs(15, 7.5, 1.15, 0.75, 0.56, 0.5, 1.25);
         final BlockProps ironType = new BlockProps(BlockProperties.woodPickaxe, 3, ironTimes);
-        for (Material mat : new Material[]{
-                Material.LAPIS_ORE, Material.LAPIS_BLOCK, Material.IRON_ORE,
-        }) {
+        for (Material mat : new Material[]{Material.LAPIS_ORE, Material.LAPIS_BLOCK, Material.IRON_ORE,}) {
             BlockProperties.setBlockProps(mat, ironType);
         }
         final long[] diamondTimes = BlockProperties.secToMs(15, 7.5, 3.75, 0.75, 0.56, 0.5, 1.25);
         final BlockProps diamondType = new BlockProps(BlockProperties.woodPickaxe, 3, diamondTimes);
         for (Material mat : new Material[]{
-                Material.REDSTONE_ORE, BridgeMaterial.get("glowing_redstone_ore"),
-                Material.EMERALD_ORE, Material.GOLD_ORE, Material.DIAMOND_ORE,
-        }) {
+            Material.REDSTONE_ORE, 
+            BridgeMaterial.get("glowing_redstone_ore"),
+            Material.EMERALD_ORE, 
+            Material.GOLD_ORE, 
+            Material.DIAMOND_ORE,}) {
             if (mat != null) {
                 BlockProperties.setBlockProps(mat, diamondType);
             }

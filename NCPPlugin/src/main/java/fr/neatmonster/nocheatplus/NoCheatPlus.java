@@ -63,6 +63,7 @@ import fr.neatmonster.nocheatplus.checks.combined.CombinedData;
 import fr.neatmonster.nocheatplus.checks.combined.CombinedListener;
 import fr.neatmonster.nocheatplus.checks.fight.FightListener;
 import fr.neatmonster.nocheatplus.checks.inventory.InventoryListener;
+import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.moving.MovingListener;
 import fr.neatmonster.nocheatplus.checks.moving.location.tracking.LocationTrace.TraceEntryPool;
 import fr.neatmonster.nocheatplus.checks.moving.util.AuxMoving;
@@ -1126,7 +1127,7 @@ public class NoCheatPlus extends JavaPlugin implements NoCheatPlusAPI {
         for (final Player player : onlinePlayers) {
             final IPlayerData pData = DataManager.getPlayerData(player);
             if (player.isSleeping()) {
-                pData.getGenericInstance(CombinedData.class).wasInBed = true;
+                pData.getGenericInstance(MovingData.class).wasInBed = true;
             }
         }
         if (onlinePlayers.length > 0) {

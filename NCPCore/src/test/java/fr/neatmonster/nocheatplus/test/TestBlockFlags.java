@@ -22,16 +22,16 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 
 public class TestBlockFlags {
 
     @Test
     public void testIfFlagsAreUnique() {
-        final Collection<String> flags = BlockProperties.getAllFlagNames();
+        final Collection<String> flags = BlockFlags.getAllFlagNames();
         final Set<Long> occupied = new HashSet<Long>();
         for (final String name : flags) {
-            final long flag = BlockProperties.parseFlag(name);
+            final long flag = BlockFlags.parseFlag(name);
             if (flag == 0L) {
                 fail("Flag '" + name + "' must not be 0L.");
             }

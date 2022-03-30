@@ -56,7 +56,6 @@ public enum CheckType {
 
     CHAT(CheckTypeType.GROUP, CheckType.ALL, Permissions.CHAT),
     CHAT_CAPTCHA(CheckTypeType.CHECK, CHAT, Permissions.CHAT_CAPTCHA),
-    CHAT_COLOR(CheckTypeType.CHECK, CHAT, Permissions.CHAT_COLOR),
     CHAT_COMMANDS(CheckTypeType.CHECK, CHAT, Permissions.CHAT_COMMANDS),
     CHAT_TEXT(CheckTypeType.CHECK, CHAT, Permissions.CHAT_TEXT),
     CHAT_LOGINS(CheckTypeType.CHECK, CHAT, Permissions.CHAT_LOGINS),
@@ -64,7 +63,6 @@ public enum CheckType {
 
 
     COMBINED(CheckTypeType.GROUP, CheckType.ALL, Permissions.COMBINED),
-    COMBINED_BEDLEAVE(CheckTypeType.CHECK, COMBINED, Permissions.COMBINED_BEDLEAVE),
     COMBINED_IMPROBABLE(CheckTypeType.CHECK, COMBINED, Permissions.COMBINED_IMPROBABLE),
     COMBINED_MUNCHHAUSEN(CheckTypeType.CHECK, COMBINED, Permissions.COMBINED_MUNCHHAUSEN),
     /** Rather for data removal and exemption. */
@@ -83,7 +81,6 @@ public enum CheckType {
     FIGHT_SPEED(CheckTypeType.CHECK, FIGHT, Permissions.FIGHT_SPEED),
 
     INVENTORY(CheckTypeType.GROUP, CheckType.ALL, Permissions.INVENTORY),
-    INVENTORY_DROP(CheckTypeType.CHECK, INVENTORY, Permissions.INVENTORY_DROP),
     INVENTORY_FASTCLICK(CheckTypeType.CHECK, INVENTORY, Permissions.INVENTORY_FASTCLICK),
     INVENTORY_FASTCONSUME(CheckTypeType.CHECK, INVENTORY, Permissions.INVENTORY_FASTCONSUME),
     INVENTORY_GUTENBERG(CheckTypeType.CHECK, INVENTORY, Permissions.INVENTORY_GUTENBERG),

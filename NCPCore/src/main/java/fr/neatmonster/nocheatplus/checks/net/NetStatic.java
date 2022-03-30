@@ -149,7 +149,8 @@ public class NetStatic {
             violation = Math.max(violation, vEPSAcc);
             tags.add("epsacc");
         }
-        float burst = packetFreq.bucketScore(0);
+
+        float burst = packetFreq.bucketScore(0); // 500ms
         if (burst > burstPackets) {
             // Account for server-side lag "minimally".
             burst /= TickTask.getLag(winDur, true); // First window lag.

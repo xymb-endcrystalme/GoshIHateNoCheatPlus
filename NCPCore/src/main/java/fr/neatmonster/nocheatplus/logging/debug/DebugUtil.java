@@ -25,6 +25,7 @@ import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache.IBlockCacheNode;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 
 /**
  * Some auxiliary static-access methods.
@@ -158,7 +159,7 @@ public class DebugUtil {
         builder.append(node.getData());
         final double[] bounds = node.getBounds();
         if (bounds != null) {
-            final double minHeight = BlockProperties.getGroundMinHeight(blockCache, x, y, z, node, BlockProperties.getBlockFlags(id));
+            final double minHeight = BlockProperties.getGroundMinHeight(blockCache, x, y, z, node, BlockFlags.getBlockFlags(id));
             builder.append(" shape=[");
             builder.append(bounds[0]);
             builder.append(", ");

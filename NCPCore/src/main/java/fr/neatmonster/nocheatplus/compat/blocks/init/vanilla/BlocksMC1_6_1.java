@@ -39,13 +39,13 @@ public class BlocksMC1_6_1 implements BlockPropertiesSetup{
 
         // (hard_clay and stained clay via generic setup.)
 
+        // (Carpet via generic setup.)
+
         // Hay Bale
         BlockProperties.setBlockProps("HAY_BLOCK", BlockProperties.leverType);
         BlockFlags.setFlagsAs("HAY_BLOCK", Material.STONE); // TODO: Assumption (!).
         
         if (BridgeMaterial.getBlock("wall_sign") != null) BlockInit.setAs("WALL_SIGN", BridgeMaterial.SIGN);
-
-        // (Carpet via generic setup.)
 
         ConfigFile config = ConfigManager.getConfigFile();
         if (config.getBoolean(ConfPaths.BLOCKBREAK_DEBUG, config.getBoolean(ConfPaths.CHECKS_DEBUG, false)))

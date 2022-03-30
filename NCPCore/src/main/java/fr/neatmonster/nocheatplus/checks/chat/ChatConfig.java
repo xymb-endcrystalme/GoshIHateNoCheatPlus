@@ -33,7 +33,6 @@ public class ChatConfig extends ACheckConfig {
 
     private static final RegisteredPermission[] preferKeepUpdatedPermissions = new RegisteredPermission[]{
             // Only the permissions needed for async. checking.
-            Permissions.CHAT_COLOR,
             Permissions.CHAT_TEXT,
             Permissions.CHAT_CAPTCHA,
             // TODO: COMMANDS, in case of handleascommand?
@@ -50,8 +49,6 @@ public class ChatConfig extends ACheckConfig {
     public final String       captchaSuccess;
     public final int          captchaTries;
     public final ActionList   captchaActions;
-
-    public final ActionList   colorActions;
 
     public final double       commandsLevel;
     public final int          commandsShortTermTicks;
@@ -129,8 +126,6 @@ public class ChatConfig extends ACheckConfig {
         captchaSuccess = config.getString(ConfPaths.CHAT_CAPTCHA_SUCCESS);
         captchaTries = config.getInt(ConfPaths.CHAT_CAPTCHA_TRIES);
         captchaActions = config.getOptimizedActionList(ConfPaths.CHAT_CAPTCHA_ACTIONS, Permissions.CHAT_CAPTCHA);
-
-        colorActions = config.getOptimizedActionList(ConfPaths.CHAT_COLOR_ACTIONS, Permissions.CHAT_COLOR);
 
         commandsLevel = config.getDouble(ConfPaths.CHAT_COMMANDS_LEVEL);
         commandsShortTermTicks = config.getInt(ConfPaths.CHAT_COMMANDS_SHORTTERM_TICKS);

@@ -51,6 +51,7 @@ import fr.neatmonster.nocheatplus.utilities.StringUtil;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 
 
 /**
@@ -538,7 +539,7 @@ public class CreativeFly extends Check {
         
         // Riptiding right onto a bouncy block (2nd time, higher bounce distance)
         // Note that the ExtremeMove subcheck is skipped during such phases.
-        if (Bridge1_13.isRiptiding(from.getPlayer()) && (from.getBlockFlags() & BlockProperties.F_BOUNCE25) != 0
+        if (Bridge1_13.isRiptiding(from.getPlayer()) && (from.getBlockFlags() & BlockFlags.F_BOUNCE25) != 0
             && yDistance > limitV && data.sfJumpPhase <= 2
             && yDistance > 0.0 && yDistance < 7.5  // Cap the distance: observed maximum speed -> 5.536355205897621 (+5.993) / 5.0
             && thisMove.from.onGround && !thisMove.to.onGround) {
@@ -1135,8 +1136,7 @@ public class CreativeFly extends Check {
         if (secondPastMove.modelFlying != null && lastMove.modelFlying != null
             && secondPastMove.modelFlying == model && model != lastMove.modelFlying) {
             if (debug) debug(player, "Invalidate this move on too fast model switch: " + (secondPastMove.modelFlying.getId().toString() + " -> " + lastMove.modelFlying.getId().toString() + " -> " + model.getId().toString()));
-            thisMove.toIsValid = false;
-            // thisMove.invalidate();
+            thisMove.invalidate();
         }
     }
 
@@ -1236,6 +1236,7 @@ public class CreativeFly extends Check {
 
         // Adjust false
         allowedElytraHDistance += Math.sqrt(x*x + z*z) + 0.1;
+        useLoc.setWorld(null);
         return new double[] {allowedElytraHDistance, allowedElytraYDistance};
     }
 
@@ -1245,7 +1246,7 @@ public class CreativeFly extends Check {
     * @return
     */
     private boolean isCollideWithHB(PlayerLocation from) {
-        return (from.getBlockFlags() & BlockProperties.F_STICKY) != 0;
+        return (from.getBlockFlags() & BlockFlags.F_STICKY) != 0;
     }
 
 

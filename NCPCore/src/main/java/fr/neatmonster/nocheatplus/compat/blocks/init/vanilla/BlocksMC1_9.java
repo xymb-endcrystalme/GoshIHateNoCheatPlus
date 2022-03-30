@@ -37,77 +37,55 @@ public class BlocksMC1_9 implements BlockPropertiesSetup {
     @Override
     public void setupBlockProperties(WorldConfigProvider<?> worldConfigProvider) {
 
-        final long ground = BlockFlags.SOLID_GROUND; // BlockProperties.F_GROUND;
+        final long ground = BlockFlags.SOLID_GROUND; // BlockFlags.F_GROUND;
         final BlockProps instant = BlockProperties.instantType;
 
-        // 198(END_ROD)
         BlockFlags.addFlags("END_ROD", ground);
         BlockProperties.setBlockProps("END_ROD", instant);
 
-        // 199(CHORUS_PLANT) 
         BlockFlags.addFlags("CHORUS_PLANT", ground);
         BlockProperties.setBlockProps("CHORUS_PLANT", instant);
 
-        // 200(CHORUS_FLOWER) 
         BlockFlags.addFlags("CHORUS_FLOWER", ground);
         BlockProperties.setBlockProps("CHORUS_FLOWER", instant);
 
-        // 201(PURPUR_BLOCK / SOLID+GROUND) 
         BlockInit.setAs("PURPUR_BLOCK", BridgeMaterial.STONE_BRICKS);
 
-        // 202(PURPUR_PILLAR / SOLID+GROUND) 
         BlockInit.setAs("PURPUR_PILLAR", BridgeMaterial.STONE_BRICKS); // Rough.
 
-        // 203(PURPUR_STAIRS / SOLID+GROUND) 
         BlockInit.setAs("PURPUR_STAIRS", BridgeMaterial.STONE_BRICK_STAIRS); // Rough.
 
-        // 204(PURPUR_DOUBLE_SLAB / SOLID+GROUND) 
         if (BridgeMaterial.has("PURPUR_DOUBLE_SLAB")) {
             if (BridgeMaterial.has("PURPUR_DOUBLE_SLAB")) {
                 BlockInit.setAs("PURPUR_DOUBLE_SLAB", "DOUBLE_STEP");
             }
         }
 
-        // 205(PURPUR_SLAB / SOLID+GROUND) 
         BlockInit.setAs("PURPUR_SLAB", BridgeMaterial.STONE_SLAB);
 
-        // 206(END_BRICKS / SOLID+GROUND) 
         BlockInit.setAs(BridgeMaterial.END_STONE_BRICKS, Material.SANDSTONE);
 
-        // 207(BEETROOT_BLOCK) 
         BlockInit.setInstantPassable(BridgeMaterial.BEETROOTS);
 
-        // 208(GRASS_PATH / SOLID+GROUND) 
         BlockInit.setPropsAs(BridgeMaterial.GRASS_PATH, BridgeMaterial.GRASS_BLOCK);
-        BlockFlags.addFlags(BridgeMaterial.GRASS_PATH, 
-                BlockProperties.F_MIN_HEIGHT16_15 
-                | BlockProperties.F_XZ100
-                | BlockFlags.SOLID_GROUND
-                | BlockProperties.F_GROUND_HEIGHT);
+        BlockFlags.addFlags(BridgeMaterial.GRASS_PATH,  BlockFlags.F_MIN_HEIGHT16_15 | BlockFlags.F_XZ100 | BlockFlags.SOLID_GROUND | BlockFlags.F_GROUND_HEIGHT);
 
-        // 209(END_GATEWAY) 
         // -> Leave flags as is (like air).
         BlockProperties.setBlockProps("END_GATEWAY", BlockProperties.indestructibleType);
 
-        // 210(COMMAND_REPEATING / SOLID+GROUND) 
         BlockInit.setAs(BridgeMaterial.REPEATING_COMMAND_BLOCK, BridgeMaterial.COMMAND_BLOCK);
 
-        // 211(COMMAND_CHAIN / SOLID+GROUND) 
         BlockInit.setAs(BridgeMaterial.CHAIN_COMMAND_BLOCK, BridgeMaterial.COMMAND_BLOCK);
 
-        // 212(FROSTED_ICE / SOLID+GROUND) 
         BlockInit.setAs("FROSTED_ICE", Material.ICE);
 
-        // 255(STRUCTURE_BLOCK / SOLID+GROUND) 
         BlockInit.setInstantPassable("STRUCTURE_BLOCK");
 
         // Special case activation.
-        // TODO: Is this the right place?
         BlockProperties.setSpecialCaseTrapDoorAboveLadder(true);
 
         ConfigFile config = ConfigManager.getConfigFile();
         if (config.getBoolean(ConfPaths.BLOCKBREAK_DEBUG, config.getBoolean(ConfPaths.CHECKS_DEBUG, false)))
         StaticLog.logInfo("Added block-info for Minecraft 1.9 blocks.");
     }
-
 }

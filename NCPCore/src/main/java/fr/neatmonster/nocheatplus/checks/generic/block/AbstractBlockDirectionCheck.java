@@ -37,6 +37,7 @@ import fr.neatmonster.nocheatplus.utilities.collision.CollideRayVsAABB;
 import fr.neatmonster.nocheatplus.utilities.collision.ICollideRayVsAABB;
 import fr.neatmonster.nocheatplus.utilities.location.LocUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 
 /**
  * A first made-abstract version of a direction-towards-a-block-check.
@@ -239,13 +240,13 @@ public abstract class AbstractBlockDirectionCheck<D extends ICheckData, C extend
         final int blockY = block.getY();
         if (locX == blockX && locZ == blockZ && locY == blockY) return true;
 
-        final long blockflags = BlockProperties.getBlockFlags(block.getType());
-        final boolean fullbounds = (blockflags & BlockProperties.F_HEIGHT100) != 0 && (blockflags & BlockProperties.F_XZ100) != 0;
-        final List<BlockFace> interactablefaces = getInteractableFaces(locX - blockX, locZ - blockZ, locY - blockY, fullbounds);
+        final long flags = BlockFlags.getBlockFlags(block.getType());
+        final boolean FULL_BOUNDS = (flags & BlockFlags.F_HEIGHT100) != 0 && (flags & BlockFlags.F_XZ100) != 0;
+        final List<BlockFace> interactableFaces = getInteractableFaces(locX - blockX, locZ - blockZ, locY - blockY, FULL_BOUNDS);
 
-        if (!interactablefaces.contains(face)) return false;
+        if (!interactableFaces.contains(face)) return false;
 
-        return !isDirectionBlocked(block, interactablefaces, face, fullbounds);
+        return !isDirectionBlocked(block, interactableFaces, face, FULL_BOUNDS);
     }
 
     /**
@@ -257,31 +258,47 @@ public abstract class AbstractBlockDirectionCheck<D extends ICheckData, C extend
      * @param fullbounds is given block has full bounding boxes
      * @return List of block faces are allowed to touch 
      */
-    private static List<BlockFace> getInteractableFaces(final int xdiff, final int zdiff, final int ydiff, final boolean fullbounds) {
+    private static List<BlockFace> getInteractableFaces(final int xdiff, final int zdiff, final int ydiff, final boolean fullBounds) {
         final List<BlockFace> faces = new ArrayList<BlockFace>(6);
         // Allow on sides if isn't interact with full_bounds block 
-        if (!fullbounds) {
-            if (xdiff == 0) {faces.add(BlockFace.EAST); faces.add(BlockFace.WEST);}
-            if (zdiff == 0) {faces.add(BlockFace.SOUTH); faces.add(BlockFace.NORTH);}
+        if (!fullBounds) {
+
+            if (xdiff == 0) {
+                faces.add(BlockFace.EAST); 
+                faces.add(BlockFace.WEST);
+            }
+            if (zdiff == 0) {
+                faces.add(BlockFace.SOUTH); 
+                faces.add(BlockFace.NORTH);
+            }
         }
-        if (ydiff == 0) {faces.add(BlockFace.UP); faces.add(BlockFace.DOWN);} else
+        if (ydiff == 0) {
+            faces.add(BlockFace.UP); 
+            faces.add(BlockFace.DOWN);
+        } 
+        else {
             faces.add(ydiff > 0 ? BlockFace.UP : BlockFace.DOWN);
+        }
         if (xdiff != 0) faces.add(xdiff > 0 ? BlockFace.EAST : BlockFace.WEST);
         if (zdiff != 0) faces.add(zdiff > 0 ? BlockFace.SOUTH : BlockFace.NORTH);
         return faces;
     }
 
-    private static boolean isDirectionBlocked(Block block, List<BlockFace> interactablefaces, BlockFace tface, boolean hasfullbounds) {
-    	if (hasfullbounds) {
-    		final long blockRelativeflags = BlockProperties.getBlockFlags(block.getRelative(tface).getType());
-    		return (blockRelativeflags & BlockProperties.F_IGN_PASSABLE) == 0
-    	    && (blockRelativeflags & BlockProperties.F_HEIGHT100) != 0 && (blockRelativeflags & BlockProperties.F_XZ100) != 0;
-    	} else
-    	for (BlockFace face : interactablefaces) {
-    		final long blockRelativeflags = BlockProperties.getBlockFlags(block.getRelative(face).getType());
-    		final boolean relativefullbounds = (blockRelativeflags & BlockProperties.F_HEIGHT100) != 0 && (blockRelativeflags & BlockProperties.F_XZ100) != 0;
-    		if (!relativefullbounds || (blockRelativeflags & BlockProperties.F_IGN_PASSABLE) == 0) return false;
-    	}
+    private static boolean isDirectionBlocked(Block block, List<BlockFace> interactableFaces, BlockFace tface, boolean hasFullBounds) {
+    	if (hasFullBounds) {
+    		final long blockRelativeFlags = BlockFlags.getBlockFlags(block.getRelative(tface).getType());
+    		return (blockRelativeFlags & BlockFlags.F_IGN_PASSABLE) == 0
+    	            && (blockRelativeFlags & BlockFlags.F_HEIGHT100) != 0 
+                    && (blockRelativeFlags & BlockFlags.F_XZ100) != 0;
+    	} 
+        else {
+    	    for (BlockFace face : interactableFaces) {
+    		    final long blockRelativeFlags = BlockFlags.getBlockFlags(block.getRelative(face).getType());
+    		    final boolean relativeFullBounds = (blockRelativeFlags & BlockFlags.F_HEIGHT100) != 0 
+                                                    && (blockRelativeFlags & BlockFlags.F_XZ100) != 0;
+    		    if (!relativeFullBounds || (blockRelativeFlags & BlockFlags.F_IGN_PASSABLE) == 0) return false;
+    	    }
+        }
     	return true;
     }
 }

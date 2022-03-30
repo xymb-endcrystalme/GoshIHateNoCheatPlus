@@ -48,6 +48,7 @@ import fr.neatmonster.nocheatplus.event.mini.MiniListener;
 import fr.neatmonster.nocheatplus.logging.Streams;
 import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
+import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties.ToolProps;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties.ToolType;
 
@@ -60,9 +61,9 @@ public class BlockChangeListener implements Listener {
     public final boolean is1_9 = ServerVersion.compareMinecraftVersion("1.9") >= 0;
 
     /** These blocks certainly can't be pushed nor pulled. */
-    public static long F_MOVABLE_IGNORE = BlockProperties.F_LIQUID;
+    public static long F_MOVABLE_IGNORE = BlockFlags.F_LIQUID;
     /** These blocks might be pushed or pulled. */
-    public static long F_MOVABLE = BlockProperties.F_GROUND | BlockProperties.F_SOLID;
+    public static long F_MOVABLE = BlockFlags.F_GROUND | BlockFlags.F_SOLID;
 
     private final BlockChangeTracker tracker;
     private final boolean retractHasBlocks;
@@ -257,7 +258,7 @@ public class BlockChangeListener implements Listener {
             }
             else {
                 final Block retBlock = retLoc.getBlock();
-                final long flags = BlockProperties.getBlockFlags(retBlock.getType());
+                final long flags = BlockFlags.getBlockFlags(retBlock.getType());
                 if ((flags & F_MOVABLE_IGNORE) == 0L && (flags & F_MOVABLE) != 0L) {
                     blocks = new ArrayList<Block>(1);
                     blocks.add(retBlock);
@@ -283,14 +284,14 @@ public class BlockChangeListener implements Listener {
         final Block block = event.getBlock();
         // TODO: Abstract method for a block and a set of materials (redstone, interact, ...).
         if (block == null 
-                || (BlockProperties.getBlockFlags(block.getType()) & BlockProperties.F_VARIABLE_REDSTONE) == 0) {
+            || (BlockFlags.getBlockFlags(block.getType()) | BlockFlags.F_VARIABLE_REDSTONE) == 0) {
             return;
         }
         addRedstoneBlock(block);
     }
 
     private void addRedstoneBlock(final Block block) {
-        addBlockWithAttachedPotential(block, BlockProperties.F_VARIABLE_REDSTONE);
+        addBlockWithAttachedPotential(block, BlockFlags.F_VARIABLE_REDSTONE);
     }
 
     private void onEntityChangeBlock(final EntityChangeBlockEvent event) {
@@ -328,7 +329,7 @@ public class BlockChangeListener implements Listener {
     private void onRightClickBlock(final PlayerInteractEvent event) {
         final Result result = event.useInteractedBlock();
         if ((result == Result.ALLOW 
-                || result == Result.DEFAULT && !event.isCancelled())) {
+            || result == Result.DEFAULT && !event.isCancelled())) {
             final Block block = event.getClickedBlock();
             if (block != null) {
                 final Material type = block.getType();
@@ -341,7 +342,8 @@ public class BlockChangeListener implements Listener {
                             blocktool == tool.toolType) {
                             tracker.addBlocks(block);
                         }
-                    } else {
+                    } 
+                    else {
                         final boolean defdata = block.getData() == 0;
                         if (is1_9 && type == BridgeMaterial.GRASS_BLOCK && tool.toolType == ToolType.SPADE ||
                             defdata && tool.toolType == ToolType.HOE) {
@@ -350,8 +352,8 @@ public class BlockChangeListener implements Listener {
                     }
                 }
 
-                if ((BlockProperties.getBlockFlags(type) & BlockProperties.F_VARIABLE_USE) != 0L) {
-                    addBlockWithAttachedPotential(block, BlockProperties.F_VARIABLE_USE);
+                if ((BlockFlags.getBlockFlags(type) & BlockFlags.F_VARIABLE_USE) != 0L) {
+                    addBlockWithAttachedPotential(block, BlockFlags.F_VARIABLE_USE);
                 }
             }
         }
@@ -384,8 +386,8 @@ public class BlockChangeListener implements Listener {
                  * (TickListener...). Hinge corner... possibilities?
                  */
                 if (otherBlock != null // Top of the map / special case.
-                        && (BlockProperties.getBlockFlags(otherBlock.getType()) 
-                                & relevantFlags) != 0) {
+                    && (BlockFlags.getBlockFlags(otherBlock.getType()) 
+                        & relevantFlags) != 0) {
                     tracker.addBlocks(block, otherBlock);
                     return;
                 }
@@ -403,8 +405,8 @@ public class BlockChangeListener implements Listener {
                  * (TickListener...). Hinge corner... possibilities?
                  */
                 if (otherBlock != null // Top of the map / special case.
-                        && (BlockProperties.getBlockFlags(otherBlock.getType()) 
-                                & relevantFlags) != 0) {
+                    && (BlockFlags.getBlockFlags(otherBlock.getType()) 
+                        & relevantFlags) != 0) {
                     tracker.addBlocks(block, otherBlock);
                     return;
                 }

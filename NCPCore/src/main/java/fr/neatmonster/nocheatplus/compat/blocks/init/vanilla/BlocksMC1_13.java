@@ -25,6 +25,8 @@ import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties.BlockProps;
 import fr.neatmonster.nocheatplus.utilities.map.MaterialUtil;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
+
 
 @SuppressWarnings("deprecation")
 public class BlocksMC1_13 implements BlockPropertiesSetup {
@@ -37,10 +39,9 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
     @Override
     public void setupBlockProperties(WorldConfigProvider<?> worldConfigProvider) {
         // Flag for anvil
-        BlockProperties.setBlockFlags("ANVIL", BlockFlags.SOLID_GROUND);
-
+        BlockFlags.setBlockFlags("ANVIL", BlockFlags.SOLID_GROUND);
         // Workaround for ladder
-        // BlockFlags.addFlags(Material.LADDER, BlockProperties.F_GROUND_HEIGHT);
+        // BlockFlags.addFlags(Material.LADDER, BlockFlags.F_GROUND_HEIGHT);
         // Void air.
         BlockInit.setAs("VOID_AIR", Material.AIR);
         // Cave air.
@@ -61,17 +62,17 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         for (Material mat : MaterialUtil.DEAD_CORAL_PARTS) {
             // (Flags should be set correctly by default.)
             BlockProperties.setBlockProps(mat, BlockProperties.instantType);
-            BlockProperties.setBlockFlags(mat, BlockProperties.F_IGN_PASSABLE);
+            BlockFlags.setBlockFlags(mat, BlockFlags.F_IGN_PASSABLE);
         }
 
-        // Kelp.
-
-        // Fern.
+        // Water plants
+        for (final Material mat : MaterialUtil.WATER_PLANTS) {
+            BlockFlags.setFlag(mat, BlockFlags.F_XZ100 | BlockFlags.F_WATER_PLANT | BlockFlags.F_LIQUID | BlockFlags.F_WATER);
+        }
 
         // Bubble column.
-        // TODO: Drag down effect: probably not using velocity.
         BlockInit.setAs("BUBBLE_COLUMN", Material.WATER);
-        BlockFlags.addFlags("BUBBLE_COLUMN", BlockProperties.F_BUBBLECOLUMN);
+        BlockFlags.addFlags("BUBBLE_COLUMN", BlockFlags.F_BUBBLECOLUMN);
 
         // Further melon/pumpkin stems.
 
@@ -80,9 +81,8 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
 
         // Shulker boxes.
         for (Material mat : MaterialUtil.SHULKER_BOXES) {
-            BlockFlags.addFlags(mat, BlockProperties.F_XZ100 | BlockFlags.SOLID_GROUND);
-            BlockProperties.setBlockProps(mat, new BlockProps(BlockProperties.woodPickaxe, 2,
-                    BlockProperties.secToMs(3.0, 1.45, 0.7, 0.45, 0.3, 0.25, 0.2)));
+            BlockFlags.addFlags(mat, BlockFlags.F_XZ100 | BlockFlags.SOLID_GROUND);
+            BlockProperties.setBlockProps(mat, new BlockProps(BlockProperties.woodPickaxe, 2, BlockProperties.secToMs(3.0, 1.45, 0.7, 0.45, 0.3, 0.25, 0.2)));
         }
         
         for (Material mat : MaterialUtil.INFESTED_BLOCKS) {
@@ -103,7 +103,7 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
 
         // Blue ice.
         BlockInit.setAs("BLUE_ICE", Material.ICE);
-        BlockFlags.addFlags("BLUE_ICE",BlockProperties.F_BLUE_ICE);
+        BlockFlags.addFlags("BLUE_ICE",BlockFlags.F_BLUE_ICE);
 
         // Wet sponge.
         BlockInit.setAs("WET_SPONGE", Material.SPONGE);
@@ -175,24 +175,27 @@ public class BlocksMC1_13 implements BlockPropertiesSetup {
         BlockInit.setPropsAs("QUARTZ_PILLAR", "QUARTZ_BLOCK");
 
         // Dried kelp block.
-        BlockProperties.setBlockProps("DRIED_KELP_BLOCK", new BlockProps(
-                BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.75)));
+        BlockProperties.setBlockProps("DRIED_KELP_BLOCK", new BlockProps(BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.75)));
 
         // Conduit.
-       BlockProperties.setBlockProps(Material.CONDUIT, new BlockProperties.BlockProps(BlockProperties.stonePickaxe, 3.0f, BlockProperties.secToMs(4.5, 2.25, 1.15, 0.75, 0.6, 0.5, 0.4)));
+        // 1.18 - conduit was assigned to the pickaxe in 1.18
+        if (ServerVersion.compareMinecraftVersion("1.18") >= 0) {
+            BlockProperties.setBlockProps(Material.CONDUIT, new BlockProperties.BlockProps(BlockProperties.stonePickaxe, 3.0f, BlockProperties.secToMs(4.5, 2.25, 1.15, 0.75, 0.6, 0.5, 0.4)));        
+        }
+        // Pre 1.18
+        else BlockProperties.setBlockProps("CONDUIT", new BlockProps(BlockProperties.noTool, 3f, BlockProperties.secToMs(4.5)));
         
         // Sea Pickle.
         BlockProperties.setBlockProps("SEA_PICKLE", BlockProperties.instantType);
-        BlockFlags.addFlags("SEA_PICKLE", BlockProperties.F_GROUND | BlockProperties.F_GROUND_HEIGHT);
+        BlockFlags.addFlags("SEA_PICKLE", BlockFlags.F_GROUND | BlockFlags.F_GROUND_HEIGHT);
 
         // Turtle egg.
-        BlockProperties.setBlockProps("TURTLE_EGG", new BlockProps(
-                BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.7)));
+        BlockProperties.setBlockProps("TURTLE_EGG", new BlockProps(BlockProperties.noTool, 0.5f, BlockProperties.secToMs(0.7)));
 
         // Farm land. (Just in case not having multiversion plugin installed)
-        BlockFlags.removeFlags(BridgeMaterial.FARMLAND, BlockProperties.F_HEIGHT100);
-        BlockFlags.addFlags(BridgeMaterial.FARMLAND,
-                BlockProperties.F_XZ100 | BlockProperties.F_MIN_HEIGHT16_15);
+        BlockFlags.removeFlags(BridgeMaterial.FARMLAND, BlockFlags.F_HEIGHT100);
+        BlockFlags.addFlags(BridgeMaterial.FARMLAND, BlockFlags.F_XZ100 | BlockFlags.F_MIN_HEIGHT16_15);
+        
         ConfigFile config = ConfigManager.getConfigFile();
         if (config.getBoolean(ConfPaths.BLOCKBREAK_DEBUG, config.getBoolean(ConfPaths.CHECKS_DEBUG, false)))
         StaticLog.logInfo("Added block-info for Minecraft 1.13 blocks.");

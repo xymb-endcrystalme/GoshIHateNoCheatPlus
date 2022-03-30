@@ -96,6 +96,11 @@ public class MoveData {
      * SurvivalFly.check.
      */
     public boolean downStream;
+   
+    /**
+     * Like isDownStream specifically for vertical move.
+     */
+    public boolean inWaterfall;
 
     /**
      * Somehow the player has touched ground with this move (including

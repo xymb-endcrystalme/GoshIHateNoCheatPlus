@@ -66,8 +66,6 @@ import fr.neatmonster.nocheatplus.workaround.IWorkaroundRegistry.WorkaroundSet;
  */
 public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData, IDataOnReload, IDataOnWorldUnload {
 
-    //private static final long IGNORE_SETBACK_Y = BlockProperties.F_SOLID | BlockProperties.F_GROUND | BlockProperties.F_CLIMBABLE | BlockProperties.F_LIQUID;
-
     //////////////////////////////////////////////
     // Violation levels                         //
     //////////////////////////////////////////////
@@ -98,7 +96,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     /** bunnyHopDelay phase before applying a LostGround case (set in SurvivalFly.bunnyHop()) */ 
     public int lastbunnyhopDelay = 0;
     /** Ticks after landing on ground (InAir->Ground). Mainly used in SurvivalFly. */
-    public int bunnyhopTick = 0;
+    public int momentumTick = 0;
     /** Count set back (re-) setting. */
     private int playerMoveCount = 0;
     /** setBackResetCount (incremented) at the time of (re-) setting the ordinary set back. */
@@ -126,17 +124,15 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public long timeVehicletoss = 0;
     /** Used as a workaround for boats leaving ice while still having velocity from ice */
     public int boatIceVelocityTicks = 0;
-    /** Moving half on 15/16 height block and half on water. Set in Survivalfly.check. */
-    public boolean isHalfGroundHalfWater = false;
     /** If is Bedrock Player. This is set if CompatNoCheatPlus is present. */
     public boolean bedrockPlayer = false;
-    /** Indicate there was a duplicate move */
-    public boolean lastMoveNoMove = false;
     /** Temporary snow fix flag */
     // TODO: remove.
     public boolean snowFix = false;
     /** Whether or not this horizontal movement is leading downstream. */
     public boolean isdownstream = false;
+    /** Count how long a player has been inside a bubble stream */
+    public int insideBubbleStreamCount = 0;
     /** Last used block change id (BlockChangeTracker). */
     public final BlockChangeReference blockChangeRef = new BlockChangeReference();
     
@@ -271,10 +267,10 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public final ActionAccumulator vDistAcc = new ActionAccumulator(3, 3); // 3 buckets with max capacity of 3 events
     /** Horizontal accounting: tracker of actual speed / allowed base speed */
     public final ActionAccumulator hDistAcc = new ActionAccumulator(1, 100); // 1 bucket capable of holding a maximum of 100 events.
-    /** Step accounting: accumulates Y-distances on slope-jumping and checks if accumulated value is higher than step height.*/
-    public final ActionAccumulator stepAcc = new ActionAccumulator(1, 3);
-    /** Workarounds (InAirRules,LiquidWorkarounds). */
+    /** Workarounds (AirWorkarounds,LiquidWorkarounds). */
     public final WorkaroundSet ws;
+    /** Bed-flying flag */
+    public boolean wasInBed = false;
 
     // *----------Data of the vehicles checks----------*
     /** Default value for the VehicleMP buffer. */
@@ -303,6 +299,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     public int lastSetBackHash = 0;
     /** Position teleported from into another world. Only used for certain contexts for workarounds. */
     public IPositionWithLook crossWorldFrom = null;
+    /** Indicate there was a duplicate move */
+    public boolean lastMoveNoMove = false;
 
     // *----------Vehicles----------*
     /** Inconsistency-flag. Set on moving inside of vehicles, reset on exiting properly. Workaround for VehicleLeaveEvent missing. */
@@ -332,10 +330,10 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     /**
      * Tick counters to be adjusted after having checked horizontal speed in Sf.
      */
-    public void adjustPostHorCheckingCounters() {
+    public void setHorDataExPost() {
         // Decrease bhop tick after checking
-        if (bunnyhopTick > 0) {
-            bunnyhopTick-- ;
+        if (momentumTick > 0) {
+            momentumTick-- ;
         }
 
         // Count down for the soul speed enchant motion
@@ -382,7 +380,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         sfZeroVdistRepeat = 0;
         clearAccounting();
         clearHAccounting();
-        clearStepAcc();
         clearNoFallData();
         removeAllPlayerSpeedModifiers();
         lostSprintCount = 0;
@@ -395,8 +392,9 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         lastFrictionHorizontal = lastFrictionVertical = 0.0;
         verticalBounce = null;
         blockChangeRef.valid = false;
-        bunnyhopTick = 0;
+        momentumTick = 0;
         liqtick = 0;
+        insideBubbleStreamCount = 0;
     }
 
 
@@ -420,13 +418,13 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         // Keep bunny-hop delay. Harsher on bunnyhop cheats.
         // keep jump phase.
         // Keep hAcc ?
-        // Keep stepAcc.
         lostSprintCount = 0;
         sfHoverTicks = -1; // 0 ?
         sfDirty = false;
         sfLowJump = false;
         liftOffEnvelope = defaultLiftOffEnvelope;
         insideMediumCount = 0;
+        insideBubbleStreamCount = 0;
         removeAllPlayerSpeedModifiers();
         vehicleConsistency = MoveConsistency.INCONSISTENT; // Not entirely sure here.
         lastFrictionHorizontal = lastFrictionVertical = 0.0;
@@ -487,7 +485,8 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
             nextFrictionHorizontal = nextFrictionVertical = 0.0;
         }
         else if (from.inBerryBush || to.inBerryBush) {
-            nextFrictionHorizontal = nextFrictionVertical = 0.0;
+            nextFrictionHorizontal = 0.0;
+            nextFrictionVertical = Magic.FRICTION_MEDIUM_BERRY_BUSH;
         }
         else if (from.inLiquid) {
             // TODO: Exact conditions ?!
@@ -527,10 +526,10 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
             liftOffEnvelope = LiftOffEnvelope.NO_JUMP;
             nextFrictionHorizontal = nextFrictionVertical = 0.0;
         }
-        // Actually, here some friction may apply (Vertical)...
         else if (loc.isInBerryBush()) {
             liftOffEnvelope = LiftOffEnvelope.BERRY_JUMP;
-            nextFrictionHorizontal = nextFrictionVertical = 0.0;
+            nextFrictionHorizontal = 0.0;
+            nextFrictionVertical = Magic.FRICTION_MEDIUM_BERRY_BUSH;
         }
         else if (loc.isInPowderSnow()) {
             liftOffEnvelope = LiftOffEnvelope.POWDER_SNOW;
@@ -639,14 +638,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
      */
     public void clearHAccounting() {
         hDistAcc.clear();
-    }
-
-
-    /**
-     * Clear step accounting
-     */
-    public void clearStepAcc() {
-        stepAcc.clear();
     }
 
 
@@ -934,21 +925,24 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
 
 
     /**
-     * Add velocity to internal book-keeping.
-     * 
-     * @param player
-     * @param data
-     * @param cc
-     * @param vx
-     * @param vy
-     * @param vz
+     * Remove/reset all speed modifier tracking, like vertical and horizontal
+     * velocity, elytra boost, buffer.
      */
-    public void addVelocity(final Player player, final MovingConfig cc, 
-            final double vx, final double vy, final double vz) {
-        addVelocity(player, cc, vx, vy, vz, 0L);
+    private void removeAllPlayerSpeedModifiers() {
+        // Velocity
+        removeAllVelocity();
+        // Elytra boost best fits velocity / effects.
+        fireworksBoostDuration = 0; 
+        fireworksBoostTickExpire = 0;
+        // Horizontal buffer.
+        sfHorizontalBuffer = 0.0;
     }
+    
 
 
+    ///////////////////////////////////////
+    // Velocity 
+    ///////////////////////////////////////
     /**
      * Add velocity to internal book-keeping.
      * 
@@ -982,69 +976,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         // Set dirty flag here.
         sfDirty = true; // TODO: Set on using the velocity, due to latency !
         sfNoLowJump = true; // TODO: Set on using the velocity, due to latency !
-
-    }
-
-
-    /**
-     * Std. value counter for horizontal velocity, based on the value.
-     * 
-     * @param velocity
-     * @return
-     */
-    public static int getHorVelValCount(double velocity) {
-        // TODO: Configable max cap
-        // TODO: Not sure if this is intentional but the cap would force NCP to always pick 30 for velocity entries smaller than 3.0
-        // As a workaround/fix simply increase the actual velocity value
-        return Math.max(30, 1 + (int) Math.round(velocity * 50.0));
-    }
-
-
-    public void prependVerticalVelocity(final SimpleEntry entry) {
-        verVel.addToFront(entry);
-    }
-
-
-    /**
-     * Get the first element without using it.
-     * @param amount
-     * @param minActCount
-     * @param maxActCount
-     * @return
-     */
-    public SimpleEntry peekVerticalVelocity(final double amount, final int minActCount, final int maxActCount) {
-        return verVel.peek(amount, minActCount, maxActCount, TOL_VVEL);
-    }
-
-
-    public void addVerticalVelocity(final SimpleEntry entry) {
-        verVel.add(entry);
-    }
-
-
-    /**
-     * Add horizontal velocity directly to horizontal-only bookkeeping.
-     * 
-     * @param vel
-     *            Assumes positive values always.
-     */
-    public void addHorizontalVelocity(final AccountEntry vel) {
-        horVel.add(vel);
-    }
-
-
-    /**
-     * Remove/reset all speed modifier tracking, like vertical and horizontal
-     * velocity, elytra boost, buffer.
-     */
-    private void removeAllPlayerSpeedModifiers() {
-        // Velocity
-        removeAllVelocity();
-        // Elytra boost best fits velocity / effects.
-        fireworksBoostDuration = 0; 
-        fireworksBoostTickExpire = 0;
-        // Horizontal buffer.
-        sfHorizontalBuffer = 0.0;
     }
 
 
@@ -1059,58 +990,29 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
 
 
     /**
+     * Add velocity to internal book-keeping.
+     * 
+     * @param player
+     * @param data
+     * @param cc
+     * @param vx
+     * @param vy
+     * @param vz
+     */
+    public void addVelocity(final Player player, final MovingConfig cc, final double vx, final double vy, final double vz) {
+        addVelocity(player, cc, vx, vy, vz, 0L);
+    }
+
+
+    /**
      * Remove all velocity entries that are invalid. Checks both active and queued.
      * <br>(This does not catch invalidation by speed / direction changing.)
-     * @param tick All velocity added before this tick gets removed.
+     * @param tick All velocity that was added before this tick gets removed.
      */
     public void removeInvalidVelocity(final int tick) {
         horVel.removeInvalid(tick);
         verVel.removeInvalid(tick);
     }
-
-
-    /**
-     * Clear only active horizontal velocity.
-     */
-    public void clearActiveHorVel() {
-        horVel.clearActive();
-    }
-
-
-    public boolean hasActiveHorVel() {
-        return horVel.hasActive();
-    }
-
-
-    public boolean hasQueuedHorVel() {
-        return horVel.hasQueued();
-    }
-
-
-    /**
-     * Active or queued.
-     * @return
-     */
-    public boolean hasAnyHorVel() {
-        return horVel.hasAny();
-    }
-
-
-    /**
-     * Queued velocity only.
-     * @return
-     */
-    public boolean hasAnyVerVel() {
-        return verVel.hasQueued();
-    }
-
-    //    public boolean hasActiveVerVel() {
-    //        return verVel.hasActive();
-    //    }
-
-    //    public boolean hasQueuedVerVel() {
-    //        return verVel.hasQueued();
-    //    }
 
 
     /**
@@ -1129,6 +1031,76 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         if (!sfDirty && (horVel.hasActive() || horVel.hasQueued())) {
             sfDirty = true;
         }
+    }
+
+
+    ///////////////////////////////////////
+    // Horizontal velocity 
+    ///////////////////////////////////////
+    /**
+     * Std. validation counter for horizontal velocity, based on the value.
+     * 
+     * @param velocity
+     * @return
+     */
+    public static int getHorVelValCount(double velocity) {
+        // TODO: Configable max cap
+        // TODO: Not sure if this is intentional but the cap would force NCP to always pick 30 for velocity entries smaller than 3.0
+        // As a workaround/fix simply increase the actual velocity value
+        // See: https://github.com/NoCheatPlus/NoCheatPlus/commit/a5ed7805429c73f8f2fec409c1947fb032210833
+        return Math.max(30, 1 + (int) Math.round(velocity * 50.0));
+    }
+    
+
+    /**
+     * Add horizontal velocity directly to horizontal-only bookkeeping.
+     * 
+     * @param vel
+     *            Assumes positive values always.
+     */
+    public void addHorizontalVelocity(final AccountEntry vel) {
+        horVel.add(vel);
+    }
+
+
+    /**
+     * Clear only active horizontal velocity.
+     */
+    public void clearActiveHorVel() {
+        horVel.clearActive();
+    }
+
+
+    /**
+     * Reset velocity tracking (h).
+     */
+    public void clearAllHorVel() {
+        horVel.clear();
+    }
+
+
+   /**
+    * Test if the player has active horizontal velocity
+    */
+    public boolean hasActiveHorVel() {
+        return horVel.hasActive();
+    }
+
+
+    /**
+     * Test if the player has horizontal velocity entries in queue.
+     * @return
+     */
+    public boolean hasQueuedHorVel() {
+        return horVel.hasQueued();
+    }
+
+
+    /**
+     * Test if the player has any horizontal velocity entry at all (active and queued)
+     */
+    public boolean hasAnyHorVel() {
+        return horVel.hasAny();
     }
 
 
@@ -1159,6 +1131,16 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
 
 
     /**
+     * Get the xz-axis velocity tracker. Rather for testing purposes.
+     * 
+     * @return
+     */
+    public FrictionAxisVelocity getHorizontalVelocityTracker() {
+        return horVel;
+    }
+
+
+    /**
      * Debugging.
      * @param builder
      */
@@ -1171,6 +1153,54 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
             builder.append("\n" + " Horizontal velocity (queued):");
             horVel.addQueued(builder);
         }
+    }
+
+
+
+    //////////////////////////////////
+    // Vertical velocity
+    //////////////////////////////////
+    //  /**
+    //   * Clear only active vertical velocity.
+    //   */
+    //  public void clearActiveVerVel() {
+    //      verVel.clearActive();
+    //  }
+
+
+    public void prependVerticalVelocity(final SimpleEntry entry) {
+        verVel.addToFront(entry);
+    }
+
+
+    /**
+     * Get the first element without using it.
+     * @param amount
+     * @param minActCount
+     * @param maxActCount
+     * @return
+     */
+    public SimpleEntry peekVerticalVelocity(final double amount, final int minActCount, final int maxActCount) {
+        return verVel.peek(amount, minActCount, maxActCount, TOL_VVEL);
+    }
+
+
+    /**
+     * Add vertical velocity directly to vertical-only bookkeeping.
+     * 
+     * @param entry
+     */
+    public void addVerticalVelocity(final SimpleEntry entry) {
+        verVel.add(entry);
+    }
+
+
+    /**
+     * Test if the player has vertical velocity entries in queue.
+     * @return
+     */
+    public boolean hasQueuedVerVel() {
+        return verVel.hasQueued();
     }
 
 
@@ -1208,6 +1238,24 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         }
         return useVerticalVelocity(amount);
     }
+    
+
+    /**
+     * Remove from start while the flag is present.
+     * @param flag
+     */
+    public void removeLeadingQueuedVerticalVelocityByFlag(final long flag) {
+        verVel.removeLeadingQueuedVerticalVelocityByFlag(flag);
+    }
+
+
+    /**
+     * Get the y-axis velocity tracker. Rather for testing purposes.
+     * @return
+     */
+    public SimpleAxisVelocity getVerticalVelocityTracker() {
+        return verVel;
+    }
 
 
     /**
@@ -1220,6 +1268,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
             verVel.addQueued(builder);
         }
     }
+    /////////////////////////////////////////////////////
 
 
     /**
@@ -1454,26 +1503,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
 
 
     /**
-     * Get the y-axis velocity tracker. Rather for testing purposes.
-     * 
-     * @return
-     */
-    public SimpleAxisVelocity getVerticalVelocityTracker() {
-        return verVel;
-    }
-
-
-    /**
-     * Get the xz-axis velocity tracker. Rather for testing purposes.
-     * 
-     * @return
-     */
-    public FrictionAxisVelocity getHorizontalVelocityTracker() {
-        return horVel;
-    }
-
-
-    /**
      * The number of move events received.
      * 
      * @return
@@ -1506,15 +1535,6 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     }
 
 
-    /**
-     * Remove from start while the flag is present.
-     * @param originBlockBounce
-     */
-    public void removeLeadingQueuedVerticalVelocityByFlag(final long flag) {
-        verVel.removeLeadingQueuedVerticalVelocityByFlag(flag);
-    }
-
-
     @Override
     public boolean dataOnRemoveSubCheckData(Collection<CheckType> checkTypes) {
         // TODO: Detect if it is ok to remove data.
@@ -1530,6 +1550,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
                     survivalFlyVL = 0;
                     clearFlyData(); // TODO: ...
                     resetSetBack(); // TODO: Not sure this is really best for compatibility.
+                    wasInBed = false;
                     // TODO: other?
                     break;
                 case MOVING_CREATIVEFLY:
@@ -1602,5 +1623,4 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         trace.adjustSettings(cc.traceMaxAge, cc.traceMaxSize, TickTask.getTick());
         return false;
     }
-
 }

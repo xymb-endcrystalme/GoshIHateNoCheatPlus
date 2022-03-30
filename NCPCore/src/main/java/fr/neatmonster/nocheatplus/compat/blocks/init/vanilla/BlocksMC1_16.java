@@ -47,7 +47,7 @@ public class BlocksMC1_16 implements BlockPropertiesSetup{
         BlockInit.setPropsAs("QUARTZ_BRICKS", "QUARTZ_BLOCK");
         // Soul Soil
         BlockInit.setAs("SOUL_SOIL", Material.SAND);
-        BlockFlags.addFlags("SOUL_SOIL", BlockProperties.F_SOULSAND);
+        BlockFlags.addFlags("SOUL_SOIL", BlockFlags.F_SOULSAND);
         // More Obsidian block
         BlockInit.setAs("CRYING_OBSIDIAN", Material.OBSIDIAN);
         BlockInit.setAs("RESPAWN_ANCHOR", Material.OBSIDIAN);
@@ -101,10 +101,10 @@ public class BlocksMC1_16 implements BlockPropertiesSetup{
         BlockInit.setPropsAs("POLISHED_BLACKSTONE_BRICK_WALL",Material.STONE);
 
         // Climbable plants
-        BlockFlags.addFlags("TWISTING_VINES", BlockProperties.F_CLIMBABLE);
-        BlockFlags.addFlags("TWISTING_VINES_PLANT", BlockProperties.F_CLIMBABLE);
-        BlockFlags.addFlags("WEEPING_VINES", BlockProperties.F_CLIMBABLE);
-        BlockFlags.addFlags("WEEPING_VINES_PLANT", BlockProperties.F_CLIMBABLE);
+        BlockFlags.addFlags("TWISTING_VINES", BlockFlags.F_CLIMBABLE);
+        BlockFlags.addFlags("TWISTING_VINES_PLANT", BlockFlags.F_CLIMBABLE);
+        BlockFlags.addFlags("WEEPING_VINES", BlockFlags.F_CLIMBABLE);
+        BlockFlags.addFlags("WEEPING_VINES_PLANT", BlockFlags.F_CLIMBABLE);
 
         // Stem, Hyphae, Nylium
         BlockInit.setAs("CRIMSON_STEM", BridgeMaterial.OAK_LOG);
@@ -122,6 +122,11 @@ public class BlocksMC1_16 implements BlockPropertiesSetup{
         for (Material mat: new Material[]{BridgeMaterial.PISTON, 
                 BridgeMaterial.PISTON_HEAD, BridgeMaterial.STICKY_PISTON}) {
             BlockProperties.setBlockProps(mat, new BlockProps(BlockProperties.woodPickaxe, 1.5f, BlockProperties.secToMs(2.25, 1.15, 0.6, 0.4, 0.3, 0.25, 0.15)));
+        }
+        
+        // Re-add the decrease 8ism flag to lava. (See BlocksMC1_13)
+        for (final Material mat : MaterialUtil.LAVA) {
+            BlockFlags.addFlags(mat, BlockFlags.F_HEIGHT_8SIM_DEC);
         }
 
         ConfigFile config = ConfigManager.getConfigFile();

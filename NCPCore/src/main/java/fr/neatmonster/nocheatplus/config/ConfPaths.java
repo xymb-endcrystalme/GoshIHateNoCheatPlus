@@ -322,10 +322,6 @@ public abstract class ConfPaths {
     public static final String  CHAT_CAPTCHA_TRIES                       = CHAT_CAPTCHA + "tries";
     public static final String  CHAT_CAPTCHA_ACTIONS                     = CHAT_CAPTCHA + "actions";
 
-    private static final String CHAT_COLOR                               = CHAT + "color.";
-    public static final String  CHAT_COLOR_CHECK                         = CHAT_COLOR + SUB_ACTIVE;
-    public static final String  CHAT_COLOR_ACTIONS                       = CHAT_COLOR + "actions";
-
     private static final String CHAT_COMMANDS                            = CHAT + "commands.";
     public static final String  CHAT_COMMANDS_CHECK                      = CHAT_COMMANDS + SUB_ACTIVE;
     @GlobalConfig
@@ -431,10 +427,6 @@ public abstract class ConfPaths {
      */
     public static final String  COMBINED                                 = CHECKS + "combined.";
     public static final String  COMBINED_ACTIVE                          = COMBINED + SUB_ACTIVE;
-
-    private static final String COMBINED_BEDLEAVE                        = COMBINED + "bedleave.";
-    public static final String  COMBINED_BEDLEAVE_CHECK                  = COMBINED_BEDLEAVE + SUB_ACTIVE;
-    public static final String  COMBINED_BEDLEAVE_ACTIONS                = COMBINED_BEDLEAVE + "actions";
 
     private static final String COMBINED_ENDERPEARL                      = COMBINED + "enderpearl.";
     public static final String  COMBINED_ENDERPEARL_CHECK                = COMBINED_ENDERPEARL + SUB_ACTIVE;
@@ -567,12 +559,6 @@ public abstract class ConfPaths {
 
     public static final String  INVENTORY                                = CHECKS + "inventory.";
     public static final String  INVENTORY_ACTIVE                         = INVENTORY + SUB_ACTIVE;
-
-    private static final String INVENTORY_DROP                           = INVENTORY + "drop.";
-    public static final String  INVENTORY_DROP_CHECK                     = INVENTORY_DROP + SUB_ACTIVE;
-    public static final String  INVENTORY_DROP_LIMIT                     = INVENTORY_DROP + "limit";
-    public static final String  INVENTORY_DROP_TIMEFRAME                 = INVENTORY_DROP + "timeframe";
-    public static final String  INVENTORY_DROP_ACTIONS                   = INVENTORY_DROP + "actions";
 
     private static final String INVENTORY_FASTCLICK                      = INVENTORY + "fastclick.";
     public static final String  INVENTORY_FASTCLICK_CHECK                = INVENTORY_FASTCLICK + SUB_ACTIVE;
@@ -914,7 +900,30 @@ public abstract class ConfPaths {
     public static final String  MOVING_MOREPACKETSVEHICLE_ACTIONS        = "checks.moving.morepacketsvehicle.actions";
     @Moved(newPath=MOVING_SURVIVALFLY_LENIENCY_HBUFMAX)
     public static final String MOVING_SURVIVALFLY_HBUFMAX                = "checks.moving.survivalfly.hbufmax";
+
     // Deprecated paths (just removed).
+    @Deprecated
+    private static final String COMBINED_BEDLEAVE                        = COMBINED + "bedleave.";
+    @Deprecated
+    public static final String  COMBINED_BEDLEAVE_CHECK                  = COMBINED_BEDLEAVE + SUB_ACTIVE;
+    @Deprecated
+    public static final String  COMBINED_BEDLEAVE_ACTIONS                = COMBINED_BEDLEAVE + "actions";
+    @Deprecated
+    private static final String CHAT_COLOR                               = CHAT + "color.";
+    @Deprecated
+    public static final String  CHAT_COLOR_CHECK                         = CHAT_COLOR + SUB_ACTIVE;
+    @Deprecated
+    public static final String  CHAT_COLOR_ACTIONS                       = CHAT_COLOR + "actions";
+    @Deprecated
+    private static final String INVENTORY_DROP                           = INVENTORY + "drop.";
+    @Deprecated
+    public static final String  INVENTORY_DROP_CHECK                     = INVENTORY_DROP + SUB_ACTIVE;
+    @Deprecated
+    public static final String  INVENTORY_DROP_LIMIT                     = INVENTORY_DROP + "limit";
+    @Deprecated
+    public static final String  INVENTORY_DROP_TIMEFRAME                 = INVENTORY_DROP + "timeframe";
+    @Deprecated
+    public static final String  INVENTORY_DROP_ACTIONS                   = INVENTORY_DROP + "actions";
     @Deprecated
     public static final  String INVENTORY_INVENTORYMOVE_HDISTLENIENCY    = "checks.inventory.inventorymove.hdist_leniency";
     @Deprecated

@@ -38,108 +38,52 @@ public class BlocksMC1_8 implements BlockPropertiesSetup {
 
     @Override
     public void setupBlockProperties(WorldConfigProvider<?> worldConfigProvider) {
-
+         
+        ////////////////////////////////////////////
         // ---- Changed block break timings ----
-
+        //////////////////////////////////////////
         // Melon/pumpkin/like.
         BlockProps props = new BlockProps(BlockProperties.woodAxe, 1f, BlockProperties.secToMs(1.45, 0.70, 0.325, 0.2, 0.13, 0.075, 0.05), 3f);
         for (Material mat : new Material[] {
-                BridgeMaterial.MELON,
-                Material.PUMPKIN,
-                Material.JACK_O_LANTERN,
-                // Same core breaking times, but behave different on efficiency + other tool (?): 
-                BridgeMaterial.SIGN,
-        }) {
+            BridgeMaterial.MELON,
+            Material.PUMPKIN,
+            Material.JACK_O_LANTERN,
+            BridgeMaterial.SIGN,}) {
             BlockProperties.setBlockProps(mat, props);
         }
         
         // Ladder.
         props = new BlockProps(BlockProperties.woodAxe, 0.4f, BlockProperties.secToMs(0.6, 0.3, 0.15, 0.1, 0.075, 0.05, 0.05));
         BlockProperties.setBlockProps(Material.LADDER, props);
-
+        
+        
+        ///////////////////////////////
         // ---- New blocks ----
-
-        // 165(SLIME_BLOCK
+        //////////////////////////////
         BlockInit.setAs("SLIME_BLOCK", Material.TNT); // Full block, instant break.
-        // Add the bouncing flag.
-        BlockFlags.addFlags("SLIME_BLOCK", BlockProperties.F_BOUNCE25 | BlockProperties.F_ALLOW_LOWJUMP | BlockProperties.F_SLIME);
+        BlockFlags.addFlags("SLIME_BLOCK", BlockFlags.F_BOUNCE25 | BlockFlags.F_ALLOW_LOWJUMP | BlockFlags.F_SLIME);
 
-        // 166(BARRIER
         BlockInit.setAs("BARRIER", Material.BEDROCK); // Full block, unbreakable.
 
-        // 167(IRON_TRAP_DOOR
         BlockFlags.setFlagsAs("IRON_TRAPDOOR", BridgeMaterial.OAK_TRAPDOOR);
         BlockInit.setPropsAs("IRON_TRAPDOOR", BridgeMaterial.IRON_DOOR);
 
-        // 168(PRISMARINE
         BlockInit.setAs("PRISMARINE", Material.STONE);
 
-        // 169(SEA_LANTERN
-        BlockInit.setAs("SEA_LANTERN", 
-                BridgeMaterial.getFirstNotNull("redstone_lamp", "redstone_lamp_off"));
+        BlockInit.setAs("SEA_LANTERN", BridgeMaterial.getFirstNotNull("redstone_lamp", "redstone_lamp_off"));
 
         // 176(STANDING_BANNER
         // 177(WALL_BANNER
 
-        // 178(DAYLIGHT_DETECTOR_INVERTED
         BlockInit.setAsIfExists("DAYLIGHT_DETECTOR_INVERTED", Material.DAYLIGHT_DETECTOR);
 
-        // 179(RED_SANDSTONE
         BlockInit.setAs("RED_SANDSTONE", Material.SANDSTONE);
 
-        // 180(RED_SANDSTONE_STAIRS
         BlockInit.setAs("RED_SANDSTONE_STAIRS", Material.SANDSTONE_STAIRS);
 
-        // 181(DOUBLE_STEP_2
         BlockInit.setAsIfExists("DOUBLE_STONE_SLAB2", BridgeMaterial.get("double_step")); // TODO: red sandstone / prismarine ?
 
-        // 182(STEP_2
         BlockInit.setAsIfExists("STONE_SLAB2", BridgeMaterial.STONE_SLAB); // TODO: red sandstone / prismarine ?
-
-        //        // 183(SPRUCE_FENCE_GATE
-        //        BlockInit.setAs("SPRUCE_FENCE_GATE", Material.FENCE_GATE);
-        //
-        //        // 184(BIRCH_FENCE_GATE
-        //        BlockInit.setAs("BIRCH_FENCE_GATE", Material.FENCE_GATE);
-        //
-        //        // 185(JUNGLE_FENCE_GATE
-        //        BlockInit.setAs("JUNGLE_FENCE_GATE", Material.FENCE_GATE);
-        //
-        //        // 186(DARK_OAK_FENCE_GATE
-        //        BlockInit.setAs("DARK_OAK_FENCE_GATE", Material.FENCE_GATE);
-        //
-        //        // 187(ACACIA_FENCE_GATE
-        //        BlockInit.setAs("ACACIA_FENCE_GATE", Material.FENCE_GATE);
-        //
-        //        // 188(SPRUCE_FENCE
-        //        BlockInit.setAs("SPRUCE_FENCE", Material.FENCE);
-        //
-        //        // 189(BIRCH_FENCE
-        //        BlockInit.setAs("BIRCH_FENCE", Material.FENCE);
-        //
-        //        // 190(JUNGLE_FENCE
-        //        BlockInit.setAs("JUNGLE_FENCE", Material.FENCE);
-        //
-        //        // 191(DARK_OAK_FENCE
-        //        BlockInit.setAs("DARK_OAK_FENCE", Material.FENCE);
-        //
-        //        // 192(ACACIA_FENCE
-        //        BlockInit.setAs("ACACIA_FENCE", Material.FENCE);
-        //
-        //        // 193(SPRUCE_DOOR
-        //        BlockInit.setAs("SPRUCE_DOOR", Material.WOODEN_DOOR);
-        //
-        //        // 194(BIRCH_DOOR
-        //        BlockInit.setAs("BIRCH_DOOR", Material.WOODEN_DOOR);
-        //
-        //        // 195(JUNGLE_DOOR
-        //        BlockInit.setAs("JUNGLE_DOOR", Material.WOODEN_DOOR);
-        //
-        //        // 196(ACACIA_DOOR
-        //        BlockInit.setAs("ACACIA_DOOR", Material.WOODEN_DOOR);
-        //
-        //        // 197(DARK_OAK_DOOR
-        //        BlockInit.setAs("DARK_OAK_DOOR", Material.WOODEN_DOOR);
 
         ConfigFile config = ConfigManager.getConfigFile();
         if (config.getBoolean(ConfPaths.BLOCKBREAK_DEBUG, config.getBoolean(ConfPaths.CHECKS_DEBUG, false)))
