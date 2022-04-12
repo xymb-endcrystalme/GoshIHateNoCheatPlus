@@ -24,7 +24,7 @@ import org.bukkit.block.Block;
 import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.checks.moving.magic.Magic;
 import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
-import fr.neatmonster.nocheatplus.checks.moving.MovingData;;
+import fr.neatmonster.nocheatplus.checks.moving.MovingData;
 import fr.neatmonster.nocheatplus.checks.moving.model.LiftOffEnvelope;
 import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.checks.moving.util.AuxMoving;
@@ -326,8 +326,6 @@ public class MagicBunny {
                 && (
                    // 1: Can't bunnyhop if in reset condition block (lift-off acceleration is already taken care of in setAllowedhDist)
                    !from.isResetCond() && !to.isResetCond() 
-                   // 1: Allow this one
-                   || from.isHalfGroundHalfWater()
                 )) {
                 // Set the maximum delay before the player will be allowed to bunnyhop again. Bunnyfly starts.
                 data.bunnyhopDelay = BUNNYHOP_MAX_DELAY;

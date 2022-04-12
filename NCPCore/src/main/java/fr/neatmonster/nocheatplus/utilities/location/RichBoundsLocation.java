@@ -746,16 +746,6 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     public boolean isSubmerged(final double yMargin) {
         return BlockProperties.collides(blockCache, minX, minY + yMargin, minZ, maxX, maxY, maxZ, BlockFlags.F_LIQUID);
     }
-    
-    /**
-     * Moving half on farmland(or end_potal_frame) and half on water
-     * @return 
-     */
-    public boolean isHalfGroundHalfWater() {
-        return (getBlockFlags() & BlockFlags.F_MIN_HEIGHT16_15) != 0 
-               && isInWater() && !BlockProperties.isLiquid(getTypeId(getBlockX(), Location.locToBlock(getY() + 0.3), getBlockZ()))
-               && (getBlockFlags() & BlockFlags.F_STICKY) == 0;
-    }
 
     /**
      * Check if solid blocks hit the box.

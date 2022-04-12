@@ -16,22 +16,18 @@ package fr.neatmonster.nocheatplus.compat.bukkit.model;
 
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Levelled;
 import org.bukkit.block.data.Waterlogged;
 
 import fr.neatmonster.nocheatplus.utilities.map.BlockCache;
-import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 
-public class BukkitLevelled implements BukkitShapeModel {
+public class BukkitWaterPlant implements BukkitShapeModel {
 
     @Override
     public double[] getShape(BlockCache blockCache, World world, int x, int y, int z) {
         final Block blockAbove = world.getBlockAt(x, y + 1, z);
         final BlockData blockDataAbove = blockAbove.getBlockData();
-        if ((BlockFlags.getBlockFlags(world.getBlockAt(x, y, z).getType()) & BlockFlags.F_WATER) !=0 
-        && (blockDataAbove instanceof Waterlogged && ((Waterlogged)blockDataAbove).isWaterlogged())) {
+        if (blockDataAbove instanceof Waterlogged && ((Waterlogged)blockDataAbove).isWaterlogged()) {
             return new double[] {0.0, 0.0, 0.0, 1.0, 1.0, 1.0};
         }
         return new double[] {0.0, 0.0, 0.0, 1.0, 8 / 9f, 1.0};
@@ -39,12 +35,6 @@ public class BukkitLevelled implements BukkitShapeModel {
 
     @Override
     public int getFakeData(BlockCache blockCache, World world, int x, int y, int z) {
-        final Block block = world.getBlockAt(x, y, z);
-        final BlockState state = block.getState();
-        final BlockData blockData = state.getBlockData();
-        if (blockData instanceof Levelled) {
-            return ((Levelled)blockData).getLevel();
-        }
         return 0;
     }
 

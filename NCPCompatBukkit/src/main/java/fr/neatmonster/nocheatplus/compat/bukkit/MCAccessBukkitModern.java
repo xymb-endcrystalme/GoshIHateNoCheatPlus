@@ -107,7 +107,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     // Static blocks (various height and inset values).
     private static final BukkitShapeModel MODEL_CAMPFIRE = new BukkitStatic(0.0, 0.4375);
     private static final BukkitShapeModel MODEL_BAMBOO = new BukkitBamboo();
-    private static final BukkitShapeModel MODEL_WATER_PLANTS = new BukkitStatic(0.875 + 0.015625);
+    private static final BukkitShapeModel MODEL_WATER_PLANTS = new BukkitWaterPlant();
     private static final BukkitShapeModel MODEL_LILY_PAD = new BukkitStatic(0.09375);
     private static final BukkitShapeModel MODEL_FLOWER_POT = new BukkitStatic(0.3125, 0.375);
     private static final BukkitShapeModel MODEL_LANTERN = new BukkitLantern();

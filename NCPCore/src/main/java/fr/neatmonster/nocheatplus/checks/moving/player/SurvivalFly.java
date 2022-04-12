@@ -852,7 +852,7 @@ public class SurvivalFly extends Check {
         // Checks for micro y deltas when moving above liquid.
         if (blockUnder != null && BlockProperties.isLiquid(blockUnder) && BlockProperties.isAir(blockAbove)) {
             
-            if (!from.isHalfGroundHalfWater() && hDistanceAboveLimit <= 0.0 
+            if (hDistanceAboveLimit <= 0.0 
                 && hDistance > 0.11 && yDistance <= LiftOffEnvelope.LIMIT_LIQUID.getMaxJumpGain(0.0) 
                 && !toOnGround && !fromOnGround
                 && lastMove.toIsValid && lastMove.yDistance == yDistance 
@@ -1208,7 +1208,7 @@ public class SurvivalFly extends Check {
 
         // In liquid
         // Check all liquids (lava might demand even slower speed though).
-        else if (thisMove.from.inLiquid && thisMove.to.inLiquid && !from.isHalfGroundHalfWater()) {
+        else if (thisMove.from.inLiquid && thisMove.to.inLiquid) {
             tags.add("hliquid");
             // Moving close to the surface allows a higher speed (always use the lower modifier for lava)
             final double modSwim = (from.isSubmerged(0.701) || thisMove.from.inLava) ? Magic.modSwim[0] : Magic.modSwim[3];
@@ -1286,7 +1286,7 @@ public class SurvivalFly extends Check {
         // Speed restriction for leaving a liquid.
         // TODO: Still check with velocity?
         // TODO: Simplify...
-        else if (!from.isHalfGroundHalfWater() && !sfDirty && (!checkPermissions || !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_WATERWALK, player))
+        else if (!sfDirty && (!checkPermissions || !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_WATERWALK, player))
                 && (Magic.leavingLiquid(thisMove) || data.surfaceId == 1) && data.liftOffEnvelope.name().startsWith("LIMIT")
                 && !from.isInWaterLogged()) {
             tags.add("hliquidexit");
@@ -2133,7 +2133,7 @@ public class SurvivalFly extends Check {
         /////////////////////////////////////////////////////////
         // Waterlogged after columns because it can conflict with particular elevators (made of honey)
         if (from.isOnGround() && !BlockProperties.isLiquid(from.getTypeIdAbove())
-            && (from.isInWaterLogged() || from.isHalfGroundHalfWater())
+            && from.isInWaterLogged()
             && !from.isInBubbleStream() && !thisMove.headObstructed
             && !from.isSubmerged(0.75)) {
             // (Envelope change shouldn't be done here but, eh.)

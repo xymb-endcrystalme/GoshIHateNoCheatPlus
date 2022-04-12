@@ -284,7 +284,7 @@ public class BlockChangeListener implements Listener {
         final Block block = event.getBlock();
         // TODO: Abstract method for a block and a set of materials (redstone, interact, ...).
         if (block == null 
-            || (BlockFlags.getBlockFlags(block.getType()) | BlockFlags.F_VARIABLE_REDSTONE) == 0) {
+            || (BlockFlags.getBlockFlags(block.getType()) & BlockFlags.F_VARIABLE_REDSTONE) == 0) {
             return;
         }
         addRedstoneBlock(block);

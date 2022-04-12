@@ -116,7 +116,7 @@ public class BlockPlaceConfig extends ACheckConfig {
         speedImprobableWeight = (float) config.getDouble(ConfPaths.BLOCKPLACE_SPEED_IMPROBABLE_WEIGHT);
         speedActions = config.getOptimizedActionList(ConfPaths.BLOCKPLACE_SPEED_ACTIONS, Permissions.BLOCKPLACE_SPEED);
 
-        preventBoatsAnywhere = config.getBoolean(ConfPaths.BLOCKPLACE_PREVENTMISC_BOATSANYWHERE);
+        preventBoatsAnywhere = !config.getBoolean(ConfPaths.BLOCKPLACE_PREVENTMISC_BOATSANYWHERE);
         /*
          * TODO: Placing boats has been possible since 1.4.5-R1.0. Behavior
          * differs, e.g. 1.12 only places boats when clicking the top of a

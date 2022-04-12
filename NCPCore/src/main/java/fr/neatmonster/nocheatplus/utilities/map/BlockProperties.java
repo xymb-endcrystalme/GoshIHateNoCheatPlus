@@ -14,7 +14,6 @@
  */
 package fr.neatmonster.nocheatplus.utilities.map;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -759,7 +758,7 @@ public class BlockProperties {
     }
 
     /** Liquid height if no solid/full blocks are above. */
-    protected static final double LIQUID_HEIGHT_LOWERED = 80000002;
+    protected static final double LIQUID_HEIGHT_LOWERED = 8/9f;
 
     /** Properties by block type.*/
     protected static final Map<Material, BlockProps> blocks = new HashMap<Material, BlockProps>();
@@ -3524,23 +3523,18 @@ public class BlockProperties {
             for (int z = iMinZ; z <= iMaxZ; z++) {
                 for (int y = iMaxY; y >= iMinY; y--) {
                     BlockData bd = world.getBlockAt(x,y,z).getBlockData();
-                    if (bd instanceof Waterlogged) {
-                        if (((Waterlogged)bd).isWaterlogged()) return true;
-                    // TODO: ???
-                    //if (bd instanceof Waterlogged && ((Waterlogged)bd).isWaterlogged()) {
-                        // Clearly outside of bounds. (liquid)
-                    //    if (minX > 1.0 + x || maxX < 0.0 + x
-                    //            || minY > 0.890625 + y || maxY < 0.0 + y
-                    //            || minZ > 1.0 + z || maxZ < 0.0 + z) {
-                    //        continue;
-                    //    }
-                    //    System.out.println(minY + " a ");
+                    if (bd instanceof Waterlogged && ((Waterlogged)bd).isWaterlogged()) {
+                         // Clearly outside of bounds. (liquid)
+                        if (minX > 1.0 + x || maxX < 0.0 + x
+                         || minY > LIQUID_HEIGHT_LOWERED + y || maxY < 0.0 + y
+                         || minZ > 1.0 + z || maxZ < 0.0 + z) {
+                            continue;
+                        }
                         // Hitting the max-edges (if allowed).
-                    //    if (minX == 1.0 + x || minY == 0.890625 + y || minZ == 1.0 + z) {
-                    //        System.out.println("fire here");
-                    //        continue;
-                    //    }
-                    //    return true;
+                        if (minX == 1.0 + x || minY == LIQUID_HEIGHT_LOWERED + y || minZ == 1.0 + z) {
+                            continue;
+                        }
+                        return true;
                     }
                 }
             }
@@ -3767,24 +3761,25 @@ public class BlockProperties {
         }
         else if ((flags & BlockFlags.F_HEIGHT_8SIM_DEC) != 0) {
             bminY = 0;
-            final int data = node.getData(access, x, y, z);
-            if ((data & 0x8) == 0) {
-                // This box works for jumping over flowing water.
-                //                  bmaxY = (0.8 - (double) ((data & 0xF) % 8) / 9.8);
-                final int data8 = (data & 0xF) % 8;
-                if (data8 > 4) {
-                    // TODO: With block breaking and data8 == 7 this would be too high.
-                    bmaxY = 0.5;
-                }
-                else {
-                    //bmaxY = 1.0; // - (double) data8 / 9.0;
-                    bmaxY = shouldLiquidBelowBeFullHeight(access, x, y + 1, z, nodeAbove) ? 1.0 : 0.890625;
-                }
-            }
-            else {
-                //bmaxY = 1.0;
-                bmaxY = shouldLiquidBelowBeFullHeight(access, x, y + 1, z, nodeAbove) ? 1.0 : 0.890625;
-            }
+            if ((flags & BlockFlags.F_LAVA) !=0) {
+            	if (nodeAbove != null && (BlockFlags.getBlockFlags(nodeAbove.getType()) & BlockFlags.F_LAVA) !=0) {
+            		bmaxY = 1;
+            	} else {
+            		final int data = node.getData(access, x, y, z);
+                	if (data >= 8) {
+                		bmaxY = LIQUID_HEIGHT_LOWERED;
+                	} else bmaxY = (8 - data/9f);
+            	}
+            } else if ((flags & BlockFlags.F_WATER) != 0) {
+            	if (nodeAbove != null && (BlockFlags.getBlockFlags(nodeAbove.getType()) & BlockFlags.F_WATER) !=0) {
+            		bmaxY = 1;
+            	} else {
+            		final int data = node.getData(access, x, y, z);
+                	if ((data & 8) == 8) {
+                		bmaxY = Math.max(LIQUID_HEIGHT_LOWERED, bounds[4]);
+                	} else bmaxY = (8 - data/9f);
+            	}
+            } else bmaxY = LIQUID_HEIGHT_LOWERED;
         }
         else if ((flags & BlockFlags.F_HEIGHT8_1) != 0) {
             bminY = 0.0;
@@ -3894,104 +3889,6 @@ public class BlockProperties {
 
         // Collision.
         return true;
-    }
-
-    // TODO: Consider for convenience ?
-    //    /**
-    //     * Determine if the liquid block below has full height or not (provided it
-    //     * is max. level).
-    //     *
-    //     * @param access
-    //     *            the access
-    //     * @param x
-    //     *            Coordinates of the block above the liquid block in question.
-    //     * @param y
-    //     *            the y
-    //     * @param z
-    //     *            the z
-    //     * @return true, if successful
-    //     */
-    //    public static boolean shouldLiquidBelowBeFullHeight(final BlockCache access, final int x, final int y, final int z) {
-    //        return shouldLiquidBelowBeFullHeight(access, x, y, z, null);
-    //    }
-
-    /**
-     * Determine if the liquid block below has full height or not (provided it
-     * is max. level).
-     * 
-     * @param access
-     * @param x
-     *            Coordinates of the block above the liquid block in question.
-     * @param y
-     * @param z
-     * @param node
-     *            The IBlockCacheNode instance for the given coordinates, may be null.
-     * @return
-     */
-    public static boolean shouldLiquidBelowBeFullHeight(final BlockCache access, final int x, final int y, final int z, IBlockCacheNode node) {
-        if (node == null) {
-            node = access.getOrCreateBlockCacheNode(x, y, z, false);
-        }
-        final Material id = node.getType();
-        if (isLiquid(id)) {
-            return true;
-        }
-        if (!isSolid(id)) {
-            return false;
-        }
-        final double[] bounds = getCorrectedBounds(access, x, y, z, node);
-        // TODO: Implement corrected bounds.
-        // TODO: Fences ~ test.
-        return bounds == null ? true : (bounds[1] == 0.0);
-    }
-
-
-    /**
-     * Attempt to return the exact outside bounds, corrected by flags and other.
-     *
-     * @param access
-     *            the access
-     * @param x
-     *            the x
-     * @param y
-     *            the y
-     * @param z
-     *            the z
-     * @return If changed, a copy is returned, otherwise the original bounds
-     *         returned by the BlockCache instance.
-     * @deprecated Not yet for real (only used in certain checks/contexts).
-     */
-    public static double[] getCorrectedBounds(final BlockCache access, final int x, final int y, final int z) {
-        return getCorrectedBounds(access, x, y, z, access.getOrCreateBlockCacheNode(x, y, z, false));
-    }
-
-    /**
-     * Attempt to return the exact outside bounds, corrected by flags and other.
-     *
-     * @param access
-     * @param x
-     *            the x
-     * @param y
-     *            the y
-     * @param z
-     *            the z
-     * @param node
-     *            Not null.
-     * @param bounds
-     *            the bounds
-     * @return If changed, a copy is returned, otherwise the original array as
-     *         given.
-     * @deprecated Not yet for real (only used in certain checks/contexts).
-     */
-    public static double[] getCorrectedBounds(final BlockCache access, final int x, final int y, final int z, final IBlockCacheNode node) {
-        final double[] bounds = node.getBounds(access, x, y, z);
-        if (bounds == null) {
-            return null;
-        }
-        //final long flags = blockFlags[id];
-        // TODO: Consider to change to adaptBounds and to store the adapted bounds already.
-        // TODO: IMPLEMENT special bounds, at least: Step + stairs (dy=0.5 for both) + snow.
-        return bounds;
     }
 
     /**

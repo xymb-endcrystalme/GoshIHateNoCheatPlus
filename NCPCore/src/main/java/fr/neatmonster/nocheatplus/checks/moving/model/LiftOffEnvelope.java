@@ -28,7 +28,8 @@ public enum LiftOffEnvelope {
     /** Simple calm water surface. */
     LIMIT_LIQUID(0.1, 0.27, 0.1, 3, false),
     /** Moving off water, having two in-air moves. Rather meant for 1.13+ clients but not necessarily */
-    LIMIT_SURFACE(0.1, 0.372, 0.1, 2, false),
+    //LIMIT_SURFACE(0.1, 0.372, 0.1, 2, false),
+    LIMIT_SURFACE(0.1, 1.16, 0.1, 4, false),
     //    /** Flowing water / strong(-est) limit. */
     //    LIMIT_LIQUID_STRONG(...), // TODO
     /** No jumping at all (web). */
