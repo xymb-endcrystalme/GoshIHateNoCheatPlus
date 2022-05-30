@@ -1565,15 +1565,19 @@ public class BlockProperties {
         // Terracotta (hard_clay).
         props = new BlockProps(BlockProperties.woodPickaxe, 1.25f, BlockProperties.secToMs(6.25, 0.95, 0.5, 0.35, 0.25, 0.2, 0.15));
         for (final Material mat : MaterialUtil.TERRACOTTA_BLOCKS) {
-            BlockProperties.setBlockProps(mat, props);
-            BlockFlags.setFlagsAs(mat, Material.STONE);
+            if (mat != null) {
+                BlockProperties.setBlockProps(mat, props);
+                BlockFlags.setFlagsAs(mat, Material.STONE);
+            }
         }
 
         // Glazed Terracotta
         props = new BlockProps(BlockProperties.woodPickaxe, 1.4f, BlockProperties.secToMs(7.0, 1.05, 0.55, 0.35, 0.3, 0.2, 0.15));
         for (final Material mat : MaterialUtil.GLAZED_TERRACOTTA_BLOCKS) {
-            BlockProperties.setBlockProps(mat, props);
-            BlockFlags.setFlagsAs(mat, BridgeMaterial.TERRACOTTA);
+            if (mat != null) {
+                BlockProperties.setBlockProps(mat, props);
+                BlockFlags.setFlagsAs(mat, BridgeMaterial.TERRACOTTA);
+            }
         }
 
         // Carpets.
