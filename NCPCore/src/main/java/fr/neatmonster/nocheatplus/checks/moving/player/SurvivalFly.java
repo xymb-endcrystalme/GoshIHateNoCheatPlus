@@ -1333,6 +1333,8 @@ public class SurvivalFly extends Check {
                 && (!checkPermissions || !pData.hasPermission(Permissions.MOVING_SURVIVALFLY_SNEAKING, player))) {
             tags.add("sneaking");
             hAllowedDistance = Magic.modSneak * thisMove.walkSpeed * cc.survivalFlySneakingSpeed / 100D;
+            // TODO: Temporary! Recode is needed
+            hAllowedDistance += 0.051 * BridgeEnchant.getSwiftSneakLevel(player);
             useBaseModifiers = true;
             friction = 0.0; // Ensure friction can't be used to speed.
 
