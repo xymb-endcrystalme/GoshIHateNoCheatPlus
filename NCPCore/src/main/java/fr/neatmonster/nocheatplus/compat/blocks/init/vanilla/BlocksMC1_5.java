@@ -22,7 +22,6 @@ import fr.neatmonster.nocheatplus.compat.blocks.init.BlockInit;
 import fr.neatmonster.nocheatplus.config.*;
 import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
-import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 
 /**
  * This is an attempt to add Minecraft 1.5 blocks information without actual 1.5 dependency.
@@ -77,6 +76,7 @@ public class BlocksMC1_5 implements BlockPropertiesSetup {
 
         BlockInit.setAs("DROPPER", Material.DISPENSER);
 
+        if (BridgeMaterial.getBlock("wall_sign") != null) BlockInit.setAs("WALL_SIGN", BridgeMaterial.SIGN);
 
         /////////////////////
         // Changed blocks
