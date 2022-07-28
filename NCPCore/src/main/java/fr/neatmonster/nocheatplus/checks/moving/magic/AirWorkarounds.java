@@ -63,10 +63,6 @@ public class AirWorkarounds {
      *  && yDistance > 0.4 * Magic.GRAVITY_ODD && yDistance - lastMove.yDistance < -Magic.GRAVITY_ODD / 2.0
      *  && data.ws.use(WRPT.W_M_SF_ODDGRAVITY_NOT_NORMAL_ENVELOPE_2)
      * 
-     *  // REASON: Not documented. Ignore it.
-     *  // 1: (damaged in liquid) ? -> Why would vDistAir run in liquid tho.
-     *  || lastMove.yDistance < 0.2 && lastMove.yDistance >= 0.0 && yDistance > -0.2 && yDistance < 2.0 * Magic.GRAVITY_MIN
-     *  && data.ws.use(WRPT.W_M_SF_ODDLIQUID_9)
      * 
      *  // REASON: Not documented. Ignore it.
      *  // 1: (Could be reset condition?)
@@ -264,14 +260,17 @@ public class AirWorkarounds {
                         && lastMove.yDistance > -10.0 * Magic.GRAVITY_ODD / 2.0 && lastMove.yDistance < 10.0 * Magic.GRAVITY_ODD
                         && yDistance < lastMove.yDistance - Magic.GRAVITY_MIN / 2.0 && yDistance > lastMove.yDistance - Magic.GRAVITY_MAX
                         && data.ws.use(WRPT.W_M_SF_ODDLIQUID_8)
+                        // 1: Issue#219
+                        || lastMove.yDistance < 0.2 && lastMove.yDistance >= 0.0 && yDistance > -0.2 && yDistance < 2.0 * Magic.GRAVITY_MIN
+                        && data.ws.use(WRPT.W_M_SF_ODDLIQUID_9)
                         // 1: Too small decrease, right after lift off.
                         || data.sfJumpPhase == 1 && lastMove.yDistance > -Magic.GRAVITY_ODD 
                         && lastMove.yDistance <= Magic.GRAVITY_MAX + Magic.GRAVITY_SPAN
                         && Math.abs(yDistance - lastMove.yDistance) < 0.0114
                         && data.ws.use(WRPT.W_M_SF_ODDLIQUID_11)
-                        // 1: Any leaving liquid and keeping distance once.
+                        // 1: Any leaving liquid and keeping distance once. (seem to be appear on legacy clients 1.12.2 and below)
                         || data.sfJumpPhase == 1 
-                        && Math.abs(yDistance) <= Magic.swimBaseSpeedV(Bridge1_13.isSwimming(from.getPlayer())) && yDistance == lastMove.yDistance
+                        && Math.abs(yDistance) <= 0.3001 && yDistance == lastMove.yDistance
                         && data.ws.use(WRPT.W_M_SF_ODDLIQUID_12)
                         // 1: Not documented -> What is this why is it even here?
                         // (Leaving a climbable having been through water -> next move in air?)
