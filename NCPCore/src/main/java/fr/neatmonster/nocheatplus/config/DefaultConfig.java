@@ -503,7 +503,7 @@ public class DefaultConfig extends ConfigFile {
                 "cancel log:flyfile:3:5:f"
                         + " vl>100 cancel log:creativefly:8:9:i log:flyfile:0:10:f"
                         + " vl>900 cancel log:creativefly:2:4:i log:flyfile:0:5:cf"
-                        + " vl>2000 cancel log:creativefly:0:5:icf cmd:clearcf:0:15 cmdc:kickfly:0:15"
+                        + " vl>2000 cancel log:creativefly:0:5:icf cmdc:kickfly:0:15"
                         , 1154);
         // MorePackets
         set(ConfPaths.MOVING_MOREPACKETS_CHECK, "default", 785);
@@ -526,7 +526,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_NOFALL_ACTIONS, "cancel vl>2 cancel log:nofall:0:5:if", 1154); //vl>6 cancel log:nofall:0:1:if cmdc:kickfly:0:5", 1154);
         // Passable
         set(ConfPaths.MOVING_PASSABLE_CHECK, "default", 785);
-        set(ConfPaths.MOVING_PASSABLE_ACTIONS, "cancel vl>15 cancel log:passable:7:9:i vl>100 cancel log:passable:1:4:if cmd:clearpassable:3:15", 1154);
+        set(ConfPaths.MOVING_PASSABLE_ACTIONS, "cancel vl>15 cancel log:passable:7:9:i vl>100 cancel log:passable:1:4:if", 1154);
         set(ConfPaths.MOVING_PASSABLE_UNTRACKED_TELEPORT_ACTIVE, true, 785);
         set(ConfPaths.MOVING_PASSABLE_UNTRACKED_CMD_ACTIVE, true, 785);
         set(ConfPaths.MOVING_PASSABLE_UNTRACKED_CMD_TRYTELEPORT, true, 785);
@@ -555,7 +555,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_SURVIVALFLY_ACTIONS, "cancel log:flyfile:6:15:f" 
             + " vl>100 cancel log:survivalfly:10:11:i log:flyfile:6:15:f" 
             + " vl>700 cancel log:survivalfly:8:5:i log:flyfile:1:3:f" 
-            + " vl>2100 cancel log:survivalflyhighvl:0:4:icf cmd:clearsf:0:15 cmdc:kickfly:0:15", 1154);     
+            + " vl>2100 cancel log:survivalflyhighvl:0:4:icf cmdc:kickfly:0:15", 1154);     
         // SurvivalFly - Hover Subcheck
         set(ConfPaths.MOVING_SURVIVALFLY_HOVER_CHECK, true, 785); // Not a check type yet.
         set(ConfPaths.MOVING_SURVIVALFLY_HOVER_STEP, 5, 785);
@@ -597,7 +597,7 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.MOVING_VEHICLE_ENVELOPE_ACTIVE, "default", 785);
         set(ConfPaths.MOVING_VEHICLE_ENVELOPE_HSPEEDCAP + ".default", 0.9, 1154);
         set(ConfPaths.MOVING_VEHICLE_ENVELOPE_HSPEEDCAP + ".pig", 0.3, 1154);
-        set(ConfPaths.MOVING_VEHICLE_ENVELOPE_ACTIONS, "cancel vl>50 cancel log:vehicleenvelope:10:6:if vl>300 cancel log:vehicleenvelope:0:10:if cmd:clearvehicle:0:15 cmdc:kickvehiclefly:0:10", 1154);
+        set(ConfPaths.MOVING_VEHICLE_ENVELOPE_ACTIONS, "cancel vl>50 cancel log:vehicleenvelope:10:6:if vl>300 cancel log:vehicleenvelope:0:10:if cmdc:kickvehiclefly:0:10", 1154);
         // Messages
         set(ConfPaths.MOVING_MESSAGE_ILLEGALPLAYERMOVE, "Illegal move.", 785);
         set(ConfPaths.MOVING_MESSAGE_ILLEGALVEHICLEMOVE, "Illegal vehicle move.", 785);
@@ -738,10 +738,6 @@ public class DefaultConfig extends ConfigFile {
         set(ConfPaths.STRINGS + ".wrongturn", start + "tried to send an impossible pitch rotation (&6>90 &7or&6 <-90&7)" + end, 1154);
         // Clear a check data  
         set(ConfPaths.STRINGS + ".clearcritical", clear + "FIGHT_CRITICAL", 1154);
-        set(ConfPaths.STRINGS + ".clearsf", clear + "MOVING_SURVIVALFLY", 1154);
-        set(ConfPaths.STRINGS + ".clearcf", clear + "MOVING_CREATIVEFLY", 1154);
-        set(ConfPaths.STRINGS + ".clearpassable", clear + "MOVING_PASSABLE", 1154);
-        set(ConfPaths.STRINGS + ".clearvehicle", clear + "MOVING_VEHICLE_ENVELOPE", 1154);
         set(ConfPaths.STRINGS + ".clearscaffold", clear + "BLOCKPLACE_SCAFFOLD", 1154);
 
 
