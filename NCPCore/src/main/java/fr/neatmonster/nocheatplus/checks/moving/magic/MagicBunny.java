@@ -92,31 +92,6 @@ public class MagicBunny {
         final int fromData = from.getData(from.getBlockX(), from.getBlockY(), from.getBlockZ());
 
 
-        /////////////////////////////////////////////////////
-        // Add velocity to workaround rough transitions   //
-        ////////////////////////////////////////////////////
-        // Add some velocity to alow the exiting move (note that the subsequent bunnyhop will still be affected by the speed boost).
-        if (pastMove3.headObstructed && pastMove2.headObstructed 
-            && lastMove.headObstructed && !thisMove.headObstructed 
-            && hDistance > baseSpeed && lastMove.toIsValid && (lastMove.touchedGround || pastMove2.touchedGround)
-            // Only if the player doesn't have queued velocity. Let them use those entries instead.
-            && !data.hasQueuedHorVel()
-            // Touched ground but not ice/bouncy block
-            || !Magic.touchedIce(thisMove) && !Magic.touchedBouncyBlock(thisMove) && thisMove.touchedGround 
-            // Previous move was on ice or on a bouncy block (transition)
-            && (Magic.touchedIce(lastMove) || Magic.touchedIce(pastMove2) || Magic.touchedBouncyBlock(lastMove) || Magic.touchedBouncyBlock(pastMove2))
-            && thisMove.headObstructed && hDistance > baseSpeed && lastMove.toIsValid && !data.hasQueuedHorVel()) {
-            final double velocity = thisMove.hDistance * Magic.FRICTION_MEDIUM_AIR;
-            data.clearActiveHorVel();
-            data.clearHAccounting(); // Clear accounting here as it could easily yield false positives.
-            data.addHorizontalVelocity(new AccountEntry(velocity, 1, MovingData.getHorVelValCount(velocity)));
-            tags.add("bunnyvel");
-            // Reset delay if active?
-            // (Don't test further activity)
-            return hDistanceAboveLimit;
-        }  
-
-
         ///////////////////////////////////////////////////////////////////
         // After hop checks ("bunnyfly" phase, special cases)            //
         ///////////////////////////////////////////////////////////////////

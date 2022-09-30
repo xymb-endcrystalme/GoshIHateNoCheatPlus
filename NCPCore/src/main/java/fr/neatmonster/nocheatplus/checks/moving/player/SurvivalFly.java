@@ -1817,12 +1817,15 @@ public class SurvivalFly extends Check {
                             tags.add("lowjump_skip");
                         }
                         else {
-                            // Violation
-                            vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(minJumpHeight - setBackYDistance));
-                            // Set a flag to tell us that from here, this whole descending phase is due to a lowjump
-                            data.sfLowJump = true;
-                            // Feed the Improbable.
-                            Improbable.feed(player, (float) cc.yOnGround, System.currentTimeMillis());
+                            // Attempt to consume velocity
+                            if (data.getOrUseVerticalVelocity(yDistance) == null) {
+                                // Violation
+                                vDistanceAboveLimit = Math.max(vDistanceAboveLimit, Math.abs(minJumpHeight - setBackYDistance));
+                                // Set a flag to tell us that from here, this whole descending phase is due to a lowjump
+                                data.sfLowJump = true;
+                                // Feed the Improbable.
+                                Improbable.feed(player, (float) cc.yOnGround, System.currentTimeMillis());
+                            }
                         }
                     }
                 } 
