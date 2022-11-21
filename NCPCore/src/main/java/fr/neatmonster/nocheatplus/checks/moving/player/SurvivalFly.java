@@ -1391,7 +1391,7 @@ public class SurvivalFly extends Check {
             // 0.063 for old vers, 0.08 for 1.13+
             hAllowedDistance = Math.max(hAllowedDistance, 0.08);
             friction = 0.0; // Ensure friction can't be used to speed.
-            useBaseModifiers = true;
+            useBaseModifiers = false;
             useBaseModifiersSprint = false;
         }
         // Fallback to the default speed
