@@ -19,6 +19,7 @@ import org.bukkit.Material;
 import fr.neatmonster.nocheatplus.compat.BridgeMaterial;
 import fr.neatmonster.nocheatplus.compat.blocks.BlockPropertiesSetup;
 import fr.neatmonster.nocheatplus.compat.blocks.init.BlockInit;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import fr.neatmonster.nocheatplus.config.*;
 import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
@@ -76,6 +77,13 @@ public class BlocksMC1_19 implements BlockPropertiesSetup {
         //
         BlockProperties.setBlockProps("SCULK_SHRIEKER", new BlockProperties.BlockProps(BlockProperties.woodHoe, 3f));
         BlockFlags.setBlockFlags("SCULK_SHRIEKER", BlockFlags.SOLID_GROUND);
+
+        if (ServerVersion.compareMinecraftVersion("1.19.3") >= 0) {
+            BlockInit.setAs("BAMBOO_MOSAIC", Material.OAK_PLANKS);
+            BlockInit.setAs("BAMBOO_BLOCK", Material.OAK_PLANKS);
+            BlockInit.setAs("STRIPPED_BAMBOO_BLOCK", Material.OAK_PLANKS);
+            BlockInit.setAs("CHISELED_BOOKSHELF", Material.BOOKSHELF);
+        }
 
         ConfigFile config = ConfigManager.getConfigFile();
         if (config.getBoolean(ConfPaths.BLOCKBREAK_DEBUG, config.getBoolean(ConfPaths.CHECKS_DEBUG, false)))
