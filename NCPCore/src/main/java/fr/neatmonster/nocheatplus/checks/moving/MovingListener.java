@@ -131,6 +131,7 @@ import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.MapUtil;
+import fr.neatmonster.nocheatplus.utilities.map.MaterialUtil;
 import fr.neatmonster.nocheatplus.worlds.WorldFactoryArgument;
 
 /**
@@ -345,7 +346,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             // TODO: Probably check other ids too before doing this ?
             for (final Entity other : entity.getNearbyEntities(1.5, 1.5, 1.5)){
                 final EntityType type = other.getType();
-                if (type != EntityType.BOAT){
+                if (!MaterialUtil.isBoat(type)){
                     continue; 
                 }
                 final Material m = other.getLocation().getBlock().getType();
