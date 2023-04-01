@@ -102,15 +102,15 @@ public class Against extends Check {
                 }
             }
             else if (!pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_AIR, player)
-                    && placedMat != BridgeMaterial.LILY_PAD) {
+                     && placedMat != BridgeMaterial.LILY_PAD
+                     && placedMat != BridgeMaterial.FROGSPAWN) {
                 violation = true;
                 // Attempted to place a block against a null one (air)
             }
         }
         else if (BlockProperties.isLiquid(ncpAgainst)) {
-            if ((placedMat != BridgeMaterial.LILY_PAD
-                || !BlockProperties.isLiquid(block.getRelative(BlockFace.DOWN).getType()))
-                && !BlockProperties.isWaterPlant(bIData.getLastType())
+            if (((placedMat != BridgeMaterial.LILY_PAD || placedMat != BridgeMaterial.FROGSPAWN) || !BlockProperties.isLiquid(block.getRelative(BlockFace.DOWN).getType()))
+                && !BlockProperties.isWaterPlant(ncpAgainst)
                 && !pData.hasPermission(Permissions.BLOCKPLACE_AGAINST_LIQUIDS, player)) {
                 violation = true;
             }

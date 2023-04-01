@@ -50,7 +50,7 @@ public class MaterialUtil {
     ///////////////////////
 
     private static final List<String> woodTypes = Arrays.asList(
-            "acacia", "birch", "dark_oak", "jungle", "oak", "spruce", "warped", "crimson", "mangrove", "bamboo",
+            "acacia", "birch", "dark_oak", "jungle", "oak", "spruce", "warped", "crimson", "mangrove", "bamboo", "cherry",
             "wood" // Legacy
             );
 
@@ -532,7 +532,7 @@ public class MaterialUtil {
                     "spore_blossom", "small_dripleaf", "cave_vines", "cave_vines_plant",
                     "weeping_vines", "weeping_vines_plant",
                     "twisting_vines", "twisting_vines_plant",
-                    "mangrove_propagule"
+                    "mangrove_propagule", "pink_petals", "torchflower", "torchflower_crop"
                     ),
             new HashSet<Material>(Arrays.asList(BridgeMaterial.TALL_GRASS, 
                     BridgeMaterial.WHEAT_CROPS, BridgeMaterial.CARROTS, 

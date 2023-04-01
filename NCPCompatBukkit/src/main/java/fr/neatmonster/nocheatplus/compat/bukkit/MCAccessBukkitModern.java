@@ -43,10 +43,10 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     protected ReflectLivingEntity reflectLivingEntity = null;
     protected final Map<Material, BukkitShapeModel> shapeModels = new HashMap<Material, BukkitShapeModel>();
 
-    // Blocks that can automatic fetch bounding box from API
+    // Blocks that can be fetched automatically from from the Bukkit API
     private static final BukkitShapeModel MODEL_AUTO_FETCH = new BukkitFetchableBound();
 
-    // Blocks that form from multi-bounds
+    // Blocks that are formed from multiple bounding boxes
     private static final BukkitShapeModel MODEL_BREWING_STAND = new BukkitStatic(
         // Bottom rod
         0.0625, 0.0, 0.0625, 0.9375, 0.125, 0.9375,
@@ -139,7 +139,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             this.reflectDamageSource = new ReflectDamageSource(this.reflectBase);
             this.reflectLivingEntity = new ReflectLivingEntity(this.reflectBase, null, this.reflectDamageSource);
         } 
-        catch(ClassNotFoundException ex) {}
+        catch (ClassNotFoundException ex) {}
     }
 
     @Override
@@ -193,6 +193,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
             Material.CHORUS_FLOWER}) {
             processedBlocks.add(mat);
         }
+
         for (final Material mat : BridgeMaterial.getAllBlocks(
             "light", "glow_lichen", "big_dripleaf_stem",
             // TODO: Not fully tested
@@ -214,7 +215,8 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         for (Material mat : BridgeMaterial.getAllBlocks(
             "azalea", "flowering_azalea",
             "sculk_sensor", "pointed_dripstone",
-            "stonecutter", "chain")) {
+            "stonecutter", "chain", "pink_petals", "frogspawn",
+            "torchflower", "decorated_pot")) {
             addModel(mat, MODEL_AUTO_FETCH);
         }
 
@@ -480,9 +482,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
                     // TODO: Perhaps another model flag.
                     addModel(mat, MODEL_GATE);
                 }
-                else {
-                    addModel(mat, MODEL_THICK_FENCE);
-                }
+                else addModel(mat, MODEL_THICK_FENCE);
             }
         }
         super.setupBlockProperties(worldConfigProvider);
@@ -510,7 +510,6 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
     @Override
     public void dealFallDamage(Player player, double damage) {
         if (canDealFallDamage()) {
-
             Object handle = getHandle(player);
             if (handle != null) {
                 ReflectionUtil.invokeMethod(this.reflectLivingEntity.nmsDamageEntity, handle, this.reflectDamageSource.nmsFALL, (float) damage);

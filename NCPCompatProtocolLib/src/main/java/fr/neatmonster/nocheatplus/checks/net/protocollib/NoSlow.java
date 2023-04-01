@@ -112,7 +112,13 @@ public class NoSlow extends BaseAdapter {
 
     @Override
     public void onPacketReceiving(final PacketEvent event) {
-        if (event.isPlayerTemporary()) return;
+        try {
+            if (event.isPlayerTemporary()) return;
+        } 
+        catch(NoSuchMethodError e) {
+            // Ignore.
+        }
+
         if (event.getPacketType().equals(PacketType.Play.Client.BLOCK_DIG)) {
             handleDiggingPacket(event);
         } else {
