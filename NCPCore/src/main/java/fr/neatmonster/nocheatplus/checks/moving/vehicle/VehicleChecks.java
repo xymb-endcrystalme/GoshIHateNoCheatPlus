@@ -50,10 +50,9 @@ import fr.neatmonster.nocheatplus.checks.moving.util.AuxMoving;
 import fr.neatmonster.nocheatplus.checks.moving.util.MovingUtil;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.AccountEntry;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.SimpleEntry;
-import fr.neatmonster.nocheatplus.components.entity.IEntityAccessLastPositionAndLook;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import fr.neatmonster.nocheatplus.components.location.IGetLocationWithLook;
 import fr.neatmonster.nocheatplus.components.location.SimplePositionWithLook;
-import fr.neatmonster.nocheatplus.components.registry.event.IHandle;
 import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.logging.Streams;
 import fr.neatmonster.nocheatplus.players.DataManager;
@@ -105,6 +104,8 @@ public class VehicleChecks extends CheckListener {
     /** Auxiliary functionality. */
     private final AuxMoving aux = NCPAPIProvider.getNoCheatPlusAPI().getGenericInstance(AuxMoving.class);
     private final PassengerUtil passengerUtil = NCPAPIProvider.getNoCheatPlusAPI().getGenericInstance(PassengerUtil.class);
+    
+    private final boolean specialMinecart = ServerVersion.compareMinecraftVersion("1.19.4") >= 0;
 
     /** Access last position fields for an entity. Updated on setMCAccess. */
     // TODO: Useless.
@@ -274,7 +275,7 @@ public class VehicleChecks extends CheckListener {
         // TODO: No problem: (?) update 'authorized state' if no player passenger.
         final Vehicle vehicle = event.getVehicle();
         final EntityType vehicleType = vehicle.getType();
-        if (!normalVehicles.contains(vehicleType)) {
+        if (!normalVehicles.contains(vehicleType) && !(vehicleType == EntityType.MINECART && specialMinecart)) {
             // A little extra sweep to check for debug flags.
             normalVehicles.add(vehicleType);
             if (worldDataManager.getWorldData(vehicle.getWorld()).isDebugActive(checkType)) {
@@ -936,15 +937,11 @@ public class VehicleChecks extends CheckListener {
             debug(player, "Vehicle leave: " + pLoc.toString() + (pLoc.equals(loc) ? "" : " / player at: " + pLoc.toString()));
         }
 
-        data.waspreInVehicle = true;
+        data.lastVehicleType = vehicle != null ? vehicle.getType() : null;
 
         aux.resetPositionsAndMediumProperties(player, loc, data, cc);
         data.setSetBack(loc);
-        // Give some freedom to allow the "exiting move".
         data.removeAllVelocity();
-        // TODO: Use-once entries usually are intended to allow one offset, but not jumping/flying on.
-        data.addHorizontalVelocity(new AccountEntry(0.9, 1, 1));
-        data.addVerticalVelocity(new SimpleEntry(0.6, 1)); // TODO: Typical margin?
         useLoc1.setWorld(null);
         useLoc2.setWorld(null);
     }

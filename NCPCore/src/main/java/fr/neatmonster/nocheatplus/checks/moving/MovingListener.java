@@ -185,7 +185,7 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
     private final int idMoveEvent = counters.registerKey("event.player.move");
 
-    private final boolean is1_14 = ServerVersion.compareMinecraftVersion("1.14") >= 0;
+    private final boolean specialMinecart = ServerVersion.compareMinecraftVersion("1.19.4") >= 0;
 
     @SuppressWarnings("unchecked")
     public MovingListener() {
@@ -326,15 +326,15 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
     }
 
 
-    // Temporary fix "stuck" on boat for 1.14 still work till now
+    // Temporary fix "stuck" on boat for 1.14-1.19
     @EventHandler(priority = EventPriority.LOWEST)
     public void onUnknowBoatTeleport(final PlayerTeleportEvent event) {
-        if (!Bridge1_13.hasIsSwimming()) return;
+        if (!Bridge1_13.hasIsSwimming() || specialMinecart) return;
         if (event.getCause() == TeleportCause.UNKNOWN) {
             final Player player = event.getPlayer();
             final IPlayerData pData = DataManager.getPlayerData(player);
             final MovingData data = pData.getGenericInstance(MovingData.class);
-            if (!data.waspreInVehicle && standsOnEntity(player, player.getLocation().getY())) {
+            if (data.lastVehicleType != null && standsOnEntity(player, player.getLocation().getY())) {
                 event.setCancelled(true);
                 player.setSwimming(false);
             }
@@ -455,6 +455,17 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             newTo = vehicleChecks.onPlayerMoveVehicle(player, from, to, data, pData);
             earlyReturn = true;
             token = "vehicle";
+        }
+        else if (data.lastVehicleType == EntityType.MINECART && specialMinecart
+            // The setback comes from VehicleChecks#onPlayerVehicleLeave
+            // Don't be confuse with data.getSetBack(from) here, the location "from" is used when the stored setback is null 
+            && to.distance(data.getSetBack(from)) < 3) {
+            earlyReturn = true;
+            token = "minecart-total";
+            data.lastVehicleType = null;
+            // Some changes were made in 1.19.4 make PlayerMoveEvent no longer fire while on Minecart
+            // So when the player leave the vehicle will make PlayerMoveEvent 
+            // work normal again and update the position so result in the location player start to ride minecart and location player left it
         }
         else if (player.isDead()) {
             // Ignore dead players.
@@ -832,15 +843,13 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
             // (else keep)
         }
         
-        // 4: Workaround for 1.14+ vehicles.
-        if (data.waspreInVehicle) {
+        // 4: Workaround for 1.14+ exiting vehicles.
+        if (data.lastVehicleType != null && thisMove.distanceSquared < 5) {
             data.setSetBack(from);
-            if (thisMove.hDistance <= 1.1 && thisMove.yDistance <= 0.8) {
-                data.addHorizontalVelocity(new AccountEntry(thisMove.hDistance, 1, 1));
-                data.addVerticalVelocity(new SimpleEntry(thisMove.yDistance, 1));
-                data.addVerticalVelocity(new SimpleEntry(-0.16, 2));
-            }
-            data.waspreInVehicle = false;
+            data.addHorizontalVelocity(new AccountEntry(thisMove.hDistance, 1, 1));
+            data.addVerticalVelocity(new SimpleEntry(thisMove.yDistance, 1));
+            //data.addVerticalVelocity(new SimpleEntry(-0.16, 2));
+            data.lastVehicleType = null;
         }
         
         // 5: Pre-checks relevant to Sf or Cf.

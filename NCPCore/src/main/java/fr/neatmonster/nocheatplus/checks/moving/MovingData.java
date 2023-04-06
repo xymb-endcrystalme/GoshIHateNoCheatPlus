@@ -20,6 +20,7 @@ import java.util.concurrent.Callable;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 import fr.neatmonster.nocheatplus.NCPAPIProvider;
@@ -305,7 +306,7 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     /** Inconsistency-flag. Set on moving inside of vehicles, reset on exiting properly. Workaround for VehicleLeaveEvent missing. */
     public boolean wasInVehicle = false; 
     /** TODO: */
-    public boolean waspreInVehicle = false;
+    public EntityType lastVehicleType = null;
     /** Set to indicate that events happen during a vehicle set back. Allows skipping some resetting. */
     public boolean isVehicleSetBack = false;
     /** TODO: Movement consistency */
