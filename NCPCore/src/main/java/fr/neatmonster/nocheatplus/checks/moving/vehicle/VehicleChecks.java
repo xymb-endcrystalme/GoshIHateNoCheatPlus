@@ -50,6 +50,7 @@ import fr.neatmonster.nocheatplus.checks.moving.util.AuxMoving;
 import fr.neatmonster.nocheatplus.checks.moving.util.MovingUtil;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.AccountEntry;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.SimpleEntry;
+import fr.neatmonster.nocheatplus.compat.Folia;
 import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import fr.neatmonster.nocheatplus.components.location.IGetLocationWithLook;
 import fr.neatmonster.nocheatplus.components.location.SimplePositionWithLook;
@@ -406,7 +407,9 @@ public class VehicleChecks extends CheckListener {
                 recoverVehicleSetBack(player, vehicle, vehicleLocation, moveInfo, data, cc);
             }
             NCPAPIProvider.getNoCheatPlusAPI().getLogManager().warning(Streams.STATUS, CheckUtils.getLogMessagePrefix(player, CheckType.MOVING_VEHICLE) + "Illegal coordinates on checkVehicleMove: from: " + from + " , to: " + to);
-            setBack(player, vehicle, newTo, data, cc, pData);
+            //Folia.runSyncTaskForEntity(vehicle, plugin, (arg) -> {
+                setBack(player, vehicle, newTo, data, cc, pData);
+            //}, null);
             aux.returnVehicleMoveInfo(moveInfo);
             return;
         }
@@ -604,7 +607,10 @@ public class VehicleChecks extends CheckListener {
             data.vehicleMoves.finishCurrentMove();
         }
         else {
-            setBack(player, vehicle, newTo, data, cc, pData);
+            //final SetBackEntry tNewTo = newTo;
+            //Folia.runSyncTaskForEntity(vehicle, plugin, (arg) -> {
+                setBack(player, vehicle, newTo, data, cc, pData);
+            //}, null);
         }
         useLoc1.setWorld(null);
     }
@@ -660,7 +666,7 @@ public class VehicleChecks extends CheckListener {
             final MovingConfig cc, final IPlayerData pData) {
         final boolean debug = pData.isDebugActive(checkType);
         // TODO: Generic set back manager, preventing all sorts of stuff that might be attempted or just happen before the task is running?
-        if (data.vehicleSetBackTaskId == -1) {
+        if (!Folia.isTaskScheduled(data.vehicleSetBackTaskId)) {
             // Schedule a delayed task to teleport back the vehicle with the player.
             // (Only schedule if not already scheduled.)
             // TODO: Might log debug if skipping.
@@ -676,9 +682,9 @@ public class VehicleChecks extends CheckListener {
             // Schedule as task, if set so.
             if (scheduleSetBack) {
                 aux.resetVehiclePositions(vehicle, LocUtil.set(useLoc2, vehicle.getWorld(), newTo), data, cc); // Heavy-ish, though.
-                data.vehicleSetBackTaskId = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new VehicleSetBackTask(vehicle, player, newTo.getLocation(vehicle.getWorld()), debug));
+                data.vehicleSetBackTaskId = Folia.runSyncTaskForEntity(vehicle, plugin, (arg) -> new VehicleSetBackTask(vehicle, player, newTo.getLocation(vehicle.getWorld()), debug).run(), null);
 
-                if (data.vehicleSetBackTaskId == -1) {
+                if (!Folia.isTaskScheduled(data.vehicleSetBackTaskId)) {
                     NCPAPIProvider.getNoCheatPlusAPI().getLogManager().warning(Streams.STATUS, "Failed to schedule vehicle set back task. Player: " + player.getName() + " , set back: " + newTo);
                     scheduleSetBack = false; // Force direct teleport as a fall-back measure.
                 }

@@ -22,6 +22,7 @@ import fr.neatmonster.nocheatplus.checks.Check;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.checks.net.NetData;
 import fr.neatmonster.nocheatplus.compat.BridgeHealth;
+import fr.neatmonster.nocheatplus.compat.Folia;
 import fr.neatmonster.nocheatplus.compat.IBridgeCrossPlugin;
 import fr.neatmonster.nocheatplus.components.registry.event.IGenericInstanceHandle;
 import fr.neatmonster.nocheatplus.players.IPlayerData;
@@ -205,18 +206,15 @@ public class GodMode extends Check {
             try {
                 // Schedule a task to be executed in roughly 1.5 seconds.
                 // TODO: Get plugin otherwise !?
-                Bukkit.getScheduler().scheduleSyncDelayedTask(Bukkit.getPluginManager().getPlugin("NoCheatPlus"), new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            // Check again if the player should be dead, and if the game didn't mark them as dead.
-                            if (mcAccess.getHandle().shouldBeZombie(player)){
-                                // Artificially "kill" them.
-                                mcAccess.getHandle().setDead(player, 19);
-                            }
-                        } catch (final Exception e) {}
-                    }
-                }, 30);
+            	Folia.runSyncDelayedTaskForEntity(player, Bukkit.getPluginManager().getPlugin("NoCheatPlus"), (arg) -> {
+            		try {
+                        // Check again if the player should be dead, and if the game didn't mark them as dead.
+                        if (mcAccess.getHandle().shouldBeZombie(player)){
+                            // Artificially "kill" them.
+                            mcAccess.getHandle().setDead(player, 19);
+                        }
+                    } catch (final Exception e) {}
+            	}, null, 30);
             } catch (final Exception e) {}
         }
     }

@@ -93,6 +93,7 @@ import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeEnchant;
 import fr.neatmonster.nocheatplus.compat.BridgeHealth;
 import fr.neatmonster.nocheatplus.compat.BridgeMisc;
+import fr.neatmonster.nocheatplus.compat.Folia;
 import fr.neatmonster.nocheatplus.compat.MCAccess;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeTracker.BlockChangeEntry;
@@ -2592,12 +2593,12 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         noFall.onLeave(player, data, pData);
         // TODO: Add a method for ordinary presence-change resetting (use in join + leave).
         data.onPlayerLeave();
-        if (data.vehicleSetBackTaskId != -1) {
+        if (Folia.isTaskScheduled(data.vehicleSetBackTaskId)) {
             // Reset the id, assume the task will still teleport the vehicle.
             // TODO: Should rather force teleport (needs storing the task + data).
-            data.vehicleSetBackTaskId = -1;
+            data.vehicleSetBackTaskId = null;
         }
-        data.vehicleSetPassengerTaskId = -1;
+        data.vehicleSetPassengerTaskId = null;
     }
 
 

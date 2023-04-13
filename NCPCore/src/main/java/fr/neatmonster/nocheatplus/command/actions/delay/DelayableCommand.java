@@ -22,6 +22,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import fr.neatmonster.nocheatplus.command.BaseCommand;
+import fr.neatmonster.nocheatplus.compat.Folia;
 import fr.neatmonster.nocheatplus.permissions.RegisteredPermission;
 import fr.neatmonster.nocheatplus.logging.StaticLog;
 
@@ -175,9 +176,9 @@ public abstract class DelayableCommand extends BaseCommand {
         if (delay < 0) 
             runnable.run();
         else if (delay == 0)
-            Bukkit.getScheduler().scheduleSyncDelayedTask(access, runnable);
+            Folia.runSyncTask(access, (arg) -> runnable.run());
         else 
-            Bukkit.getScheduler().scheduleSyncDelayedTask(access, runnable, delay);
+            Folia.runSyncDelayedTask(access, (arg) -> runnable.run(), delay);
     }
 
     /* (non-Javadoc)

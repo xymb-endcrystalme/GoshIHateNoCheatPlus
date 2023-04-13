@@ -280,9 +280,9 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
     /** TODO: */
     public long vehicleMorePacketsLastTime;
     /** Task id of the vehicle set back task. */ 
-    public int vehicleSetBackTaskId = -1;
+    public Object vehicleSetBackTaskId = null;
     /** Task id of the passenger set back task. */ 
-    public int vehicleSetPassengerTaskId = -1;
+    public Object vehicleSetPassengerTaskId = null;
     
 
 

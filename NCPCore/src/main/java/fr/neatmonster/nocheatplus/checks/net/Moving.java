@@ -41,6 +41,7 @@ import fr.neatmonster.nocheatplus.logging.StaticLog;
 import fr.neatmonster.nocheatplus.logging.Streams;
 import fr.neatmonster.nocheatplus.compat.AlmostBoolean;
 import fr.neatmonster.nocheatplus.compat.BridgeMisc;
+import fr.neatmonster.nocheatplus.compat.Folia;
 import fr.neatmonster.nocheatplus.utilities.CheckUtils;
 import fr.neatmonster.nocheatplus.utilities.StringUtil;
 import fr.neatmonster.nocheatplus.utilities.TickTask;
@@ -107,8 +108,8 @@ public class Moving extends Check {
             if (data.movingVL > 15) {
                 // Player might be freezed by canceling, set back might turn it to normal
                 data.movingVL = 0.0;
-                int task = -1;
-                task = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                Object task = null;
+                task = Folia.runSyncTaskForEntity(player, plugin, (arg) -> {
                     final Location newTo = mData.hasSetBack() ? mData.getSetBack(knownLocation) :
                                            mData.hasMorePacketsSetBack() ? mData.getMorePacketsSetBack() :
                                            // Unsafe position! Null world or world not updated
@@ -121,14 +122,14 @@ public class Moving extends Check {
                     else {
                         // Mask player teleport as a set back.
                         mData.prepareSetBack(newTo);
-                        player.teleport(LocUtil.clone(newTo), BridgeMisc.TELEPORT_CAUSE_CORRECTION_OF_POSITION);
+                        Folia.teleportEntity(player, LocUtil.clone(newTo), BridgeMisc.TELEPORT_CAUSE_CORRECTION_OF_POSITION);
                         // Request an Improbable update, unlikely that this is legit.
                         TickTask.requestImprobableUpdate(player.getUniqueId(), 0.3f);
                         if (pData.isDebugActive(CheckType.NET_MOVING)) 
                             debug(player, "Set back player: " + player.getName() + ":" + LocUtil.simpleFormat(newTo));
-                        }
-                });
-                if (task == -1) {
+                    }
+                }, null);
+                if (!Folia.isTaskScheduled(task)) {
                     StaticLog.logWarning("[NoCheatPlus] Failed to schedule task. Player: " + player.getName());
                 }
                 mData.resetTeleported(); // Cleanup, just in case.
