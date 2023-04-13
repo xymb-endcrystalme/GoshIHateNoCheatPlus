@@ -21,6 +21,7 @@ import org.bukkit.entity.Player;
 
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.compat.AlmostBoolean;
+import fr.neatmonster.nocheatplus.compat.versions.ClientVersion;
 import fr.neatmonster.nocheatplus.components.config.value.OverrideType;
 import fr.neatmonster.nocheatplus.components.data.IData;
 import fr.neatmonster.nocheatplus.components.data.IDataOnRemoveSubCheckData;
@@ -346,6 +347,15 @@ public interface IPlayerData extends IData, IBaseDataAccess, IGetGenericInstance
      * @return -1, if it cannot be determined.
      */
     public int getClientVersionID();
+
+    /**
+     * Get the client's version protocol through ViaVersion or ProtocolSupport. <br>
+     * Requires CompatNoCheatPlus (subject to change)
+     * @see https://wiki.vg/Protocol_version_numbers
+     * 
+     * @return ClientVersion.UNKNOWN, if it cannot be determined.
+     */
+    public ClientVersion getClientVersion();
 
     /**
      * Set the client's version protocol ID as given by ProtocolSupport or ViaVersion.
