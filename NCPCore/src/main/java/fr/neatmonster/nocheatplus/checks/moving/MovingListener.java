@@ -547,12 +547,18 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         // Ordinary: Fire move from -> to
         // This was reported and supposedely fixed by the Spigot team, however asofold decided to keep this active anyway. No reason is given from the commit.
         // @See: https://github.com/NoCheatPlus/NoCheatPlus/commit/7d2c1ce1f8b40fac554cdef8040576d9f88503ef
-        // @See: https://hub.spigotmc.org/jira/browse/SPIGOT-1646
+        // @See: https://hub.spigotmc.org/jira/browse/SPIGOT-1646 (Seem like the issue happen again in 1.20! loc=to; Way to call player.absMoveTo in PlayerConnection seem change in 1.20)
+        // Solution is to turn off this legacy split move for two reasons:
+        // - Current implementation of checks does not require high precision
+        // - Moves don't only split 2, it can be up to 14.
         if (
                 // Handling split moves has been disabled.
                 !cc.splitMoves ||
                 // The usual case: no micro move happened.
                 TrigUtil.isSamePos(from, loc)
+                // The location already update before move event fire! Data lost!
+                // TODO: Should add ServerVersion.compareMinecraftVersion("1.20")? How to detect split move for hspeed check in 1.20?
+                || TrigUtil.isSamePos(to, loc)
                 // Special case / bug? TODO: Which/why, which version of MC/spigot?
                 || lastMove.valid && TrigUtil.isSamePos(loc, lastMove.from.getX(), lastMove.from.getY(), lastMove.from.getZ())
                 // TODO: On pistons pulling the player back: -1.15 yDistance for split move 1 (untracked position > 0.5 yDistance!).
