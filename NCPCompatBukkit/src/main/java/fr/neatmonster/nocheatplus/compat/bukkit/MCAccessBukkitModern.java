@@ -221,7 +221,7 @@ public class MCAccessBukkitModern extends MCAccessBukkit {
         for (Material mat : BridgeMaterial.getAllBlocks(
             "azalea", "flowering_azalea",
             "sculk_sensor", "pointed_dripstone", "frogspawn",
-            "sniffer_egg", "decorated_pot", "pitcher_crop")) {
+            "sniffer_egg", "decorated_pot", "pitcher_crop", "calibrated_sculk_sensor")) {
             addModel(mat, MODEL_AUTO_FETCH);
         }
 
