@@ -14,6 +14,7 @@
  */
 package fr.neatmonster.nocheatplus.checks.blockplace;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -44,11 +45,14 @@ import fr.neatmonster.nocheatplus.checks.combined.CombinedConfig;
 import fr.neatmonster.nocheatplus.checks.combined.Improbable;
 import fr.neatmonster.nocheatplus.checks.moving.MovingConfig;
 import fr.neatmonster.nocheatplus.checks.moving.MovingData;
+import fr.neatmonster.nocheatplus.checks.moving.model.PlayerMoveData;
 import fr.neatmonster.nocheatplus.checks.moving.util.MovingUtil;
 import fr.neatmonster.nocheatplus.checks.net.FlyingQueueHandle;
 import fr.neatmonster.nocheatplus.checks.net.model.DataPacketFlying;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeMisc;
+import fr.neatmonster.nocheatplus.compat.Folia;
+import fr.neatmonster.nocheatplus.compat.versions.ServerVersion;
 import fr.neatmonster.nocheatplus.components.NoCheatPlusAPI;
 import fr.neatmonster.nocheatplus.components.data.ICheckData;
 import fr.neatmonster.nocheatplus.components.data.IData;
@@ -60,6 +64,7 @@ import fr.neatmonster.nocheatplus.players.PlayerFactoryArgument;
 import fr.neatmonster.nocheatplus.stats.Counters;
 import fr.neatmonster.nocheatplus.utilities.ReflectionUtil;
 import fr.neatmonster.nocheatplus.utilities.TickTask;
+import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
 import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 import fr.neatmonster.nocheatplus.utilities.map.BlockFlags;
 import fr.neatmonster.nocheatplus.utilities.map.MaterialUtil;
@@ -169,45 +174,36 @@ public class BlockPlaceListener extends CheckListener {
      */
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onBlockPlace(final BlockPlaceEvent event) {
-
-        if (!DataManager.getPlayerData(event.getPlayer()).isCheckActive(CheckType.BLOCKPLACE, event.getPlayer())) return;
-
+        if (!DataManager.getPlayerData(event.getPlayer()).isCheckActive(CheckType.BLOCKPLACE, event.getPlayer())) {
+            return;
+        }
         final Block block = event.getBlockPlaced();
         final Block blockAgainst = event.getBlockAgainst();
         // Skip any null blocks.
         if (block == null || blockAgainst == null) {
             return;
         }
-        // TODO: What if same block?
-
-        // TODO: Revise material use (not block.get... ?)
-        //final Material mat = block.getType();
         final Player player = event.getPlayer();
         final Material placedMat;
         if (hasGetReplacedState) {
             placedMat = event.getBlockPlaced().getType();
         }
         else if (Bridge1_9.hasGetItemInOffHand()) {
-            final ItemStack stack = event.getItemInHand();
-            placedMat = BlockProperties.isAir(stack) ? Material.AIR : stack.getType();
+            placedMat = BlockProperties.isAir(event.getItemInHand()) ? Material.AIR : event.getItemInHand().getType();
         }
         else placedMat = Bridge1_9.getItemInMainHand(player).getType(); // Safety first.
     
         boolean cancelled = false;
-
-        final IPlayerData pData = DataManager.getPlayerData(player); // TODO: Use for data + config getting etc.
+        int skippedRedundantChecks = 0;
+        boolean shouldCheck;
+        final IPlayerData pData = DataManager.getPlayerData(player);
         final BlockPlaceData data = pData.getGenericInstance(BlockPlaceData.class);
         final BlockPlaceConfig cc = pData.getGenericInstance(BlockPlaceConfig.class);
         final BlockInteractData bdata = pData.getGenericInstance(BlockInteractData.class);
-        final int tick = TickTask.getTick();
         // isInteractBlock - the block placed against is the block last interacted with.
-        final boolean isInteractBlock = !bdata.getLastIsCancelled() && bdata.matchesLastBlock(tick, blockAgainst);
-        int skippedRedundantChecks = 0;
-        final boolean debug = pData.isDebugActive(CheckType.BLOCKPLACE);
+        final boolean isInteractBlock = !bdata.getLastIsCancelled() && bdata.matchesLastBlock(TickTask.getTick(), blockAgainst);
         final BlockFace placedFace = event.getBlock().getFace(blockAgainst);
         final Block blockPlaced = event.getBlockPlaced();
-        final double distance = player.getLocation().distance(blockPlaced.getLocation());
-        boolean shouldCheck;
         final boolean shouldSkipSome;
 
         if (blockMultiPlaceEvent != null && event.getClass() == blockMultiPlaceEvent) {
@@ -215,7 +211,7 @@ public class BlockPlaceListener extends CheckListener {
                 shouldSkipSome = true;
             }
             else {
-                if (debug) {
+                if (pData.isDebugActive(CheckType.BLOCKPLACE)) {
                     debug(player, "Block place " + event.getClass().getName() + " " + placedMat);
                 }
                 shouldSkipSome = false;
@@ -223,27 +219,34 @@ public class BlockPlaceListener extends CheckListener {
         } 
         else shouldSkipSome = BlockProperties.isScaffolding(placedMat);
 
-        if (placedMat.toString().endsWith("SIGN")) {
-            // Might move to MONITOR priority.
+        if (MaterialUtil.isAnySign(placedMat)) {
             data.autoSignPlacedTime = System.currentTimeMillis();
-            // Always hash as sign post for improved compatibility with Lockette etc.
             data.autoSignPlacedHash = getBlockPlaceHash(block, placedMat);
+            if (pData.isDebugActive(CheckType.BLOCKPLACE_AUTOSIGN)) {
+                debug(player, "Register time and hash for this placed sign: h= " + data.autoSignPlacedHash + " / t= " + data.autoSignPlacedTime);
+            }
         }
 
         // Don't run checks, if a set back is scheduled.
         if (pData.isPlayerSetBackScheduled()) {
             cancelled = true;
+            debug(player, "Prevent block place due to a scheduled set back.");
+        }
+
+        // Surrounding material first.
+        if (!cancelled && against.isEnabled(player, pData) && !BlockProperties.isScaffolding(placedMat)
+            && against.check(player, block, placedMat, blockAgainst, isInteractBlock, data, cc, pData)) {
+            cancelled = true;
         }
 
         // Fast place check.
         if (!cancelled && fastPlace.isEnabled(player, pData)) {
-
-            if (fastPlace.check(player, block, tick, data, cc, pData)) {
+            if (fastPlace.check(player, block, TickTask.getTick(), data, cc, pData)) {
                 cancelled = true;
             }
             // Check for Improbable, whatever FastPlace says, provided the feature is enabled at all.
             if (cc.fastPlaceImprobableWeight > 0.0f) {
-                // Check for higher frequencies
+                // Check only if frequency is decently high.
                 if (data.fastPlaceVL > 20) {
                     // Don't check if set to only feed.
                     if (!cc.fastPlaceImprobableFeedOnly) {
@@ -261,34 +264,30 @@ public class BlockPlaceListener extends CheckListener {
         // No swing check (player doesn't swing their arm when placing a lily pad).
         if (!cancelled && !cc.noSwingExceptions.contains(placedMat) 
             && noSwing.isEnabled(player, pData) && noSwing.check(player, data, cc)) {
-            // Consider skipping all insta placables or using simplified version (true or true within time frame).
             cancelled = true;
         }
 
         // Scaffold Check
         // Null check because I guess it can return null sometimes?
         if (Scaffold.isEnabled(player, pData) && placedFace != null) {
-
-            final long now = System.currentTimeMillis();
-            final Location loc = player.getLocation(useLoc);
-            final MovingData mData = pData.getGenericInstance(MovingData.class);
+            final PlayerMoveData thisMove = pData.getGenericInstance(MovingData.class).playerMoves.getCurrentMove();
             if (faces.contains(placedFace) 
-                && player.getLocation().getY() - blockPlaced.getY() < 2.0
-                && player.getLocation().getY() - blockPlaced.getY() >= 1.0
-                && blockPlaced.getType().isSolid() && distance < 2.0) {
+                && thisMove.from.getY() - blockPlaced.getY() < 2.0
+                && thisMove.from.getY() - blockPlaced.getY() >= 1.0
+                && blockPlaced.getType().isSolid() 
+                && TrigUtil.distance(player.getLocation(), blockPlaced.getLocation()) < 2.0) {
 
                 // Monitor yawrate before feeding Improbable or checking for Scaffold
-                if (Combined.checkYawRate(player, loc.getYaw(), now, loc.getWorld().getName(), pData)) {
+                if (Combined.checkYawRate(player, thisMove.from.getYaw(), System.currentTimeMillis(), thisMove.from.getWorldName(), pData)) {
                     cancelled = true;
                 }
                 // Always check for Scaffold whatever yawrate says. 
                 if (data.cancelNextPlace && (Math.abs(data.currentTick - TickTask.getTick()) < 10)
-                    || Scaffold.check(player, placedFace, pData, data, cc, event.isCancelled(), mData.playerMoves.getCurrentMove().yDistance, mData.sfJumpPhase)) {
+                    || Scaffold.check(player, placedFace, pData, data, cc, event.isCancelled(), thisMove.yDistance, pData.getGenericInstance(MovingData.class).sfJumpPhase)) {
                     cancelled = true;
                 }
                 // If not cancelled, do feed the Improbable.
                 else if (cc.scaffoldImprobableWeight > 0.0f) {
-
                     if (cc.scaffoldImprobableFeedOnly) {
                         Improbable.feed(player, cc.scaffoldImprobableWeight, System.currentTimeMillis());
                     } 
@@ -300,7 +299,6 @@ public class BlockPlaceListener extends CheckListener {
             }
             // Cleanup
             data.cancelNextPlace = false;
-            useLoc.setWorld(null);
         }
 
         final FlyingQueueHandle flyingHandle = new FlyingQueueHandle(pData);
@@ -318,8 +316,6 @@ public class BlockPlaceListener extends CheckListener {
                     cancelled = true;
                 }
             }
-
-
             // Direction check.
             if (!cancelled && !shouldSkipSome) {
                 if (isInteractBlock && bdata.isPassedCheck(CheckType.BLOCKINTERACT_DIRECTION)) {
@@ -338,22 +334,14 @@ public class BlockPlaceListener extends CheckListener {
             useLoc.setWorld(null);
         }
 
-        // Surrounding material.
-        if (!cancelled && against.isEnabled(player, pData) && !BlockProperties.isScaffolding(placedMat)
-            && against.check(player, block, placedMat, blockAgainst, isInteractBlock, data, cc, pData)) {
-            cancelled = true;
-        }
-
         // If one of the checks requested to cancel the event, do so.
         if (cancelled) {
-            event.setCancelled(cancelled);
+            event.setCancelled(true);
         }
-        else {
-            // Debug log (only if not cancelled, to avoid spam).
-            if (debug) {
-                debugBlockPlace(player, placedMat, block, blockAgainst, skippedRedundantChecks, flyingHandle, pData);
-            }
-        } 
+
+        if (pData.isDebugActive(CheckType.BLOCKPLACE)) {
+            debugBlockPlace(player, placedMat, block, blockAgainst, skippedRedundantChecks, flyingHandle, pData);
+        }
         // Cleanup
         // Reminder(currently unused): useLoc.setWorld(null);
     }
@@ -379,11 +367,11 @@ public class BlockPlaceListener extends CheckListener {
         }
      } 
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onSignChange(final SignChangeEvent event) {
-
-        if (!DataManager.getPlayerData(event.getPlayer()).isCheckActive(CheckType.BLOCKPLACE, event.getPlayer())) return;
-
+        if (!DataManager.getPlayerData(event.getPlayer()).isCheckActive(CheckType.BLOCKPLACE, event.getPlayer())) {
+            return;
+        }
         if (event.getClass() != SignChangeEvent.class) {
             // Built in plugin compatibility.
             // TODO: Don't understand why two consecutive events editing the same block are a problem.
@@ -393,13 +381,19 @@ public class BlockPlaceListener extends CheckListener {
         final Block block = event.getBlock();
         final String[] lines = event.getLines();
         if (block == null || lines == null || player == null) {
-            // Somewhat defensive.
             return;
         }
         final IPlayerData pData = DataManager.getPlayerData(player);
-        if (autoSign.isEnabled(player, pData) && autoSign.check(player, block, lines, pData)) {
+        final BlockPlaceData data = pData.getGenericInstance(BlockPlaceData.class);
+        // NCP did not register the needed data from the block-place event but we still got a sign change event: the event was triggered by the new player-editing mechanic in 1.20, not by a the player placing down a sign.
+        // In this case, the hash-checking is skipped, but the edit time check is not, because AutoSign hacks can still work with editing.
+        // This (logically) assumes that the block place event comes before the sign change event. However logic isn't really a thing in game plagued by desync issues isn't it? Let's hope it won't.
+        final boolean fakeNews = data.autoSignPlacedHash == 0; 
+        if (!event.isCancelled() && autoSign.isEnabled(player, pData) && autoSign.check(player, block, lines, pData, fakeNews)) {
             event.setCancelled(true);
         }
+        // After we have checked everything, we need to reset this data, REGARDLESS of cancelletion state.
+        data.autoSignPlacedHash = 0;
     }
 
     /**
@@ -409,8 +403,7 @@ public class BlockPlaceListener extends CheckListener {
      * @param event
      *            the event
      */
-    @EventHandler(
-            priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerAnimation(final PlayerAnimationEvent event) {
         // Just set a flag to true when the arm was swung.
         final BlockPlaceData data = DataManager.getGenericInstance(event.getPlayer(), BlockPlaceData.class);
@@ -423,42 +416,47 @@ public class BlockPlaceListener extends CheckListener {
      * @param event
      *            the event
      */
-    @EventHandler(ignoreCancelled = false, priority = EventPriority.LOWEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onPlayerInteract(final PlayerInteractEvent event) {
-
-        if (!DataManager.getPlayerData(event.getPlayer()).isCheckActive(CheckType.BLOCKPLACE, event.getPlayer())) return;
-
-        if (event.isCancelled()) {
-            // TODO: Might run checks if (event.useInteractedBlock()) ...
+        if (!DataManager.getPlayerData(event.getPlayer()).isCheckActive(CheckType.BLOCKPLACE, event.getPlayer())) {
             return;
         }
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
         }
         final Player player = event.getPlayer();
-
         final ItemStack stack = Bridge1_9.getUsedItem(player, event);
         if (stack == null) {
             return;
         }
-
         final IPlayerData pData = DataManager.getPlayerData(player);
         final BlockPlaceConfig cc = pData.getGenericInstance(BlockPlaceConfig.class);
         final Material type = stack.getType();
         if (MaterialUtil.isBoat(type)) {
             if (cc.preventBoatsAnywhere) {
-                // TODO: Alter config (activation, allow on top of ground).
                 // TODO: Version/plugin specific alteration for 'default'.
                 checkBoatsAnywhere(player, event, pData);
             }
         }
         else if (MaterialUtil.isSpawnEgg(type)) {
-            // Check blockplace.speed.
             if (speed.isEnabled(player, pData) && speed.check(player, cc, pData)) {
-                // If the check was positive, cancel the event.
                 event.setCancelled(true);
             }
         }
+        // PlayerInteractEvent doesn't seem to be fired with player editing, so we cannot know at all if the player tried to edit a sign.
+        // Call it a day and wait for Spigot to implement something.
+        // final long time = System.currentTimeMillis();
+        // final BlockInteractData bIData = pData.getGenericInstance(BlockInteractData.class);
+        // final BlockPlaceData data = pData.getGenericInstance(BlockPlaceData.class);
+        // if (MaterialUtil.isAnySign(event.getClickedBlock().getType()) 
+        // 	// This mechanic was added in 1.20 and it is server-sided.
+        //     && ServerVersion.compareMinecraftVersion("1.20") >= 0) {
+        //     // BlockInteractEvent are logically fired before a BlockPlaceEvent.
+        //     if (data.autoSignPlacedTime == 0) {
+        //         // Assume player-editing and register.
+        //         data.autoSignPlacedTime = System.currentTimeMillis();
+        //     }
+        // }
     }
 
     private void checkBoatsAnywhere(final Player player, final PlayerInteractEvent event, final IPlayerData pData) {
@@ -562,14 +560,12 @@ public class BlockPlaceListener extends CheckListener {
             }
             else if (!BlockProperties.isPassable(projectile.getLocation(useLoc))) {
                 // Launch into a block.
-                // TODO: This might be a general check later.               
                 cancel = true;
             }
             else {
                 if (!BlockProperties.isPassable(player.getEyeLocation(), projectile.getLocation(useLoc))) {
                     // (Spare a useLoc2, for this is seldom rather.)
                     // Something between player 
-                    // TODO: This might be a general check later.
                     cancel = true;
                 }
                 else {
