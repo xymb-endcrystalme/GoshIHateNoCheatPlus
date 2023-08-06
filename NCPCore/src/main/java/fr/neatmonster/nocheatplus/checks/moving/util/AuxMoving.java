@@ -112,10 +112,12 @@ public class AuxMoving implements IRegisterAsGenericInstance {
      */
     public synchronized void resetPositionsAndMediumProperties(final Player player, final Location loc, final MovingData data, final MovingConfig cc) {
         final PlayerMoveInfo moveInfo = usePlayerMoveInfo();
+        try {
         moveInfo.set(player, loc, null, cc.yOnGround);
         data.resetPlayerPositions(moveInfo.from);
         data.adjustMediumProperties(moveInfo.from);
         returnPlayerMoveInfo(moveInfo);
+        } catch (java.lang.NullPointerException e) {} // Folia compatibility
     }
 
     /**

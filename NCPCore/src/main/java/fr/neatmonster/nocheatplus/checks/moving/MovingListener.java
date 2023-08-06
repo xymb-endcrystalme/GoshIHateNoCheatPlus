@@ -2643,6 +2643,8 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
 
     @Override
     public void onTick(final int tick, final long timeLast) {
+        hoverTicks.clear(); // Folia compatibility, can't do stuff async
+        playersEnforce.clear(); // Folia
 
         // TODO: Change to per world checking (as long as configs are per world).
         // Legacy: enforcing location consistency.
