@@ -249,6 +249,19 @@ public class PassengerUtil {
         boolean vehicleTeleported = false;
         boolean playerTeleported = false;
         int otherPlayersTeleported = 0;
+
+        // Catch rogue teleports
+        Location currentLocation = player.getLocation();
+        double locX = currentLocation.getX() - location.getX();
+        double locZ = currentLocation.getZ() - location.getZ();
+        double distance = Math.sqrt(locX * locX + locZ * locZ);
+
+        if (distance > 128) {
+            System.out.println("LONGRANGE_TELEPORT NOCHEATPLUS " + player.getName() + " " + player.getLocation().getX() + " " + player.getLocation().getZ() + " to " + location.getX() + " " + location.getZ() + " - " + distance);
+            return;
+        }
+        // END
+
         if (vehicle.isDead() || !vehicle.isValid()) {
             // TODO: Still consider teleporting the player.
             vehicleTeleported = false;
