@@ -1170,6 +1170,10 @@ public class MovingListener extends CheckListener implements TickListener, IRemo
         }
         // A check has requested a new to-location.
         else {
+            // Make NCP give up if setBack location is too far away.
+            if (Math.abs(player.getLocation().getX() - newTo.getX()) > 128 || Math.abs(player.getLocation().getZ() - newTo.getZ()) > 128) {
+                newTo = player.getLocation();
+            }
 
             // 1: Setback override, adjust newTo.
             if (data.hasTeleported()) {
